@@ -7,9 +7,11 @@ Pieces:
               quality numbers, SU2 ASCII output.
 Units are whatever the caller uses (metres in this repo).
 """
+import hashlib
 import json
 import math
 from itertools import pairwise
+from pathlib import Path
 
 import numpy as np
 
@@ -372,3 +374,58 @@ def read_su2_counts(path):
             elif line.startswith("MARKER_ELEMS="):
                 out["markers"][name] = int(line.split("=")[1])
     return out
+
+
+# -- mesh identity -------------------------------------------------------------------------
+# The bytes of mesh.su2 are not comparable between machines: the last digit of a coordinate
+# (written with 16 decimals) can differ with the numpy build and platform. The fingerprint hashes
+# what defines the mesh instead: coordinates rounded to 1 nm, cells and marker node ids.
+
+def _read_su2(path):
+    """(coords (N, 2) float by node id, cells (M, 6) int64 rows "type n0 n1 n2 n3 index",
+    {marker: sorted unique node ids}) of a 2D quad SU2 mesh as written by Mesh.write_su2."""
+    lines = Path(path).read_text().splitlines()
+    cells, coords, markers, k = [], None, {}, 0
+    while k < len(lines):
+        key, _, value = lines[k].partition("=")
+        key = key.strip()
+        if key == "NELEM":
+            cells = [list(map(int, row.split())) for row in lines[k + 1:k + 1 + int(value.split()[0])]]
+            k += len(cells)
+        elif key == "NPOIN":
+            rows = [row.split() for row in lines[k + 1:k + 1 + int(value.split()[0])]]
+            coords = np.zeros((len(rows), 2))
+            for x, y, node in rows:
+                coords[int(node)] = (float(x), float(y))
+            k += len(rows)
+        elif key == "MARKER_TAG":
+            name = value.strip()
+            n = int(lines[k + 1].partition("=")[2])
+            ids = {int(i) for row in lines[k + 2:k + 2 + n] for i in row.split()[1:]}
+            markers[name] = sorted(ids)
+            k += 1 + n
+        k += 1
+    if coords is None:
+        raise ValueError(f"{path}: no NPOIN section")
+    return coords, np.array(cells, dtype="<i8").reshape(len(cells), -1), markers
+
+
+def mesh_fingerprint(mesh_su2_path):
+    """sha256 hex of: node coordinates in nanometres (rounded integers, node order), the cell
+    connectivity array, and the marker node-id lists (markers sorted by name); all as
+    little-endian int64 bytes. Equal for two machines whose coordinates agree to 1 nm, except when
+    a coordinate lies within floating-point noise of a rounding boundary (about 1e-7 of nodes)."""
+    coords, cells, markers = _read_su2(mesh_su2_path)
+    digest = hashlib.sha256()
+    digest.update(np.rint(coords * 1e9).astype("<i8").tobytes())
+    digest.update(cells.tobytes())
+    for name in sorted(markers):
+        digest.update(name.encode() + b"\0" + np.array(markers[name], dtype="<i8").tobytes())
+    return digest.hexdigest()
+
+
+def mesh_bbox(mesh_su2_path):
+    """[xmin, xmax, ymin, ymax] of the nodes in metres, rounded to 1e-9 (a debugging aid)."""
+    coords = _read_su2(mesh_su2_path)[0]
+    lo, hi = coords.min(axis=0), coords.max(axis=0)
+    return [round(float(v), 9) for v in (lo[0], hi[0], lo[1], hi[1])]

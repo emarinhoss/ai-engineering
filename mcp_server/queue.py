@@ -3,7 +3,8 @@
 Layout under $SU2_QUEUE_DIR (default ./su2queue_local):
   jobs/<case_id>/   the job directory of 01_interfaces.md plus status/ flag files
   mcp_log.jsonl     audit log, one JSON line per tool call
-Status flags are empty files named "<n>-<name>" written atomically; 0-created, 1-pending here.
+Status flags are empty files named "<n>-<name>" written atomically; 0-created, 1-pending here,
+then 2-done (result ingested) or 2-failed (error.json ingested).
 The highest number is the current status. Claude uploads job.json to Drive by hand (the
 connector), the Colab worker does the rest.
 
@@ -24,9 +25,16 @@ from pathlib import Path
 from cases.check_keys import DEFAULT_TEMPLATE, unknown_keys
 from mcp_server.schemas import to_params, validate
 from physics import gates
+from postprocess.metrics import compute
 from worker.make_case import StageError, make
 
 CASE_ID_RE = re.compile(r"^(inlet2r|wedge|cylinder)-[0-9a-f]{10}$")
+TAG_RE = re.compile(r"^[a-z0-9_-]{1,32}$")
+REPO = Path(__file__).resolve().parent.parent           # runs/<tag>/<case_id>/ is written here
+RUN_BLOCKS = ("params", "mesh", "solver", "run", "convergence", "metrics")
+NOT_A_RESULT = ("diverged", "timeout", "error")         # these are reported with ingest_error
+COMMITTED = ("params.json", "geometry.json", "case.cfg", "result.json", "mesh_quality.json",
+             "solver_version.txt")
 
 
 def queue_dir():
@@ -285,3 +293,145 @@ def record_transfer(case_id, direction, drive_file_id, sha256):
     _log("record_transfer", {"case_id": case_id, "direction": direction}, True, case_id,
          direction=direction, drive_file_id=drive_file_id, sha256=sha256)
     return {"ok": True, "case_id": case_id, "direction": direction}
+
+
+# ---------------------------------------------------------------- results coming back from Drive
+
+def _write_text(path, text):
+    """Atomic: temporary file, then rename."""
+    tmp = path.with_name(f".tmp-{os.getpid()}-{path.name}")
+    tmp.write_text(text)
+    os.replace(tmp, path)
+
+
+def _set_final(d, name):
+    """Flag 2-done or 2-failed and remove the other one (the highest flag is the status)."""
+    (d / "status" / ("2-failed" if name == "2-done" else "2-done")).unlink(missing_ok=True)
+    _set_flag(d, name)
+
+
+def _staged(case_id):
+    """(job dir, None) if the job was staged here, else (None, failure dict)."""
+    try:
+        d = _job_dir(case_id)
+    except ValueError as exc:
+        return None, _fail("case_id", [str(exc)])
+    if not (d / "job.json").is_file():
+        return None, {**_fail("unknown_case", [f"no staged job {case_id}"]), "case_id": case_id}
+    return d, None
+
+
+def _is_number(x):
+    return isinstance(x, (int, float)) and not isinstance(x, bool)
+
+
+def check_record(rec, d, case_id):
+    """Errors (list of strings) for a result.json against the run record and the staged job."""
+    if not isinstance(rec, dict):
+        return ["the result must be a JSON object"]
+    staged = _read(d / "job.json")
+    errors = []
+    if rec.get("case_id") != case_id:
+        errors.append(f"case_id is {rec.get('case_id')!r}, expected {case_id!r}")
+    errors += [f"block {b!r} is missing or not an object" for b in RUN_BLOCKS
+               if not isinstance(rec.get(b), dict)]
+    echo = rec.get("job")
+    if not isinstance(echo, dict):
+        errors.append("block 'job' (echo of mesh_fingerprint, config_sha256) is missing")
+    else:
+        errors += [f"job.{k} is {echo.get(k)!r}, the staged job has {staged[k]!r}"
+                   for k in ("mesh_fingerprint", "config_sha256") if echo.get(k) != staged[k]]
+    if errors:
+        return errors
+    if rec["params"] != _read(d / "params.json"):
+        errors.append("params differ from the staged params.json")
+    if rec["solver"].get("config_sha256") != staged["config_sha256"]:
+        errors.append("solver.config_sha256 differs from the staged config_sha256")
+    if not isinstance(rec["solver"].get("version"), str):
+        errors.append("solver.version must be a string")
+    for key in ("wall_time_s", "iterations", "exit_code"):
+        if not _is_number(rec["run"].get(key)):
+            errors.append(f"run.{key} must be a number")
+    status = rec["convergence"].get("status")
+    if not isinstance(status, str):
+        errors.append("convergence.status must be a string")
+    elif status in NOT_A_RESULT:
+        errors.append(f"convergence.status is {status!r}: report a failed run with ingest_error")
+    return errors
+
+
+def _commit_to_repo(d, rec):
+    """Copy the committed subset of a staged job to REPO/runs/<tag>/<case_id>/."""
+    dest = REPO / "runs" / _read(d / "params.json")["tag"] / d.name
+    dest.mkdir(parents=True, exist_ok=True)
+    for name in COMMITTED:
+        if (d / name).is_file():
+            shutil.copyfile(d / name, dest / name)
+    if not (d / "solver_version.txt").is_file():         # the worker's file stays on Drive
+        (dest / "solver_version.txt").write_text(rec["solver"]["version"] + "\n")
+    return dest
+
+
+@audited
+def ingest_result(case_id, result_json_text):
+    """Check a downloaded result.json against the staged job, store it, flag 2-done, and copy the
+    committed subset to runs/<tag>/<case_id>/. Nothing is stored or flagged if a check fails."""
+    d, bad = _staged(case_id)
+    if bad:
+        return bad
+    try:
+        rec = json.loads(result_json_text)
+    except (TypeError, ValueError) as exc:
+        return {**_fail("json", [f"result is not valid JSON: {exc}"]), "case_id": case_id}
+    errors = check_record(rec, d, case_id)
+    if not errors and not TAG_RE.match(str(_read(d / "params.json").get("tag"))):
+        errors.append("staged params.json has a bad tag")
+    if errors:
+        return {**_fail("record", errors), "case_id": case_id}
+    _write_text(d / "result.json", result_json_text)
+    _set_final(d, "2-done")
+    dest = _commit_to_repo(d, rec)
+    return {"ok": True, "case_id": case_id, "status": "done", "committed_to": str(dest),
+            "files": sorted(p.name for p in dest.iterdir())}
+
+
+@audited
+def ingest_error(case_id, error_json_text):
+    """Store a downloaded error.json ({reason, detail}) for a staged job and flag it 2-failed."""
+    d, bad = _staged(case_id)
+    if bad:
+        return bad
+    try:
+        err = json.loads(error_json_text)
+    except (TypeError, ValueError) as exc:
+        return {**_fail("json", [f"error.json is not valid JSON: {exc}"]), "case_id": case_id}
+    if not isinstance(err, dict) or not isinstance(err.get("reason"), str) or "detail" not in err:
+        return {**_fail("record", ["error.json needs a string 'reason' and a 'detail'"]),
+                "case_id": case_id}
+    if err.get("case_id", case_id) != case_id:
+        return {**_fail("record", [f"case_id is {err['case_id']!r}, expected {case_id!r}"]),
+                "case_id": case_id}
+    _write_text(d / "error.json", error_json_text)
+    _set_final(d, "2-failed")
+    return {"ok": True, "case_id": case_id, "status": "failed", "reason": err["reason"]}
+
+
+@audited
+def postprocess(case_id, recompute=False):
+    """The metrics block of a staged job: from its result.json, or recomputed with
+    postprocess.metrics.compute when asked (or when result.json is missing but surface_flow.dat
+    is staged). Writes nothing."""
+    d, bad = _staged(case_id)
+    if bad:
+        return bad
+    if (d / "result.json").is_file() and not recompute:
+        return {"ok": True, "case_id": case_id, "source": "result.json",
+                "metrics": _read(d / "result.json")["metrics"]}
+    if not (d / "surface_flow.dat").is_file():
+        why = "no result.json and no surface_flow.dat" if not recompute else \
+            "recompute needs surface_flow.dat in the staged job directory"
+        return {**_fail("no_result", [why]), "case_id": case_id}
+    try:
+        return {"ok": True, "case_id": case_id, "source": "recomputed", "metrics": compute(d)}
+    except Exception as exc:  # noqa: BLE001  (compute raises ValueError, KeyError, OSError ...)
+        return {**_fail("postprocess", [f"{type(exc).__name__}: {exc}"]), "case_id": case_id}

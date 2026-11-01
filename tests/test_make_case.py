@@ -3,7 +3,7 @@ import json
 
 import pytest
 
-from geometry.structured import Mesh
+from geometry.structured import Mesh, mesh_bbox, mesh_fingerprint
 from worker.make_case import StageError, canonical_json, case_id, make
 
 PARAMS = {"family": "wedge", "theta1_deg": 10.0, "solver": "NAVIER_STOKES",
@@ -24,8 +24,8 @@ def test_all_files_exist_and_job_fields(case):
         assert (out / name).is_file(), name
     on_disk = json.loads((out / "job.json").read_text())
     assert on_disk == job
-    assert set(job) == {"case_id", "params", "created_at", "mesh_sha256", "config_sha256",
-                        "code_commit", "timeout_s", "max_cores"}
+    assert set(job) == {"case_id", "params", "created_at", "mesh_fingerprint", "mesh_bbox",
+                        "config_sha256", "code_commit", "timeout_s", "max_cores"}
     assert job["timeout_s"] == 2400 and job["max_cores"] == 2
     assert job["created_at"].endswith("+00:00")
 
@@ -43,7 +43,8 @@ def test_case_id_form_and_key_order():
 def test_hashes_match_files(case):
     out, job = case
     assert job["case_id"] == case_id(PARAMS)
-    assert job["mesh_sha256"] == hashlib.sha256((out / "mesh.su2").read_bytes()).hexdigest()
+    assert job["mesh_fingerprint"] == mesh_fingerprint(out / "mesh.su2")
+    assert job["mesh_bbox"] == mesh_bbox(out / "mesh.su2")
     assert job["config_sha256"] == hashlib.sha256((out / "case.cfg").read_bytes()).hexdigest()
 
 
@@ -108,3 +109,24 @@ def test_quality_failure_is_an_error_and_writes_nothing(monkeypatch, tmp_path):
     with pytest.raises(ValueError, match="n_inverted"):
         make(PARAMS, out)
     assert not out.exists()
+
+
+def test_fingerprint_ignores_last_digits_but_not_real_changes(case, tmp_path):
+    out, job = case
+    lines = (out / "mesh.su2").read_text().splitlines()
+    start = next(i for i, line in enumerate(lines) if line.startswith("NPOIN=")) + 1
+
+    def edited(name, change):
+        new = list(lines)
+        x, y, node = new[start + 5].split()
+        new[start + 5] = change(float(x), float(y)) + f" {node}"
+        (tmp_path / name).write_text("\n".join(new) + "\n")
+        return mesh_fingerprint(tmp_path / name)
+
+    noise = edited("noise.su2", lambda x, y: f"{x + 1e-13:.16e} {y - 1e-13:.16e}")   # ~platform noise
+    moved = edited("moved.su2", lambda x, y: f"{x + 1e-6:.16e} {y:.16e}")            # 1000 nm: real
+    assert noise == job["mesh_fingerprint"] and moved != job["mesh_fingerprint"]
+    assert mesh_bbox(tmp_path / "noise.su2") == job["mesh_bbox"]
+    renamed = "\n".join(line.replace("MARKER_TAG= top", "MARKER_TAG= lid") for line in lines)
+    (tmp_path / "renamed.su2").write_text(renamed + "\n")
+    assert mesh_fingerprint(tmp_path / "renamed.su2") != job["mesh_fingerprint"]

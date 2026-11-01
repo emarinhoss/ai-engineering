@@ -2,6 +2,13 @@
 
 Layout and file contents are described in docs/specs/01_interfaces.md ("Job directory").
 Everything is a pure function of `params` except the file writes, the timestamp and the git commit.
+
+The mesh is identified by `mesh_fingerprint` (geometry/structured.py), not by the sha256 of
+mesh.su2: the bytes of the file differ between machines (the last digit of a coordinate depends on
+the numpy build and platform; Colab and the staging container disagreed), while the coordinates
+agree to far better than 1 nm. The fingerprint hashes coordinates rounded to 1 nm, the cells and the
+marker node ids. `mesh_bbox` in job.json is a debugging aid for a mismatch. config_sha256 stays a
+hash of the text of case.cfg, which is platform independent.
 """
 import hashlib
 import json
@@ -11,6 +18,7 @@ from pathlib import Path
 
 from cases.config import render
 from geometry import cylinder, inlet, wedge
+from geometry.structured import mesh_bbox, mesh_fingerprint
 
 REPO = Path(__file__).resolve().parent.parent
 
@@ -139,7 +147,8 @@ def make(params, out_dir):
         "case_id": case_id(params),
         "params": params,
         "created_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "mesh_sha256": sha256_file(out / "mesh.su2"),
+        "mesh_fingerprint": mesh_fingerprint(out / "mesh.su2"),
+        "mesh_bbox": mesh_bbox(out / "mesh.su2"),
         "config_sha256": sha256_file(out / "case.cfg"),
         "code_commit": git_commit(),
         "timeout_s": 2400,

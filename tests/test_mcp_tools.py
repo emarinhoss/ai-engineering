@@ -31,7 +31,8 @@ def test_tools_are_registered():
         async with Client(mcp) as client:
             return {t.name for t in (await client.list_tools()).tools}
     assert asyncio.run(go()) == {"validate_config", "create_case", "submit", "status",
-                                 "list_results", "queue_batch", "record_transfer"}
+                                 "list_results", "queue_batch", "record_transfer",
+                                 "ingest_result", "ingest_error", "postprocess"}
 
 
 def test_create_submit_status(queue_env):
@@ -52,7 +53,7 @@ def test_create_submit_status(queue_env):
 
     info = json.loads((job / "job.json").read_text())
     assert info["case_id"] == cid and info["params"] == json.loads((job / "params.json").read_text())
-    assert len(info["mesh_sha256"]) == 64
+    assert len(info["mesh_fingerprint"]) == 64 and len(info["mesh_bbox"]) == 4
 
 
 def test_create_twice_errors_unless_force(queue_env):

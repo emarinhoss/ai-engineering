@@ -11,7 +11,7 @@ Depends on: `01_interfaces.md` (job layout, run record, API), Tasks 1 and 2 code
 - Transport is the Google Drive connector of the Claude Code cloud session (decided
   2026-11-01; see `01_interfaces.md` "Queue transport"). The MCP server writes a local staging
   job and the small `job.json` is uploaded by Claude; the Colab worker regenerates mesh and
-  config from params at the same commit, verifies `mesh_sha256`, runs SU2 and writes results to
+  config from params at the same commit, verifies `mesh_fingerprint`, runs SU2 and writes results to
   `su2queue/runs/`. No API tokens, no secrets. The MCP server never runs SU2; the worker never
   decides anything about physics. The MCP server is registered for the cloud session through
   a committed `.mcp.json` (stdio, `python -m mcp_server`).
@@ -35,7 +35,7 @@ Depends on: `01_interfaces.md` (job layout, run record, API), Tasks 1 and 2 code
   - `record_transfer(case_id, direction, drive_file_id, sha256)`: logs an upload or download
     done through the connector so the audit trail is complete.
   - `ingest_result(case_id, result_json_text)`: validates the downloaded result against the run
-    record schema, checks `mesh_sha256` and `case_id` match the staged job, stores it, and
+    record schema, checks `mesh_fingerprint` and `case_id` match the staged job, stores it, and
     copies the committed subset to `runs/<tag>/`.
   Every tool call appends one line to `$SU2_QUEUE_DIR/mcp_log.jsonl` (time, tool, args hash,
   outcome) so Task 6 has an audit trail.

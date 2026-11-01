@@ -103,14 +103,15 @@ Y_Plus. SU2 also writes `restart_flow.dat`. `postprocess.tecplot` reads these fi
 Claude Code runs in a cloud session with a Google Drive connector; there is no synced folder
 and the container cannot see Drive. Consequences:
 - The queue carries **parameters and results only**, never meshes. The worker regenerates the
-  mesh and config in Colab from `params.json` using the same repository commit; mesh
-  determinism (byte-identical on repeat, tested) makes the two sides agree. `create_case`
-  still builds the mesh locally to run the quality gate and records `mesh_sha256`, and the
-  worker verifies it regenerated the same bytes before running SU2 (mismatch -> failed with
-  reason mesh_mismatch).
+  mesh and config in Colab from `params.json` using the same repository commit. Byte hashes of
+  `mesh.su2` differ between machines (last digit of a coordinate, numpy build), so `create_case`
+  records `mesh_fingerprint` (sha256 of coordinates rounded to 1 nm, cell connectivity and marker
+  node ids; `geometry.structured.mesh_fingerprint`) and `mesh_bbox` (debugging aid) in `job.json`,
+  and the worker compares fingerprints, not bytes, before running SU2 (mismatch -> failed with
+  reason mesh_mismatch, detail with the bbox difference); `config_sha256` stays a hash of the text.
 - Files cross Drive through the connector: the MCP server writes the job directory to a local
   staging folder `$SU2_QUEUE_DIR` in the container; Claude uploads `job.json` (which embeds
-  params, geometry summary, mesh_sha256, config_sha256, code commit) to Drive folder
+  params, geometry summary, mesh_fingerprint, config_sha256, code commit) to Drive folder
   `su2queue/jobs/` as a single small JSON file named `<case_id>.json`, and later downloads
   `su2queue/runs/<case_id>.result.json` written by the worker. Large files (history, surface
   CSV, log) stay in Drive under `su2queue/runs/<case_id>/` and are fetched only for cases we
@@ -126,7 +127,7 @@ and the container cannot see Drive. Consequences:
 ```
 $SU2_QUEUE_DIR/jobs/<case_id>/                (local staging, created by create_case)
   params.json  geometry.json  mesh.su2  mesh_markers.json  mesh_quality.json  case.cfg
-  job.json                 {case_id, params, created_at, mesh_sha256, config_sha256,
+  job.json                 {case_id, params, created_at, mesh_fingerprint, mesh_bbox, config_sha256,
                             code_commit, timeout_s, max_cores}   <- the only file uploaded
 /content/drive/MyDrive/su2queue/jobs/<case_id>.json      (uploaded job.json)
 /content/drive/MyDrive/su2queue/runs/<case_id>/          (written by the worker in Colab)

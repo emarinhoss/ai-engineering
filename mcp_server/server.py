@@ -4,13 +4,11 @@ The server never runs SU2 and never chooses sampling points; it checks, builds a
 jobs under $SU2_QUEUE_DIR and logs every call to mcp_log.jsonl. Tools return JSON text.
 (mcp 2.x calls the class MCPServer; in mcp 1.x the same thing is mcp.server.fastmcp.FastMCP.)
 
-TODO (not in this half of Task 3; they need postprocess.metrics and the worker):
-  - postprocess(case_id, recompute=False): compute result.json, copy the committed subset to runs/.
-  - ingest_result(case_id, result_json_text): validate against the run record, check case_id
-    and mesh_sha256 against the staged job, store it, copy the committed subset to runs/<tag>/.
+TODO (not done yet):
   - status(): iterations, elapsed_s, last_rms_rho from heartbeat.json and history.csv.
-  - the Colab worker (worker/run_worker.py) and its fault-injection tests (fake SU2).
   - fold mcp_server.queue.build_case into worker.make_case.make.
+Done: postprocess, ingest_result, ingest_error (results coming back from the Colab worker,
+worker/run_worker.py, through Drive).
 """
 import json
 
@@ -73,3 +71,23 @@ def record_transfer(case_id: str, direction: str, drive_file_id: str, sha256: st
     """Log a Drive upload or download of a job or result file done through the connector
     (direction is 'upload' or 'download'); changes no file besides the audit log."""
     return _json(queue.record_transfer(case_id, direction, drive_file_id, sha256))
+
+
+@mcp.tool()
+def ingest_result(case_id: str, result_json_text: str) -> str:
+    """Validate a result.json downloaded from Drive against the staged job (case_id, mesh and config
+    hashes, run record blocks), store it, flag the job done and copy the committed files to runs/."""
+    return _json(queue.ingest_result(case_id, result_json_text))
+
+
+@mcp.tool()
+def ingest_error(case_id: str, error_json_text: str) -> str:
+    """Store an error.json downloaded from Drive for a staged job and flag the job failed."""
+    return _json(queue.ingest_error(case_id, error_json_text))
+
+
+@mcp.tool()
+def postprocess(case_id: str, recompute: bool = False) -> str:
+    """Return the metrics block of a staged job from its result.json, or recompute it from a staged
+    surface_flow.dat when recompute is true; writes no files."""
+    return _json(queue.postprocess(case_id, recompute=recompute))
