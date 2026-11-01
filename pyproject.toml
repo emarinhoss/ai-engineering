@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aerothermal"
+version = "0.1.0"
+description = "Supersonic-inlet aero-thermal design workflow: SU2 cases, surrogate, active learning"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+    "scipy",
+    "pydantic>=2",
+    "matplotlib",
+    "pytest",
+    "ruff",
+]
+
+[tool.setuptools.packages.find]
+include = ["physics*", "geometry*", "cases*", "postprocess*", "mcp_server*", "worker*", "surrogate*", "analysis*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
