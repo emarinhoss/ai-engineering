@@ -10,7 +10,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from cases.config import render
-from geometry import wedge
+from geometry import cylinder, inlet, wedge
 
 REPO = Path(__file__).resolve().parent.parent
 
@@ -20,7 +20,16 @@ FIRST_CELL_TOL = 0.10
 MAX_GROWTH = 1.25
 MAX_ASPECT = 5000.0
 
-BUILDERS = {"wedge": wedge.build}
+BUILDERS = {"wedge": wedge.build, "inlet2r": inlet.build, "cylinder": cylinder.build}
+
+
+class StageError(ValueError):
+    """A stage of make() failed: stage is "geometry", "mesh_quality" or "config"; errors is a list
+    of strings. It is a ValueError so that callers that do not care which stage can catch that."""
+
+    def __init__(self, stage, errors, message=None):
+        super().__init__(message or f"{stage} failed: " + "; ".join(errors))
+        self.stage, self.errors = stage, list(errors)
 
 
 def canonical_json(params):
@@ -35,10 +44,16 @@ def case_id(params):
 
 
 def requested_first_cell(params):
-    """{wall marker: first-cell height (m) that the mesh was asked for}."""
-    if params["family"] == "wedge":
-        return {"body": wedge.sizes(params.get("mesh_level", "medium"))["d0"]}
-    raise NotImplementedError(f"geometry family {params['family']!r}")
+    """{wall marker: first-cell height (m) that the mesh was asked for}, per family."""
+    family, level = params["family"], params.get("mesh_level", "medium")
+    if family == "wedge":
+        return {"body": wedge.sizes(level)["d0"]}
+    if family == "inlet2r":
+        d0 = inlet.sizes(level)["d0"]
+        return {"body": d0, "cowl": d0}
+    if family == "cylinder":
+        return {"wall": cylinder.LEVELS[level][0]}
+    raise NotImplementedError(f"geometry family {family!r}")
 
 
 def quality_failures(quality, requested):
@@ -82,9 +97,9 @@ def _dump(path, obj):
 def make(params, out_dir):
     """Write the case directory `out_dir` for `params` and return the job.json dict.
 
-    Raises NotImplementedError for a geometry family that does not exist yet and ValueError
-    (listing every failure) if the mesh does not pass the quality gate. Nothing is written
-    when the gate fails.
+    Raises NotImplementedError for an unknown geometry family and StageError (a ValueError that
+    names the stage and lists every failure) if the geometry, the mesh-quality gate or the config
+    fails. Nothing is written when the geometry or the mesh-quality gate fails.
     """
     if "family" not in params:
         raise ValueError("params need a 'family'")
@@ -92,12 +107,17 @@ def make(params, out_dir):
     if family not in BUILDERS:
         raise NotImplementedError(f"geometry family {family!r} is not implemented "
                                   f"(available: {sorted(BUILDERS)})")
-    geometry, mesh = BUILDERS[family](params)
+    try:
+        geometry, mesh = BUILDERS[family](params)
+    except (ValueError, NotImplementedError) as exc:
+        raise StageError("geometry", [str(exc)]) from exc
 
     quality = mesh.quality()
-    failures = quality_failures(quality, requested_first_cell(params))
+    wanted = requested_first_cell(params)
+    failures = quality_failures(quality, wanted)
     if failures:
-        raise ValueError("mesh quality gate failed: " + "; ".join(failures))
+        raise StageError("mesh_quality", failures,
+                         "mesh quality gate failed: " + "; ".join(failures))
 
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
@@ -105,11 +125,15 @@ def make(params, out_dir):
     mesh.write_markers(out / "mesh_markers.json")
     _dump(out / "geometry.json", geometry)
     _dump(out / "mesh_quality.json", {**quality, "pass": True, "failures": [],
-                                      "requested_first_cell_m": requested_first_cell(params)})
+                                      "requested_first_cell_m": wanted})
     _dump(out / "params.json", params)
 
     markers = json.loads((out / "mesh_markers.json").read_text())
-    (out / "case.cfg").write_text(render(params, geometry, markers))
+    try:
+        text = render(params, geometry, markers)
+    except ValueError as exc:
+        raise StageError("config", [str(exc)]) from exc
+    (out / "case.cfg").write_text(text)
 
     job = {
         "case_id": case_id(params),

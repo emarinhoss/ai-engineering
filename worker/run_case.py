@@ -3,7 +3,10 @@
     python -m worker.run_case CASE_DIR --su2-cmd "mpirun -n 2 SU2_CFD" --timeout 2400
 
 Writes log.txt, solver_version.txt and result_partial.json (the "run" and "solver" blocks of the
-run record in 01_interfaces.md plus a convergence summary; the metrics block is Task 2's).
+run record in 01_interfaces.md plus a convergence summary). After a run that exited with code 0,
+postprocess.metrics.compute adds the "metrics" block and the same record is also written to
+result.json; if compute fails the exception text is kept under "metrics_error" and there is no
+result.json.
 """
 import argparse
 import hashlib
@@ -19,6 +22,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from postprocess.history import summarize
+from postprocess.metrics import compute
 
 MPI_LAUNCHERS = ("mpirun", "mpiexec")
 MISSING_LIBRARY_HINTS = ("shared librar", "cannot open shared object", "no such file",
@@ -103,7 +107,7 @@ def run(case_dir, su2_cmd="SU2_CFD", timeout_s=2400, log_name="log.txt"):
     log_path = case_dir / log_name
     history = case_dir / "history.csv"
     for stale in ("history.csv", "surface_flow.dat", "flow.dat", "restart_flow.dat",
-                  "restart_flow.csv", "result_partial.json"):
+                  "restart_flow.csv", "result_partial.json", "result.json"):
         (case_dir / stale).unlink(missing_ok=True)    # never mistake an old run for this one
 
     version = solver_version(tokens, case_dir)
@@ -138,12 +142,21 @@ def run(case_dir, su2_cmd="SU2_CFD", timeout_s=2400, log_name="log.txt"):
         elif exit_code != 0 and summary["status"] != "diverged":
             summary["status"] = "error"
         result["history_summary"] = summary
+    if exit_code == 0 and not timed_out:
+        try:
+            result["metrics"] = compute(case_dir)
+        except Exception as err:  # noqa: BLE001  (any failure must not lose the run record)
+            result["metrics_error"] = f"{type(err).__name__}: {err}"
     _save(case_dir, result)
     return result
 
 
 def _save(case_dir, result):
-    (Path(case_dir) / "result_partial.json").write_text(json.dumps(result, indent=1) + "\n")
+    """result_partial.json always; result.json too once the metrics block exists."""
+    text = json.dumps(result, indent=1) + "\n"
+    (Path(case_dir) / "result_partial.json").write_text(text)
+    if "metrics" in result:
+        (Path(case_dir) / "result.json").write_text(text)
 
 
 def run_first_working(case_dir, su2_cmds, timeout_s=2400, fast_fail_s=20):

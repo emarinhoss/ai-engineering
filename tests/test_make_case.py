@@ -4,7 +4,7 @@ import json
 import pytest
 
 from geometry.structured import Mesh
-from worker.make_case import canonical_json, case_id, make
+from worker.make_case import StageError, canonical_json, case_id, make
 
 PARAMS = {"family": "wedge", "theta1_deg": 10.0, "solver": "NAVIER_STOKES",
           "mesh_level": "medium", "tag": "test"}
@@ -69,9 +69,36 @@ def test_euler_variant(tmp_path):
 
 
 def test_unknown_family_not_implemented(tmp_path):
-    with pytest.raises(NotImplementedError, match="cylinder"):
-        make({"family": "cylinder", "tag": "test"}, tmp_path)
+    with pytest.raises(NotImplementedError, match="spaceplane"):
+        make({"family": "spaceplane", "tag": "test"}, tmp_path)
     assert not list(tmp_path.iterdir())
+
+
+def test_cylinder_family(tmp_path):
+    job = make({"family": "cylinder", "mesh_level": "coarse", "tag": "test"}, tmp_path)
+    assert job["case_id"].startswith("cylinder-")
+    markers = json.loads((tmp_path / "mesh_markers.json").read_text())
+    assert {"wall", "symmetry", "farfield", "outlet"} <= set(markers)
+    assert json.loads((tmp_path / "mesh_quality.json").read_text())["requested_first_cell_m"] == {
+        "wall": 8e-6}
+    assert "MARKER_ISOTHERMAL= ( wall, 300.0 )" in (tmp_path / "case.cfg").read_text()
+
+
+def test_inlet_family(tmp_path):
+    params = {"family": "inlet2r", "theta1_deg": 8.0, "theta2_deg": 8.0, "mesh_level": "coarse",
+              "tag": "test"}
+    make(params, tmp_path)
+    quality = json.loads((tmp_path / "mesh_quality.json").read_text())
+    assert set(quality["requested_first_cell_m"]) == {"body", "cowl"}
+    assert "MARKER_ISOTHERMAL= ( body, 300.0, cowl, 300.0 )" in (tmp_path / "case.cfg").read_text()
+
+
+def test_geometry_failure_names_the_stage_and_writes_nothing(tmp_path):
+    params = {"family": "wedge", "theta1_deg": 45.0, "tag": "test"}
+    with pytest.raises(StageError) as err:
+        make(params, tmp_path / "case")
+    assert err.value.stage == "geometry" and "wedge tip" in err.value.errors[0]
+    assert not (tmp_path / "case").exists()
 
 
 def test_quality_failure_is_an_error_and_writes_nothing(monkeypatch, tmp_path):

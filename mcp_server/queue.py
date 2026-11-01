@@ -22,13 +22,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from cases.check_keys import DEFAULT_TEMPLATE, unknown_keys
-from cases.config import render
-from geometry import cylinder, inlet, wedge
 from mcp_server.schemas import to_params, validate
 from physics import gates
-from worker.make_case import case_id, git_commit, quality_failures, sha256_file
+from worker.make_case import StageError, make
 
-MODULES = {"inlet2r": inlet, "wedge": wedge, "cylinder": cylinder}
 CASE_ID_RE = re.compile(r"^(inlet2r|wedge|cylinder)-[0-9a-f]{10}$")
 
 
@@ -67,62 +64,12 @@ def audited(fn):
 
 # ---------------------------------------------------------------- building a case
 
-class StageError(Exception):
-    def __init__(self, stage, errors):
-        super().__init__(stage)
-        self.stage, self.errors = stage, errors
-
-
-def _dump(path, obj):
-    Path(path).write_text(json.dumps(obj, indent=1, sort_keys=True) + "\n")
-
-
-def _requested_first_cell(params):
-    """{wall marker: first-cell height (m) the mesh was asked for}, per family."""
-    level, fam = params["mesh_level"], params["family"]
-    if fam == "wedge":
-        return {"body": wedge.sizes(level)["d0"]}
-    if fam == "inlet2r":
-        d0 = inlet.sizes(level)["d0"]
-        return {"body": d0, "cowl": d0}
-    return {"wall": cylinder.LEVELS[level][0]}
-
-
 def build_case(params, staging_dir):
     """Write the job directory for complete `params` into `staging_dir`; return the job dict.
 
-    TEMPORARY SHIM: same files as worker.make_case.make, which only knows the wedge.
-    TODO: fold into worker.make_case in the worker half of Task 3 and delete this function.
-    Raises StageError("geometry" | "mesh_quality" | "config") and writes nothing on the first two.
+    Raises StageError("geometry" | "mesh_quality" | "config"); nothing is written on the first two.
     """
-    try:
-        geometry, mesh = MODULES[params["family"]].build(params)
-    except (ValueError, NotImplementedError) as exc:
-        raise StageError("geometry", [str(exc)]) from exc
-    quality, wanted = mesh.quality(), _requested_first_cell(params)
-    failures = quality_failures(quality, wanted)
-    if failures:
-        raise StageError("mesh_quality", failures)
-
-    out = Path(staging_dir)
-    out.mkdir(parents=True, exist_ok=True)
-    mesh.write_su2(out / "mesh.su2")
-    mesh.write_markers(out / "mesh_markers.json")
-    _dump(out / "geometry.json", geometry)
-    _dump(out / "mesh_quality.json", {**quality, "pass": True, "failures": [],
-                                      "requested_first_cell_m": wanted})
-    _dump(out / "params.json", params)
-    try:
-        text = render(params, geometry, json.loads((out / "mesh_markers.json").read_text()))
-    except ValueError as exc:
-        raise StageError("config", [str(exc)]) from exc
-    (out / "case.cfg").write_text(text)
-    job = {"case_id": case_id(params), "params": params,
-           "created_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-           "mesh_sha256": sha256_file(out / "mesh.su2"), "config_sha256": sha256_file(out / "case.cfg"),
-           "code_commit": git_commit(), "timeout_s": 2400, "max_cores": 2}
-    _dump(out / "job.json", job)
-    return job
+    return make(params, staging_dir)
 
 
 def _fail(stage, errors, warnings=()):
