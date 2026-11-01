@@ -245,15 +245,22 @@ theta1 = theta2 = 8 deg.
 - `FLUID_MODEL= STANDARD_AIR`, Sutherland viscosity, `CONDUCTIVITY_MODEL= CONSTANT_PRANDTL`,
   `PRANDTL_LAM= 0.72`, `REF_DIMENSIONALIZATION= DIMENSIONAL`, `FREESTREAM_OPTION=
   TEMPERATURE_FS`, `MACH_NUMBER= 4.0`, `AOA= 0`.
-- Convective scheme `AUSMPLUSUP2` (robust for strong shocks, no carbuncle), `MUSCL_FLOW= YES`,
-  limiter `VENKATAKRISHNAN_WANG`, `VENKAT_LIMITER_COEFF= 0.05`; viscous terms second-order
-  central; gradients `WEIGHTED_LEAST_SQUARES`. Fallbacks if V2b or V3 fail: `SLAU2`, then
-  `ROE` with entropy fix 0.1. The choice and the reason are recorded in the Task 2 report.
+- Convective scheme `ROE` with `ENTROPY_FIX_COEFF= 0.1`, `MUSCL_FLOW= YES`, limiter
+  `VENKATAKRISHNAN_WANG`, `VENKAT_LIMITER_COEFF= 0.05`; viscous terms second-order central;
+  gradients `WEIGHTED_LEAST_SQUARES`. Task 0 proposed `AUSMPLUSUP2`; on 2026-11-01 four
+  800-iteration Euler-wedge variants (SU2 v8.2.0, medium wedge mesh, this repository's
+  config) gave: AUSMPLUSUP2 at fixed CFL 5 diverged (Error Exit at iteration 50);
+  AUSMPLUSUP2 with adaptive CFL capped at 20 stalled at log10 rms density -2.5;
+  AUSMPLUSUP2 with the plain Venkatakrishnan limiter stalled at -2.4; ROE with entropy fix
+  0.1 and the same CFL settings fell from -3.45 to -12.05 in 603 iterations. ROE is therefore
+  the default. Risk to watch: Roe's carbuncle on the cylinder (V3); fallback there is `HLLC`.
 - `TIME_DISCRE_FLOW= EULER_IMPLICIT`, `LINEAR_SOLVER= FGMRES`, `LINEAR_SOLVER_PREC= ILU`,
-  10 to 20 Krylov iterations, tolerance 1e-6; `CFL_NUMBER= 1.0` with `CFL_ADAPT= YES`
-  (down 0.5, up 1.2, min 0.5, max 100).
-- Convergence: `CONV_FIELD= RMS_DENSITY`, `CONV_RESIDUAL_MINVAL` set in Task 1 to the observed
-  initial level minus 6, `CONV_STARTITER= 200`, `ITER= 6000` (wedge 4000). The postprocess
+  15 Krylov iterations, tolerance 1e-6; `CFL_NUMBER= 1.0` with `CFL_ADAPT= YES`
+  (down 0.5, up 1.05, min 1.0, max 20). The Task 0 values (up 1.2, max 100) made the CFL
+  controller hunt between 0.5 and 47 with the residual stuck near -3.
+- Convergence: `CONV_FIELD= RMS_DENSITY`, `CONV_RESIDUAL_MINVAL= -10` (the initial rms density
+  level is about -3.4 in dimensional units, so -10 is more than six orders below it),
+  `CONV_STARTITER= 200`, `ITER= 6000` (wedge 4000). The postprocess
   independently classifies each run: converged (residual drop >= 5 orders and both objectives
   drift < 0.2 percent over the last 20 percent of iterations), stationary (objectives drift
   < 0.2 percent but residual stalled), not_converged, diverged (NaN), timeout, error.
