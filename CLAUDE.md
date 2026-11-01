@@ -34,8 +34,11 @@ allocation. Task 0 (review the plan and write `docs/specs/`) comes before any co
 
 ## Layout (created as tasks land)
 
+- `physics/`: analytic relations (shocks, atmosphere, Eckert, Fay-Riddell) and physics gates.
 - `geometry/`, `cases/`, `postprocess/`: parametric geometry, mesh, SU2 configs, metrics.
 - `mcp_server/`, `worker/`: MCP tools and the Colab queue worker.
-- `surrogate/`: models, acquisition, replay harness.
-- `notebooks/`: Colab notebooks.
-- `docs/specs/`: per-task specs written in Task 0.
+- `surrogate/`, `analysis/`: models, acquisition, replay harness; Pareto and inverse query.
+- `notebooks/`: Colab notebooks. `designs/`: committed design tables. `tests/`: pytest.
+- `runs/`: committed run records (params, config, result.json, history, solver version).
+- `docs/specs/`: decisions (`00_decisions.md`), interfaces (`01_interfaces.md`), per-task specs.
+  `docs/validation/`: generated validation reports.

@@ -6,6 +6,6 @@ agent-automation layer. Built in two weeks as the subject of an interview talk (
 - Solver: SU2 (open source), run on Google Colab.
 - Surrogate: PyTorch, with calibrated uncertainty and multi-objective active learning.
 - Automation: an MCP server that Claude Code drives, plus a Colab queue worker.
-- Plan: see [PLAN.md](PLAN.md).
+- Plan: see [PLAN.md](PLAN.md). Decisions and specs: [docs/specs/](docs/specs/).
 
-Status: planning. No results yet.
+Status: Task 0 done (plan reviewed, specs written). No code, no runs, no results yet.

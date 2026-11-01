@@ -14,14 +14,18 @@ and acquisition function do, deterministically and auditably.
 
 ## Problem
 
-- 2D supersonic inlet / ramp, viscous (laminar or RANS Navier-Stokes) in SU2, with an isothermal
-  wall boundary condition so wall heat flux is meaningful.
-- Design variables: 2 to 4 (e.g. ramp angle(s), cowl position, wall temperature). Decide after the
-  timing test (Task 1).
-- Objectives: maximize total pressure recovery; minimize peak wall heat flux. Output: a Pareto
-  front with uncertainty.
-- Validation cases: oblique-shock relations (inlet); Fay-Riddell stagnation heating on a blunt
-  edge.
+- 2D two-ramp external-compression inlet with a cowl, laminar Navier-Stokes in SU2, isothermal
+  wall at 300 K. Mach 4.0, US Standard Atmosphere at 30 km, sub-scale body of about 0.3 m
+  (Re about 5e5, laminar defensible). Decided in Task 0; see `docs/specs/00_decisions.md`.
+- Design variables: 2, the ramp angles theta1 in [5, 12] deg and theta2 in [5, 14] deg. The
+  cowl lip sits at the inviscid shock-on-lip point, so the geometry follows from the angles.
+  Cowl position and wall temperature are not design variables (reasons in the decisions file).
+- Objectives: maximize total pressure recovery at the throat including a terminal normal shock
+  per streamtube; minimize peak wall heat flux on ramp 2 (including the duct wall). Exact
+  definitions in `docs/specs/00_decisions.md` section 3. Output: a Pareto front with uncertainty.
+- Validation cases: V1 oblique shock (Euler wedge), V2 laminar wedge pressure and Eckert
+  flat-plate heating, V3 Fay-Riddell stagnation heating on a 10 mm cylinder with a grid study,
+  V4 inlet design point (Euler and laminar) with a grid study.
 - Stretch (only if Days 7-8 finish early): multi-fidelity, with cheap analytic or inviscid
   estimates as the low-fidelity model and Navier-Stokes as the high-fidelity model.
 
@@ -54,8 +58,9 @@ is used. Haiku gets only mechanical work with a visible failure mode.
 
 ## Schedule and tasks
 
-Each task lists owner model, deliverable, and acceptance test. Tolerances marked (proposed) are
-first guesses; Task 0 confirms or replaces them.
+Each task lists owner model, deliverable, and acceptance test. Tolerances are final as of Task 0
+(2026-11-01); the full table with hard/soft/report types is `docs/specs/00_decisions.md`
+section 5 and the per-task specs are in `docs/specs/`.
 
 ### Task 0 (Day 1, Fable 5.1): review this plan
 
@@ -64,51 +69,73 @@ first guesses; Task 0 confirms or replaces them.
 - Replace every "(proposed)" tolerance with a justified one.
 - Write per-task specs in `docs/specs/` for Tasks 1 to 5 before any code is written.
 - Done when: `docs/specs/` exists and the tolerances below are final.
+- Status 2026-11-01: done. Decisions, interfaces and Task 1 to 5 specs written; waiting for
+  Éder's confirmation of the physics choices (Mach 4, laminar, 300 K wall, two variables,
+  objective definitions) before Task 1 starts.
 
 ### Task 1 (Days 1-2): SU2 on Colab and timing (Sonnet 5.5 implements, Fable reviews)
 
-- Deliverable: `notebooks/00_su2_colab.ipynb` installs SU2, runs one ramp case headless, and
-  records wall time, residual history and outputs.
-- Acceptance: one laminar case completes; wall time recorded; run budget computed (runs per
-  hour on Colab). Gate: if a run takes more than about 5 minutes, shrink the design space to 2
-  to 3 variables and/or coarsen the mesh before continuing.
-- Acceptance (physics, proposed): shock angle and post-shock pressure ratio within 3% of the
-  oblique-shock relation for the inviscid-dominated region.
+- Deliverable: `notebooks/00_su2_colab.ipynb` installs a pinned SU2 v8 binary, runs the SU2
+  tutorial wedge (first light), then our own Euler and laminar wedge from the new `physics/`,
+  `geometry/structured.py`, `geometry/wedge.py`, `cases/config.py` modules, and records wall
+  time, residual history and outputs. Spec: `docs/specs/task1_su2_colab_timing.md`.
+- Acceptance: one laminar case completes; seconds per iteration per thousand cells recorded for
+  1 and 2 processes; run budget computed. Gate T1: medium-mesh production run <= 5 min on
+  2 cores means go with a 96-point pool; 5 to 10 min means pool 64 and Colab Pro; > 10 min
+  means the coarse mesh becomes production (design space stays at 2 variables).
+- Acceptance (physics, final): Euler wedge at 10 deg, shock angle within 0.5 deg and p2/p1 and
+  M2 within 2% of the oblique-shock relation (V1, hard). Laminar plateau pressure 0 to 6%
+  above inviscid (V2a, report). Heat flux sign convention recorded.
 
 ### Task 2 (Days 3-4): geometry, mesh, config, post-processing (Sonnet 5.5; Fable reviews BCs and metrics)
 
-- Deliverable: `geometry/` parametric ramp/inlet and gmsh mesh generator; `cases/` SU2
-  config templating from a parameter dict; `postprocess/` functions for total pressure recovery
-  and peak wall heat flux, with units checked.
+- Deliverable: `geometry/` parametric two-ramp inlet and cylinder on a numpy structured
+  multi-block mesher writing SU2 format (gmsh dropped: simpler to explain, deterministic,
+  quality metrics for free); `cases/` SU2 config templating from a parameter dict;
+  `postprocess/` metrics for recovery and peak heat flux with units and sign checked, plus the
+  validation checks and report. Spec: `docs/specs/task2_geometry_mesh_config_postprocess.md`.
 - Acceptance: a unit test for each function; mesh-quality gate (min angle, aspect ratio, first
   cell height / y+) rejects bad meshes with a clear error; same input gives same mesh and
   config (deterministic).
-- Validation: blunt-edge stagnation heating within about 20% of Fay-Riddell (proposed; the
-  correlation itself has uncertainty); inlet recovery against the oblique-shock/normal-shock
-  estimate (proposed 5%).
+- Validation (final): laminar wedge heating within 10% mean (15% max) of the Eckert
+  flat-plate reference (V2b, hard); cylinder stagnation heating within 15% of Fay-Riddell on
+  the fine mesh with medium-to-fine change <= 5% (V3, hard); Euler inlet throat p0 and Mach
+  within 2% of the two-shock relations (V4e, hard); laminar inlet core p0 within 5% (V4v,
+  soft, explained); inlet grid study medium-to-fine change <= 2% in recovery and <= 5% in
+  peak heat flux (V4m, hard); SU2's own mass-averaged total pressure agrees with ours within
+  0.5% on every run (X1, hard). Nine Colab runs.
 
 ### Task 3 (Days 5-6): MCP server, queue worker, first batch (Sonnet 5.5; Haiku for schemas and docs)
 
 - Deliverable: `mcp_server/` exposing `create_case`, `validate_config`, `submit`, `status`,
-  `postprocess`, `list_results`; strict JSON schemas; `worker/` Colab queue worker with
-  checkpointing; first space-filling design (Latin hypercube or Sobol) queued and run overnight.
+  `postprocess`, `list_results`, `queue_batch`; strict pydantic schemas and physics gates;
+  `worker/` Colab queue worker with restart-safe claim and status flags on a Google Drive
+  folder; the 96-point scrambled Sobol pool (`designs/pool_sobol96.csv`, run in sequence order
+  so any prefix is usable, 64 minimum) queued and run overnight.
+  Spec: `docs/specs/task3_mcp_server_queue_worker.md`.
 - Acceptance: Claude Code can create, submit and retrieve one case end to end through the MCP
   tools; invalid parameters are rejected before submit; a killed worker resumes without
   duplicating or losing completed runs; every run records inputs, solver version, and logs.
 
 ### Task 4 (Days 7-8): surrogate and active learning (Sonnet 5.5 implements; Fable designs experiment and reviews)
 
-- Deliverable: `surrogate/` PyTorch ensemble or GP with calibrated uncertainty; multi-objective
-  acquisition (e.g. expected hypervolume improvement); an offline replay harness that compares
-  active learning, random and LHS sampling on the same run budget.
+- Deliverable: `surrogate/` exact Gaussian process per objective in pure PyTorch (Matern 5/2
+  ARD, marginal-likelihood fit, under 150 lines), Monte-Carlo expected hypervolume improvement
+  and a max-variance variant; an offline pool-based replay harness that compares `al_ehvi`,
+  `al_maxvar`, `random` and `lhs` on the same pool with 10 seeds, reporting held-out error,
+  hypervolume regret and interval coverage versus number of runs.
+  Spec: `docs/specs/task4_surrogate_active_learning.md`.
 - Acceptance: error vs number of simulations is plotted for all three strategies with several
   seeds; calibration plot (predicted interval coverage) produced. Gate: if active learning does
   not beat the baselines, report that honestly and investigate; do not tune until it does.
 
 ### Task 5 (Day 9): Pareto front, UQ, inverse query (Fable 5.1 interprets; Haiku plots)
 
-- Deliverable: Pareto front with uncertainty; one inverse-design query ("minimum recovery loss
-  under a heat-flux cap") answered by the surrogate and then confirmed with a real SU2 run.
+- Deliverable: Pareto front with uncertainty (observed points, predicted front, posterior
+  band, discretisation error bar); one inverse-design query ("maximum recovery under a
+  heat-flux cap", cap at the 40th percentile of pool heating) answered by the surrogate and
+  then confirmed with a real SU2 run submitted through the MCP tools; design maps over the box.
+  Spec: `docs/specs/task5_pareto_uq_inverse.md`.
 - Acceptance: the confirmation run falls inside the predicted interval, or the miss is
   documented and explained.
 
@@ -145,8 +172,15 @@ Proposed structure for 60 minutes (about 40 talk, 20 discussion):
   mesh-quality gate is mandatory.
 - Colab limits: sessions disconnect and have usage caps; queue plus checkpointing is required.
   A cheap paid tier is an option if run budget is the bottleneck.
-- Run budget: if runs are slow there will be fewer than about 150 total; reduce the number of
-  design variables rather than the validation work.
+- Run budget: about 120 runs are needed (96 pool, about 20 validation and grid study, 3
+  confirmation). If runs are slow the pool shrinks to 64 and the coarse mesh may become
+  production; the validation work is never reduced. Colab Pro (more CPU cores) is the cheap
+  fix if gate T1 fails.
+- Colab free tier stops when the browser disconnects: overnight batches need an open tab on a
+  machine that does not sleep, or Colab Pro. The worker is restart-safe either way.
+- Laminar separation at the compression corner for theta2 above about 10 deg may converge
+  slowly or not at all: such runs are recorded with their status and reported as a limit of the
+  laminar model, not tuned away.
 - Scope creep: multi-fidelity and extra geometries are cut first.
 
 ## Cut order if time runs short
@@ -158,3 +192,28 @@ Proposed structure for 60 minutes (about 40 talk, 20 discussion):
 
 Never cut: validation against analytic cases, the active learning vs baseline comparison, and
 the calibration plot.
+
+## Change log
+
+### 2026-11-01, Task 0 (Fable 5.1)
+
+1. Flight condition fixed: Mach 4.0, 30 km standard atmosphere, sub-scale body about 0.3 m,
+   laminar (Re <= 5e5), isothermal wall 300 K. Mach 5 rejected because the two-ramp family
+   then gives recovery of only 0.13 to 0.25 and harsher laminar separation; Mach 4 gives 0.24
+   to 0.43 with T0 = 951 K (perfect gas accurate).
+2. Design variables fixed at two (theta1, theta2) with the shock-on-lip rule for the cowl lip.
+   Cowl position was dropped because with these two objectives it is degenerate (spillage is
+   free, ingestion costs); wall temperature was dropped as a design variable.
+3. Objective definitions made exact (recovery includes the terminal normal shock per
+   streamtube; peak heat flux is on ramp 2 including the duct wall, sharp leading edges
+   excluded because their computed peak is a mesh artefact).
+4. All "(proposed)" tolerances replaced by the table in `docs/specs/00_decisions.md` section 5,
+   with hard/soft/report types; grid-convergence requirements and an Eckert flat-plate heating
+   check added; a cross-check of our mass average against SU2's `AVG_TOTALPRESS` added.
+5. Mesh generator changed from gmsh to a numpy structured multi-block writer.
+6. Active learning versus baselines defined as a pool-based offline replay on a committed
+   Sobol pool (identical ground truth, no extra CFD).
+7. Layout additions: `physics/`, `analysis/`, `designs/`, `runs/`, `tests/`, `docs/validation/`.
+8. Task 1 scope grew to include the analytic module, the mesher core and the wedge, because
+   the timing case needs our own mesh; Task 2 scope is the inlet, the cylinder, metrics and
+   the validation suite.
