@@ -3,9 +3,10 @@
 load(case_dir) returns {marker: {x, y, s, rho, u, v, p, T, M, [q]}} for every marker of
 mesh_markers.json that SU2 wrote to the surface file. For the inlet the "body" is also split at
 x = X1 into body_ramp1 / body_ramp2 and the "cowl" into cowl_inner / cowl_outer (inner = on the
-line lip P -> E_cowl). Checks that fail with ValueError: pressure or Mach rebuilt from the
-conservative variables differs from SU2's own columns (a unit mistake), or the heat flux of a
-cold body has the wrong sign.
+line lip P -> E_cowl). Checks that fail with ValueError: the solution diverged (a non-finite value,
+pressure above 1e7 Pa or density above 100 kg/m^3 anywhere in the file), pressure or Mach rebuilt
+from the conservative variables differs from SU2's own columns (a unit mistake), or the heat flux
+of a cold body has the wrong sign.
 """
 import json
 from pathlib import Path
@@ -17,6 +18,8 @@ from physics.constants import GAMMA, R_AIR
 from postprocess.tecplot import read_su2_points, read_tecplot_ascii, surface_nodes_for_marker
 
 CROSS_CHECK_TOL = 1e-3     # relative, pressure and Mach against SU2's own columns
+P_DIVERGED = 1e7           # Pa, no real flow here is this high (post-shock p is about 1e5)
+RHO_DIVERGED = 100.0       # kg/m^3, air at sea level is 1.2
 ON_SURFACE_TOL = 1e-7      # m, same tolerance as surface_nodes_for_marker
 LINE_TOL = 1e-6            # m, "on the line P -> E_cowl"
 WALL_MARKERS = ("body", "wall")   # markers that carry the cold-wall heat-flux sign check
@@ -70,6 +73,20 @@ def state(cols):
     with np.errstate(all="ignore"):                  # a bad p or rho gives nan; load() rejects it
         return {"rho": rho, "u": u, "v": v, "p": p, "T": p / (rho * R_AIR),
                 "M": np.sqrt(speed2 / (GAMMA * p / rho))}
+
+
+def _check_not_diverged(cols, mine):
+    """Raise "solution diverged" for a non-finite value, p > P_DIVERGED or rho > RHO_DIVERGED on any
+    row of the file. Without this a blown-up run is reported as a unit mistake by _cross_check."""
+    bad = [name for name, v in cols.items() if not np.all(np.isfinite(v))]
+    if bad:
+        raise ValueError(f"solution diverged: non-finite values in {', '.join(bad)} of surface_flow.dat")
+    p = np.concatenate([mine["p"], cols["Pressure"]]) if "Pressure" in cols else mine["p"]
+    rho = cols["Density"]
+    if p.max() > P_DIVERGED or rho.max() > RHO_DIVERGED:
+        raise ValueError(f"solution diverged: pressure up to {p.max():.3g} Pa (limit {P_DIVERGED:g}) "
+                         f"and density up to {rho.max():.3g} kg/m^3 (limit {RHO_DIVERGED:g}) in "
+                         "surface_flow.dat; the run did not converge to a physical flow")
 
 
 def _cross_check(mine, theirs, name, marker):
@@ -142,6 +159,7 @@ def load(case_dir):
     data = read_tecplot_ascii(case / "surface_flow.dat")
     cols = data["data"]
     mine = state(cols)
+    _check_not_diverged(cols, mine)
     points = read_su2_points(case / "mesh.su2")
 
     out = {}

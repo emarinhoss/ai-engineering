@@ -8,43 +8,17 @@ from worker.run_worker import main
 
 TESTS, REPO = Path(__file__).parent, Path(__file__).resolve().parent.parent
 
-# tests/fake_su2.py writes a surface line that does not lie on the mesh, so postprocess.metrics
-# cannot read it. This wrapper runs it, then rewrites surface_flow.dat on the mesh's body nodes with
-# a physically consistent state (rho, p, u, Mach agree) and a positive heat flux.
-WRAPPER = f"""
-import sys
-sys.path[:0] = [{str(REPO)!r}, {str(TESTS)!r}]
-import json
-from pathlib import Path
-import numpy as np
-import fake_su2
-from postprocess.tecplot import read_su2_points
-
-rc = fake_su2.main(sys.argv[1:])
-if Path("surface_flow.dat").exists() and Path("mesh.su2").exists():
-    xy = read_su2_points("mesh.su2")[json.loads(Path("mesh_markers.json").read_text())["body"]]
-    xy = xy[np.argsort(xy[:, 0])]
-    rho, p, u = 1.0, 1.0e5, 1000.0
-    cols = {{v: np.full(len(xy), 1.0) for v in fake_su2.VARIABLES}}
-    cols.update(x=xy[:, 0], y=xy[:, 1], Density=np.full(len(xy), rho), Velocity_x=np.full(len(xy), u),
-                Velocity_y=np.zeros(len(xy)), Energy=np.full(len(xy), p / 0.4 + 0.5 * rho * u**2),
-                Pressure=np.full(len(xy), p), Mach=np.full(len(xy), u / np.sqrt(1.4 * p / rho)),
-                Heat_Flux=np.full(len(xy), 1.0e5))
-    with open("surface_flow.dat", "w") as f:
-        f.write('TITLE = "Visualization of the solution"\\n')
-        f.write("VARIABLES = " + ",".join(f'"{{v}}"' for v in fake_su2.VARIABLES) + "\\n")
-        f.write(f"ZONE NODES= {{len(xy)}}, ELEMENTS= {{len(xy) - 1}}, DATAPACKING=POINT, "
-                "ZONETYPE=FELINESEG\\n")
-        f.writelines("\\t".join(f"{{cols[v][k]:.9e}}" for v in fake_su2.VARIABLES) + "\\t\\n"
-                     for k in range(len(xy)))
-        f.writelines(f"{{k + 1}} {{k + 2}}\\n" for k in range(len(xy) - 1))
-sys.exit(rc)
-"""
+# The command that stands in for SU2. WRAPPER is normally None: the worker runs tests/fake_su2.py
+# directly. A test can set it to the text of a python script to run instead (see
+# test_worker_failures.test_missing_surface_file_is_a_postprocess_error).
+WRAPPER = None
 
 
 def fake_command(directory):
-    """Command line of the fake SU2 (the wrapper above, written into `directory`)."""
-    script = Path(directory) / "fake_su2_on_mesh.py"
+    """Command line of the fake SU2: tests/fake_su2.py, or the script text in WRAPPER if set."""
+    if WRAPPER is None:
+        return f"{sys.executable} {TESTS / 'fake_su2.py'}"
+    script = Path(directory) / "fake_su2_replacement.py"
     script.write_text(WRAPPER)
     return f"{sys.executable} {script}"
 

@@ -1,0 +1,98 @@
+{
+ "case_id": "cylinder-fd9d9778c5",
+ "code": {
+  "dirty": false,
+  "git_commit": "b2831d99dfe3fa5451140a5be582020cee522b5b"
+ },
+ "convergence": {
+  "drift_pct": {
+   "q_peak": 0.02742122339337591,
+   "recovery_total": null
+  },
+  "drop_orders": 6.555742351000001,
+  "iterations": 1491,
+  "rms_rho_log10_end": -10.00169248,
+  "rms_rho_log10_start": -3.445950129,
+  "status": "converged"
+ },
+ "files": {
+  "history": "history.csv",
+  "log": "log.txt",
+  "surface": "surface_flow.dat"
+ },
+ "geometry": {
+  "cells": 6400,
+  "delta_over_R": 0.5168291571262306,
+  "first_cell_m": 4e-06,
+  "level": "medium",
+  "mach": 4.0,
+  "nodes": 6561,
+  "phi_max_deg": 100.0,
+  "r_out": "R (2.0 + 1.5 sin^2 phi)",
+  "radius_m": 0.01
+ },
+ "job": {
+  "code_commit": "b2831d99dfe3fa5451140a5be582020cee522b5b",
+  "config_sha256": "51bd9c003cdab05aa39db103666902032835e2df0462f8674e1ec0ab5040f517",
+  "mesh_fingerprint": "fdb0b9ec21fd2f3b96a5cff159812b843e2f24e1c0909c052b97087509b14537"
+ },
+ "mesh": {
+  "cells": 6400,
+  "level": "medium",
+  "nodes": 6561,
+  "quality": {
+   "failures": [],
+   "first_cell_height": {
+    "wall": 3.999994123951128e-06
+   },
+   "max_aspect_ratio": 54.56227365391008,
+   "max_growth": 1.0809688874319259,
+   "min_angle_deg": 59.82820877618571,
+   "n_inverted": 0,
+   "pass": true,
+   "requested_first_cell_m": {
+    "wall": 4e-06
+   }
+  }
+ },
+ "metrics": {
+  "notes": [
+   "standoff_over_R not computed: zone data does not match the NODES/ELEMENTS counts in the ZONE line"
+  ],
+  "p0_inf_Pa": 181751.31060714056,
+  "q_stag_W_m2": 241673.2,
+  "standoff_over_R": null
+ },
+ "params": {
+  "T_wall_K": 300.0,
+  "altitude_km": 30,
+  "family": "cylinder",
+  "mach": 4.0,
+  "max_iter": 8000,
+  "mesh_level": "medium",
+  "radius_m": 0.01,
+  "save_volume": true,
+  "solver": "NAVIER_STOKES",
+  "tag": "val"
+ },
+ "run": {
+  "exit_code": 0,
+  "finished_at": "2026-11-01T05:03:01+00:00",
+  "iterations": 1491,
+  "runtime": {
+   "nproc": 8,
+   "ram_gb": 50.99
+  },
+  "started_at": "2026-11-01T05:02:17+00:00",
+  "timeout": false,
+  "wall_time_s": 43.80635440900005,
+  "worker_id": "colab-93642f961653"
+ },
+ "solver": {
+  "command": "mpirun -n 4 --allow-run-as-root /content/su2mpi/bin/SU2_CFD case.cfg",
+  "config_sha256": "51bd9c003cdab05aa39db103666902032835e2df0462f8674e1ec0ab5040f517",
+  "n_cores": 4,
+  "name": "SU2_CFD",
+  "version": "SU2 v8.2.0 \"Harrier\", The Open-Source CFD Code"
+ }
+}

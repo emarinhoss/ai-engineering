@@ -197,10 +197,15 @@ WEDGE = {"family": "wedge", "theta1_deg": 10.0, "solver": "NAVIER_STOKES", "mesh
          "tag": "test", "max_iter": 300}
 
 
-def test_run_case_records_metrics_error_and_no_result_json(tmp_path):
+def test_run_case_records_metrics_error_and_no_result_json(tmp_path, monkeypatch):
     from worker.make_case import make
     make(WEDGE, tmp_path)
-    result = run_case.run(tmp_path, FAKE)                        # the fake surface is not on the mesh
+
+    def broken(case_dir):                      # stands in for a surface file that is not on the mesh
+        raise ValueError("no node of marker body lies on the surface")
+
+    monkeypatch.setattr(run_case, "compute", broken)
+    result = run_case.run(tmp_path, FAKE)
     assert "metrics" not in result and "no node of marker" in result["metrics_error"]
     assert (tmp_path / "result_partial.json").exists() and not (tmp_path / "result.json").exists()
 
