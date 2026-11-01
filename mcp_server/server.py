@@ -81,16 +81,18 @@ def record_transfer(case_id: str, direction: str, drive_file_id: str, sha256: st
 
 
 @mcp.tool()
-def ingest_result(case_id: str, result_json_text: str) -> str:
+def ingest_result(case_id: str, result_json_text: str, sha256: str = "") -> str:
     """Validate a result.json downloaded from Drive against the staged job (case_id, mesh and config
-    hashes, run record blocks), store it, flag the job done and copy the committed files to runs/."""
-    return _json(queue.ingest_result(case_id, result_json_text))
+    hashes, run record blocks), store it, flag the job done and copy the committed files to runs/.
+    sha256: the worker's digest from runs/<case_id>.result.sha256; when given, the text must match it."""
+    return _json(queue.ingest_result(case_id, result_json_text, sha256))
 
 
 @mcp.tool()
-def ingest_error(case_id: str, error_json_text: str) -> str:
-    """Store an error.json downloaded from Drive for a staged job and flag the job failed."""
-    return _json(queue.ingest_error(case_id, error_json_text))
+def ingest_error(case_id: str, error_json_text: str, sha256: str = "") -> str:
+    """Store an error.json downloaded from Drive for a staged job and flag the job failed.
+    sha256: the worker's digest from runs/<case_id>.error.sha256; when given, the text must match it."""
+    return _json(queue.ingest_error(case_id, error_json_text, sha256))
 
 
 @mcp.tool()

@@ -165,3 +165,17 @@ def test_ingest_tools_are_registered_and_return_json(staging):
             return json.loads(res.content[0].text), json.loads(res2.content[0].text)
     first, second = asyncio.run(go())
     assert first["ok"] is False and second["stage"] == "unknown_case"
+
+
+def test_ingest_checks_the_workers_digest(staging):
+    import hashlib
+    cid, drive = stage_and_upload(staging)
+    assert worker(drive, "--once") == 0
+    text = (drive / "runs" / f"{cid}.result.json").read_text()
+    digest = (drive / "runs" / f"{cid}.result.sha256").read_text().strip()
+    assert digest == hashlib.sha256(text.encode()).hexdigest()
+    altered = text.replace("recovery_total", "recovery_totaI", 1)   # one changed byte, same length
+    res = queue.ingest_result(cid, altered, digest)
+    assert res["ok"] is False and res["stage"] == "digest"
+    assert queue.status(cid)[0]["status"] == "pending"
+    assert queue.ingest_result(cid, text, digest)["ok"]

@@ -25,6 +25,9 @@ def test_ingest_dir_accepts_results_and_errors_and_refuses_bad_files(staging, tm
     ids = tmp_path / "ids.json"
     ids.write_text(json.dumps({cid: "drive-id-1"}))
     assert ingest_files.main([str(inbox), "--drive-ids", str(ids)]) == 1
+    assert queue.status(cid)[0]["status"] == "pending"              # no digest file: not ingested
+    (inbox / f"{cid}.result.sha256").write_text((drive / "runs" / f"{cid}.result.sha256").read_text())
+    assert ingest_files.main([str(inbox), "--drive-ids", str(ids)]) == 1   # the unknown case still fails
     assert queue.status(cid)[0]["status"] == "done"
     record = staging / "repo" / "runs" / "test" / cid
     assert (record / "result.json").exists()

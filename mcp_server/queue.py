@@ -418,11 +418,29 @@ def _commit_to_repo(d, rec=None):
     return dest
 
 
+def _digest_mismatch(case_id, text, sha256):
+    """A refusal when the text's sha256 differs from the digest the worker wrote next to the file
+    (runs/<id>.result.sha256 or runs/<id>.error.sha256); None when it matches or none is given."""
+    if not sha256:
+        return None
+    got = hashlib.sha256(text.encode()).hexdigest()
+    if got != sha256.strip().lower():
+        why = (f"sha256 of the text is {got[:12]}..., the worker's digest is {sha256.strip()[:12]}...: "
+               "the copy is not the file on Drive")
+        return {**_fail("digest", [why]), "case_id": case_id}
+    return None
+
+
 @audited
-def ingest_result(case_id, result_json_text):
+def ingest_result(case_id, result_json_text, sha256=""):
     """Check a downloaded result.json against the staged job, store it, flag 2-done, and copy the
-    committed subset to runs/<tag>/<case_id>/. Nothing is stored or flagged if a check fails."""
+    committed subset to runs/<tag>/<case_id>/. Nothing is stored or flagged if a check fails.
+    `sha256` (optional) is the worker's digest of the file (runs/<id>.result.sha256); the text must
+    match it, which catches a copy altered on its way through Drive and a transcription."""
     d, bad = _staged(case_id)
+    if bad:
+        return bad
+    bad = _digest_mismatch(case_id, result_json_text, sha256)
     if bad:
         return bad
     try:
@@ -442,10 +460,14 @@ def ingest_result(case_id, result_json_text):
 
 
 @audited
-def ingest_error(case_id, error_json_text):
+def ingest_error(case_id, error_json_text, sha256=""):
     """Store a downloaded error.json ({reason, detail}) for a staged job, flag it 2-failed and copy
-    the record (params, geometry, config, mesh quality, error.json) to runs/<tag>/<case_id>/."""
+    the record (params, geometry, config, mesh quality, error.json) to runs/<tag>/<case_id>/.
+    `sha256` (optional) is the worker's digest of the file (runs/<id>.error.sha256)."""
     d, bad = _staged(case_id)
+    if bad:
+        return bad
+    bad = _digest_mismatch(case_id, error_json_text, sha256)
     if bad:
         return bad
     try:

@@ -115,6 +115,14 @@ and the container cannot see Drive. Consequences:
   because the geometry comment line carries floats whose last digit differed between the container
   and Colab (pool job inlet2r-db92dcf68d, 2026-11-01). The worker and `ingest_result` also accept the
   whole-file sha256 for job files staged before that change.
+- Digests: the worker writes `runs/<case_id>.result.sha256` next to each result and
+  `runs/<case_id>.error.sha256` for each failure (sha256 of the file bytes), back-filled at start-up.
+  `ingest_result` / `ingest_error` take the digest as an optional argument and refuse a text that
+  does not match it; `mcp_server.ingest_files` requires the digest file unless told otherwise. Reason:
+  on 2026-11-01 a base64 copy retyped by a model altered 2 of 4 result files (one mixed fields of
+  two records); only a digest written at the source catches that.
+- `--retry-reason R`: at start-up the worker clears `2-failed` (and `1-running`) of jobs whose
+  `error.json` reason is R, renames `error.json` to `error.retried.json` and deletes the digest.
 - Files cross Drive through the connector: the MCP server writes the job directory to a local
   staging folder `$SU2_QUEUE_DIR` in the container; Claude uploads `job.json` (which embeds
   params, geometry summary, mesh_fingerprint, config_sha256, code commit) to Drive folder

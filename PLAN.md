@@ -253,7 +253,14 @@ numerics and validation work to be done on Day 1 instead of Days 2 to 4.
 - Pool job inlet2r-db92dcf68d was refused by the worker (`config_mismatch`): the geometry
   comment line of case.cfg had `h_duct` differing in its last digit (3e-18) between the container
   and Colab, the lines SU2 reads were identical. Fix on main: `config_sha256` hashes only the
-  lines SU2 reads; the worker and ingest also accept the older whole-file hash. Operator step
-  when the pool batch ends: restart the Colab worker on the new main, delete `status/2-failed`
-  of the refused jobs on Drive and let the worker re-run them. Until the restart, more jobs may
-  be refused for the same reason; each is recorded in `runs/pool/<id>/error.json`.
+  lines SU2 reads; the worker and ingest also accept the older whole-file hash. By 20:30 UTC
+  the worker had refused about 62 of the 92 pool jobs for this reason (last-digit float
+  differences in the geometry comment are common, not rare) and finished 37. Operator step:
+  restart the Colab worker cell on the new main; its command now carries
+  `--retry-reason config_mismatch`, so the refused jobs are re-run without touching Drive.
+- Transfer integrity: a Haiku agent retyping base64 altered 2 of 4 result files (one mixed the
+  fields of two records). The worker now writes a sha256 digest next to every result and failure
+  (back-filled at start-up) and ingest refuses a text that does not match it. The 16 pool and
+  13 validation records ingested before digests existed are to be re-checked against the
+  back-filled digests after the restart (to do; the integrity checks they passed cover case id,
+  mesh fingerprint and config hash, not every digit of the metrics).

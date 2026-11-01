@@ -133,3 +133,41 @@ def test_params_that_do_not_match_the_case_id_are_rejected(tmp_path):
     path.write_text(json.dumps({**job, "params": {**PARAMS, "theta1_deg": 11.0}}))
     assert worker(queue, "--once") == 0
     assert error_of(queue, job)["reason"] == "bad_job"
+
+
+def test_retry_reason_makes_a_failed_job_pending_again(tmp_path):
+    """A job refused as config_mismatch is re-run after the operator fixes the job file and starts
+    the worker with --retry-reason config_mismatch; other failures stay failed."""
+    queue = tmp_path / "queue"
+    job = stage_job(queue)
+    path = queue / "jobs" / f"{job['case_id']}.json"
+    path.write_text(json.dumps({**job, "config_sha256": "0" * 64}))
+    assert worker(queue, "--once") == 0
+    assert error_of(queue, job)["reason"] == "config_mismatch"
+    digest = queue / "runs" / f"{job['case_id']}.error.sha256"
+    assert digest.exists() and len(digest.read_text().strip()) == 64
+
+    path.write_text(json.dumps(job))                                 # the fixed job file
+    assert worker(queue, "--once", "--retry-reason", "nonzero_exit") == 0     # wrong reason: untouched
+    assert "2-failed" in flags(queue, job["case_id"])
+    assert worker(queue, "--once", "--retry-reason", "config_mismatch") == 0
+    run_dir = queue / "runs" / job["case_id"]
+    assert "2-done" in flags(queue, job["case_id"]) and "2-failed" not in flags(queue, job["case_id"])
+    assert (run_dir / "error.retried.json").exists() and not (run_dir / "error.json").exists()
+    assert not digest.exists()
+    result = queue / "runs" / f"{job['case_id']}.result.json"
+    import hashlib
+    assert (queue / "runs" / f"{job['case_id']}.result.sha256").read_text().strip() == \
+        hashlib.sha256(result.read_bytes()).hexdigest()
+
+
+def test_backfill_writes_digests_for_old_results(tmp_path):
+    queue = tmp_path / "queue"
+    job = stage_job(queue)
+    assert worker(queue, "--once") == 0
+    cid = job["case_id"]
+    (queue / "runs" / f"{cid}.result.sha256").unlink()               # a result from before digests
+    assert worker(queue, "--once") == 0                              # nothing to do, but backfilled
+    import hashlib
+    assert (queue / "runs" / f"{cid}.result.sha256").read_text().strip() == \
+        hashlib.sha256((queue / "runs" / f"{cid}.result.json").read_bytes()).hexdigest()

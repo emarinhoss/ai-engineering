@@ -7,7 +7,12 @@ jobs/<batch_id>.batch.json (many jobs in one file, each entry handled like a job
 runs/<case_id>/ (written here). Layout and flags: docs/specs/01_interfaces.md, "Job directory".
 Pending = a job file with no status/2-done and no status/2-failed flag in its run directory. A job
 flagged 1-running whose heartbeat is older than --stale-minutes is a crash victim and is re-run.
-The worker never deletes or moves anything; re-running a job overwrites its outputs.
+The worker never deletes or moves anything; re-running a job overwrites its outputs. The one
+exception is `--retry-reason R`: at start-up, a job flagged 2-failed whose error.json has reason R
+gets its 2-failed and 1-running flags removed (error.json is kept as error.retried.json), so it is
+pending again. Next to every `runs/<id>.result.json` the worker writes `runs/<id>.result.sha256`,
+and next to every failure `runs/<id>.error.sha256` (digest of `runs/<id>/error.json`), so that a
+copy that crossed Drive through a transcription can be checked byte for byte at ingest.
 """
 import argparse
 import json
@@ -45,6 +50,55 @@ def write_json(path, obj):
     tmp = path.with_name(f".tmp-{os.getpid()}-{path.name}")
     tmp.write_text(json.dumps(obj, indent=1, sort_keys=True) + "\n")
     os.replace(tmp, path)
+
+
+def write_digest(target, digest_path):
+    """Write the sha256 of the bytes of `target` to `digest_path` (64 hex digits and a newline)."""
+    Path(digest_path).write_text(sha256_file(target) + "\n")
+
+
+def backfill_digests(queue):
+    """Digest files for results and failures written before digests existed."""
+    runs = Path(queue) / "runs"
+    for result in runs.glob("*.result.json"):
+        digest = result.with_name(result.name[: -len(".json")] + ".sha256")
+        if not digest.exists():
+            write_digest(result, digest)
+    for error in runs.glob("*/error.json"):
+        digest = runs / f"{error.parent.name}.error.sha256"
+        if not digest.exists():
+            write_digest(error, digest)
+
+
+def clear_flag(run_dir, name):
+    try:
+        (Path(run_dir) / "status" / name).unlink()
+    except FileNotFoundError:
+        pass
+
+
+def retry_failed(queue, reasons):
+    """Make jobs flagged 2-failed with error.json reason in `reasons` pending again. Returns the
+    case ids. error.json becomes error.retried.json and its digest file is removed."""
+    runs, retried = Path(queue) / "runs", []
+    for error in sorted(runs.glob("*/error.json")):
+        run_dir = error.parent
+        if "2-failed" not in flags(run_dir):
+            continue
+        try:
+            reason = read_json(error).get("reason")
+        except (OSError, ValueError):
+            continue
+        if reason not in reasons:
+            continue
+        os.replace(error, run_dir / "error.retried.json")
+        (runs / f"{run_dir.name}.error.sha256").unlink(missing_ok=True)
+        clear_flag(run_dir, "2-failed")
+        clear_flag(run_dir, "1-running")
+        retried.append(run_dir.name)
+        say(f"{run_dir.name}: 2-failed ({reason}) cleared by --retry-reason, will be re-run")
+    os.sync()
+    return retried
 
 
 def set_flag(run_dir, name):
@@ -228,6 +282,7 @@ def run_record(job, run_dir, result, worker_id):
 def fail(queue, run_dir, job, reason, detail):
     write_json(run_dir / "error.json", {"case_id": job["case_id"], "reason": reason,
                                         "detail": detail, "at": now()})
+    write_digest(run_dir / "error.json", Path(queue) / "runs" / f"{job['case_id']}.error.sha256")
     set_flag(run_dir, "2-failed")
     os.sync()
     say(f"{job['case_id']}: FAILED ({reason})")
@@ -282,6 +337,7 @@ def process(job, args):
     if problem:
         return fail(queue, run_dir, job, *problem)
     write_json(queue / "runs" / f"{cid}.result.json", record)
+    write_digest(queue / "runs" / f"{cid}.result.json", queue / "runs" / f"{cid}.result.sha256")
     set_flag(run_dir, "2-done")
     os.sync()
     say(f"{cid}: done, convergence {record['convergence']['status']}")
@@ -318,6 +374,9 @@ def parse_args(argv):
     ap.add_argument("--stale-minutes", type=float, default=10,
                     help="a 1-running job with an older heartbeat is a crash victim")
     ap.add_argument("--heartbeat", type=float, default=30, help="seconds between heartbeats")
+    ap.add_argument("--retry-reason", action="append", default=[], metavar="REASON",
+                    help="at start-up, make 2-failed jobs with this error.json reason pending again "
+                         "(repeatable), e.g. config_mismatch after a worker-side fix")
     return ap.parse_args(argv)
 
 
@@ -328,6 +387,10 @@ def main(argv=None):
         (queue / sub).mkdir(parents=True, exist_ok=True)
     write_worker_heartbeat(args)
     say(f"worker {args.worker_id} on {queue}, SU2 command: {args.su2_cmd}")
+    backfill_digests(queue)
+    if args.retry_reason:
+        retried = retry_failed(queue, set(args.retry_reason))
+        say(f"{len(retried)} failed job(s) made pending again ({', '.join(args.retry_reason)})")
     for job in jobs_in_state(queue, {"crashed"}, stale_s):
         say(f"{job['case_id']}: crash victim (1-running, stale heartbeat), will be re-run")
     try:

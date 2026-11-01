@@ -80,6 +80,13 @@ python -m worker.run_worker --queue /content/drive/MyDrive/su2queue \
   tools `ingest_result` or `ingest_error`, or save the downloaded files as `<case_id>.result.json` /
   `<case_id>.error.json` in one directory and run `python -m mcp_server.ingest_files <dir>`, which
   sends each through the same checks.
+- Every result comes with `runs/<case_id>.result.sha256` and every failure with
+  `runs/<case_id>.error.sha256` (digest of `runs/<case_id>/error.json`), written by the worker (and
+  back-filled at start-up for older files). A copy that crossed Drive through a transcription is
+  ingested only if it matches the digest (`ingest_result(..., sha256=)`, `ingest_files`).
+- `--retry-reason config_mismatch` (in the notebook command) makes jobs refused for that reason
+  pending again at start-up, after a worker-side fix; their `error.json` is kept as
+  `error.retried.json`.
 - Restart after a crash (Colab runtime reset): start the same command again. A job left at
   `1-running` whose `heartbeat.json` is older than `--stale-minutes` (default 10) is re-run;
   finished jobs are never touched. `Ctrl-C` flags nothing.
