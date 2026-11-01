@@ -4,8 +4,8 @@ from pathlib import Path
 
 import numpy as np
 
-from physics.constants import ATMOSPHERE_TABLE
-from postprocess.history import load
+from physics.constants import ATMOSPHERE_TABLE, GAMMA
+from postprocess.tecplot import read_tecplot_ascii
 
 P_INF = ATMOSPHERE_TABLE[30]["p"]  # Pa, freestream pressure at 30 km (single source)
 
@@ -16,6 +16,20 @@ def _column(cols, name):
         if c.lower() == name.lower():
             return cols[c]
     raise KeyError(f"no column {name!r}; available: {list(cols)}")
+
+
+def _pressure_and_mach(cols, gamma=GAMMA):
+    """Pressure and Mach from the file if present, else from the conservative variables:
+    p = (gamma - 1) (E - 0.5 rho |u|^2),  M = |u| / sqrt(gamma p / rho)."""
+    lower = {c.lower() for c in cols}
+    if {"pressure", "mach"} <= lower:
+        return _column(cols, "Pressure"), _column(cols, "Mach")
+    rho, E = _column(cols, "Density"), _column(cols, "Energy")
+    u = _column(cols, "Momentum_x") / rho
+    v = _column(cols, "Momentum_y") / rho
+    speed2 = u**2 + v**2
+    p = (gamma - 1.0) * (E - 0.5 * rho * speed2)
+    return p, np.sqrt(speed2 / (gamma * p / rho))
 
 
 def _band(x, xs):
@@ -60,7 +74,7 @@ def _station(x, y, p, mach_field, xs, theta, beta_guess, p_inf):
 
 def oblique_shock_check(case_dir, theta_deg, mach=4.0, stations=(0.04, 0.08),
                         tol_beta_deg=0.5, tol_ratio=0.02, p_inf=P_INF):
-    """V1: compare beta, p2/p1 and M2 from case_dir/flow.csv with the oblique shock relations."""
+    """V1: compare beta, p2/p1 and M2 from case_dir/flow.dat (Tecplot) with the oblique shock relations."""
     from physics.shock import oblique  # imported here so this module loads without physics/
 
     theta = math.radians(theta_deg)
@@ -68,9 +82,9 @@ def oblique_shock_check(case_dir, theta_deg, mach=4.0, stations=(0.04, 0.08),
     beta_ref = math.degrees(ref["beta"])
     out = {"beta_ref_deg": beta_ref, "p_ratio_ref": ref["p_ratio"], "M2_ref": ref["M2"]}
 
-    cols = load(Path(case_dir) / "flow.csv")
+    cols = read_tecplot_ascii(Path(case_dir) / "flow.dat")["data"]
     x, y = _column(cols, "x"), _column(cols, "y")
-    p, mach_field = _column(cols, "Pressure"), _column(cols, "Mach")
+    p, mach_field = _pressure_and_mach(cols)
     try:
         s1, s2 = (_station(x, y, p, mach_field, xs, theta, ref["beta"], p_inf) for xs in stations)
     except ValueError as err:

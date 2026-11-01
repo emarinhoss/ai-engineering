@@ -62,7 +62,7 @@ Depends on: `01_interfaces.md` (job layout, run record, API), Tasks 1 and 2 code
 ## Acceptance tests
 
 Unit and integration tests without SU2 (`tests/fake_su2.py` is a script that reads a config,
-writes a plausible `history.csv`, `surface_flow.csv` from the mesh node ids with an analytic
+writes a plausible `history.csv` and `surface_flow.dat` (Tecplot ASCII) with an analytic
 field, sleeps a configurable time, and can be told to exit non-zero, emit NaN, or hang):
 - `test_schemas.py` (Haiku): every bound in the `01_interfaces.md` table accepted at the
   bound and rejected just outside; unknown field rejected; `case_id` stable across key order.

@@ -102,7 +102,8 @@ def run(case_dir, su2_cmd="SU2_CFD", timeout_s=2400, log_name="log.txt"):
     tokens = shlex.split(su2_cmd)
     log_path = case_dir / log_name
     history = case_dir / "history.csv"
-    for stale in ("history.csv", "surface_flow.csv", "flow.csv", "result_partial.json"):
+    for stale in ("history.csv", "surface_flow.dat", "flow.dat", "restart_flow.dat",
+                  "restart_flow.csv", "result_partial.json"):
         (case_dir / stale).unlink(missing_ok=True)    # never mistake an old run for this one
 
     version = solver_version(tokens, case_dir)

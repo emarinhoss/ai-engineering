@@ -89,9 +89,14 @@ with explicit placeholders. No key is written that is not in the pinned SU2 vers
 exist in `mesh_markers.json` (assert). The function is pure: same inputs, same text.
 
 Output requested from SU2: `history.csv` every iteration with groups ITER, RMS_RES, MAX_RES,
-AERO_COEFF, HEAT, FLOW_COEFF, CFL_NUMBER, LINSOL; `surface_flow.csv` on
-`MARKER_PLOTTING= (body, cowl, outlet_duct)` (inlet) with COORDINATES, SOLUTION, PRIMITIVE;
-volume `flow.csv` only when `save_volume`.
+AERO_COEFF, HEAT, FLOW_COEFF, CFL_NUMBER, LINSOL. SU2's CSV writers hold only the conservative
+variables (PointID, x, y, Density, Momentum, Energy; they ignore `VOLUME_OUTPUT`), so there is no
+heat flux in them. The surface and volume outputs are therefore Tecplot ASCII
+(`OUTPUT_FILES= ( SURFACE_TECPLOT_ASCII, TECPLOT_ASCII )`): `surface_flow.dat` always, on
+`MARKER_PLOTTING= (body, cowl, outlet_duct)` (inlet), and volume `flow.dat` only when
+`save_volume`. Both carry x, y, Density, Momentum_x/y, Energy, Pressure, Temperature, Mach,
+Pressure_Coefficient, Velocity_x/y, Laminar_Viscosity, Skin_Friction_Coefficient_x/y, Heat_Flux,
+Y_Plus. SU2 also writes `restart_flow.dat`. `postprocess.tecplot` reads these files.
 
 ## Queue transport (decided 2026-11-01 after Task 0)
 
@@ -127,7 +132,7 @@ $SU2_QUEUE_DIR/jobs/<case_id>/                (local staging, created by create_
 /content/drive/MyDrive/su2queue/runs/<case_id>/          (written by the worker in Colab)
   params.json geometry.json mesh_markers.json mesh_quality.json case.cfg
   status/  0-seen 1-running 2-done | 2-failed  (flag files, atomic write then rename)
-  heartbeat.json  log.txt  history.csv  surface_flow.csv  [flow.csv]  solver_version.txt
+  heartbeat.json  log.txt  history.csv  surface_flow.dat  [flow.dat]  solver_version.txt
   result.json  error.json
 /content/drive/MyDrive/su2queue/runs/<case_id>.result.json   (copy of result.json, downloaded)
 /content/drive/MyDrive/su2queue/worker/heartbeat.json
@@ -154,12 +159,12 @@ has no `status/2-*` flag.
              "x_q_peak_m": float, "q_peak_cowl_W_m2": float, "heat_load_body_W_per_m": float,
              "su2_avg_totalpress_Pa": float, "p0_inf_Pa": float},
  "code": {"git_commit": str, "dirty": bool},
- "files": {"history": "history.csv", "surface": "surface_flow.csv", "log": "log.txt"}
+ "files": {"history": "history.csv", "surface": "surface_flow.dat", "log": "log.txt"}
 }
 ```
 Committed per run: `params.json`, `geometry.json`, `case.cfg`, `result.json`, `history.csv`,
-`mesh_quality.json`, `solver_version.txt`, `surface_flow.csv.gz`, `log.txt.gz`. Volume CSVs stay
-on Drive; `result.json` records their sha256. A number appears in docs or slides only if its
+`mesh_quality.json`, `solver_version.txt`, `surface_flow.dat.gz`, `log.txt.gz`. The volume `flow.dat`
+stays on Drive; `result.json` records their sha256. A number appears in docs or slides only if its
 `case_id` is in `runs/`.
 
 ## Library API (what the MCP server, worker and notebooks call)
@@ -178,6 +183,12 @@ geometry.structured.Mesh.quality() -> dict; .write_su2(path); .write_markers(pat
 cases.config.render(params, geometry, markers) -> str
 postprocess.metrics.compute(case_dir) -> dict   (the "metrics" block above)
 postprocess.history.summarize(history_csv, params) -> dict  (the "convergence" block)
+postprocess.tecplot.read_tecplot_ascii(path) -> dict(variables, data{name: array over all zones},
+    zone, elements[(n_nodes, 0-based connectivity)], zonetype)   (surface_flow.dat, flow.dat)
+postprocess.tecplot.surface_nodes_for_marker(data, mesh_markers_json, marker, tol=1e-7, mesh_path=None)
+    -> row indices of the surface file on that marker, ordered along it (matched by coordinates
+    to the mesh node ids in mesh_markers.json; mesh.su2 is read from beside the json)
+postprocess.tecplot.read_su2_points(mesh_su2) -> (N, 2) array
 postprocess.validation.{oblique_shock_check, eckert_check, fay_riddell_check, inlet_check}(case_dir) -> dict(pass: bool, ...)
 worker.run_worker.main(queue_dir, su2_cmd, poll_s)
 mcp_server.server (FastMCP): create_case, validate_config, submit, status, postprocess, list_results, queue_batch

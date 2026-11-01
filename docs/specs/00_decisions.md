@@ -273,7 +273,8 @@ theta1 = theta2 = 8 deg.
   `MARKER_SYM` (plane ahead of the leading edge, cylinder stagnation line), `MARKER_FAR`
   (inlet and top; supersonic inflow imposes the freestream), `MARKER_SUPERSONIC_OUTLET` (duct
   and external outlets). `MARKER_ANALYZE= (outlet_duct)` with `MARKER_ANALYZE_AVERAGE=
-  MASSFLUX`. Output: `SURFACE_CSV` always, volume `CSV` for validation cases only.
+  MASSFLUX`. Output: `SURFACE_TECPLOT_ASCII` always, volume `TECPLOT_ASCII` for validation cases
+  only (SU2's CSV writers hold only the conservative variables; found 2026-11-01).
 - Mesh (medium): body and cowl first cell 20 micrometres (wall-cell Reynolds number about 20
   on ramp 2, about 20 to 25 cells inside a 2 mm boundary layer), wall-normal growth <= 1.15,
   61 nodes body-to-lip-line, 33 nodes lip-line-to-top, streamwise first cell 0.1 mm at the

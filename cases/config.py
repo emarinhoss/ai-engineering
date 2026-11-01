@@ -62,7 +62,9 @@ def render(params, geometry, markers):
         "plotting": _lst(walls + analyze),
         "monitoring": _lst(walls),
         "analyze": analyze_lines,
-        "output_files": "( SURFACE_CSV, CSV )" if params.get("save_volume") else "( SURFACE_CSV )",
+        # SU2's CSV writers keep only conservative variables, so the output is Tecplot ASCII.
+        "output_files": ("( SURFACE_TECPLOT_ASCII, TECPLOT_ASCII )" if params.get("save_volume")
+                         else "( SURFACE_TECPLOT_ASCII )"),
     }
     text = (TEMPLATES / SOLVER_TEMPLATE[solver]).read_text()
     return Template(text).substitute(values)

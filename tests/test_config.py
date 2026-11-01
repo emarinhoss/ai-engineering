@@ -49,7 +49,7 @@ def test_required_values():
                  "KIND_TURB_MODEL= NONE", "ITER= 6000", "CONV_NUM_METHOD_FLOW= ROE", "ENTROPY_FIX_COEFF= 0.1",
                  "MARKER_ISOTHERMAL= ( body, 300.0 )", "MARKER_SYM= ( symmetry )",
                  "MARKER_FAR= ( inlet, top )", "MARKER_SUPERSONIC_OUTLET= ( outlet )",
-                 "MARKER_MONITORING= ( body )", "OUTPUT_FILES= ( SURFACE_CSV )"]:
+                 "MARKER_MONITORING= ( body )", "OUTPUT_FILES= ( SURFACE_TECPLOT_ASCII )"]:
         assert line in cfg
 
 
@@ -77,7 +77,7 @@ def test_inlet_analyze_and_wall_temperature():
 
 def test_save_volume_and_options():
     cfg = lines(render(params(save_volume=True, mach=5.0, max_iter=4000), {}, markers("wedge")))
-    assert "OUTPUT_FILES= ( SURFACE_CSV, CSV )" in cfg
+    assert "OUTPUT_FILES= ( SURFACE_TECPLOT_ASCII, TECPLOT_ASCII )" in cfg
     assert "MACH_NUMBER= 5.0" in cfg and "ITER= 4000" in cfg
 
 

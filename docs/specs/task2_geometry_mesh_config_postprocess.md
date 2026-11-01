@@ -29,8 +29,8 @@ Depends on: `00_decisions.md` sections 2, 3, 4, 5, 6; `01_interfaces.md`; Task 1
    farfield (outer arc), outlet (phi = 100 deg line). Levels as in `00_decisions.md` 6.
 3. `physics/heating.py`: `eckert_flat_plate` and `fay_riddell_cylinder` with formulas from
    `00_decisions.md` 4; `physics/gates.py: check(params)`.
-4. `postprocess/surface.py`: load `surface_flow.csv`, split by marker using
-   `mesh_markers.json` node ids, order nodes along each marker by walking the boundary lines,
+4. `postprocess/surface.py`: load `surface_flow.dat` with `postprocess.tecplot`, split by marker
+   with `surface_nodes_for_marker` (coordinates matched to `mesh_markers.json` node ids),
    compute u, v from momentum and density, M from p, rho, u, v (cross-checked with SU2's Mach
    column within 1e-3 where present), heat flux into the wall with the sign check of
    `00_decisions.md` 3.2.
