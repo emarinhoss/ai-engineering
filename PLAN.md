@@ -239,5 +239,14 @@ numerics and validation work to be done on Day 1 instead of Days 2 to 4.
 - Queue transport is the Google Drive connector of the Claude Code cloud session (jobs and
   results as small JSON files; the Colab worker regenerates meshes and verifies a
   rounded-coordinate fingerprint, because byte hashes differ across platforms).
-- Next: Colab worker runs the 10-job validation batch (official Task 2 records), then the
-  92-job pool (Task 3 batch); Task 4 replay runs as soon as 64 pool points are done.
+- Official validation batch done on Colab (8 vCPU runtime, 4 MPI ranks) and ingested through
+  the MCP tools into `runs/val/`: 8 converged records plus the 2 expected 12/14 failures
+  (`error.json`, SU2 exit code 1). From those records (`docs/validation/2026-11-01_colab_records.md`):
+  V3 fine mesh -4.5 percent from Fay-Riddell (PASS, grid change -3.5 percent), V4m +0.09 /
+  -1.68 percent (PASS), V4e metrics form -0.31 percent, X1 at 1e-6. V1/V2a/V2b official rows stay
+  with `runs/task1/` and the development report (surface files stay on Drive).
+- Task 6 fault matrix done early (`docs/faults/`, 11 faults, no SU2 needed); the fake solver now
+  writes a consistent surface on the mesh, and a diverged surface file reads "solution diverged"
+  instead of "check the units". 265 tests.
+- Pool: 92 jobs running on Colab since 18:23 UTC at about 4.4 minutes per point (4 ranks);
+  results are ingested in batches into `runs/pool/`. Task 4 replay runs at 64 pool points.

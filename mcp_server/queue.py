@@ -395,15 +395,20 @@ def check_record(rec, d, case_id):
     return errors
 
 
-def _commit_to_repo(d, rec):
-    """Copy the committed subset of a staged job to REPO/runs/<tag>/<case_id>/."""
+def _commit_to_repo(d, rec=None):
+    """Copy the committed subset of a staged job to REPO/runs/<tag>/<case_id>/. `rec` is the
+    result record (its solver version is written when the worker's file is not staged); a failed
+    job has none and its record is error.json."""
     dest = REPO / "runs" / _read(d / "params.json")["tag"] / d.name
     dest.mkdir(parents=True, exist_ok=True)
-    for name in COMMITTED:
+    names = COMMITTED if rec is not None else COMMITTED + ("error.json",)
+    for name in names:
         if (d / name).is_file():
             shutil.copyfile(d / name, dest / name)
-    if not (d / "solver_version.txt").is_file():         # the worker's file stays on Drive
-        (dest / "solver_version.txt").write_text(rec["solver"]["version"] + "\n")
+    if rec is not None:
+        (dest / "error.json").unlink(missing_ok=True)       # a retried job that now succeeded
+        if not (d / "solver_version.txt").is_file():         # the worker's file stays on Drive
+            (dest / "solver_version.txt").write_text(rec["solver"]["version"] + "\n")
     return dest
 
 
@@ -432,7 +437,8 @@ def ingest_result(case_id, result_json_text):
 
 @audited
 def ingest_error(case_id, error_json_text):
-    """Store a downloaded error.json ({reason, detail}) for a staged job and flag it 2-failed."""
+    """Store a downloaded error.json ({reason, detail}) for a staged job, flag it 2-failed and copy
+    the record (params, geometry, config, mesh quality, error.json) to runs/<tag>/<case_id>/."""
     d, bad = _staged(case_id)
     if bad:
         return bad
@@ -448,7 +454,9 @@ def ingest_error(case_id, error_json_text):
                 "case_id": case_id}
     _write_text(d / "error.json", error_json_text)
     _set_final(d, "2-failed")
-    return {"ok": True, "case_id": case_id, "status": "failed", "reason": err["reason"]}
+    dest = _commit_to_repo(d)        # a failure is a run record too: params, config, error.json
+    return {"ok": True, "case_id": case_id, "status": "failed", "reason": err["reason"],
+            "committed_to": str(dest)}
 
 
 @audited

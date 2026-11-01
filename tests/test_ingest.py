@@ -98,11 +98,16 @@ def test_ingest_error_stores_error_json_and_flags_failed(staging, monkeypatch):
     assert queue.status(cid)[0]["status"] == "pending"
 
     res = queue.ingest_error(cid, text)
-    assert res == {"ok": True, "case_id": cid, "status": "failed", "reason": "nonzero_exit"}
+    record = staging / "repo" / "runs" / "test" / cid
+    assert res == {"ok": True, "case_id": cid, "status": "failed", "reason": "nonzero_exit",
+                   "committed_to": str(record)}
     staged = queue.queue_dir() / "jobs" / cid
     assert (staged / "error.json").read_text() == text
     assert queue.status(cid)[0]["status"] == "failed"
-    assert not (staging / "repo").exists()                    # failures are not committed
+    # a failure is a run record too: inputs and the error, no result.json
+    assert (record / "error.json").read_text() == text
+    assert {p.name for p in record.iterdir()} >= {"params.json", "case.cfg", "geometry.json", "error.json"}
+    assert not (record / "result.json").exists()
 
 
 def test_a_later_result_replaces_a_failed_flag(staging, monkeypatch):
@@ -116,6 +121,8 @@ def test_a_later_result_replaces_a_failed_flag(staging, monkeypatch):
     worker(drive, "--once")
     assert queue.ingest_result(cid, (drive / "runs" / f"{cid}.result.json").read_text())["ok"]
     assert queue.status(cid)[0]["status"] == "done"
+    record = staging / "repo" / "runs" / "test" / cid
+    assert (record / "result.json").exists() and not (record / "error.json").exists()
 
 
 def test_postprocess_returns_the_metrics_block(staging):
