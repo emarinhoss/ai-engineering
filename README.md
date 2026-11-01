@@ -77,7 +77,9 @@ python -m worker.run_worker --queue /content/drive/MyDrive/su2queue \
 - Done: `runs/<case_id>/result.json` and a copy `runs/<case_id>.result.json`. Failed: `error.json`
   with `reason` in `mesh_mismatch`, `config_mismatch`, `bad_job`, `make_error`, `timeout`,
   `nonzero_exit`, `nan`, `postprocess_error`. Download the right file and hand its text to the MCP
-  tools `ingest_result` or `ingest_error`.
+  tools `ingest_result` or `ingest_error`, or save the downloaded files as `<case_id>.result.json` /
+  `<case_id>.error.json` in one directory and run `python -m mcp_server.ingest_files <dir>`, which
+  sends each through the same checks.
 - Restart after a crash (Colab runtime reset): start the same command again. A job left at
   `1-running` whose `heartbeat.json` is older than `--stale-minutes` (default 10) is re-run;
   finished jobs are never touched. `Ctrl-C` flags nothing.
