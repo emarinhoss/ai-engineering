@@ -53,7 +53,7 @@ list of error strings, empty when OK):
 2. Shock-on-lip feasibility: x_P - X1 >= 0.02 m and y_P <= 0.6 y_top.
 3. Duct height h >= 0.008 m.
 4. Total turning theta1 + theta2 <= 26 deg (design-space definition, not a physical limit).
-5. Wall-cell Reynolds number on ramp 2 at the requested first-cell height <= 40.
+5. Wall-cell Reynolds number on ramp 2 at the requested first-cell height <= 50.
 
 ## Derived geometry (`geometry.json`, written next to the mesh)
 

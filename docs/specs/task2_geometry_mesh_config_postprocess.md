@@ -51,7 +51,8 @@ Depends on: `00_decisions.md` sections 2, 3, 4, 5, 6; `01_interfaces.md`; Task 1
 8. Extend the Task 1 notebook with a cell that runs a list of case directories sequentially and
    writes records; Task 2's case list: wedge laminar (V2b, reuse Task 1 run if converged),
    cylinder coarse/medium/fine (V3), inlet 8/8 Euler medium (V4e), inlet 8/8 laminar
-   coarse/medium/fine (V4v, V4m). Nine runs.
+   coarse/medium/fine (V4v, V4m), inlet 12/14 laminar medium/fine (V4m at the most demanding
+   corner). Eleven runs.
 
 ## Acceptance tests
 

@@ -98,6 +98,41 @@ def stretch_capped(L, N, d0, dmax):
     return x, r
 
 
+def stretch_two_sided_smooth(L, N, d0, d1, dmax=None):
+    """N points on [0, L]: spacing d0 at x = 0, d1 at x = L, one growth ratio r from both ends.
+
+    Spacing k is min(d0 r^k, d1 r^(n-1-k)): growth from the left meets the decay toward the
+    right, so the largest spacing is in the middle and no consecutive spacing ratio exceeds r.
+    With dmax the spacing never exceeds dmax (a uniform stretch in the middle). r is solved by
+    bisection so the spacings sum to L (the sum is non-decreasing in r). Raises ValueError if
+    d0 and d1 cannot both be reached. Returns (coords, info) with info = {"ratio": r,
+    "max_spacing": ..., "max_growth": largest consecutive spacing ratio}.
+    """
+    n = N - 1
+    k = np.arange(n)
+
+    def spacings(r):
+        with np.errstate(over="ignore"):             # huge trial ratios overflow to inf; min() copes
+            d = np.minimum(d0 * r ** k, d1 * r ** (n - 1 - k))
+        return d if dmax is None else np.minimum(d, dmax)
+
+    if spacings(1.0).sum() > L * (1.0 + 1e-12):
+        raise ValueError(f"n*min(d0, d1) = {spacings(1.0).sum():.6g} > L = {L:.6g}")
+    hi = 2.0
+    while spacings(hi).sum() < L:
+        hi *= 2.0
+        if hi > 1e6:
+            raise ValueError("cannot span L with these spacings")
+    r = _bisect_increasing(lambda r: spacings(r).sum(), 1.0, hi, L)
+    d = spacings(r)
+    if abs(d[0] - d0) > 1e-9 * d0 or abs(d[-1] - d1) > 1e-9 * d1:
+        raise ValueError(f"end spacings {d0:.6g}, {d1:.6g} not reachable with N={N}, L={L:.6g}")
+    x = np.concatenate(([0.0], np.cumsum(d)))
+    x[-1] = L
+    growth = np.maximum(d[1:] / d[:-1], d[:-1] / d[1:]) if n > 1 else np.ones(1)
+    return x, {"ratio": r, "max_spacing": float(d.max()), "max_growth": float(growth.max())}
+
+
 # ----------------------------------------------------------------------------
 # Block
 # ----------------------------------------------------------------------------

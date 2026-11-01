@@ -213,8 +213,10 @@ theta1 = theta2 = 8 deg.
   displacement and the reflected shock). The mass-averaged value with boundary layers is the
   objective, not a validation quantity, and is reported next to it.
 - Mesh convergence (hard): coarse, medium, fine levels (factor 1.4 per direction and in
-  first-cell height). Medium-to-fine change in recovery_total <= 2 percent relative and in
-  q_peak <= 5 percent. If medium fails, fine becomes production and the timing gate is
+  first-cell height) at the design point, plus medium and fine at the most demanding corner
+  (theta1 = 12, theta2 = 14: highest throat pressure, wall-cell Reynolds number 42 at medium).
+  Medium-to-fine change in recovery_total <= 2 percent relative and in q_peak <= 5 percent at
+  both points. If medium fails, fine becomes production and the timing gate is
   re-evaluated; if that is unaffordable, the discretisation uncertainty is reported on every
   plot.
 
@@ -273,7 +275,8 @@ theta1 = theta2 = 8 deg.
   zero-area cell; minimum interior angle >= 40 deg; first-cell height within 10 percent of the
   requested value on every wall; wall-normal growth ratio <= 1.25 anywhere; aspect ratio
   <= 5000; duct height >= 8 mm; x_P - X1 >= 0.02 m. A failure is an error with the offending
-  value, not a warning.
+  value, not a warning. Wall-cell Reynolds number gate (physics gate 5) is 50; Task 0 wrote 40,
+  which excluded the (12, 14) corner of the box at 42; the grid study covers that corner instead.
 
 ## 7. Run budget and sampling design
 
