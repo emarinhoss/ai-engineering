@@ -230,9 +230,10 @@ numerics and validation work to be done on Day 1 instead of Days 2 to 4.
   gave Roe's carbuncle on the cylinder; entropy fix 0.3 cures it (Fay-Riddell within 0.3, 1.1
   and 4.5 percent on three meshes) at a cost of 0.9 percent on flat-plate heating. Final:
   Roe, entropy fix 0.3, CFL adapt capped at 20, for every family.
-- Validation on development runs (official Colab records pending): V1, V2a, V2b (0.75 percent),
-  V3 with grid study, V4e, V4v, V4m (recovery +0.09 percent, peak heating -1.7 percent medium
-  to fine) all pass; report in `docs/validation/2026-11-01_report.md`.
+- Validation on development runs at the final numerics (official Colab records pending): V1,
+  V2a, V2b (0.75 percent), V3 with grid study, V4e, V4v, V4m (recovery +0.09 percent, peak
+  heating -1.7 percent medium to fine) all pass; the superseded entropy-fix-0.1 cylinder runs
+  stay in the report as FAIL rows; report in `docs/validation/2026-11-01_report.md`.
 - Design box trimmed: total turning <= 24 deg (gate 4). The 12/14 corner (26 deg) diverges on
   two meshes and two CFL caps; 12/12, 8/14 and 5/14 converge. 4 of 96 pool points excluded.
 - Queue transport is the Google Drive connector of the Claude Code cloud session (jobs and
