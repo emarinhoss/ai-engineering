@@ -69,9 +69,8 @@ section 5 and the per-task specs are in `docs/specs/`.
 - Replace every "(proposed)" tolerance with a justified one.
 - Write per-task specs in `docs/specs/` for Tasks 1 to 5 before any code is written.
 - Done when: `docs/specs/` exists and the tolerances below are final.
-- Status 2026-11-01: done. Decisions, interfaces and Task 1 to 5 specs written; waiting for
-  Éder's confirmation of the physics choices (Mach 4, laminar, 300 K wall, two variables,
-  objective definitions) before Task 1 starts.
+- Status 2026-11-01: done and confirmed by Éder (Mach 4, laminar, 300 K wall, two variables,
+  objective definitions).
 
 ### Task 1 (Days 1-2): SU2 on Colab and timing (Sonnet 5.5 implements, Fable reviews)
 
@@ -217,3 +216,27 @@ the calibration plot.
 8. Task 1 scope grew to include the analytic module, the mesher core and the wedge, because
    the timing case needs our own mesh; Task 2 scope is the inlet, the cylinder, metrics and
    the validation suite.
+
+### 2026-11-01, Day 1 status (Fable 5.1)
+
+Far ahead of the schedule: the code of Tasks 1 to 4 is implemented, reviewed and on `main`
+(236 tests). SU2 v8.2.0 runs both on Colab and on the Fable cloud container, which allowed the
+numerics and validation work to be done on Day 1 instead of Days 2 to 4.
+
+- Task 1 done: Colab records in `runs/task1/` (V1 PASS, laminar wedge converged, heat flux sign
+  positive into the wall, gate T1 GO: about 4 minutes per medium inlet run on Colab).
+- Numerics changed twice on evidence (`docs/specs/00_decisions.md` section 6, `runs/dev/`):
+  AUSM+-up2 diverged or stalled, Roe with entropy fix 0.1 converged on the wedge and inlet but
+  gave Roe's carbuncle on the cylinder; entropy fix 0.3 cures it (Fay-Riddell within 0.3, 1.1
+  and 4.5 percent on three meshes) at a cost of 0.9 percent on flat-plate heating. Final:
+  Roe, entropy fix 0.3, CFL adapt capped at 20, for every family.
+- Validation on development runs (official Colab records pending): V1, V2a, V2b (0.75 percent),
+  V3 with grid study, V4e, V4v, V4m (recovery +0.09 percent, peak heating -1.7 percent medium
+  to fine) all pass; report in `docs/validation/2026-11-01_report.md`.
+- Design box trimmed: total turning <= 24 deg (gate 4). The 12/14 corner (26 deg) diverges on
+  two meshes and two CFL caps; 12/12, 8/14 and 5/14 converge. 4 of 96 pool points excluded.
+- Queue transport is the Google Drive connector of the Claude Code cloud session (jobs and
+  results as small JSON files; the Colab worker regenerates meshes and verifies a
+  rounded-coordinate fingerprint, because byte hashes differ across platforms).
+- Next: Colab worker runs the 10-job validation batch (official Task 2 records), then the
+  92-job pool (Task 3 batch); Task 4 replay runs as soon as 64 pool points are done.
