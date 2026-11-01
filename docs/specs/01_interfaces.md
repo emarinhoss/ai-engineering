@@ -110,7 +110,11 @@ and the container cannot see Drive. Consequences:
   records `mesh_fingerprint` (sha256 of coordinates rounded to 1 nm, cell connectivity and marker
   node ids; `geometry.structured.mesh_fingerprint`) and `mesh_bbox` (debugging aid) in `job.json`,
   and the worker compares fingerprints, not bytes, before running SU2 (mismatch -> failed with
-  reason mesh_mismatch, detail with the bbox difference); `config_sha256` stays a hash of the text.
+  reason mesh_mismatch, detail with the bbox difference); `config_sha256` is the sha256 of the lines
+  of `case.cfg` that SU2 reads (comment and blank lines left out, `worker.make_case.config_sha256`),
+  because the geometry comment line carries floats whose last digit differed between the container
+  and Colab (pool job inlet2r-db92dcf68d, 2026-11-01). The worker and `ingest_result` also accept the
+  whole-file sha256 for job files staged before that change.
 - Files cross Drive through the connector: the MCP server writes the job directory to a local
   staging folder `$SU2_QUEUE_DIR` in the container; Claude uploads `job.json` (which embeds
   params, geometry summary, mesh_fingerprint, config_sha256, code commit) to Drive folder

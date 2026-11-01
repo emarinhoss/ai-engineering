@@ -89,6 +89,21 @@ def test_tampered_config_hash_never_starts_su2(tmp_path):
     assert err["detail"]["our_config_sha256"] == job["config_sha256"]
 
 
+def test_whole_file_config_hash_of_an_older_job_is_accepted(tmp_path):
+    """Job files staged before the comment lines were left out of the hash carry the sha256 of the
+    whole case.cfg; the worker still runs them."""
+    from worker.make_case import make, sha256_file
+    queue = tmp_path / "queue"
+    job = stage_job(queue)
+    make(PARAMS, tmp_path / "regen")
+    legacy = sha256_file(tmp_path / "regen" / "case.cfg")
+    assert legacy != job["config_sha256"]
+    path = queue / "jobs" / f"{job['case_id']}.json"
+    path.write_text(json.dumps({**job, "config_sha256": legacy}))
+    assert worker(queue, "--once") == 0
+    assert "2-done" in flags(queue, job["case_id"])
+
+
 def test_failed_job_is_not_picked_up_again(tmp_path, monkeypatch, capsys):
     monkeypatch.setenv("FAKE_SU2_EXIT", "3")
     queue = tmp_path / "queue"

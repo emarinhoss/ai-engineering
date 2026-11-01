@@ -23,7 +23,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from geometry.structured import mesh_bbox, mesh_fingerprint
-from worker.make_case import REPO, StageError, case_id, git_commit, make, sha256_file
+from worker.make_case import REPO, StageError, case_id, config_sha256, git_commit, make, sha256_file
 from worker.run_case import run
 
 JOB_KEYS = ("case_id", "params", "created_at", "mesh_fingerprint", "config_sha256", "code_commit")
@@ -169,8 +169,9 @@ def check_regenerated(job, run_dir):
             detail.update(job_mesh_bbox=job["mesh_bbox"], our_mesh_bbox=mine,
                           max_bbox_diff_m=max(abs(a - b) for a, b in zip(job["mesh_bbox"], mine)))
         return "mesh_mismatch", detail
-    ours = sha256_file(run_dir / "case.cfg")
-    if ours != job["config_sha256"]:
+    ours = config_sha256(run_dir / "case.cfg")
+    # Job files written before 2026-11-01 evening hash the whole file, comments included.
+    if job["config_sha256"] not in (ours, sha256_file(run_dir / "case.cfg")):
         return "config_mismatch", {"job_config_sha256": job["config_sha256"],
                                    "our_config_sha256": ours, "job_code_commit": job["code_commit"],
                                    "our_code_commit": git_commit()}

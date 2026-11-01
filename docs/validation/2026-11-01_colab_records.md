@@ -38,15 +38,18 @@ This is the mass-flux-weighted throat recovery of result.json against the invisc
 | inlet2r-bb81bb26f0 | -8.62e-07 | PASS |
 | inlet2r-d4d29884be | -1.58e-07 | PASS |
 | inlet2r-5fb38e14fb | +1.84e-06 | PASS |
+| inlet2r-6760184cee | +1.94e-07 | PASS |
 | inlet2r-740910506e | -1.31e-07 | PASS |
+| inlet2r-75d57723a3 | +2.44e-07 | PASS |
 | inlet2r-a5c6a311bf | +8.21e-07 | PASS |
+| inlet2r-a6a27cc648 | -8.87e-07 | PASS |
 | inlet2r-b388f30264 | -2.51e-07 | PASS |
 | inlet2r-fa49a61941 | +2.13e-07 | PASS |
 
 ## Pool
 
-5 pool results recorded, 2 failures recorded.
-5 of 5 converged to the residual target; wall time per case 197 to 318 s, mean 263 s on 4 MPI ranks.
+8 pool results recorded, 1 pool failures recorded (inlet2r-db92dcf68d: config_mismatch).
+8 of 8 converged to the residual target; wall time per case 197 to 329 s, mean 272 s on 4 MPI ranks.
 
 ## Runs and budget
 
@@ -61,9 +64,13 @@ This is the mass-flux-weighted throat recovery of result.json against the invisc
 | inlet2r-d4d29884be | inlet2r | 8.0/8.0 | medium | 30600 | 1230 | converged | 259 | 4 |
 | wedge-b39d378f9c | wedge | 10.0/- | medium | 17664 | 903 | converged | 82 | 4 |
 | inlet2r-5fb38e14fb | inlet2r | 8.160955/6.502433 | medium | 32200 | 1068 | converged | 215 | 4 |
+| inlet2r-6760184cee | inlet2r | 8.842719/12.69708 | medium | 26600 | 1985 | converged | 329 | 4 |
 | inlet2r-740910506e | inlet2r | 6.741152/10.324807 | medium | 29400 | 1520 | converged | 279 | 4 |
+| inlet2r-75d57723a3 | inlet2r | 5.238436/11.744685 | medium | 29400 | 1637 | converged | 299 | 4 |
 | inlet2r-a5c6a311bf | inlet2r | 11.284321/5.416371 | medium | 30600 | 1060 | converged | 197 | 4 |
+| inlet2r-a6a27cc648 | inlet2r | 6.444537/8.177336 | medium | 31800 | 1200 | converged | 237 | 4 |
 | inlet2r-b388f30264 | inlet2r | 7.186394/12.278106 | medium | 27800 | 1814 | converged | 318 | 4 |
 | inlet2r-fa49a61941 | inlet2r | 11.912861/9.588432 | medium | 27200 | 1815 | converged | 305 | 4 |
 | inlet2r-20b8dcc9ec | inlet2r | 12.0/14.0 | medium | 25000 | - | failed: nonzero_exit | - | - |
 | inlet2r-dbccca19df | inlet2r | 12.0/14.0 | fine | 45240 | - | failed: nonzero_exit | - | - |
+| inlet2r-db92dcf68d | inlet2r | 8.305256/13.144555 | medium | 26600 | - | failed: config_mismatch | - | - |

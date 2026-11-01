@@ -4,7 +4,7 @@ import json
 import pytest
 
 from geometry.structured import Mesh, mesh_bbox, mesh_fingerprint
-from worker.make_case import StageError, canonical_json, case_id, make
+from worker.make_case import StageError, canonical_json, case_id, config_sha256, make
 
 PARAMS = {"family": "wedge", "theta1_deg": 10.0, "solver": "NAVIER_STOKES",
           "mesh_level": "medium", "tag": "test"}
@@ -45,7 +45,20 @@ def test_hashes_match_files(case):
     assert job["case_id"] == case_id(PARAMS)
     assert job["mesh_fingerprint"] == mesh_fingerprint(out / "mesh.su2")
     assert job["mesh_bbox"] == mesh_bbox(out / "mesh.su2")
-    assert job["config_sha256"] == hashlib.sha256((out / "case.cfg").read_bytes()).hexdigest()
+    assert job["config_sha256"] == config_sha256(out / "case.cfg")
+    assert job["config_sha256"] != hashlib.sha256((out / "case.cfg").read_bytes()).hexdigest()
+
+
+def test_config_sha256_ignores_comment_lines_only(case, tmp_path):
+    out, job = case
+    text = (out / "case.cfg").read_text()
+    assert "% geometry:" in text
+    same = tmp_path / "same.cfg"            # a last-digit change in the geometry comment: same case
+    same.write_text(text.replace("% geometry:", "% geometry (different last digit elsewhere):") + "\n\n")
+    assert config_sha256(same) == job["config_sha256"]
+    other = tmp_path / "other.cfg"          # a changed value that SU2 reads: another case
+    other.write_text(text.replace("ENTROPY_FIX_COEFF= 0.3", "ENTROPY_FIX_COEFF= 0.1"))
+    assert "ENTROPY_FIX_COEFF= 0.1" in other.read_text() and config_sha256(other) != job["config_sha256"]
 
 
 def test_quality_record_and_config(case):

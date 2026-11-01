@@ -30,5 +30,5 @@ def test_summary_handles_empty_and_failed_records(tmp_path):
     (val / "inlet2r-0000000000" / "error.json").write_text(json.dumps({"reason": "nan", "detail": {}}))
     text = colab_summary.build(val, pool, "2026-11-01")
     assert "No cylinder record." in text and "Fewer than two laminar inlet levels recorded." in text
-    assert "No Euler inlet record." in text and "0 pool results recorded, 1 failures recorded." in text
+    assert "No Euler inlet record." in text and "0 pool results recorded, 0 pool failures recorded." in text
     assert "| inlet2r-0000000000 | inlet2r | 12.0/14.0 | medium | - | - | failed: nan | - | - |" in text

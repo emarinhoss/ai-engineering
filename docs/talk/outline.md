@@ -202,24 +202,24 @@ Backup slides B1 to B6 follow S24 and are not timed.
 
 ### S21. What failed, in order (35:00, 2 min)
 
-- **Message:** Four things failed on the way, each was recorded, and each change was made on that evidence.
+- **Message:** Five things failed on the way, each was recorded, and each change was made on that evidence.
 - **Figure or table:** Table with columns: what failed, what the record shows, what changed.
-  Rows: (1) cylinder carbuncle with Roe at entropy fix 0.1; (2) Euler wedge with AUSM+-up2 diverged or stalled; (3) 12/14 corner diverged; (4) SU2 pressure cross-check error on several grid-study runs, which left V4m at 12/14 and X1 not run.
-- **Source:** `runs/dev/2026-11-01_cylinder_v3_attempt1/README.md`; `runs/dev/2026-11-01_numerics/README.md`; `runs/dev/2026-11-01_inlet_grid_study_ef03/README.md`; `docs/validation/2026-11-01_report.md` (the "not run" rows).
-- **Speaker notes:** The pressure cross-check error is open: the report's own message says to check the units, and we have not closed it. Listing it here is more useful than discovering it in discussion.
+  Rows: (1) cylinder carbuncle with Roe at entropy fix 0.1; (2) Euler wedge with AUSM+-up2 diverged or stalled; (3) 12/14 corner diverged; (4) the diverged 12/14 surface file was reported as a unit error ("check the units") until a divergence check was put before the cross-check; (5) a pool job was refused by the worker as a config mismatch because one geometry number in a comment line differed in its last digit between the container and Colab (h_duct, 3e-18), so the config hash now covers only the lines SU2 reads.
+- **Source:** `runs/dev/2026-11-01_cylinder_v3_attempt1/README.md`; `runs/dev/2026-11-01_numerics/README.md`; `runs/dev/2026-11-01_inlet_grid_study_ef03/README.md`; `docs/faults/README.md` (the "check the units" fix); `runs/pool/inlet2r-db92dcf68d/error.json` (config mismatch, reason and both hashes).
+- **Speaker notes:** Failures 4 and 5 are failures of the tooling, not of the physics, and they are the ones an agent layer must surface rather than hide: a wrong message and an over-strict guard. Both are closed with a test.
 
 ### S22. Limits of the model (37:00, 1.5 min)
 
 - **Message:** The model is laminar, sub-scale and two-dimensional with two variables, and the corner of the box that does not converge limits what the front means.
 - **Figure or table:** List of limits, each with its consequence for the Pareto front.
-- **Source:** `runs/dev/2026-11-01_inlet_grid_study_ef03/README.md` (12/14 divergence); `runs/dev/2026-11-01_numerics/README.md` (leading-edge wall temperature); turbulence sensitivity: `PENDING: validation batch (to add)`.
+- **Source:** `runs/dev/2026-11-01_inlet_grid_study_ef03/README.md` (12/14 divergence); `runs/dev/2026-11-01_numerics/README.md` (leading-edge wall temperature); turbulence sensitivity: `runs/dev/2026-11-01_turbulence_sensitivity_SA/README.md` (Spalart-Allmaras at 8/8 and 12/12, development runs, labelled a sensitivity bound).
 - **Speaker notes:** A full-scale vehicle at lower altitude would be turbulent, and the talk does not claim a turbulent result. Objective values near sharp leading edges are excluded by construction, not because they were checked.
 
 ### S23. What is still to be recorded (38:30, 1.5 min)
 
-- **Message:** The official Task 2 validation batch, the 92-point pool, the confirmation run, the Spalart-Allmaras sensitivity and the fault-injection runs are what remains to be recorded.
+- **Message:** The official validation batch, the fault matrix and the turbulence sensitivity are recorded; the 92-point pool and the confirmation run are what remains.
 - **Figure or table:** Status table: done, running, pending, each with its record.
-- **Source:** `docs/validation/2026-11-01_report.md` (done and not run). Pending rows: `PENDING: validation batch`, `PENDING: pool batch`, `PENDING: confirmation run`; the fault-injection runs are `PENDING: no batch yet`.
+- **Source:** `docs/validation/2026-11-01_report.md` (development runs); `docs/validation/2026-11-01_colab_records.md` (official validation batch: V3, V4m, V4e metrics form, X1, and the two 12/14 failures); `docs/faults/fault_matrix.md` (fault injection, run without SU2). Pending rows: `PENDING: pool batch`, `PENDING: confirmation run`.
 - **Speaker notes:** Each pending item has a named batch or an explicit note that none is assigned yet. The talk claims nothing beyond what the records show on the day.
 
 ---
@@ -239,10 +239,10 @@ Backup slides B1 to B6 follow S24 and are not timed.
 
 ### B1. Turbulence model (fidelity question: why laminar?)
 
-- **Message:** Laminar is the model for this sub-scale condition, and the turbulence sensitivity is one planned run that has not been done.
-- **Figure or table:** Bar chart of both objectives at the design point, laminar against Spalart-Allmaras (to draw once the run exists).
-- **Source:** `PENDING: validation batch (to add)`: the Spalart-Allmaras run at the design point (`docs/specs/00_decisions.md`, section 1.1).
-- **Speaker notes:** We did not run a turbulence model, and the slide says so. Any turbulent number before that run is an assumption, not a result.
+- **Message:** Laminar is the model for this sub-scale condition; a Spalart-Allmaras sensitivity run shows what a turbulent layer would change and is labelled as a bound, not a result.
+- **Figure or table:** Bar chart of both objectives at 8/8 and 12/12, laminar against Spalart-Allmaras (numbers in the record's table).
+- **Source:** `runs/dev/2026-11-01_turbulence_sensitivity_SA/README.md`: Spalart-Allmaras at 8/8 (medium and fine) and 12/12 (medium), development runs on the container. Peak heating 2.5 to 2.6 times laminar, throat recovery 0.857 against 0.909 at 8/8, wall y+ median 2.3 (medium) and 1.7 (fine); a sensitivity bound, not a validated turbulent prediction.
+- **Speaker notes:** The SA run has no transition model and y+ above 1, so it bounds the effect rather than predicting it. The trade-off keeps its direction; the heating level does not.
 
 ### B2. Wall boundary condition (fidelity question: is the wall really at 300 K?)
 

@@ -7,7 +7,7 @@ The mesh is identified by `mesh_fingerprint` (geometry/structured.py), not by th
 mesh.su2: the bytes of the file differ between machines (the last digit of a coordinate depends on
 the numpy build and platform; Colab and the staging container disagreed), while the coordinates
 agree to far better than 1 nm. The fingerprint hashes coordinates rounded to 1 nm, the cells and the
-marker node ids. `mesh_bbox` in job.json is a debugging aid for a mismatch. config_sha256 stays a
+marker node ids. `mesh_bbox` in job.json is a debugging aid for a mismatch. config_sha256 is a
 hash of the text of case.cfg, which is platform independent.
 """
 import hashlib
@@ -88,6 +88,16 @@ def sha256_file(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
+def config_sha256(path):
+    """sha256 of the lines of case.cfg that SU2 reads: comment lines (starting with %) and blank
+    lines are left out. The comment lines carry the geometry summary at full float precision, and
+    its last digit can differ between machines (h_duct differed by 3e-18 between the container and
+    Colab, pool job inlet2r-db92dcf68d), which is not a different case."""
+    lines = (line.rstrip() for line in Path(path).read_text().splitlines())
+    text = "\n".join(line for line in lines if line and not line.lstrip().startswith("%"))
+    return hashlib.sha256(text.encode()).hexdigest()
+
+
 def git_commit():
     """HEAD commit of this repository, or "unknown" when git is not available."""
     try:
@@ -149,7 +159,7 @@ def make(params, out_dir):
         "created_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
         "mesh_fingerprint": mesh_fingerprint(out / "mesh.su2"),
         "mesh_bbox": mesh_bbox(out / "mesh.su2"),
-        "config_sha256": sha256_file(out / "case.cfg"),
+        "config_sha256": config_sha256(out / "case.cfg"),
         "code_commit": git_commit(),
         "timeout_s": 2400,
         "max_cores": 2,

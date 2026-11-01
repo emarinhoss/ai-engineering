@@ -9,7 +9,6 @@ result.json; if compute fails the exception text is kept under "metrics_error" a
 result.json.
 """
 import argparse
-import hashlib
 import json
 import os
 import re
@@ -23,6 +22,7 @@ from pathlib import Path
 
 from postprocess.history import summarize
 from postprocess.metrics import compute
+from worker.make_case import config_sha256
 
 MPI_LAUNCHERS = ("mpirun", "mpiexec")
 MISSING_LIBRARY_HINTS = ("shared librar", "cannot open shared object", "no such file",
@@ -74,10 +74,6 @@ def solver_version(tokens, cwd, log_path=None):
     return "unknown"
 
 
-def _sha256(path):
-    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
-
-
 def _count_rows(path):
     with open(path) as f:
         return max(0, sum(1 for line in f if line.strip()) - 1)
@@ -125,7 +121,7 @@ def run(case_dir, su2_cmd="SU2_CFD", timeout_s=2400, log_name="log.txt"):
                 "exit_code": exit_code, "timeout": timed_out,
                 "runtime": {"nproc": os.cpu_count(), "ram_gb": ram_gb()}},
         "solver": {"name": "SU2_CFD", "version": version, "command": f"{su2_cmd} case.cfg",
-                   "n_cores": parse_n_cores(tokens), "config_sha256": _sha256(case_dir / "case.cfg")},
+                   "n_cores": parse_n_cores(tokens), "config_sha256": config_sha256(case_dir / "case.cfg")},
     }
     job = case_dir / "job.json"
     if job.exists():

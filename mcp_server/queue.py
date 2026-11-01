@@ -26,7 +26,7 @@ from cases.check_keys import DEFAULT_TEMPLATE, unknown_keys
 from mcp_server.schemas import to_params, validate
 from physics import gates
 from postprocess.metrics import compute
-from worker.make_case import StageError, git_commit, make
+from worker.make_case import StageError, config_sha256, git_commit, make, sha256_file
 
 CASE_ID_RE = re.compile(r"^(inlet2r|wedge|cylinder)-[0-9a-f]{10}$")
 TAG_RE = re.compile(r"^[a-z0-9_-]{1,32}$")
@@ -380,7 +380,13 @@ def check_record(rec, d, case_id):
         return errors
     if rec["params"] != _read(d / "params.json"):
         errors.append("params differ from the staged params.json")
-    if rec["solver"].get("config_sha256") != staged["config_sha256"]:
+    # The config SU2 ran must be the staged one: its hash over the lines SU2 reads, or (jobs staged
+    # before the comment lines were left out of the hash) over the whole file.
+    cfg = d / "case.cfg"
+    accepted = {staged["config_sha256"]}
+    if cfg.is_file():
+        accepted |= {config_sha256(cfg), sha256_file(cfg)}
+    if rec["solver"].get("config_sha256") not in accepted:
         errors.append("solver.config_sha256 differs from the staged config_sha256")
     if not isinstance(rec["solver"].get("version"), str):
         errors.append("solver.version must be a string")

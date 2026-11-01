@@ -250,3 +250,10 @@ numerics and validation work to be done on Day 1 instead of Days 2 to 4.
   instead of "check the units". 265 tests.
 - Pool: 92 jobs running on Colab since 18:23 UTC at about 4.4 minutes per point (4 ranks);
   results are ingested in batches into `runs/pool/`. Task 4 replay runs at 64 pool points.
+- Pool job inlet2r-db92dcf68d was refused by the worker (`config_mismatch`): the geometry
+  comment line of case.cfg had `h_duct` differing in its last digit (3e-18) between the container
+  and Colab, the lines SU2 reads were identical. Fix on main: `config_sha256` hashes only the
+  lines SU2 reads; the worker and ingest also accept the older whole-file hash. Operator step
+  when the pool batch ends: restart the Colab worker on the new main, delete `status/2-failed`
+  of the refused jobs on Drive and let the worker re-run them. Until the restart, more jobs may
+  be refused for the same reason; each is recorded in `runs/pool/<id>/error.json`.
