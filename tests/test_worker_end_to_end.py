@@ -118,3 +118,49 @@ def test_oldest_job_first(tmp_path):
     assert worker(queue, "--once") == 0
     assert flags(queue, older["case_id"])[-1] == "2-done"
     assert not (queue / "runs" / newer["case_id"]).exists()
+
+
+def write_batch(queue, jobs, name="batch0123456"):
+    path = Path(queue) / "jobs" / f"{name}.batch.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({"batch_id": name, "jobs": jobs}, indent=1))
+    return path
+
+
+def test_batch_file_jobs_run_in_created_at_order(tmp_path, capsys):
+    queue = tmp_path / "queue"
+    scratch = tmp_path / "jobs_src"
+    newer = make({**PARAMS, "theta1_deg": 9.0}, scratch / "a")
+    older = make({**PARAMS, "theta1_deg": 11.0}, scratch / "b")
+    newer["created_at"], older["created_at"] = "2026-11-01T10:00:00+00:00", "2026-11-01T09:00:00+00:00"
+    path = write_batch(queue, [newer, older])                  # listed newest first on purpose
+    text = path.read_text()
+
+    assert worker(queue, "--once") == 0
+    assert flags(queue, older["case_id"])[-1] == "2-done"
+    assert not (queue / "runs" / newer["case_id"]).exists()
+    assert worker(queue, "--once") == 0
+    assert flags(queue, newer["case_id"]) == ["0-seen", "1-running", "2-done"]
+    assert flags(queue, older["case_id"]) == ["0-seen", "1-running", "2-done"]
+
+    capsys.readouterr()
+    assert worker(queue, "--once") == 0
+    assert "nothing to do" in capsys.readouterr().out
+    assert path.read_text() == text                            # the worker never rewrites the batch
+
+
+def test_batch_with_a_finished_entry_runs_only_the_pending_one(tmp_path):
+    queue = tmp_path / "queue"
+    scratch = tmp_path / "jobs_src"
+    done = make({**PARAMS, "theta1_deg": 9.0}, scratch / "a")
+    todo = make({**PARAMS, "theta1_deg": 11.0}, scratch / "b")
+    done["created_at"], todo["created_at"] = "2026-11-01T09:00:00+00:00", "2026-11-01T10:00:00+00:00"
+    write_batch(queue, [done, todo])
+    finished = queue / "runs" / done["case_id"] / "status"
+    finished.mkdir(parents=True)
+    (finished / "2-done").write_text("x\n")
+
+    assert worker(queue, "--once") == 0
+    assert flags(queue, todo["case_id"])[-1] == "2-done"
+    assert sorted(p.name for p in finished.iterdir()) == ["2-done"]      # untouched
+    assert not (queue / "runs" / done["case_id"] / "log.txt").exists()

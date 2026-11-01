@@ -118,6 +118,12 @@ and the container cannot see Drive. Consequences:
   `su2queue/runs/<case_id>.result.json` written by the worker. Large files (history, surface
   CSV, log) stay in Drive under `su2queue/runs/<case_id>/` and are fetched only for cases we
   commit to `runs/` (validation, confirmation, and a sample of pool points), gzip-compressed.
+- The 96-point pool crosses Drive as ONE file: the MCP tool `export_batch(case_ids)` bundles the
+  staged `job.json` dicts into `jobs/<batch_id>.batch.json` (`{batch_id, created_at, code_commit,
+  jobs}`, batch_id = first 10 hex of sha256 of the sorted case ids), and the worker treats every
+  entry like a single job file (same validation, same state logic by `runs/<case_id>/`, oldest
+  `created_at` first) and never rewrites the batch file. Pool rows excluded by a physics gate or
+  the schema are not fatal: `queue_batch` lists them under `skipped` and carries on.
 - The LLM is therefore a courier for JSON files; it never changes their content. Every upload
   and download is logged by the MCP `record_transfer` tool so the audit trail is complete.
 - Drive folder ids (not secrets): root `su2queue` 198Hy62zhAcDo3LIn2UZhjWsEFvhH_beo; children

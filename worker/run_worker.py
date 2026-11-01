@@ -2,7 +2,8 @@
 
     python -m worker.run_worker --queue DIR --su2-cmd "mpirun -n 2 SU2_CFD" --poll 20 --timeout 2400
 
-DIR holds jobs/<case_id>.json (the job.json that worker.make_case wrote, uploaded by Claude) and
+DIR holds jobs/<case_id>.json (the job.json that worker.make_case wrote, uploaded by Claude),
+jobs/<batch_id>.batch.json (many jobs in one file, each entry handled like a job file) and
 runs/<case_id>/ (written here). Layout and flags: docs/specs/01_interfaces.md, "Job directory".
 Pending = a job file with no status/2-done and no status/2-failed flag in its run directory. A job
 flagged 1-running whose heartbeat is older than --stale-minutes is a crash victim and is re-run.
@@ -94,28 +95,56 @@ def job_state(run_dir, stale_s):
     return "crashed" if heartbeat_age_s(run_dir) >= stale_s else "running"
 
 
+def check_job(job, label, expected_id=None):
+    """`job` if it has all JOB_KEYS (and, when given, case_id == expected_id), else None."""
+    try:
+        missing = [k for k in JOB_KEYS if k not in job]
+    except TypeError:
+        missing = list(JOB_KEYS)
+    if missing or (expected_id is not None and job["case_id"] != expected_id):
+        say(f"skipping {label}: missing keys {missing} or case_id differs from file name")
+        return None
+    return job
+
+
 def read_job(path):
     """The job dict, or None (with a message) if the file is unreadable or incomplete.
     A file still being synced by Drive is simply tried again at the next poll."""
     try:
         job = read_json(path)
-        missing = [k for k in JOB_KEYS if k not in job]
-    except (OSError, ValueError, TypeError) as err:
+    except (OSError, ValueError) as err:
         say(f"skipping {Path(path).name}: {err}")
         return None
-    if missing or job["case_id"] != Path(path).stem:
-        say(f"skipping {Path(path).name}: missing keys {missing} or case_id differs from file name")
-        return None
-    return job
+    return check_job(job, Path(path).name, Path(path).stem)
+
+
+def read_batch(path):
+    """The valid jobs of a jobs/<batch_id>.batch.json (each checked like a single job file).
+    The batch file itself is never rewritten."""
+    try:
+        entries = read_json(path)["jobs"]
+        if not isinstance(entries, list):
+            raise TypeError("'jobs' is not a list")
+    except (OSError, ValueError, KeyError, TypeError) as err:
+        say(f"skipping {Path(path).name}: {err}")
+        return []
+    jobs = (check_job(e, f"{Path(path).name} entry {i}") for i, e in enumerate(entries))
+    return [j for j in jobs if j]
 
 
 def jobs_in_state(queue, states, stale_s):
-    """Jobs whose state is in `states`, oldest created_at first."""
-    found = []
-    for path in sorted((Path(queue) / "jobs").glob("*.json")):
-        job = read_job(path)
-        if job and job_state(Path(queue) / "runs" / job["case_id"], stale_s) in states:
-            found.append(job)
+    """Jobs (single files jobs/<case_id>.json and entries of jobs/*.batch.json) whose state is in
+    `states`, oldest created_at first. A case_id listed twice is taken once."""
+    jobs_dir = Path(queue) / "jobs"
+    found, seen = [], set()
+    candidates = [read_job(p) for p in sorted(jobs_dir.glob("*.json")) if not p.name.endswith(".batch.json")]
+    for path in sorted(jobs_dir.glob("*.batch.json")):
+        candidates += read_batch(path)
+    for job in candidates:
+        if job and job["case_id"] not in seen:
+            seen.add(job["case_id"])
+            if job_state(Path(queue) / "runs" / job["case_id"], stale_s) in states:
+                found.append(job)
     return sorted(found, key=lambda j: (j["created_at"], j["case_id"]))
 
 

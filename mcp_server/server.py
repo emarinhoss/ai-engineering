@@ -62,8 +62,15 @@ def list_results(tag: str | None = None, status: str | None = None) -> str:
 @mcp.tool()
 def queue_batch(design_csv: str, tag: str, mesh_level: str = "medium") -> str:
     """Create and submit one inlet2r job per row (theta1_deg, theta2_deg) of a committed design
-    CSV, in file order, stopping at the first failing row. Never chooses the points itself."""
+    CSV, in file order. Rows that fail the schema or a physics gate are listed under "skipped";
+    a later-stage failure stops the batch. Never chooses the points itself."""
     return _json(queue.queue_batch(design_csv, tag, mesh_level))
+
+
+@mcp.tool()
+def export_batch(case_ids: list[str]) -> str:
+    """Bundles staged jobs into one batch file for upload; never runs SU2."""
+    return queue.export_batch(case_ids)
 
 
 @mcp.tool()

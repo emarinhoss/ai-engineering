@@ -24,6 +24,8 @@ python -m worker.run_worker --queue /content/drive/MyDrive/su2queue \
 
 - `jobs/<case_id>.json` is the `job.json` of a staged case (uploaded by Claude). A job is pending
   until `runs/<case_id>/status/` holds `2-done` or `2-failed`; the oldest `created_at` goes first.
+- `jobs/<batch_id>.batch.json` holds many jobs in one file (made by the MCP tool `export_batch`); the
+  worker handles each entry like a single job file, mixed with single files by `created_at`.
 - Done: `runs/<case_id>/result.json` and a copy `runs/<case_id>.result.json`. Failed: `error.json`
   with `reason` in `mesh_mismatch`, `config_mismatch`, `bad_job`, `make_error`, `timeout`,
   `nonzero_exit`, `nan`, `postprocess_error`. Download the right file and hand its text to the MCP

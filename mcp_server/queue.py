@@ -26,7 +26,7 @@ from cases.check_keys import DEFAULT_TEMPLATE, unknown_keys
 from mcp_server.schemas import to_params, validate
 from physics import gates
 from postprocess.metrics import compute
-from worker.make_case import StageError, make
+from worker.make_case import StageError, git_commit, make
 
 CASE_ID_RE = re.compile(r"^(inlet2r|wedge|cylinder)-[0-9a-f]{10}$")
 TAG_RE = re.compile(r"^[a-z0-9_-]{1,32}$")
@@ -246,13 +246,17 @@ def list_results(tag=None, status=None):
 
 
 @audited
-def queue_batch(csv_path, tag, mesh_level="medium", family="inlet2r"):
+def queue_batch(csv_path, tag, mesh_level="medium", family="inlet2r", skip_gated=True):
     """create + submit every row (theta1_deg, theta2_deg) of a design CSV, in order.
 
-    Stops at the first failing row. A row whose job already exists is not an error: it is
-    submitted if still only created, so an interrupted batch can be run again.
+    With skip_gated, a row that fails at stage "gates" or "schema" is recorded under "skipped" and
+    the loop goes on; a failure at a later stage (geometry, mesh_quality, config) stops the batch.
+    A row whose job already exists is not an error: it is submitted if still only created, so an
+    interrupted batch can be run again. The row's "index" column (if any) is returned in
+    "pool_index" (parallel to "case_ids") and written to jobs/<case_id>/pool_index.txt; it is not
+    part of the params.
     """
-    out = {"ok": True, "case_ids": [], "failed": None}
+    out = {"ok": True, "case_ids": [], "pool_index": [], "skipped": [], "failed": None}
     try:
         with open(csv_path, newline="") as f:
             rows = list(csv.DictReader(f))
@@ -260,6 +264,7 @@ def queue_batch(csv_path, tag, mesh_level="medium", family="inlet2r"):
     except (OSError, KeyError, ValueError) as exc:
         return {**out, "ok": False, "failed": {"row": None, "stage": "csv", "errors": [repr(exc)]}}
     for i, (t1, t2) in enumerate(points):
+        index = rows[i].get("index", str(i))
         params = {"family": family, "theta1_deg": t1, "mesh_level": mesh_level, "tag": tag}
         if family == "inlet2r":
             params["theta2_deg"] = t2
@@ -268,12 +273,42 @@ def queue_batch(csv_path, tag, mesh_level="medium", family="inlet2r"):
             res = {"ok": True, "case_id": res["case_id"]}
         if res["ok"] and _status_of(_job_dir(res["case_id"])) == "created":
             res = submit(res["case_id"])
+        if not res["ok"] and skip_gated and res["stage"] in ("gates", "schema"):
+            out["skipped"].append({"row": i, "index": index, "theta1_deg": t1, "theta2_deg": t2,
+                                   "stage": res["stage"], "errors": res["errors"]})
+            continue
         if not res["ok"]:
             return {**out, "ok": False, "failed": {"row": i, "stage": res["stage"],
                                                    "errors": res["errors"], "theta1_deg": t1,
                                                    "theta2_deg": t2}}
+        _write_text(_job_dir(res["case_id"]) / "pool_index.txt", f"{index}\n")
         out["case_ids"].append(res["case_id"])
+        out["pool_index"].append(index)
     return out
+
+
+@audited
+def export_batch(case_ids, path=None):
+    """Bundle the job.json of staged jobs into one JSON text {batch_id, created_at, code_commit,
+    jobs}, jobs in the given order, so one file can be uploaded to Drive instead of many.
+
+    batch_id is the first 10 hex digits of the sha256 of the sorted case ids. With path=None the
+    text is also written to $SU2_QUEUE_DIR/batches/<batch_id>.batch.json. Never runs SU2.
+    """
+    jobs = []
+    for cid in case_ids:
+        d, bad = _staged(cid)
+        if bad:
+            raise ValueError(f"cannot export {cid!r}: {bad['errors'][0]}")
+        jobs.append(_read(d / "job.json"))
+    batch_id = hashlib.sha256(",".join(sorted(case_ids)).encode()).hexdigest()[:10]
+    text = json.dumps({"batch_id": batch_id,
+                       "created_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                       "code_commit": git_commit(), "jobs": jobs}, indent=1, sort_keys=True) + "\n"
+    target = Path(path) if path else queue_dir() / "batches" / f"{batch_id}.batch.json"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    _write_text(target, text)
+    return text
 
 
 def record_transfer(case_id, direction, drive_file_id, sha256):

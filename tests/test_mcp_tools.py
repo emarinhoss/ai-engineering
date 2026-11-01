@@ -31,7 +31,7 @@ def test_tools_are_registered():
         async with Client(mcp) as client:
             return {t.name for t in (await client.list_tools()).tools}
     assert asyncio.run(go()) == {"validate_config", "create_case", "submit", "status",
-                                 "list_results", "queue_batch", "record_transfer",
+                                 "list_results", "queue_batch", "export_batch", "record_transfer",
                                  "ingest_result", "ingest_error", "postprocess"}
 
 
@@ -100,10 +100,13 @@ def test_queue_batch_creates_pending_jobs_in_order(tmp_path):
 def test_queue_batch_stops_at_first_failure(tmp_path):
     design = tmp_path / "design.csv"
     design.write_text("index,theta1_deg,theta2_deg\n0,9.0,0\n1,30.0,0\n2,7.0,0\n")
-    res = queue.queue_batch(str(design), "pool", "coarse", family="wedge")
+    res = queue.queue_batch(str(design), "pool", "coarse", family="wedge", skip_gated=False)
     assert res["ok"] is False and len(res["case_ids"]) == 1
     assert res["failed"]["row"] == 1 and res["failed"]["stage"] == "schema"
     assert len(queue.status()) == 1
+    # By default the bad row is skipped and recorded, and the loop goes on.
+    res = queue.queue_batch(str(design), "pool", "coarse", family="wedge")
+    assert res["ok"] and len(res["case_ids"]) == 2 and res["skipped"][0]["stage"] == "schema"
 
 
 def test_queue_batch_through_the_tool_uses_inlet2r(tmp_path):
@@ -158,3 +161,41 @@ def test_csv_missing(tmp_path):
     assert res["ok"] is False and res["failed"]["stage"] == "csv"
 
 
+
+
+def test_queue_batch_skips_gated_rows_and_export_batch_bundles_the_rest(tmp_path, queue_env):
+    design = tmp_path / "d.csv"
+    design.write_text("index,theta1_deg,theta2_deg\n0,8.0,8.0\n7,12.0,14.0\n9,6.0,7.0\n10,7.0,9.0\n")
+    res = queue.queue_batch(str(design), "pool", "coarse")
+    assert res["ok"] and len(res["case_ids"]) == 3 and res["pool_index"] == ["0", "9", "10"]
+    assert len(res["skipped"]) == 1
+    skip = res["skipped"][0]
+    assert (skip["row"], skip["index"], skip["theta1_deg"], skip["theta2_deg"], skip["stage"]) == \
+        (1, "7", 12.0, 14.0, "gates")
+    assert "gate 4" in " ".join(skip["errors"])
+    for cid, idx in zip(res["case_ids"], res["pool_index"]):
+        job = queue_env / "jobs" / cid
+        assert (job / "pool_index.txt").read_text().strip() == idx
+        assert "index" not in json.loads((job / "params.json").read_text())
+    assert len(queue.status()) == 3                              # the gated row left nothing behind
+    # A gate-4 row is not skipped when the caller asks for the old behaviour.
+    strict = queue.queue_batch(str(design), "pool", "coarse", skip_gated=False)
+    assert strict["ok"] is False and strict["failed"]["stage"] == "gates" and strict["failed"]["row"] == 1
+
+    text = queue.export_batch(res["case_ids"])
+    batch = json.loads(text)
+    expected = [json.loads((queue_env / "jobs" / c / "job.json").read_text()) for c in res["case_ids"]]
+    assert batch["jobs"] == expected
+    assert len(batch["batch_id"]) == 10 and {"created_at", "code_commit"} <= set(batch)
+    path = queue_env / "batches" / f"{batch['batch_id']}.batch.json"
+    assert path.read_text() == text
+    again = json.loads(queue.export_batch(list(reversed(res["case_ids"]))))
+    assert again["batch_id"] == batch["batch_id"]                # sorted ids: order does not matter
+    assert [j["case_id"] for j in again["jobs"]] == list(reversed(res["case_ids"]))
+    assert call("export_batch", case_ids=res["case_ids"])["batch_id"] == batch["batch_id"]
+
+
+def test_export_batch_refuses_unknown_case(queue_env):
+    with pytest.raises(ValueError):
+        queue.export_batch(["wedge-0123456789"])
+    assert not (queue_env / "batches").exists()
