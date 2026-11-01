@@ -116,6 +116,9 @@ reattachment heating peak on ramp 2. Viscous displacement makes the real shocks 
 steeper than the inviscid design, so the viscous design point has slight shock ingestion and
 a weak reflection inside the duct. Cowl boundary layer from a sharp lip. Separation bubbles
 that do not converge to a steady state are a recorded failure mode, not something to tune away.
+Found on 2026-11-01 (runs/dev): within about 30 mm of a sharp leading edge SU2's wall-node
+temperature departs from the imposed 300 K (weak imposition where the first cell is large
+relative to the local boundary layer); this region is outside both objectives by construction.
 
 ## 3. Objectives (exact definitions)
 
