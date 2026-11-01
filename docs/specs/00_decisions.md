@@ -306,7 +306,12 @@ theta1 = theta2 = 8 deg.
   sequence order so any prefix is usable; 64 is the minimum (balanced prefix). All strategies
   (random, LHS, two active-learning variants) are replayed offline against this pool with 10
   seeds, so the comparison is on identical ground truth and costs no extra CFD.
-- Budget estimate: medium mesh, 2 cores, about 5 min per run gives 12 per hour; pool of 96 plus
+- Compute (confirmed by Éder 2026-11-01): Colab runtime with 8 vCPU and 51 GB for all runs;
+  the worker notebook uses 4 MPI ranks on it. Task 1 measured about 0.1 s per iteration for
+  the 17.7k-cell wedge on 2 ranks of that machine, so a medium inlet run (30.6k cells, about
+  1300 to 2200 iterations) is 4 to 6 minutes on 2 ranks and less on 4; the pool of 92 fits in
+  one night.
+- Budget estimate (Task 0): medium mesh, 2 cores, about 5 min per run gives 12 per hour; pool of 96 plus
   about 20 validation and mesh-study runs plus 3 confirmation runs is about 120 runs, two
   Colab nights. If Task 1 gives more than 5 min, see gate T1.
 - The surrogate (Gaussian process on 2 inputs, <= 100 points) runs on CPU in seconds; the
