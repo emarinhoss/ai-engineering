@@ -107,9 +107,14 @@ def test_quality_gate_over_the_design_box():
         assert q["max_growth"] <= 1.25, (where, q["max_growth"])
         assert q["max_aspect_ratio"] <= 5000, where
         assert 15_000 <= geo["cells"] <= 45_000, (where, geo["cells"])   # 40.2k at 5/5 medium
-        # The corner (12, 14) has p_th/p_inf = 8.1 and a wall-cell Reynolds number of 42.4,
-        # inside gate 5's limit of 50 (the grid study covers this corner explicitly).
-        assert gates.check(params) == [], (where, gates.check(params))
+        # Gate 4 (total turning <= 24 deg) excludes the corner of the box where the laminar
+        # solution does not converge (12/14 diverged on two meshes and two CFL caps; 12/12, 8/14
+        # and 5/14 converge). Everything else must be gate-clean.
+        msgs = gates.check(params)
+        if t1 + t2 > 24.0:
+            assert len(msgs) == 1 and msgs[0].startswith("gate 4"), (where, msgs)
+        else:
+            assert msgs == [], (where, msgs)
         cells.append(geo["cells"])
         min_angles.append(q["min_angle_deg"])
         growth.append(q["max_growth"])

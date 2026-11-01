@@ -88,8 +88,12 @@ throat Mach 2.962 (inviscid), p_th/p_inf = 4.08, two-shock recovery 0.9316.
 
 ### 2.1 Design variables and bounds
 
-**Two design variables: theta1 in [5, 12] deg, theta2 in [5, 14] deg.** Total turning 10 to 26
-deg; all shocks attached with margin (theta_max at M = 3 is 34 deg). Over the box (inviscid):
+**Two design variables: theta1 in [5, 12] deg, theta2 in [5, 14] deg, with theta1 + theta2 <= 24
+deg (gate 4).** Total turning 10 to 24 deg; all shocks attached with margin (theta_max at M = 3 is
+34 deg). The 24 deg cut (Task 0 had 26) removes the corner where the laminar solution does not
+converge: on 2026-11-01, 12/14 diverged on two meshes with entropy fix 0.1 and 0.3 and CFL caps 20
+and 5, while 12/12, 8/14 and 5/14 converged (runs/dev/2026-11-01_inlet_box_diagnostics); the gate
+rejects such designs before submission and excludes 4 of the 96 pool points. Over the box (inviscid):
 x_P in [0.151, 0.282], h in [0.019, 0.050], throat Mach 2.41 to 3.32, two-shock recovery 0.80
 to 0.98, recovery including the terminal shock 0.24 to 0.43.
 

@@ -13,7 +13,7 @@ def test_design_point_is_clean():
 def test_total_turning_rejects_12_and_14p5():
     # the schema bound (theta2 <= 14) lives in mcp_server/schemas.py; gate 4 catches the same case
     msgs = check({**BASE, "theta1_deg": 12.0, "theta2_deg": 14.5})
-    assert any(m.startswith("gate 4") and "26.5" in m and "26" in m for m in msgs)
+    assert any(m.startswith("gate 4") and "26.5" in m and "24" in m for m in msgs)
 
 
 def test_detached_second_shock_names_theta_max():
@@ -52,11 +52,12 @@ def test_thin_duct_is_gate_3():
 
 def test_wall_cell_reynolds_number_gate_5():
     assert check(BASE) == []
-    # the corner of the design box is 42.4 at medium (limit 50): accepted
-    assert check({**BASE, "theta1_deg": 12.0, "theta2_deg": 14.0}) == []
-    # the coarse level (d0 = 28 um) at the same corner is 59.4: rejected, message names the limit
-    msgs = check({**BASE, "theta1_deg": 12.0, "theta2_deg": 14.0, "mesh_level": "coarse"})
-    assert len(msgs) == 1 and msgs[0].startswith("gate 5") and "59.4" in msgs[0] and "50" in msgs[0]
+    # 12/14 is outside the box since gate 4 went to 24 deg; the hottest admissible corner is 10/14
+    # (total 24 deg): accepted at medium (wall-cell Re below 50)
+    assert check({**BASE, "theta1_deg": 10.0, "theta2_deg": 14.0}) == []
+    # the coarse level (d0 = 28 um) at that corner exceeds 50: rejected, message names the limit
+    msgs = check({**BASE, "theta1_deg": 10.0, "theta2_deg": 14.0, "mesh_level": "coarse"})
+    assert len(msgs) == 1 and msgs[0].startswith("gate 5") and "50" in msgs[0]
     coarse = check({**BASE, "mesh_level": "coarse"})                         # 21.3 * 1.4 = 29.8
     assert coarse == []
 

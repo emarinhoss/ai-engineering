@@ -52,7 +52,9 @@ list of error strings, empty when OK):
 1. Attached shocks: theta1 <= theta_max(M_inf) - 2 deg; theta2 <= theta_max(M1) - 2 deg.
 2. Shock-on-lip feasibility: x_P - X1 >= 0.02 m and y_P <= 0.6 y_top.
 3. Duct height h >= 0.008 m.
-4. Total turning theta1 + theta2 <= 26 deg (design-space definition, not a physical limit).
+4. Total turning theta1 + theta2 <= 24 deg (design-space definition; 26 at Task 0, trimmed on
+   2026-11-01 because the laminar solution at 26 deg total turning does not converge, see
+   runs/dev/2026-11-01_inlet_box_diagnostics).
 5. Wall-cell Reynolds number on ramp 2 at the requested first-cell height <= 50.
 
 ## Derived geometry (`geometry.json`, written next to the mesh)

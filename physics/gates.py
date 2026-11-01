@@ -11,7 +11,7 @@ from physics.constants import ATMOSPHERE_TABLE, GAMMA, R_AIR, sutherland_mu
 from physics.shock import oblique, theta_max
 
 MARGIN_DEG = 2.0         # gate 1: stay this far below theta_max
-MAX_TURN_DEG = 26.0      # gate 4: design-space definition
+MAX_TURN_DEG = 24.0      # gate 4: design-space definition (26 at Task 0; 24 since 2026-11-01, see 00_decisions.md)
 MAX_WALL_RE = 50.0       # gate 5 (Task 0 set 40; raised to 50 on 2026-11-01, see 00_decisions.md)
 
 
