@@ -46,7 +46,7 @@ def test_required_values():
     cfg = lines(render(params(), {}, markers("wedge")))
     for line in ["MACH_NUMBER= 4.0", "FREESTREAM_TEMPERATURE= 226.509",
                  "FREESTREAM_PRESSURE= 1197.03", "REF_DIMENSIONALIZATION= DIMENSIONAL",
-                 "KIND_TURB_MODEL= NONE", "ITER= 6000", "CONV_NUM_METHOD_FLOW= ROE", "ENTROPY_FIX_COEFF= 0.1",
+                 "KIND_TURB_MODEL= NONE", "ITER= 6000", "CONV_NUM_METHOD_FLOW= ROE", "ENTROPY_FIX_COEFF= 0.3",
                  "MARKER_ISOTHERMAL= ( body, 300.0 )", "MARKER_SYM= ( symmetry )",
                  "MARKER_FAR= ( inlet, top )", "MARKER_SUPERSONIC_OUTLET= ( outlet )",
                  "MARKER_MONITORING= ( body )", "OUTPUT_FILES= ( SURFACE_TECPLOT_ASCII )"]:

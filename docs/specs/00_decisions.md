@@ -248,7 +248,7 @@ theta1 = theta2 = 8 deg.
 - `FLUID_MODEL= STANDARD_AIR`, Sutherland viscosity, `CONDUCTIVITY_MODEL= CONSTANT_PRANDTL`,
   `PRANDTL_LAM= 0.72`, `REF_DIMENSIONALIZATION= DIMENSIONAL`, `FREESTREAM_OPTION=
   TEMPERATURE_FS`, `MACH_NUMBER= 4.0`, `AOA= 0`.
-- Convective scheme `ROE` with `ENTROPY_FIX_COEFF= 0.1`, `MUSCL_FLOW= YES`, limiter
+- Convective scheme `ROE` with `ENTROPY_FIX_COEFF= 0.3`, `MUSCL_FLOW= YES`, limiter
   `VENKATAKRISHNAN_WANG`, `VENKAT_LIMITER_COEFF= 0.05`; viscous terms second-order central;
   gradients `WEIGHTED_LEAST_SQUARES`. Task 0 proposed `AUSMPLUSUP2`; on 2026-11-01 four
   800-iteration Euler-wedge variants (SU2 v8.2.0, medium wedge mesh, this repository's
@@ -256,7 +256,14 @@ theta1 = theta2 = 8 deg.
   AUSMPLUSUP2 with adaptive CFL capped at 20 stalled at log10 rms density -2.5;
   AUSMPLUSUP2 with the plain Venkatakrishnan limiter stalled at -2.4; ROE with entropy fix
   0.1 and the same CFL settings fell from -3.45 to -12.05 in 603 iterations. ROE is therefore
-  the default. Risk to watch: Roe's carbuncle on the cylinder (V3); fallback there is `HLLC`.
+  the default. The cylinder (V3) then showed Roe's carbuncle with entropy fix 0.1 (coarse stalled
+  with a non-monotonic heating distribution, medium diverged, fine stalled; see
+  runs/dev/2026-11-01_cylinder_v3_attempt1). A six-scheme comparison (attempt 2: HLLC, AUSM+-up2,
+  SLAU2, JST, first-order Roe, Roe with entropy fix 0.3) and a split test (attempt 3) showed that
+  the entropy fix, not the CFL cap, is the cure: entropy fix 0.3 at CFL max 20 converges on all
+  three cylinder meshes and gives stagnation heating within 0.3, 1.1 and 4.5 percent of
+  Fay-Riddell (coarse, medium, fine). On the laminar wedge the larger fix moves the Eckert
+  deviation from 0.75 to 1.6 percent (gate 10). Final: `ENTROPY_FIX_COEFF= 0.3` for every family.
 - `TIME_DISCRE_FLOW= EULER_IMPLICIT`, `LINEAR_SOLVER= FGMRES`, `LINEAR_SOLVER_PREC= ILU`,
   15 Krylov iterations, tolerance 1e-6; `CFL_NUMBER= 1.0` with `CFL_ADAPT= YES`
   (down 0.5, up 1.05, min 1.0, max 20). The Task 0 values (up 1.2, max 100) made the CFL

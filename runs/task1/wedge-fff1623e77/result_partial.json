@@ -1,0 +1,33 @@
+{
+ "run": {
+  "started_at": "2026-11-01T04:00:37+00:00",
+  "finished_at": "2026-11-01T04:00:59+00:00",
+  "wall_time_s": 21.43546028500009,
+  "iterations": 200,
+  "exit_code": 0,
+  "timeout": false,
+  "runtime": {
+   "nproc": 8,
+   "ram_gb": 50.99
+  }
+ },
+ "solver": {
+  "name": "SU2_CFD",
+  "version": "SU2 v8.2.0 \"Harrier\", The Open-Source CFD Code",
+  "command": "mpirun -n 2 --allow-run-as-root /content/su2mpi/bin/SU2_CFD case.cfg",
+  "n_cores": 2,
+  "config_sha256": "cf4db0bfe2e936a8d6e85ca05fb3074a68c51ee22ece1bd6f3eb3deda57f3e31"
+ },
+ "case_id": "wedge-fff1623e77",
+ "history_summary": {
+  "rms_rho_log10_start": -3.229703479,
+  "rms_rho_log10_end": -6.375317378,
+  "drop_orders": 3.145613899,
+  "drift_pct": {
+   "recovery_total": null,
+   "q_peak": 1.8246001962321454e-05
+  },
+  "status": "stationary",
+  "iterations": 200
+ }
+}
