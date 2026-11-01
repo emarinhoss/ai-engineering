@@ -93,20 +93,48 @@ AERO_COEFF, HEAT, FLOW_COEFF, CFL_NUMBER, LINSOL; `surface_flow.csv` on
 `MARKER_PLOTTING= (body, cowl, outlet_duct)` (inlet) with COORDINATES, SOLUTION, PRIMITIVE;
 volume `flow.csv` only when `save_volume`.
 
-## Job directory (queue) layout
+## Queue transport (decided 2026-11-01 after Task 0)
+
+Claude Code runs in a cloud session with a Google Drive connector; there is no synced folder
+and the container cannot see Drive. Consequences:
+- The queue carries **parameters and results only**, never meshes. The worker regenerates the
+  mesh and config in Colab from `params.json` using the same repository commit; mesh
+  determinism (byte-identical on repeat, tested) makes the two sides agree. `create_case`
+  still builds the mesh locally to run the quality gate and records `mesh_sha256`, and the
+  worker verifies it regenerated the same bytes before running SU2 (mismatch -> failed with
+  reason mesh_mismatch).
+- Files cross Drive through the connector: the MCP server writes the job directory to a local
+  staging folder `$SU2_QUEUE_DIR` in the container; Claude uploads `job.json` (which embeds
+  params, geometry summary, mesh_sha256, config_sha256, code commit) to Drive folder
+  `su2queue/jobs/` as a single small JSON file named `<case_id>.json`, and later downloads
+  `su2queue/runs/<case_id>.result.json` written by the worker. Large files (history, surface
+  CSV, log) stay in Drive under `su2queue/runs/<case_id>/` and are fetched only for cases we
+  commit to `runs/` (validation, confirmation, and a sample of pool points), gzip-compressed.
+- The LLM is therefore a courier for JSON files; it never changes their content. Every upload
+  and download is logged by the MCP `record_transfer` tool so the audit trail is complete.
+- Drive folder ids (not secrets): root `su2queue` 198Hy62zhAcDo3LIn2UZhjWsEFvhH_beo; children
+  `jobs` 1buszeVt7ApYdF_-tJxKmVRhjCfXK2t0U and `runs` 1rYaDOfiIx6r0myJ70Oh4vVnvTZWFfpSW
+  (also in `mcp_server/drive_folders.json`).
+
+## Job directory (local staging and Colab) layout
 
 ```
-$SU2_QUEUE_DIR/jobs/<case_id>/
+$SU2_QUEUE_DIR/jobs/<case_id>/                (local staging, created by create_case)
   params.json  geometry.json  mesh.su2  mesh_markers.json  mesh_quality.json  case.cfg
-  job.json                 {case_id, created_at, created_by, su2_cmd_hint, timeout_s, max_cores}
-  status/                  flag files; the lexicographically latest by prefix number wins:
-     0-created  1-pending  2-claimed-<worker_id>  3-running  4-done | 4-failed
-  heartbeat.json           written by the worker every 30 s while running
-  log.txt  history.csv  surface_flow.csv  [flow.csv]  solver_version.txt  result.json
-$SU2_QUEUE_DIR/worker/heartbeat.json   {worker_id, started_at, last_seen, current_case}
+  job.json                 {case_id, params, created_at, mesh_sha256, config_sha256,
+                            code_commit, timeout_s, max_cores}   <- the only file uploaded
+/content/drive/MyDrive/su2queue/jobs/<case_id>.json      (uploaded job.json)
+/content/drive/MyDrive/su2queue/runs/<case_id>/          (written by the worker in Colab)
+  params.json geometry.json mesh_markers.json mesh_quality.json case.cfg
+  status/  0-seen 1-running 2-done | 2-failed  (flag files, atomic write then rename)
+  heartbeat.json  log.txt  history.csv  surface_flow.csv  [flow.csv]  solver_version.txt
+  result.json  error.json
+/content/drive/MyDrive/su2queue/runs/<case_id>.result.json   (copy of result.json, downloaded)
+/content/drive/MyDrive/su2queue/worker/heartbeat.json
 ```
-Status changes are written atomically (write temp file, rename). Nothing is ever deleted or
-moved by the worker; re-runs overwrite outputs.
+Status is derived from the flag files; nothing is ever deleted or moved by the worker; re-runs
+overwrite outputs. A job is pending when `jobs/<case_id>.json` exists and `runs/<case_id>/`
+has no `status/2-*` flag.
 
 ## Run record (`result.json`), also copied under `runs/<tag>/<case_id>/` in the repo
 

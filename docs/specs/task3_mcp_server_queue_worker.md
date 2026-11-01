@@ -8,10 +8,13 @@ Depends on: `01_interfaces.md` (job layout, run record, API), Tasks 1 and 2 code
 
 ## Design
 
-- Queue is a folder on Google Drive. On Éder's machine it is the Drive for Desktop (or rclone)
-  synced folder, path in env `SU2_QUEUE_DIR`. In Colab it is `/content/drive/MyDrive/<same>`.
-  No API tokens, no secrets. The MCP server never runs SU2; the worker never decides anything
-  about physics.
+- Transport is the Google Drive connector of the Claude Code cloud session (decided
+  2026-11-01; see `01_interfaces.md` "Queue transport"). The MCP server writes a local staging
+  job and the small `job.json` is uploaded by Claude; the Colab worker regenerates mesh and
+  config from params at the same commit, verifies `mesh_sha256`, runs SU2 and writes results to
+  `su2queue/runs/`. No API tokens, no secrets. The MCP server never runs SU2; the worker never
+  decides anything about physics. The MCP server is registered for the cloud session through
+  a committed `.mcp.json` (stdio, `python -m mcp_server`).
 - MCP server: Python `mcp` (FastMCP) over stdio, registered in Claude Code with
   `claude mcp add su2 -- python -m mcp_server`. Tools return JSON text. Tools:
   - `validate_config(params) -> {ok, stage, errors, warnings, geometry?, mesh_quality?}`:
@@ -29,22 +32,29 @@ Depends on: `01_interfaces.md` (job layout, run record, API), Tasks 1 and 2 code
     recovery_total, q_peak, wall_time_s).
   - `queue_batch(design_csv, tag, mesh_level) -> [case_ids]`: create and submit every row
     (theta1_deg, theta2_deg) in order; stops at the first failing row and reports it.
+  - `record_transfer(case_id, direction, drive_file_id, sha256)`: logs an upload or download
+    done through the connector so the audit trail is complete.
+  - `ingest_result(case_id, result_json_text)`: validates the downloaded result against the run
+    record schema, checks `mesh_sha256` and `case_id` match the staged job, stores it, and
+    copies the committed subset to `runs/<tag>/`.
   Every tool call appends one line to `$SU2_QUEUE_DIR/mcp_log.jsonl` (time, tool, args hash,
   outcome) so Task 6 has an audit trail.
-- Worker `worker/run_worker.py --queue DIR --su2-cmd "mpirun -n 2 SU2_CFD" --poll 20
-  --timeout 2400`:
-  1. On start: write `worker/heartbeat.json`; scan jobs; any job with `3-running` whose
-     heartbeat is older than 10 minutes is a crash victim and goes back to `1-pending`
-     (outputs will be overwritten).
-  2. Loop: pick the oldest `1-pending` (by created_at); write `2-claimed-<worker_id>`; sleep
-     2 s; if another claim exists with a smaller worker_id, skip; else `3-running`.
-  3. Run SU2 in the job directory with a timeout; stream stdout to `log.txt`; heartbeat every
+- Worker `worker/run_worker.py --queue /content/drive/MyDrive/su2queue --su2-cmd "mpirun -n 2
+  SU2_CFD" --poll 20 --timeout 2400`:
+  1. On start: write `worker/heartbeat.json`; scan `jobs/*.json`; a job whose run directory has
+     `1-running` but a heartbeat older than 10 minutes is a crash victim and is re-run
+     (outputs overwritten).
+  2. Loop: pick the oldest pending job (by created_at in the job file); create
+     `runs/<case_id>/`, flag `0-seen`; regenerate mesh and config from params at the current
+     commit, compare sha256 with the job file (mismatch -> `2-failed`, reason mesh_mismatch);
+     flag `1-running`.
+  3. Run SU2 in the run directory with a timeout; stream stdout to `log.txt`; heartbeat every
      30 s with the latest iteration parsed from `history.csv`.
   4. On exit: `postprocess.history.summarize` and `postprocess.metrics.compute`; write
-     `result.json`, `solver_version.txt`; flag `4-done`, or `4-failed` with `error.json`
-     {reason: timeout|nonzero_exit|nan|postprocess_error, detail}. Call `os.sync()`.
-  5. Never deletes, never moves, idempotent on re-run. One worker at a time is the normal
-     mode; the claim protocol only prevents accidents.
+     `result.json`, `solver_version.txt`, copy `result.json` to `runs/<case_id>.result.json`;
+     flag `2-done`, or `2-failed` with `error.json` {reason: timeout|nonzero_exit|nan|
+     mesh_mismatch|postprocess_error, detail}. Call `os.sync()`.
+  5. Never deletes, never moves, idempotent on re-run. One worker at a time.
 - Pool design: `designs/make_pool.py` writes `designs/pool_sobol96.csv` (scipy Sobol, d = 2,
   scrambled, seed 0, first 96 points scaled to the box, columns index, theta1_deg,
   theta2_deg) and commits it. The batch is queued in index order.
