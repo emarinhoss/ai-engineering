@@ -8,8 +8,11 @@ GP outputs are y1 = recovery_total and y2 = log(q_peak_W_m2), so f1 = -y1 and f2
 Strategies: random, lhs (offline space-filling, redrawn at every budget), al_ehvi,
 al_maxvar. All four start from the same n_init random pool points for a given seed.
 
+Surrogate: "gp" (surrogate.gp.GP, the default) or "mlp" (surrogate.mlp.MLPEnsemble, a deep
+ensemble with the same interface; docs/specs/task4b_mlp_ensemble.md). Only the model changes.
+
 CLI: python -m surrogate.replay --pool designs/pool_sobol96.csv --results RESULTS.csv \
-        --out runs/replay/<date>/replay.csv      (or --synthetic --out PATH)
+        --out runs/replay/<date>/replay.csv [--model mlp]      (or --synthetic --out PATH)
 """
 import argparse
 import csv
@@ -33,6 +36,9 @@ from surrogate.acquisition import (
     ref_point,
 )
 from surrogate.gp import GP, Standardizer, scale_inputs
+from surrogate.mlp import MLPEnsemble
+
+MODELS = {"gp": GP, "mlp": MLPEnsemble}
 
 BOUNDS = list(zip(LOW, HIGH))                     # (theta1, theta2) design box in degrees
 STRATEGIES = ("random", "lhs", "al_ehvi", "al_maxvar")
@@ -66,12 +72,12 @@ class Pool:
         self.hv_true = hypervolume_2d(self.F[pareto_front(self.F)], self.ref)
 
 
-def fit_models(P, sel):
-    """One (GP, Standardizer) per output, fitted on the selected pool points."""
+def fit_models(P, sel, model="gp"):
+    """One (model, Standardizer) per output, fitted on the selected pool points."""
     models = []
     for y in (-P.F[sel, 0], P.F[sel, 1]):                           # y1 = recovery, y2 = log q
         st = Standardizer().fit(y)
-        models.append((GP().fit(P.X[sel], st.transform(y)), st))
+        models.append((MODELS[model]().fit(P.X[sel], st.transform(y)), st))
     return models
 
 
@@ -126,7 +132,7 @@ def lhs_select(P, n, seed):
     return list(cols[np.argsort(rows)])
 
 
-def run_strategy(name, P, seed, init, n_max, report_at):
+def run_strategy(name, P, seed, init, n_max, report_at, model="gp"):
     budgets = [n for n in report_at if len(init) <= n <= n_max]
     rows, sel = [], list(init)
 
@@ -139,13 +145,13 @@ def run_strategy(name, P, seed, init, n_max, report_at):
             t0 = time.perf_counter()
             sel = list(init) if n == len(init) else lhs_select(P, n, seed)
             secs = 0.0 if n == len(init) else time.perf_counter() - t0
-            record(n, sel, fit_models(P, sel), secs)
+            record(n, sel, fit_models(P, sel, model), secs)
         return rows
     rng, step_secs = np.random.default_rng([seed, 1]), 0.0
     while True:
         n, t0 = len(sel), time.perf_counter()
         active = name.startswith("al_")
-        models = fit_models(P, sel) if (n in budgets or (active and n < n_max)) else None
+        models = fit_models(P, sel, model) if (n in budgets or (active and n < n_max)) else None
         fit_secs = time.perf_counter() - t0
         if n in budgets:
             record(n, sel, models, step_secs)
@@ -157,7 +163,7 @@ def run_strategy(name, P, seed, init, n_max, report_at):
 
 
 def run(pool, strategies=STRATEGIES, seeds=range(10), n_init=8, n_max=40, report_at=REPORT_AT,
-        out_csv=None):
+        out_csv=None, model="gp"):
     """Replay every strategy for every seed; returns rows and optionally writes a CSV."""
     P = Pool(pool)
     n_max = min(n_max, P.N - 1)                                     # keep held-out points
@@ -165,7 +171,7 @@ def run(pool, strategies=STRATEGIES, seeds=range(10), n_init=8, n_max=40, report
     for seed in seeds:
         init = np.random.default_rng(seed).choice(P.N, n_init, replace=False)  # same for all
         for name in strategies:
-            rows += run_strategy(name, P, seed, init, n_max, report_at)
+            rows += run_strategy(name, P, seed, init, n_max, report_at, model)
     if out_csv is not None:
         Path(out_csv).parent.mkdir(parents=True, exist_ok=True)
         with open(out_csv, "w", newline="") as f:
@@ -206,8 +212,11 @@ def main():
     ap.add_argument("--synthetic", action="store_true", help="use the synthetic pool (test only)")
     ap.add_argument("--out", help="output CSV (default runs/replay/<date>/replay.csv; required "
                                   "with --synthetic so synthetic output never lands in runs/)")
-    ap.add_argument("--seeds", type=int, default=10)
+    ap.add_argument("--seeds", type=int, default=10, help="number of seeds")
+    ap.add_argument("--first-seed", type=int, default=0,
+                    help="seeds are first-seed .. first-seed + seeds - 1 (to split a run over processes)")
     ap.add_argument("--n-max", type=int, default=40)
+    ap.add_argument("--model", choices=sorted(MODELS), default="gp", help="surrogate (default gp)")
     a = ap.parse_args()
     if a.synthetic:
         if not a.out:
@@ -219,8 +228,8 @@ def main():
             ap.error("--results is required unless --synthetic")
         pool = load_pool(a.pool, a.results)
     out = a.out or f"runs/replay/{datetime.datetime.now().astimezone().date().isoformat()}/replay.csv"
-    print(f"pool of {len(pool['index'])} points; writing {out}")
-    run(pool, seeds=range(a.seeds), n_max=a.n_max, out_csv=out)
+    print(f"pool of {len(pool['index'])} points; model {a.model}; writing {out}")
+    run(pool, seeds=range(a.first_seed, a.first_seed + a.seeds), n_max=a.n_max, out_csv=out, model=a.model)
 
 
 if __name__ == "__main__":
