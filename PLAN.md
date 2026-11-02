@@ -282,6 +282,13 @@ numerics and validation work to be done on Day 1 instead of Days 2 to 4.
   `docs/talk/deck.pptx` (38 slides: 24 talk, 6 backup, 8 dividers) from the outline and the committed
   records; messages and speaker notes are read from `docs/talk/outline.md`, every figure is a committed
   PNG, and PENDING items (confirmation run) are shown as such. Rebuild after the confirmation run lands.
+- 2026-11-02 14:35 UTC: Colab had to be restarted, so the confirmation run never started (the worker
+  went idle at 11:11 UTC with an empty queue). Éder asked for the Spalart-Allmaras sensitivity on Colab:
+  solver option `RANS_SA` added (commit dbb23c0, template from the development SA runs, no transition
+  model) and three jobs staged and uploaded with tag `sensitivity`: 8/8 medium `inlet2r-1731bdea74`,
+  8/8 fine `inlet2r-8a09596911`, 12/12 medium `inlet2r-d7e3815b57` (same points as runs/dev). The
+  queue now holds these three and the confirmation case `inlet2r-374dad241f`; the worker must run
+  main at or after dbb23c0.
 - Transfer integrity: a Haiku agent retyping base64 altered 2 of 4 result files (one mixed the
   fields of two records). The worker now writes a sha256 digest next to every result and failure
   (back-filled at start-up) and ingest refuses a text that does not match it. The 16 pool and
