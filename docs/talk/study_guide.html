@@ -1,0 +1,888 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Inlet Talk Study Plan</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script>window.MathJax={tex:{displayMath:[["\\[","\\]"]],inlineMath:[["\\(","\\)"]]},svg:{fontCache:"global"},options:{skipHtmlTags:["script","noscript","style","textarea","pre","code"]}};</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js" async></script>
+<style>
+/* Layout: one reading column (68ch) with a sticky day strip; entries are flat sections, not cards. */
+:root{
+  --bg:#f7f6f2; --fg:#1d2430; --muted:#5b6473; --line:#d9d6cd;
+  --ink:#1f3a5f; --accent:#c8551a; --tint:#eef1f6; --ok:#2e7d4f; --code:#ece9e1;
+  --display:"Source Serif 4", Georgia, "Times New Roman", serif;
+  --body:"IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --mono:"IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#161a21; --fg:#e6e4dd; --muted:#a3a9b4; --line:#333a46; --ink:#9fb6d6; --accent:#f0884d;
+  --tint:#1f2530; --ok:#6fcf97; --code:#232a36; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#161a21; --fg:#e6e4dd; --muted:#a3a9b4; --line:#333a46; --ink:#9fb6d6; --accent:#f0884d;
+  --tint:#1f2530; --ok:#6fcf97; --code:#232a36; color-scheme:dark }
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 4rem}
+.wrap{max-width:68ch;margin:0 auto}
+h1,h2,h3{font-family:var(--display);color:var(--ink);text-wrap:balance;line-height:1.2;margin:0}
+h1{font-size:2.1rem;font-weight:600;margin-top:2.2rem}
+h2{font-size:1.5rem;font-weight:600;margin-top:3rem;padding-top:1rem;border-top:1px solid var(--line)}
+h3{font-size:1.15rem;font-weight:600;margin-top:2rem}
+p{margin:.6rem 0}
+.lead{color:var(--muted);font-size:1.05rem;margin-top:.5rem}
+.eyebrow{font-family:var(--mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+code,.eq{font-family:var(--mono);font-size:.92em}
+code{background:var(--code);padding:.05em .3em;border-radius:3px}
+.eq{display:block;background:var(--code);padding:.4rem .8rem;border-radius:4px;overflow-x:auto;margin:.6rem 0;font-family:inherit;font-size:1em}
+.eq mjx-container{color:var(--fg)}
+table{border-collapse:collapse;width:100%;font-size:.93rem;font-variant-numeric:tabular-nums;margin:.6rem 0}
+th,td{text-align:left;vertical-align:top;padding:.4rem .5rem;border-bottom:1px solid var(--line)}
+th{font-weight:600;color:var(--ink)}
+.tablewrap{overflow-x:auto;min-width:0}
+.days{position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:5;display:flex;gap:.4rem;overflow-x:auto;
+  padding:.6rem 0;border-bottom:1px solid var(--line);margin-top:1.2rem}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.days a{flex:0 0 auto;font-family:var(--mono);font-size:.78rem;color:var(--ink);text-decoration:none;border:1px solid var(--line);
+  border-radius:999px;padding:.2rem .6rem;background:var(--tint)}
+.days a:focus-visible{outline:2px solid var(--accent)}
+.entry{margin-top:2rem;padding-top:.4rem}
+.entry header{display:flex;align-items:flex-start;gap:.7rem}
+.entry header input{width:1.15rem;height:1.15rem;margin-top:.35rem;accent-color:var(--accent);flex:0 0 auto}
+.entry header h3{margin-top:0}
+.where{font-size:.9rem;color:var(--muted)}
+.where b{color:var(--fg);font-weight:600}
+.lbl{font-weight:600;color:var(--ink);margin-top:.9rem;display:block;font-size:.85rem;letter-spacing:.04em;text-transform:uppercase}
+details{margin:.4rem 0;border-left:3px solid var(--line);padding:.1rem .8rem}
+details[open]{border-left-color:var(--accent)}
+summary{cursor:pointer;font-weight:500}
+summary:focus-visible{outline:2px solid var(--accent)}
+.q{margin:.3rem 0 .2rem}
+.a{color:var(--fg);margin:.2rem 0 .6rem}
+.ref{font-size:.9rem;color:var(--muted)}
+.progress{display:flex;align-items:center;gap:.8rem;margin-top:1rem;font-family:var(--mono);font-size:.85rem;color:var(--muted)}
+.bar{flex:1;height:6px;background:var(--tint);border-radius:3px;overflow:hidden;min-width:0}
+.bar span{display:block;height:100%;width:0;background:var(--accent)}
+.note{background:var(--tint);padding:.8rem 1rem;border-radius:4px;margin:1rem 0}
+ul{padding-left:1.2rem}
+li{margin:.25rem 0}
+a{color:var(--ink)}
+@media (prefers-reduced-motion:no-preference){.bar span{transition:width .3s}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<p class="eyebrow">Talk on Friday 13 November 2026</p>
+<h1>Inlet Talk Study Plan</h1>
+<p class="lead">All the concepts behind the slides, at an undergraduate level, written in short Simplified Technical English sentences. Each entry tells you what the concept is, which relation it uses, where it appears in the talk, a worked example with the repository's own numbers, two questions an interviewer can ask, and a self-check.</p>
+
+<div class="note">
+<p><strong>How to use this plan.</strong> Study one block per session. Read the entry. Do the worked example by hand or with the named function. Answer the self-check before you open the answer. Tick the box when you can explain the entry without notes. Your ticks are saved in this browser only.</p>
+<p>Every number in this plan comes from a file in the repository. The file name is given with the number. Do not quote a number in the talk that is not on a slide.</p>
+</div>
+
+<div class="progress"><span id="pcount">0 of 28 ticked</span><div class="bar"><span id="pbar"></span></div></div>
+
+<nav class="days" aria-label="Study days">
+<a href="#d1">Tue 3</a><a href="#d1">Wed 4</a><a href="#d2">Thu 5</a><a href="#d2">Fri 6</a><a href="#d3">Sat 7</a><a href="#d3">Sun 8</a><a href="#d4">Mon 9</a><a href="#d5">Tue 10</a><a href="#d5">Wed 11</a><a href="#d6">Thu 12</a>
+</nav>
+
+<h2 id="schedule">Schedule: 10 days, about 2 hours each</h2>
+<div class="tablewrap"><table>
+<tr><th>Day</th><th>Block</th><th>Entries</th><th>Goal at the end of the day</th></tr>
+<tr><td>Tue 3, Wed 4</td><td>A. Compressible flow and heating</td><td>1 to 9</td><td>Derive the 8/8 recovery by hand. Explain why the flow is laminar and what the turbulent bound shows.</td></tr>
+<tr><td>Thu 5, Fri 6</td><td>B. CFD numerics and validation</td><td>10 to 16</td><td>Explain every line of the tolerance table and why the carbuncle failure was kept.</td></tr>
+<tr><td>Sat 7, Sun 8</td><td>C. Surrogates and active learning</td><td>17 to 23</td><td>Explain the GP interval, the hypervolume regret and the honest replay verdict.</td></tr>
+<tr><td>Mon 9</td><td>D. Automation layer</td><td>24 to 28</td><td>Draw the pipeline from memory and name what caught each of the five failures.</td></tr>
+<tr><td>Tue 10, Wed 11</td><td>Deck run-through</td><td>all</td><td>Present the deck to the wall with a timer. Open the record behind any number you are not sure of.</td></tr>
+<tr><td>Thu 12</td><td>Question drill and rest</td><td>all</td><td>Answer the 56 interview questions below aloud. Stop early.</td></tr>
+</table></div>
+
+<!-- ============================ A ============================ -->
+<h2 id="d1">A. Compressible flow and heating</h2>
+<p>Textbook: Anderson, <em>Modern Compressible Flow</em>, chapters 3 and 4 (shocks). Anderson, <em>Hypersonic and High-Temperature Gas Dynamics</em>, chapter 6 (boundary layers and heating). White, <em>Viscous Fluid Flow</em>, chapter 7 (compressible boundary layers). Free: NASA Glenn "Oblique shock" and "Normal shock" pages; NACA Report 1135 (tables and formulas).</p>
+
+<section class="entry" id="c1"><header><input type="checkbox" data-id="c1" id="k1"><h3><label for="k1">1. The flight condition and the standard atmosphere</label></h3></header>
+<p class="where"><b>In the talk:</b> S4. <b>Record:</b> <code>docs/specs/00_decisions.md</code> section 1, <code>physics/atmosphere.py</code>.</p>
+<span class="lbl">Definition</span>
+<p>The flight condition is Mach 4.0 at 30 km in the US Standard Atmosphere 1976. The freestream state fixes every other number: static temperature, pressure, speed of sound, viscosity and unit Reynolds number. The wall is isothermal at 300 K. The body is sub-scale, about 0.3 m long.</p>
+<span class="lbl">Key relations</span>
+<div class="eq">\[
+\begin{aligned}
+a &= \sqrt{\gamma R T}, \qquad U = M a \\
+T_0 &= T\left(1 + \tfrac{\gamma-1}{2} M^2\right), \qquad
+p_0 = p\left(1 + \tfrac{\gamma-1}{2} M^2\right)^{\gamma/(\gamma-1)} = p\left(1 + \tfrac{1}{5} M^2\right)^{7/2} \\
+\mu &= \mu_{\mathrm{ref}} \left(\frac{T}{T_{\mathrm{ref}}}\right)^{3/2} \frac{T_{\mathrm{ref}} + S}{T + S} \quad \text{(Sutherland)}, \qquad
+\frac{Re}{\mathrm{m}} = \frac{\rho U}{\mu}
+\end{aligned}
+\]</div>
+<span class="lbl">Worked example (numbers from 00_decisions.md section 1)</span>
+<p>With \(T = 226.509\ \mathrm{K}\) and \(p = 1197.03\ \mathrm{Pa}\):</p>
+\[
+\begin{aligned}
+a &= \sqrt{1.4 \times 287.058 \times 226.509} = 301.71\ \mathrm{m/s}, \qquad U = 4 \times 301.71 = 1206.8\ \mathrm{m/s} \\
+T_0 &= 226.509 \left(1 + \tfrac{16}{5}\right) = 226.509 \times 4.2 = 951.3\ \mathrm{K} \\
+p_0 &= 1197.03 \times 4.2^{7/2} = 1.8175 \times 10^{5}\ \mathrm{Pa} \\
+\frac{Re}{\mathrm{m}} &= 1.506 \times 10^{6}\ \mathrm{m^{-1}} \;\Rightarrow\; Re_{0.3\,\mathrm{m}} \approx 4.5 \times 10^{5}
+\end{aligned}
+\]
+<span class="lbl">Interview questions</span>
+<details><summary>Why 30 km and not a lower, more realistic altitude?</summary><p class="a">At 30 km the unit Reynolds number is 1.5e6 per meter, so a 0.3 m body stays below Re 5e5 and the laminar model is defensible. At 25 km the same body would be near transition and a turbulent model would be required. The choice is stated as a modeling choice, not as a mission.</p></details>
+<details><summary>Why is the wall at 300 K when T0 is 951 K?</summary><p class="a">A cold wall is the normal test-facility condition and it gives a well-posed heat-flux objective. A radiative-equilibrium wall would add an unknown emissivity and a nonlinear boundary condition. The cold wall also thins the boundary layer, which keeps the flow laminar longer.</p></details>
+<span class="lbl">Self-check</span>
+<details><summary>What is the total temperature at Mach 4 if T = 226.5 K?</summary><p class=\"a\">951 K. Use \(T_0 = T\,(1 + M^2/5)\) with \(M^2 = 16\).</p></details>
+<details><summary>Which function in the repository returns the freestream state?</summary><p class="a"><code>physics.atmosphere.state(altitude_km)</code>. It returns T, p, rho, a and mu for a tabulated altitude.</p></details>
+</section>
+
+<section class="entry" id="c2"><header><input type="checkbox" data-id="c2" id="k2"><h3><label for="k2">2. The normal shock and total pressure loss</label></h3></header>
+<p class="where"><b>In the talk:</b> S2 (the terminal shock), S8. <b>Record:</b> <code>physics/shock.py</code> function <code>normal</code>, <code>docs/specs/00_decisions.md</code> section 3.1.</p>
+<span class="lbl">Definition</span>
+<p>A normal shock turns supersonic flow into subsonic flow in a very thin layer. Static pressure, density and temperature rise. Total pressure falls because the shock creates entropy. The loss grows fast with the upstream Mach number.</p>
+<span class="lbl">Key relations (calorically perfect gas, gamma = 1.4)</span>
+<div class="eq">\[
+\begin{aligned}
+\frac{p_2}{p_1} &= 1 + \frac{2\gamma}{\gamma+1}\left(M_1^2 - 1\right) \\
+M_2^2 &= \frac{1 + \frac{\gamma-1}{2} M_1^2}{\gamma M_1^2 - \frac{\gamma-1}{2}}
+       = \frac{1 + \frac{1}{5} M_1^2}{\frac{7}{5} M_1^2 - \frac{1}{5}} \\
+\frac{p_{02}}{p_{01}} &= \left[\frac{(\gamma+1) M_1^2}{(\gamma-1) M_1^2 + 2}\right]^{\gamma/(\gamma-1)}
+   \left[\frac{\gamma+1}{2\gamma M_1^2 - (\gamma-1)}\right]^{1/(\gamma-1)}
+ = \left[\frac{6 M_1^2}{M_1^2 + 5}\right]^{7/2} \left[\frac{6}{7 M_1^2 - 1}\right]^{5/2}
+\end{aligned}
+\]</div>
+<span class="lbl">Worked example (computed with physics.shock.normal)</span>
+<p>From <code>physics.shock.normal</code>:</p>
+\[
+\left.\frac{p_{02}}{p_{01}}\right|_{M_1 = 4.000} = 0.1388, \qquad
+\left.\frac{p_{02}}{p_{01}}\right|_{M_1 = 2.962} = 0.3392
+\]
+<p>\(M_1 = 2.962\) is the inviscid throat Mach number of the 8/8 inlet. The terminal shock at the throat keeps 2.4 times more total pressure than a normal shock in the freestream. This is why the inlet slows the flow with oblique shocks first.</p>
+<span class="lbl">Interview questions</span>
+<details><summary>Why does the objective include a normal shock that is not in the CFD?</summary><p class="a">The inlet feeds a subsonic diffuser, so the flow must pass a terminal shock somewhere. The post-processing takes each streamtube at the throat through a normal shock at its own Mach number. Without this term the best inlet in both objectives is a flat plate, which is not a design.</p></details>
+<details><summary>What is the entropy rise across a shock related to?</summary><p class=\"a\">To the total pressure ratio: \(\Delta s = -R \ln(p_{02}/p_{01})\). A smaller total pressure ratio means more entropy and more loss.</p></details>
+<span class="lbl">Self-check</span>
+<details><summary>Does total temperature change across an adiabatic shock?</summary><p class="a">No. Total enthalpy is conserved, so T0 is the same on both sides for a calorically perfect gas.</p></details>
+<details><summary>Order these by total pressure kept at Mach 4: one normal shock, one 16 degree oblique shock plus normal shock, two 8 degree shocks plus normal shock.</summary><p class=\"a\">\(0.139 \lt 0.288 \lt 0.316\) (all from physics.shock). More, weaker shocks keep more.</p></details>
+</section>
+
+<section class="entry" id="c3"><header><input type="checkbox" data-id="c3" id="k3"><h3><label for="k3">3. The oblique shock and the theta-beta-M relation</label></h3></header>
+<p class="where"><b>In the talk:</b> S6 (V1), S10 (gate 1). <b>Record:</b> <code>runs/task1/v1_oblique_shock.json</code>, <code>physics/shock.py</code> function <code>oblique</code>.</p>
+<span class="lbl">Definition</span>
+<p>A wedge of angle theta in supersonic flow makes an oblique shock at angle beta. Only the velocity component normal to the shock, M1 sin(beta), goes through the shock relations. The tangential component does not change. For a given M1 and theta there are two solutions. The weak solution is the one that occurs on an isolated wedge.</p>
+<span class="lbl">Key relation</span>
+<div class="eq">\[
+\begin{aligned}
+\tan\theta &= 2\cot\beta\,\frac{M_1^2 \sin^2\beta - 1}{M_1^2(\gamma + \cos 2\beta) + 2} \\
+M_{n1} &= M_1 \sin\beta, \qquad M_2 = \frac{M_{n2}}{\sin(\beta - \theta)}
+\end{aligned}
+\]</div>
+<span class="lbl">Worked example (physics.shock.oblique and the V1 record)</span>
+<p>At \(M_1 = 4.0\) and \(\theta = 8^\circ\) the weak solution of the \(\theta\)-\(\beta\)-\(M\) relation is</p>
+\[
+\beta = 20.47^\circ, \qquad M_{n1} = 4.0 \sin 20.47^\circ = 1.399, \qquad
+\frac{p_2}{p_1} = 2.117, \qquad M_2 = 3.427, \qquad \frac{p_{02}}{p_{01}} = 0.9584 .
+\]
+<p>The Euler wedge run on Colab (V1) gave \(\Delta\beta = +0.132^\circ\), \(\Delta(p_2/p_1) = -0.12\ \%\) and \(\Delta M_2 = -0.19\ \%\) against the hard tolerances \(0.5^\circ\), \(2\ \%\) and \(2\ \%\).</p>
+<p>The maximum deflection at Mach 4 is \(\theta_{\max}(4.0) = 38.77^\circ\). Gate 1 requires \(\theta_1 \le \theta_{\max}(M_\infty) - 2^\circ\) and \(\theta_2 \le \theta_{\max}(M_1) - 2^\circ\), so the shocks stay attached.</p>
+<span class="lbl">Interview questions</span>
+<details><summary>What happens when theta is larger than theta_max?</summary><p class="a">The shock detaches and becomes a curved bow shock ahead of the wedge. The flow behind the central part is subsonic and the total pressure loss is close to a normal shock. The gates refuse such designs before any mesh is built.</p></details>
+<details><summary>Why validate against an oblique shock first?</summary><p class="a">It is an exact inviscid solution that tests the solver setup, the freestream, the mesh orientation and the units in one short run. A failure there is a setup bug, and no later result can be trusted until it passes.</p></details>
+<span class="lbl">Self-check</span>
+<details><summary>Which Mach number goes into the shock jump relations for an oblique shock?</summary><p class=\"a\">The normal component \(M_1 \sin\beta\).</p></details>
+<details><summary>Give beta, M2 and p0 ratio for M = 4, theta = 8 degrees.</summary><p class=\"a\">\(\beta = 20.47^\circ\), \(M_2 = 3.427\), \(p_{02}/p_{01} = 0.9584\).</p></details>
+</section>
+
+<section class="entry" id="c4"><header><input type="checkbox" data-id="c4" id="k4"><h3><label for="k4">4. Multi-shock compression and the Oswatitsch result</label></h3></header>
+<p class="where"><b>In the talk:</b> S2, S8, S20 (the Oswatitsch cut). <b>Record:</b> <code>runs/dev/2026-11-01_inlet_design_point/*/geometry.json</code>, <code>runs/analysis/2026-11-02/oswatitsch_cut.png</code>.</p>
+<span class="lbl">Definition</span>
+<p>Two ramps make two oblique shocks before the terminal normal shock. Each oblique shock removes less total pressure than one strong shock. Oswatitsch showed that, for a fixed number of oblique shocks, the total pressure recovery is a maximum when all oblique shocks have the same normal Mach number, M1 sin(beta1) = M2 sin(beta2).</p>
+<span class="lbl">Worked example (geometry.json of the 8/8 design point, physics.shock)</span>
+<div class="tablewrap"><table>
+<tr><th>Step</th><th>Upstream M</th><th>Shock angle</th><th>p0 ratio</th><th>Downstream M</th></tr>
+<tr><td>Ramp 1, 8 degrees</td><td>4.000</td><td>20.47 degrees</td><td>0.9584</td><td>3.427</td></tr>
+<tr><td>Ramp 2, 8 degrees</td><td>3.427</td><td>23.00 degrees (relative)</td><td>0.9720</td><td>2.962</td></tr>
+<tr><td>Terminal normal shock</td><td>2.962</td><td>90 degrees</td><td>0.3392</td><td>0.478</td></tr>
+<tr><td>Product</td><td></td><td></td><td>0.3160</td><td></td></tr>
+</table></div>
+\[
+\frac{p_{0,\mathrm{th}}}{p_{0,\infty}} = \underbrace{0.9584}_{\text{shock 1}} \times \underbrace{0.9720}_{\text{shock 2}} = 0.9316, \qquad
+\mathrm{recovery} = 0.9316 \times \underbrace{0.3392}_{\pi_{NS}(2.962)} = 0.316
+\]
+<p>The laminar CFD gives \(0.3163\) on the medium mesh (V4m record). The two agree because the boundary layer removes about \(1.5\ \%\) of total pressure before the throat and also lowers the throat Mach number, which makes the terminal shock weaker. Both effects are recorded in <code>docs/validation/2026-11-02_pareto_inverse.md</code> section 4. For comparison, one \(16^\circ\) wedge followed by a normal shock gives \(0.7748 \times 0.3711 = 0.2875\), and a single normal shock at Mach 4 gives \(0.1388\).</p>
+<span class="lbl">Interview questions</span>
+<details><summary>Why not add a third ramp?</summary><p class="a">More ramps give more recovery, but the design space would have three variables, the body would be longer and the heat load would rise. The study keeps two variables so the Pareto front can be shown on a plane and every point can be checked by hand.</p></details>
+<details><summary>Is your design on the Oswatitsch optimum?</summary><p class="a">Not by construction. The Oswatitsch condition is near theta2 = theta1 + 2 degrees in this box, and the design map shows the GP mean along that cut against the analytic curve. The Pareto front is defined by two objectives, so its points need not sit on the single-objective optimum.</p></details>
+<span class="lbl">Self-check</span>
+<details><summary>Why is the second shock angle given relative to the first ramp?</summary><p class="a">The flow after shock 1 is parallel to ramp 1. The second shock turns it by a further theta2, so its angle is measured from the ramp 1 direction.</p></details>
+<details><summary>State the Oswatitsch condition in one sentence.</summary><p class="a">Equal normal Mach numbers on all oblique shocks give the maximum recovery for that number of shocks.</p></details>
+</section>
+
+<section class="entry" id="c5"><header><input type="checkbox" data-id="c5" id="k5"><h3><label for="k5">5. The recovery objective and the shock-on-lip rule</label></h3></header>
+<p class="where"><b>In the talk:</b> S2, S3. <b>Record:</b> <code>docs/specs/00_decisions.md</code> sections 2 and 3.1, <code>postprocess/metrics.py</code>, <code>geometry/inlet.py</code>.</p>
+<span class="lbl">Definition</span>
+<p><code>recovery_total</code> is the mass-flux-weighted mean of local total pressure at the throat plane, after each streamtube passes a normal shock at its own Mach number, divided by the freestream total pressure. <code>recovery_throat</code> is the same quantity without the terminal shock. The cowl lip is placed where the two oblique shocks meet (shock on lip), so the capture is full at the design Mach number and the cowl position is not a design variable.</p>
+<span class="lbl">Key relation</span>
+<div class="eq">\[
+\begin{aligned}
+\mathrm{recovery\_total} &= \frac{\sum_i w_i\,\phi_i\,p_{0,i}\,\pi_{NS}(M_i)}{\sum_i w_i\,\phi_i}\;\frac{1}{p_{0,\infty}} \\
+\phi_i &= \rho_i\left(u_i n_x + v_i n_y\right), \qquad
+p_{0,i} = p_i\left(1 + \tfrac{1}{5} M_i^2\right)^{7/2}, \qquad \pi_{NS}(M) = 1 \;\text{for}\; M \le 1
+\end{aligned}
+\]</div>
+<span class="lbl">Worked example (pool record inlet2r-fd8bbe1147, runs/pool)</span>
+<p>Design \(\theta_1 = 10.84^\circ\), \(\theta_2 = 10.20^\circ\):</p>
+\[
+\begin{aligned}
+\text{inviscid two-shock: } & \frac{p_{0,\mathrm{th}}}{p_{0,\infty}} = 0.8664, \quad M_{\mathrm{th}} = 2.677 \\
+\text{CFD (laminar): } & \mathrm{recovery\_throat} = 0.8530, \quad \bar{M}_{\mathrm{th}} = 2.627, \quad \mathrm{recovery\_total} = 0.3747
+\end{aligned}
+\]
+<p>The boundary layer costs \(0.8664 - 0.8530 = 0.0134\) (\(1.5\ \%\)) of total pressure before the throat. The cross-check against SU2's own <code>AVG_TOTALPRESS</code> passed (X1, \(0.5\ \%\)).</p>
+<span class="lbl">Interview questions</span>
+<details><summary>Why weight by mass flux and not by area?</summary><p class="a">The engine receives mass, not area. A mass-flux weight counts each streamtube by what it delivers. Area weighting would over-count the slow boundary-layer fluid near the walls.</p></details>
+<details><summary>What about off-design Mach numbers?</summary><p class="a">Below Mach 4 the shocks move ahead of the lip and the inlet spills; above it they enter the duct. The study is at one design point by choice. Off-design behavior would need a Mach sweep, which is listed as future work, not claimed.</p></details>
+<span class="lbl">Self-check</span>
+<details><summary>What is pi_NS(M) for M below 1?</summary><p class="a">1. A subsonic streamtube has no terminal shock.</p></details>
+<details><summary>Which cross-check must agree within 0.5 percent, and with what?</summary><p class="a">X1: recovery_throat times p0_inf against SU2's mass-flux-averaged total pressure on the same marker.</p></details>
+</section>
+
+<section class="entry" id="c6"><header><input type="checkbox" data-id="c6" id="k6"><h3><label for="k6">6. The laminar boundary layer and the transition argument</label></h3></header>
+<p class="where"><b>In the talk:</b> S4, S22, B1. <b>Record:</b> <code>docs/specs/00_decisions.md</code> section 1.1 (an argument, no run record).</p>
+<span class="lbl">Definition</span>
+<p>Near a wall the flow slows to zero in a thin boundary layer. A laminar layer is smooth and its thickness grows as sqrt(x). A turbulent layer mixes more, so it gives higher skin friction and higher heat flux. Transition from laminar to turbulent depends on the Reynolds number, the Mach number, the wall temperature and the roughness. The study uses the laminar Navier-Stokes equations.</p>
+<span class="lbl">Key relations</span>
+<div class="eq">\[
+\begin{aligned}
+Re_x &= \frac{\rho_e u_e x}{\mu_e}, \qquad \delta \approx \frac{5x}{Re_x^{1/2}} \quad \text{(Blasius, incompressible form)} \\
+&\text{Transition indicator: } \frac{Re_\theta}{M_e} \quad \text{(sharp cold ramps: transition band 200 to 300)}
+\end{aligned}
+\]</div>
+<span class="lbl">Worked example (00_decisions.md section 1.1)</span>
+\[
+Re_L = \frac{Re}{\mathrm{m}} \times L = 1.506 \times 10^{6} \times (0.25 \text{ to } 0.33) \le 5 \times 10^{5}
+\quad (\approx 7 \times 10^{5} \text{ in post-shock edge units})
+\]
+<p>Transition on sharp cold-wall ramps at Mach 3 to 4 occurs at \(Re_x = 10^{6}\) to \(3 \times 10^{6}\) in ground tests. At the end of ramp 1, \(Re_\theta / M_e \approx 100\), below the 200 to 300 band. This is an estimate, and the talk says so.</p>
+<span class="lbl">Interview questions</span>
+<details><summary>How sure are you that the flow is laminar?</summary><p class="a">It is a defensible modeling choice for a sub-scale body at 30 km, supported by the Reynolds numbers above. It is not measured. A full-scale vehicle at lower altitude would be turbulent, and backup slide B1 shows what a turbulent model changes.</p></details>
+<details><summary>Does a cold wall help or hurt transition?</summary><p class="a">A cold wall stabilizes the first instability mode and delays transition. It can destabilise the second (Mack) mode at higher Mach numbers, but at Mach 3 to 4 the net effect is a delay.</p></details>
+<span class="lbl">Self-check</span>
+<details><summary>How does laminar boundary-layer thickness scale with x?</summary><p class="a">As the square root of x.</p></details>
+<details><summary>Is the laminar claim backed by a run record?</summary><p class="a">No. It is an analytic estimate and the outline marks it as such.</p></details>
+</section>
+
+<section class="entry" id="c7"><header><input type="checkbox" data-id="c7" id="k7"><h3><label for="k7">7. Wall heat flux and the Eckert reference temperature</label></h3></header>
+<p class="where"><b>In the talk:</b> S6 (V2b), B2. <b>Record:</b> <code>docs/validation/2026-11-01_report.md</code> row V2b, <code>physics/heating.py</code> function <code>eckert_flat_plate</code>.</p>
+<span class="lbl">Definition</span>
+<p>Wall heat flux is the heat per unit area that enters the wall, q_w = k (dT/dn) at the wall. For a laminar flat plate the Eckert method evaluates the incompressible Blasius result at a reference temperature T* that accounts for compressibility and wall cooling. The study uses it to check the laminar wedge heating.</p>
+<span class="lbl">Key relations (00_decisions.md section 4, V2b)</span>
+<div class="eq">\[
+\begin{aligned}
+T^{*} &= \tfrac{1}{2}\left(T_e + T_w\right) + \tfrac{11}{50}\left(T_{aw} - T_e\right), \qquad
+T_{aw} = T_e\left(1 + r\,\tfrac{\gamma-1}{2} M_e^2\right), \quad r = Pr^{1/2} \\
+St^{*} &= 0.332\, (Re^{*}_x)^{-1/2}\, Pr^{-2/3} \quad \text{(properties at } T^{*}) \\
+q_w &= St^{*}\,\rho^{*} u_e\, c_p\left(T_{aw} - T_w\right)
+\end{aligned}
+\]</div>
+<span class="lbl">Worked example (report row V2b, development run)</span>
+<p>On the laminar wedge, over \(0.3 \le x / X_w \le 0.9\):</p>
+\[
+\overline{\left| \frac{q_{\mathrm{CFD}} - q_{\mathrm{Eckert}}}{q_{\mathrm{Eckert}}} \right|} = 1.60\ \%, \qquad
+\max \left| \frac{q_{\mathrm{CFD}} - q_{\mathrm{Eckert}}}{q_{\mathrm{Eckert}}} \right| = 1.95\ \%
+\]
+<p>against the hard tolerance of \(10\ \%\) mean and \(15\ \%\) maximum. Eckert against similarity solutions is itself good to about \(3\ \%\) at these conditions.</p>
+<span class="lbl">Interview questions</span>
+<details><summary>Why exclude the leading edge from the heating objective?</summary><p class="a">A sharp flat plate has a 1/sqrt(x) heating singularity. The computed peak there is set by the first cell size, not by the design. The wall-node temperature also departs from 300 K within about 30 mm of the tip (B2). The objective therefore starts on ramp 2 at x of 0.1 m.</p></details>
+<details><summary>What limits the accuracy of a wall heat flux in a finite-volume code?</summary><p class="a">The first-cell height, because q_w is a wall gradient. The mesh puts the first cell at 20 micrometers, which gives a wall-cell Reynolds number of about 20, and the grid study measures how much the peak moves between mesh levels.</p></details>
+<span class="lbl">Self-check</span>
+<details><summary>What is the recovery factor r for a laminar layer?</summary><p class=\"a\">\(r = Pr^{1/2}\), about 0.85 for air.</p></details>
+<details><summary>What did V2b measure, and did it pass?</summary><p class="a">Mean 1.60 percent, maximum 1.95 percent against Eckert. Pass.</p></details>
+</section>
+
+<section class="entry" id="c8"><header><input type="checkbox" data-id="c8" id="k8"><h3><label for="k8">8. Stagnation heating and Fay-Riddell</label></h3></header>
+<p class="where"><b>In the talk:</b> S7. <b>Record:</b> <code>docs/validation/2026-11-01_report.md</code> rows V3, <code>runs/dev/2026-11-01_cylinder_v3_attempt1</code> and <code>attempt3</code>, <code>physics/heating.py</code> function <code>fay_riddell_cylinder</code>.</p>
+<span class="lbl">Definition</span>
+<p>At a blunt-body stagnation point the heat flux scales with the square root of the velocity gradient at the edge of the boundary layer and with the enthalpy difference between the flow and the wall. Fay and Riddell gave the standard correlation. The velocity gradient comes from modified Newtonian theory, which uses the pitot pressure behind the bow shock.</p>
+<span class="lbl">Key relations (00_decisions.md section 4, V3; two-dimensional cylinder constant 0.57)</span>
+<div class="eq">\[
+\begin{aligned}
+q_{FR} &= 0.57\, Pr^{-3/5}\,(\rho_e \mu_e)^{2/5}\,(\rho_w \mu_w)^{1/10}\,\left(\frac{du_e}{dx}\right)^{1/2}\left(h_0 - h_w\right) \\
+\frac{du_e}{dx} &= \frac{1}{R}\left(\frac{2\,(p_{02} - p_\infty)}{\rho_e}\right)^{1/2} \\
+\text{Billig stand-off: } \frac{\delta}{R} &= 0.386\,\exp\!\left(\frac{4.67}{M^2}\right)
+\end{aligned}
+\]</div>
+<span class="lbl">Worked example (00_decisions.md and the report)</span>
+<p>Cylinder \(R = 10\ \mathrm{mm}\):</p>
+\[
+\begin{aligned}
+p_{02} &= 21.068\, p_\infty = 25\,219\ \mathrm{Pa}, \qquad
+\frac{du_e}{dx} = \frac{1}{R}\left(\frac{2\,(p_{02} - p_\infty)}{\rho_e}\right)^{1/2} = 7.213 \times 10^{4}\ \mathrm{s^{-1}} \\
+h_0 - h_w &= c_p\,(951.3 - 300)\ \mathrm{J/kg}, \qquad q_{FR} = 2.443 \times 10^{5}\ \mathrm{W/m^2}
+\end{aligned}
+\]
+\[
+\text{first numerics, fine mesh: } 7.74 \times 10^{5}\ \mathrm{W/m^2}\ (+216.84\ \%), \qquad
+\text{entropy fix } 0.3: 2.333 \times 10^{5}\ \mathrm{W/m^2}\ (-4.49\ \%),\ \text{medium to fine } -3.46\ \%
+\]
+<p>The medium mesh diverged with the first numerics. Hard tolerances: \(15\ \%\) on the fine mesh and \(5\ \%\) medium to fine.</p>
+<span class="lbl">Interview questions</span>
+<details><summary>Why did the first attempt fail by a factor of three?</summary><p class="a">Roe's scheme with a small entropy fix shows the carbuncle instability on a blunt body: a spurious bulge of the bow shock on the stagnation line that destroys the heating prediction. The six-scheme comparison and the split test showed that the entropy fix, not the CFL cap, is the cure.</p></details>
+<details><summary>Why is the Fay-Riddell tolerance as wide as 15 percent?</summary><p class="a">The correlation and the Newtonian velocity gradient together carry about 10 percent. A tighter tolerance would test the correlation, not the solver. The report also evaluates q_FR with the velocity gradient taken from the CFD edge velocity.</p></details>
+<span class="lbl">Self-check</span>
+<details><summary>How does stagnation heating scale with nose radius?</summary><p class=\"a\">As \(R^{-1/2}\). A blunter nose gives less heating.</p></details>
+<details><summary>Which V3 check was not in the first report, and how was it closed?</summary><p class="a">The Billig stand-off check needs a volume output file, which the production runs do not save. A development run of the fine cylinder with volume output (2 November, <code>runs/dev/2026-11-02_flow_fields</code>) gives \(\delta/R = 0.546\) against Billig's \(0.517\), a deviation of \(+5.6\ \%\) inside the 15 percent report tolerance.</p></details>
+</section>
+
+<section class="entry" id="c9"><header><input type="checkbox" data-id="c9" id="k9"><h3><label for="k9">9. Turbulence models as a sensitivity bound</label></h3></header>
+<p class="where"><b>In the talk:</b> S22, B1. <b>Record:</b> <code>runs/sensitivity/</code> (Colab), <code>docs/validation/2026-11-02_sa_sensitivity.md</code>; the development runs in <code>runs/dev/2026-11-01_turbulence_sensitivity_SA/README.md</code> give the same values.</p>
+<span class="lbl">Definition</span>
+<p>A Reynolds-averaged (RANS) model such as Spalart-Allmaras adds an eddy viscosity from one transport equation. Without a transition model it is turbulent from the leading edge. The study runs it only to show how large the effect of the turbulence assumption could be. It is a bound, not a prediction.</p>
+<span class="lbl">Worked example (the development SA README)</span>
+<div class="tablewrap"><table>
+<tr><th>Case</th><th>Model</th><th>recovery_total</th><th>recovery_throat</th><th>q_peak kW/m2</th></tr>
+<tr><td>8/8 medium</td><td>laminar</td><td>0.3163</td><td>0.9085</td><td>29.73</td></tr>
+<tr><td>8/8 medium</td><td>SA</td><td>0.3112</td><td>0.8565</td><td>76.98</td></tr>
+<tr><td>8/8 fine</td><td>SA</td><td>0.3109</td><td>0.8592</td><td>76.29</td></tr>
+<tr><td>12/12 medium</td><td>laminar</td><td>0.4065</td><td></td><td>46.9</td></tr>
+<tr><td>12/12 medium</td><td>SA</td><td>0.3925</td><td>0.7441</td><td>118.20</td></tr>
+</table></div>
+\[
+\frac{q_{\mathrm{peak,SA}}}{q_{\mathrm{peak,lam}}} = \frac{76.98}{29.73} = 2.59 \ (8/8), \qquad \frac{118.20}{46.9} = 2.52 \ (12/12), \qquad
+\Delta\,\mathrm{recovery\_total} = -0.005 \text{ to } -0.014
+\]
+<p>The trade-off keeps its direction; the heating level does not. Wall \(y^{+}\) was 2.3 (medium) and 1.7 (fine), above 1, so the SA result is itself not mesh-resolved for a model without wall functions. The Colab runs reproduce the container runs to every printed digit.</p>
+<span class="lbl">Interview questions</span>
+<details><summary>If the real vehicle is turbulent, what in your talk survives?</summary><p class="a">The method survives: gates, validation ladder, surrogate, acquisition and the honest comparison. The Pareto front moves: heating up by a factor of about 2.5, recovery down by about 0.01, and the laminar front is a lower bound on heating. The slide says exactly that.</p></details>
+<details><summary>Why Spalart-Allmaras and not k-omega SST?</summary><p class="a">SA is the simplest one-equation model, robust for attached supersonic boundary layers, and it is enough to bound the effect. The study does not claim to pick the best turbulence model; that would need validation data it does not have.</p></details>
+<span class="lbl">Self-check</span>
+<details><summary>By what factor did SA raise the peak heat flux at 8/8?</summary><p class=\"a\">About 2.6 (\(76.98 / 29.73\ \mathrm{kW/m^2}\)).</p></details>
+<details><summary>Why is the SA result called a bound and not a prediction?</summary><p class="a">No transition model, y+ above 1, and no turbulent validation case.</p></details>
+</section>
+
+<!-- ============================ B ============================ -->
+<h2 id="d2">B. CFD numerics and validation</h2>
+<p>Textbook: Blazek, <em>Computational Fluid Dynamics: Principles and Applications</em>, chapters 4 to 6 (spatial discretization, upwind schemes, time stepping). Roache, "Perspective: a method for uniform reporting of grid refinement studies" (1994). Free: SU2 documentation (su2code.github.io), especially "Convective schemes", "Slope limiters" and "Linear solvers".</p>
+
+<section class="entry" id="c10"><header><input type="checkbox" data-id="c10" id="k10"><h3><label for="k10">10. Finite volumes, Roe's flux and the entropy fix</label></h3></header>
+<p class="where"><b>In the talk:</b> S7, S21 row 1, B4. <b>Record:</b> <code>docs/specs/00_decisions.md</code> section 6, <code>runs/dev/2026-11-01_numerics/README.md</code>, <code>runs/dev/2026-11-01_cylinder_v3_attempt2</code> and <code>attempt3</code>.</p>
+<span class="lbl">Definition</span>
+<p>A finite-volume code stores the mean of the conserved variables in each cell and updates it from the fluxes through the cell faces. The convective flux at a face is an approximate solution of the Riemann problem between the two neighbor states. Roe's flux linearizes this problem. Near a sonic point Roe's flux can admit an expansion shock and on blunt bodies it can show the carbuncle. The entropy fix adds dissipation to the small eigenvalues and removes both. SU2's <code>ENTROPY_FIX_COEFF</code> sets how large that region is.</p>
+<span class="lbl">Key relation</span>
+<div class="eq">\[
+\begin{aligned}
+\mathbf{F}_{\mathrm{face}} &= \tfrac{1}{2}\left(\mathbf{F}_L + \mathbf{F}_R\right) - \tfrac{1}{2}\,\lvert \mathbf{A}_{\mathrm{Roe}} \rvert\left(\mathbf{U}_R - \mathbf{U}_L\right) \\
+\lvert\lambda\rvert &\;\to\; \frac{\lambda^2 + \varepsilon^2}{2\varepsilon} \quad \text{when } \lvert\lambda\rvert \lt \varepsilon \quad \text{(Harten-type entropy fix)}
+\end{aligned}
+\]</div>
+<span class="lbl">Worked example (numerics and cylinder records)</span>
+<p>Euler wedge, \(\log_{10}\) of the RMS density residual:</p>
+\[
+\begin{aligned}
+\text{AUSM+-up2, CFL 5 fixed:} &\ \text{diverged at iteration 50} \\
+\text{AUSM+-up2, adaptive CFL:} &\ -2.49 \to -2.48 \ \text{(stalled)} \\
+\text{Roe, } \varepsilon = 0.1, \text{ adaptive CFL:} &\ -3.45 \to -12.05 \ \text{in 603 iterations}
+\end{aligned}
+\]
+<p>On the cylinder, Roe at \(\varepsilon = 0.1\) then failed Fay-Riddell by \(+216.84\ \%\). A six-scheme comparison and a split test showed that \(\varepsilon = 0.3\) is the cure and the CFL cap is not. Final setting: \(\varepsilon = 0.3\) for every family. On the laminar wedge the larger fix moved the Eckert deviation from \(0.75\ \%\) to \(1.6\ \%\), inside tolerance.</p>
+<span class="lbl">Interview questions</span>
+<details><summary>Does a larger entropy fix make the solution more diffusive?</summary><p class="a">Yes, slightly, in regions with small wave speeds. The wedge heating moved from 0.75 to 1.6 percent deviation. That cost was accepted because the alternative was a wrong stagnation heating, and the change is recorded with both numbers.</p></details>
+<details><summary>Why not use HLLC or AUSM, which are carbuncle-free?</summary><p class="a">They were in the six-scheme comparison on the coarse cylinder (attempt 2). HLLC stalled at +125 percent against Fay-Riddell; AUSM+-up2 and SLAU2 stalled with a carbuncle pattern in the heating; first-order JST converged but smeared the stagnation point (minus 91 percent); first-order Roe stalled. Roe with entropy fix 0.3 converged to minus 10 with minus 0.3 percent, and it then converged on every mesh of every family.</p></details>
+<span class="lbl">Self-check</span>
+<details><summary>What is the carbuncle?</summary><p class="a">A numerical instability of low-dissipation shock-capturing schemes on blunt bodies: the bow shock bulges on the stagnation line and the stagnation heating is wrong.</p></details>
+<details><summary>Which test separated the entropy fix from the CFL cap?</summary><p class="a">The split test in runs/dev/2026-11-01_cylinder_v3_attempt3.</p></details>
+</section>
+
+<section class="entry" id="c11"><header><input type="checkbox" data-id="c11" id="k11"><h3><label for="k11">11. Second order in space: MUSCL and limiters</label></h3></header>
+<p class="where"><b>In the talk:</b> B4. <b>Record:</b> <code>docs/specs/00_decisions.md</code> section 6, <code>cases/templates/navier_stokes.cfg</code>.</p>
+<span class="lbl">Definition</span>
+<p>A first-order scheme uses the cell mean at the face and smears shocks over many cells. MUSCL reconstructs a linear variation inside each cell from the gradient, which gives second-order accuracy in smooth regions. A limiter reduces the slope near a discontinuity so that no new extrema appear. Venkatakrishnan's limiter is smooth, which helps convergence; the Wang variant scales its threshold with the local mesh size.</p>
+<span class="lbl">Key relation</span>
+<div class="eq">\[
+\begin{aligned}
+U_{\mathrm{face}} &= U_{\mathrm{cell}} + \phi\,\nabla U \cdot \mathbf{r}_{\mathrm{face}}, \qquad 0 \le \phi \le 1 \\
+&\text{Venkatakrishnan: } \phi \to 1 \text{ in smooth flow, } \phi \to 0 \text{ at a jump; } K = 0.05
+\end{aligned}
+\]</div>
+<span class="lbl">Worked example (the config template)</span>
+<p>Every production run uses <code>MUSCL_FLOW= YES</code>, <code>SLOPE_LIMITER_FLOW= VENKATAKRISHNAN_WANG</code>, <code>VENKAT_LIMITER_COEFF= 0.05</code>, gradients by weighted least squares. The plain Venkatakrishnan limiter stalled the AUSM wedge run at minus 2.4 (numerics README). The viscous fluxes are central and second order.</p>
+<span class="lbl">Interview questions</span>
+<details><summary>Why does a limiter hurt convergence?</summary><p class="a">A non-smooth limiter switches on and off from one iteration to the next, so the residual oscillates instead of falling. Smooth limiters such as Venkatakrishnan's reduce this at the cost of a little extra dissipation.</p></details>
+<details><summary>What order of accuracy do you claim?</summary><p class="a">Second order in smooth regions by construction. The grid study does not measure an observed order because the changes between levels are too small and not monotone, and the report says "order undefined" rather than quoting one.</p></details>
+<span class="lbl">Self-check</span>
+<details><summary>What does the limiter do at a shock?</summary><p class="a">It drives the slope toward zero, so the face value falls back to the first-order cell mean and no overshoot appears.</p></details>
+<details><summary>Which limiter coefficient is used?</summary><p class="a">0.05.</p></details>
+</section>
+
+<section class="entry" id="c12"><header><input type="checkbox" data-id="c12" id="k12"><h3><label for="k12">12. Implicit time stepping, CFL adaptation and the linear solver</label></h3></header>
+<p class="where"><b>In the talk:</b> B4. <b>Record:</b> <code>docs/specs/00_decisions.md</code> section 6, <code>runs/dev/2026-11-01_numerics/README.md</code>.</p>
+<span class="lbl">Definition</span>
+<p>The steady solution is reached by marching in pseudo-time. An implicit Euler step solves a linear system each iteration and allows CFL numbers far above the explicit limit. The CFL number sets the pseudo-time step relative to the cell size and wave speed. CFL adaptation raises the CFL when the residual falls and lowers it when the residual rises. The linear system is solved approximately with FGMRES and an ILU preconditioner.</p>
+<span class="lbl">Key relation</span>
+<div class="eq">\[
+\begin{aligned}
+\left(\frac{V}{\Delta t}\,\mathbf{I} + \frac{\partial \mathbf{R}}{\partial \mathbf{U}}\right)\Delta\mathbf{U} &= -\mathbf{R}(\mathbf{U}), \qquad
+\Delta t = \mathrm{CFL}\,\frac{h}{\lvert u \rvert + a} \\
+\text{CFL adaptation } (f_{\downarrow}, f_{\uparrow}, \mathrm{CFL}_{\min}, \mathrm{CFL}_{\max}) &= \left(\tfrac{1}{2},\; \tfrac{21}{20},\; 1,\; 20\right)
+\end{aligned}
+\]</div>
+<span class="lbl">Worked example (numerics README and 00_decisions section 6)</span>
+\[
+\text{Task 0: } (f_\downarrow, f_\uparrow, \mathrm{CFL}_{\min}, \mathrm{CFL}_{\max}) = \left(\tfrac{1}{2}, \tfrac{6}{5}, 1, 100\right) \;\Rightarrow\; \mathrm{CFL} \in [0.5, 47],\ \log_{10}\mathrm{rms}(\rho) \approx -3 \text{ (hunting)}
+\]
+\[
+\text{final: } \left(\tfrac{1}{2}, \tfrac{21}{20}, 1, 20\right) \;\Rightarrow\; \text{wedge converged in 603 iterations}
+\]
+<p>FGMRES uses 15 Krylov iterations with tolerance \(10^{-6}\) and ILU preconditioning. On Colab a pool case takes 195 to 581 s on 4 MPI ranks (<code>docs/validation/2026-11-01_colab_records.md</code>).</p>
+<span class="lbl">Interview questions</span>
+<details><summary>Why not run at a very large CFL since the scheme is implicit?</summary><p class="a">The linear system is solved only approximately, and the Jacobian is a first-order approximation of the second-order residual. Too large a step makes the update inconsistent and the residual stalls or diverges, as the 12/14 corner and the first CFL settings showed.</p></details>
+<details><summary>Why 4 MPI ranks on an 8-core runtime?</summary><p class="a">It was an operational choice on the 8 vCPU runtime, recorded in the solver block of every result, not an optimized one. The Task 1 timing on the small wedge showed a speed-up of only 1.12 from serial to 2 ranks (runs/task1/README.md), so the gain from more ranks on a 30 000-cell mesh is modest, and the pool wall time of 195 to 581 s per case was acceptable.</p></details>
+<span class="lbl">Self-check</span>
+<details><summary>What does the CFL number compare?</summary><p class="a">The distance a wave travels in one time step with the cell size.</p></details>
+<details><summary>Name the linear solver and the preconditioner.</summary><p class="a">FGMRES with ILU.</p></details>
+</section>
+
+<section class="entry" id="c13"><header><input type="checkbox" data-id="c13" id="k13"><h3><label for="k13">13. Convergence: residuals, drift and run status</label></h3></header>
+<p class="where"><b>In the talk:</b> S10, S17, S21 row 3. <b>Record:</b> <code>docs/specs/00_decisions.md</code> section 6, <code>postprocess/history.py</code>, any <code>runs/pool/*/result.json</code> block <code>convergence</code>.</p>
+<span class="lbl">Definition</span>
+<p>The residual is the norm of the discrete equations' imbalance; it goes to zero at a converged steady state. SU2 stops when the log10 of the RMS density residual reaches minus 10. The post-processing classifies each run independently: converged (residual drop of at least 5 orders and both objectives drift less than 0.2 percent over the last 20 percent of iterations), stationary (objectives settled, residual stalled), not converged, diverged (NaN), timeout, error. Only converged and stationary runs train the surrogate.</p>
+<span class="lbl">Worked example (pool record inlet2r-0c0990b14f)</span>
+\[
+\log_{10}\mathrm{rms}(\rho): -3.12 \to -10.00 \ \text{in 1006 iterations} \quad (\text{drop } 6.88 \text{ orders} \ge 5)
+\]
+\[
+\text{drift over the last } 20\ \%: \quad \Delta\,\mathrm{recovery} = 4.5 \times 10^{-4}\ \%, \qquad \Delta q_{\mathrm{peak}} = 6.9 \times 10^{-6}\ \% \quad (\text{both} \lt 0.2\ \%)
+\]
+<p>Status converged. Across the pool, 92 of 92 runs converged, with 1005 to 2237 iterations each (<code>runs/pool/results.csv</code>).</p>
+<p>The 12/14 corner fell to about minus 7.5 by iteration 1200, then grew and exited with an error after 4347 iterations on the medium mesh, on both meshes and at both entropy fixes. That record trimmed the box to 24 degrees total turning.</p>
+<span class="lbl">Interview questions</span>
+<details><summary>Why check objective drift when the residual already converged?</summary><p class="a">A residual norm can fall while a local quantity such as a peak heat flux still moves, and a residual can stall while the objectives are steady. The two checks together say whether the number on the slide is final. Both values are stored in every record.</p></details>
+<details><summary>Why did 12/14 diverge when 12/12 and 8/14 converged?</summary><p class="a">The recorded diagnosis is a separation at 26 degrees total turning that does not settle to a steady state: the residual falls and then grows at any CFL. The flow field was not inspected to confirm it, and the README says so. The guard is gate 4.</p></details>
+<span class="lbl">Self-check</span>
+<details><summary>What are the two conditions for status "converged"?</summary><p class="a">Residual drop of at least 5 orders and objective drift under 0.2 percent over the last 20 percent of iterations.</p></details>
+<details><summary>Which runs may train the surrogate?</summary><p class="a">Converged and stationary runs only.</p></details>
+</section>
+
+<section class="entry" id="c14"><header><input type="checkbox" data-id="c14" id="k14"><h3><label for="k14">14. Mesh quality and the wall cell</label></h3></header>
+<p class="where"><b>In the talk:</b> S9, S10. <b>Record:</b> <code>worker/make_case.py</code> (limits), any <code>mesh_quality.json</code>, <code>docs/specs/01_interfaces.md</code> gate 5.</p>
+<span class="lbl">Definition</span>
+<p>The structured mesh is regenerated for every design from the two ramp angles. Before SU2 runs, the mesh must pass: no inverted cells, minimum angle at least 40 degrees, first-cell height within 10 percent of the requested 20 micrometers on body and cowl, growth ratio at most 1.25, aspect ratio at most 5000. Gate 5 requires the wall-cell Reynolds number on ramp 2 to be at most 50, so the first cell sits inside the laminar sublayer where the wall gradient is linear.</p>
+<span class="lbl">Key relation</span>
+<div class="eq">\[
+\text{Gate 5:}\quad Re_w = \frac{\rho_w\, a_w\, d_0}{\mu_w} \le 50,
+\qquad \rho_w \text{ at the inviscid throat pressure and } T_w = 300\ \mathrm{K},\; d_0 = 20\ \mu\mathrm{m}
+\quad (\approx 20 \text{ on the medium mesh})
+\]</div>
+<span class="lbl">Worked example (mesh_quality.json of inlet2r-374dad241f, the confirmation case)</span>
+\[
+\begin{aligned}
+N_{\mathrm{cells}} &= 28\,800, & \alpha_{\min} &= 58.4^\circ \ (\ge 40^\circ), & d_0 &= 1.98 \times 10^{-5}\ \mathrm{m} \text{ (body)},\ 2.00 \times 10^{-5}\ \mathrm{m} \text{ (cowl)} \\
+\text{growth} &= 1.200 \ (\le 1.25), & \mathrm{AR}_{\max} &= 235.6 \ (\le 5000), & N_{\mathrm{inverted}} &= 0
+\end{aligned}
+\]
+<p>Pass. Over the 92-point pool the cell count ranges from 25 800 to 37 400.</p>
+<span class="lbl">Interview questions</span>
+<details><summary>Why an aspect ratio limit as high as 5000?</summary><p class="a">Wall cells in a laminar boundary layer at this Reynolds number must be thin, 20 micrometers against a streamwise length of a few millimeters, so aspect ratios of a few hundred are normal and the gate is a sanity limit, not a quality target. The recorded value is 236.</p></details>
+<details><summary>How do you know the first cell is small enough?</summary><p class="a">By the grid study on the 8/8 design: halving the cell size changed recovery by 0.09 percent and peak heating by 1.68 percent (V4m), and by the Eckert check, which uses the same wall spacing and agrees within 2 percent.</p></details>
+<span class="lbl">Self-check</span>
+<details><summary>Name three of the five mesh-quality limits.</summary><p class="a">Any three of: no inverted cells, minimum angle 40 degrees, first cell within 10 percent of request, growth 1.25, aspect ratio 5000.</p></details>
+<details><summary>Where does the mesh check run?</summary><p class="a">Twice: in validate_config and create_case on the staging side, and again in the worker, which regenerates the mesh and compares its fingerprint.</p></details>
+</section>
+
+<section class="entry" id="c15"><header><input type="checkbox" data-id="c15" id="k15"><h3><label for="k15">15. Grid studies, discretization error and Richardson extrapolation</label></h3></header>
+<p class="where"><b>In the talk:</b> S7, S18, B3. <b>Record:</b> <code>docs/validation/2026-11-01_report.md</code> grid study section, <code>runs/dev/2026-11-01_inlet_grid_study_ef03/README.md</code>.</p>
+<span class="lbl">Definition</span>
+<p>A grid study runs the same case on coarse, medium and fine meshes with a fixed refinement ratio. The change between levels estimates the discretization error. With three levels and monotone, decreasing changes, Richardson extrapolation gives an observed order p and an extrapolated value. If the changes are not monotone, no order can be quoted.</p>
+<span class="lbl">Key relations</span>
+<div class="eq">\[
+\begin{aligned}
+p &= \frac{\ln\!\left(\dfrac{f_{\mathrm{coarse}} - f_{\mathrm{medium}}}{f_{\mathrm{medium}} - f_{\mathrm{fine}}}\right)}{\ln r}, \qquad
+f_{\mathrm{exact}} \approx f_{\mathrm{fine}} + \frac{f_{\mathrm{fine}} - f_{\mathrm{medium}}}{r^{p} - 1} \\
+\mathrm{GCI} &= F_s\,\frac{\lvert f_{\mathrm{fine}} - f_{\mathrm{medium}}\rvert}{\lvert f_{\mathrm{fine}}\rvert\,(r^{p} - 1)}, \qquad F_s = \tfrac{5}{4} \quad \text{(Roache)}
+\end{aligned}
+\]</div>
+<span class="lbl">Worked example (report grid study, inlet 8/8)</span>
+<div class="tablewrap"><table>
+<tr><th>Quantity</th><th>Coarse</th><th>Medium</th><th>Fine</th><th>Medium to fine</th></tr>
+<tr><td>recovery_total</td><td>0.316269</td><td>0.31634</td><td>0.316626</td><td>+0.09 percent</td></tr>
+<tr><td>q_peak W/m2</td><td>30178.1</td><td>29725.4</td><td>29225.8</td><td>minus 1.68 percent</td></tr>
+</table></div>
+<p>Cell counts 19 620, 30 600 and 55 640. For recovery the changes are \(+7.1 \times 10^{-5}\) (coarse to medium) and \(+2.9 \times 10^{-4}\) (medium to fine), so they are not decreasing and \(p\) is undefined. For \(q_{\mathrm{peak}}\) they are \(-453\) and \(-500\ \mathrm{W/m^2}\), also not decreasing. No extrapolated value is quoted. On the Pareto plot the error bar at the middle of the front is</p>
+\[
+\Delta\,\mathrm{recovery} = 0.0009 \times 0.345 = 3.1 \times 10^{-4}, \qquad \Delta q_{\mathrm{peak}} = 0.0168 \times 31\,470 = 530\ \mathrm{W/m^2},
+\]
+<p>25 times the GP posterior band in heating.</p>
+<span class="lbl">Interview questions</span>
+<details><summary>Is your mesh converged?</summary><p class="a">On the 8/8 design the medium-to-fine change is 0.09 percent in recovery and 1.68 percent in peak heating, inside the hard tolerances of 2 and 5 percent. The 12/14 corner has no converged grid study. The front is drawn with this error bar on it, and the slide says the mesh, not the surrogate, limits the front.</p></details>
+<details><summary>Why not run the whole pool on the fine mesh?</summary><p class="a">The fine mesh costs about twice the wall time and the grid study showed the medium mesh is inside tolerance. The budget went to 92 points on the medium mesh, which is what the surrogate comparison needed. A fine-mesh confirmation of the final design is the natural next step.</p></details>
+<span class="lbl">Self-check</span>
+<details><summary>What must hold before Richardson extrapolation is valid?</summary><p class="a">Three levels in the asymptotic range with monotone, decreasing changes.</p></details>
+<details><summary>What is the discretization error bar on the Pareto plot made from?</summary><p class="a">The V4m medium-to-fine changes: 0.09 percent in recovery and 1.68 percent in q_peak.</p></details>
+</section>
+
+<section class="entry" id="c16"><header><input type="checkbox" data-id="c16" id="k16"><h3><label for="k16">16. Verification, validation and the tolerance ladder</label></h3></header>
+<p class="where"><b>In the talk:</b> S5, S23, B6. <b>Record:</b> <code>docs/specs/00_decisions.md</code> section 5, <code>docs/validation/2026-11-01_report.md</code>.</p>
+<span class="lbl">Definition</span>
+<p>Verification asks whether the equations are solved correctly (grid studies, analytic solutions). Validation asks whether the right equations are solved (comparison with experiment or trusted correlations). The study uses analytic and correlation references because no experiment exists for this geometry. A <strong>hard</strong> tolerance must pass, and a failure means a bug to fix, never a tolerance to widen. A <strong>soft</strong> tolerance is reported with an explanation. A <strong>report</strong> item is a number shown without a gate.</p>
+<span class="lbl">Worked example (the report, as shown on S5)</span>
+<div class="tablewrap"><table>
+<tr><th>Check</th><th>Tolerance</th><th>Type</th><th>Verdict</th></tr>
+<tr><td>V1 oblique shock: beta, p2/p1, M2</td><td>0.5 deg; 2 percent; 2 percent</td><td>hard</td><td>pass (+0.132 deg, minus 0.12, minus 0.19 percent)</td></tr>
+<tr><td>V2a plateau pressure</td><td>+0 to +6 percent</td><td>report</td><td>+1.69 percent</td></tr>
+<tr><td>V2b wall heat flux vs Eckert</td><td>mean 10, max 15 percent</td><td>hard</td><td>pass (1.60, 1.95 percent)</td></tr>
+<tr><td>V3 q_stag vs Fay-Riddell, fine; medium to fine</td><td>15 percent; 5 percent</td><td>hard</td><td>first numerics fail (+216.84, +628.92); final pass (minus 4.49, minus 3.46)</td></tr>
+<tr><td>V3 stand-off vs Billig</td><td>15 percent</td><td>report</td><td>+5.6 percent (development run with volume output, 2 November)</td></tr>
+<tr><td>V4e throat p0 and Mach, Euler 8/8</td><td>2 percent</td><td>hard</td><td>pass (minus 0.34, minus 0.14)</td></tr>
+<tr><td>V4v core p0, laminar</td><td>5 percent</td><td>soft</td><td>pass (minus 0.04 to +0.50)</td></tr>
+<tr><td>V4m grid, 8/8</td><td>2 percent; 5 percent</td><td>hard</td><td>pass (+0.09, minus 1.68)</td></tr>
+<tr><td>X1 SU2 average vs mass average</td><td>0.5 percent</td><td>hard</td><td>pass on all runs</td></tr>
+<tr><td>C1 interval coverage (Task 4)</td><td>flag outside 80 to 97 percent</td><td>report</td><td>q_peak in band; recovery over-covered</td></tr>
+<tr><td>C2 confirmation inside interval (Task 5)</td><td>pass or fail reported</td><td>report</td><td>pass (recovery 0.34513 and q_peak 31 462 W/m2, both inside)</td></tr>
+</table></div>
+<span class="lbl">Interview questions</span>
+<details><summary>Why show a failed check on a slide?</summary><p class="a">Because the failure is the evidence for the numerics that were chosen, and because a validation ladder that only shows passes cannot be trusted. The rule in the repository is that a failed validation is reported, not tuned away.</p></details>
+<details><summary>Where does the 2 percent for V1 come from?</summary><p class="a">From what a second-order scheme on the Task 1 mesh can resolve across a captured shock. It is tight enough to catch a units or orientation error and loose enough not to test the shock thickness.</p></details>
+<span class="lbl">Self-check</span>
+<details><summary>What happens when a hard check fails?</summary><p class="a">Find and fix the cause. Do not change the tolerance.</p></details>
+<details><summary>Which two checks are reports about the surrogate rather than the solver?</summary><p class="a">C1 coverage and C2 confirmation.</p></details>
+</section>
+
+<!-- ============================ C ============================ -->
+<h2 id="d3">C. Surrogates and active learning</h2>
+<p>Free: Rasmussen and Williams, <em>Gaussian Processes for Machine Learning</em> (gaussianprocess.org/gpml), chapter 2 (regression), chapter 4 (covariance functions), chapter 5 (model selection). Jones, Schonlau and Welch 1998 (efficient global optimization). Emmerich, Deutz and Klinkenberg 2011 (expected hypervolume improvement). McKay, Beckman and Conover 1979 (Latin hypercube sampling). In the repository: <code>docs/specs/task4_surrogate_active_learning.md</code>.</p>
+
+<section class="entry" id="c17"><header><input type="checkbox" data-id="c17" id="k17"><h3><label for="k17">17. Gaussian process regression</label></h3></header>
+<p class="where"><b>In the talk:</b> S13, B7. <b>Record:</b> <code>surrogate/gp.py</code>, <code>runs/analysis/2026-11-02/hypers.json</code>; the neural-network comparison in <code>docs/validation/2026-11-02_replay_mlp.md</code>.</p>
+<span class="lbl">Definition</span>
+<p>A Gaussian process is a prior over functions: any finite set of function values is jointly Gaussian with a mean and a covariance given by a kernel k(x, x'). Conditioning on observed data gives a posterior with a closed-form mean and variance at any new point. One GP is fitted per objective: y1 = recovery_total and y2 = log q_peak. Inputs are scaled to the unit square. The kernel is Matern 5/2 with one lengthscale per input (automatic relevance determination).</p>
+<span class="lbl">Key relations</span>
+<div class="eq">\[
+\begin{aligned}
+y &= c + f(\mathbf{x}) + \epsilon, \qquad f \sim \mathcal{GP}(0, k), \qquad \epsilon \sim \mathcal{N}(0, \sigma_n^2) \\
+k(\mathbf{x}, \mathbf{x}') &= \sigma_f^2\left(1 + \sqrt{5}\,r + \tfrac{5}{3} r^2\right)\exp\!\left(-\sqrt{5}\,r\right), \qquad
+r^2 = \sum_{d} \frac{(x_d - x'_d)^2}{\ell_d^2} \\
+\mu(\mathbf{x}_*) &= c + \mathbf{k}_*^{\mathsf T}\left(\mathbf{K} + \sigma_n^2 \mathbf{I}\right)^{-1}(\mathbf{y} - c) \\
+\sigma^2(\mathbf{x}_*) &= k(\mathbf{x}_*, \mathbf{x}_*) - \mathbf{k}_*^{\mathsf T}\left(\mathbf{K} + \sigma_n^2 \mathbf{I}\right)^{-1}\mathbf{k}_* \quad (+\,\sigma_n^2 \text{ for a predictive interval}) \\
+\log p(\mathbf{y}) &= -\tfrac{1}{2}(\mathbf{y}-c)^{\mathsf T}\left(\mathbf{K} + \sigma_n^2 \mathbf{I}\right)^{-1}(\mathbf{y}-c) - \tfrac{1}{2}\log\left\lvert \mathbf{K} + \sigma_n^2 \mathbf{I}\right\rvert - \tfrac{n}{2}\log 2\pi
+\end{aligned}
+\]</div>
+<span class="lbl">Worked example (hypers.json on the 92-point pool)</span>
+\[
+\begin{aligned}
+\text{recovery: } & \ell_1 = e^{2.30} = 10.0, \quad \ell_2 = e^{1.87} = 6.5 \text{ box widths}, \quad \sigma_n^2 = 1.1 \times 10^{-6} \ (\sigma_n \approx 4 \times 10^{-5} \text{ in recovery}), \quad \log p(\mathbf{y}) = 443 \\
+\log q_{\mathrm{peak}}: & \ \ell_1 = 15.7, \quad \ell_2 = 5.7 \text{ box widths}, \quad \sigma_n^2 = 2.1 \times 10^{-6} \ (\approx 0.03\ \% \text{ in } q)
+\end{aligned}
+\]
+<p>Lengthscales of several box widths mean nearly linear surfaces, steeper in \(\theta_2\).</p>
+<span class="lbl">Interview questions</span>
+<details><summary>Why a GP and not a neural network?</summary><p class="a">Because on this problem it was measured. The same replay was run with a deep ensemble of five small networks (<code>runs/replay/2026-11-02_mlp</code>, settings fixed before the run): the GP is 2 to 10 times more accurate on held-out designs at every budget, worse for the ensemble in 10 of 10 seeds on identical training sets, and about a quarter of the cost per step. With two inputs and under fifty smooth samples the GP's prior is the right inductive bias, its intervals come from the posterior, and it needs no GPU. EHVI with the ensemble still finds the whole front by 32 runs, so the active-learning conclusion does not depend on the choice (backup slide B7).</p></details>
+<details><summary>Why Matern 5/2 and not the squared exponential?</summary><p class="a">Matern 5/2 is twice differentiable, which matches smooth but not analytic responses, and it is less prone to ill-conditioned covariance matrices than the squared exponential on near-linear data. It is the default choice in the Bayesian optimization literature.</p></details>
+<span class="lbl">Self-check</span>
+<details><summary>What does a lengthscale of 10 box widths say about the surface?</summary><p class="a">That the function barely bends across the box in that direction: it is close to linear.</p></details>
+<details><summary>Why is q_peak modeled in the log?</summary><p class="a">q spans a factor of about 2 across the pool and relative errors matter, so the log makes the noise and the lengthscales uniform across the range.</p></details>
+</section>
+
+<section class="entry" id="c18"><header><input type="checkbox" data-id="c18" id="k18"><h3><label for="k18">18. Noise, lengthscale and what the fitted values mean here</label></h3></header>
+<p class="where"><b>In the talk:</b> S13, S16. <b>Record:</b> <code>runs/analysis/2026-11-02/hypers.json</code>, <code>docs/validation/2026-11-02_pareto_inverse.md</code> section 1.</p>
+<span class="lbl">Definition</span>
+<p>The noise variance absorbs any part of the data the smooth function cannot explain. CFD outputs are deterministic, so one could expect zero noise. The mesh is regenerated for each design, so the discretization error differs from point to point. The GP sees that difference as noise. The fitted noise standard deviation of about 4e-5 in recovery is therefore a measurement of design-to-design mesh scatter, and it is smaller than the medium-to-fine grid change of 3e-4.</p>
+<span class="lbl">Worked example (replay at n = 48 against the full fit)</span>
+\[
+n = 48: \ \sigma_n^2 = 0 \ (\text{floor } 10^{-6}), \quad \mathrm{RMSE}_{\mathrm{held}} = 1.4 \times 10^{-5} \text{ to } 3 \times 10^{-5};
+\qquad n = 92: \ \sigma_n \approx 4 \times 10^{-5}
+\]
+<p>The interval at a new point is dominated by this noise term, which is why the recovery intervals over-cover: the model says \(\pm 1.645\,\sigma \approx \pm 8 \times 10^{-5}\) while the interpolation error is \(10^{-5}\) to \(3 \times 10^{-5}\).</p>
+<span class="lbl">Interview questions</span>
+<details><summary>If the noise is really mesh scatter, is the GP interval meaningful?</summary><p class="a">It is meaningful as a predictive interval for a new medium-mesh run, which is what the confirmation test checks. It does not include the systematic medium-to-fine offset, which is shown separately as the discretization bar. The two uncertainties are kept apart on purpose.</p></details>
+<details><summary>Could you fix the noise to zero and interpolate exactly?</summary><p class="a">Yes, and the replay did so when the data allowed it. With 92 points the marginal likelihood prefers a small noise, and overriding it would make the intervals narrower than the data support. Nothing was tuned after seeing the coverage.</p></details>
+<span class="lbl">Self-check</span>
+<details><summary>Fitted recovery noise standard deviation, roughly?</summary><p class=\"a\">About \(4 \times 10^{-5}\) in recovery units.</p></details>
+<details><summary>Which is larger: the GP noise or the medium-to-fine grid change?</summary><p class=\"a\">The grid change: \(3 \times 10^{-4}\) against \(4 \times 10^{-5}\).</p></details>
+</section>
+
+<section class="entry" id="c19"><header><input type="checkbox" data-id="c19" id="k19"><h3><label for="k19">19. Predictive intervals, calibration and coverage</label></h3></header>
+<p class="where"><b>In the talk:</b> S16. <b>Record:</b> <code>docs/validation/2026-11-02_replay.md</code> finding 4, <code>docs/validation/2026-11-02_replay_full_calibration.png</code>, tolerance C1.</p>
+<span class="lbl">Definition</span>
+<p>A central 90 percent predictive interval is the mean plus or minus 1.645 predictive standard deviations. Calibration means that about 90 percent of held-out truths fall inside the 90 percent intervals. Coverage below nominal means over-confidence. Coverage above nominal means the intervals are too wide (conservative). The study flags coverage outside 80 to 97 percent at the 90 percent level and explains it rather than refitting.</p>
+<span class="lbl">Key relation</span>
+<div class="eq">\[
+\mathrm{coverage}(\alpha) = \frac{1}{n_{\mathrm{held}}}\sum_{i}\mathbf{1}\!\left[\,\lvert y_i - \mu_i\rvert \le z_{\alpha}\,\sigma_i\,\right], \qquad z_{0.90} = 1.645
+\]</div>
+<span class="lbl">Worked example (final replay, n = 48, 44 held-out points)</span>
+\[
+\begin{array}{lcccc}
+\text{nominal } \alpha & 0.50 & 0.80 & 0.90 & 0.95 \\ \hline
+q_{\mathrm{peak}} & 0.65\text{ to }0.77 & 0.81\text{ to }0.88 & 0.84\text{ to }0.91 & 0.89\text{ to }0.92 \\
+\text{recovery} & 0.83\text{ to }0.98 & 0.98\text{ to }1.0 & 1.0 & 1.0
+\end{array}
+\]
+<p>\(q_{\mathrm{peak}}\) is inside the 80 to 97 percent band at \(\alpha = 0.90\). Recovery is flagged as over-covered, for the reason in entry 18. One held-out point is \(1/44 = 2.3\ \%\) of coverage.</p>
+<span class="lbl">Interview questions</span>
+<details><summary>Over-coverage is the safe direction. Why flag it at all?</summary><p class="a">Because an interval that is always too wide carries less information than it claims and would make the inverse-query interval wider than needed. The flag records that the uncertainty is conservative, which matters when the audience reads the band on the Pareto plot.</p></details>
+<details><summary>How would you fix the recovery calibration?</summary><p class="a">Candidates are a mesh-level-aware noise model, or a fixed noise taken from the grid study rather than fitted. Neither was done before the talk because the rule was to report, not to tune after seeing the result. That is listed as next work.</p></details>
+<span class="lbl">Self-check</span>
+<details><summary>What is z for a central 90 percent Gaussian interval?</summary><p class=\"a\">\(z_{0.90} = 1.645\).</p></details>
+<details><summary>Which objective's intervals were calibrated and which over-covered?</summary><p class="a">q_peak calibrated; recovery over-covered.</p></details>
+</section>
+
+<section class="entry" id="c20"><header><input type="checkbox" data-id="c20" id="k20"><h3><label for="k20">20. Pareto dominance, the front, hypervolume and regret</label></h3></header>
+<p class="where"><b>In the talk:</b> S15, S18. <b>Record:</b> <code>surrogate/acquisition.py</code> functions <code>pareto_front</code>, <code>hypervolume_2d</code>, <code>ref_point</code>; <code>surrogate/replay.py</code> function <code>metrics_row</code>.</p>
+<span class="lbl">Definition</span>
+<p>In minimization form f1 = minus recovery and f2 = log q_peak. Point j dominates point i if f_j is no worse in both objectives and strictly better in one. The Pareto front is the set of non-dominated points. The hypervolume is the area dominated by the front and bounded by a reference point worse than every point. Hypervolume regret is one minus the hypervolume of the selected points' front over the hypervolume of the true pool front. Zero regret means the selected points contain the whole true front.</p>
+<span class="lbl">Key relation</span>
+<div class="eq">\[
+\begin{aligned}
+\mathbf{r} &= \mathbf{f}_{\mathrm{nadir}} + \tfrac{1}{10}\left(\mathbf{f}_{\mathrm{nadir}} - \mathbf{f}_{\mathrm{ideal}}\right) \quad \text{per objective} \\
+\mathrm{HV}(S) &= \mathrm{area}\left\{\mathbf{z} : \exists\, \mathbf{s} \in S \text{ with } \mathbf{s} \le \mathbf{z} \le \mathbf{r}\right\} \quad \text{(2D: a staircase sum)} \\
+\mathrm{regret}(S) &= \frac{\mathrm{HV}(\text{true front}) - \mathrm{HV}(\text{front of } S)}{\mathrm{HV}(\text{true front})}
+\end{aligned}
+\]</div>
+<span class="lbl">Worked example (final replay)</span>
+<p>The true front of the 92-point pool has 26 points. Median regret over 10 seeds:</p>
+\[
+\begin{array}{lcccc}
+n & \text{random} & \text{LHS} & \text{EHVI} & \text{max-variance} \\ \hline
+12 & 0.141 & 0.117 & 0.081 & 0.117 \\
+32 & 0.051 & 0.043 & 0 & 0.028 \\
+48 & 0.030 & 0.025 & 0 & 0.008
+\end{array}
+\]
+<p>At \(n = 32\) EHVI is exactly 0 in 10 of 10 seeds, and no seed of any other strategy reaches 0 by \(n = 48\).</p>
+<span class="lbl">Interview questions</span>
+<details><summary>Why hypervolume and not distance to the front?</summary><p class="a">Hypervolume rewards both closeness and spread along the front with one number, needs no knowledge of the true front during the search, and is the quantity EHVI maximizes in expectation, so the comparison is fair to the acquisition function.</p></details>
+<details><summary>Does the reference point choice change the verdict?</summary><p class="a">It changes the numbers but not the ordering here, because the reference is fixed from the whole pool for every strategy and seed. A regret of zero is independent of the reference point.</p></details>
+<span class="lbl">Self-check</span>
+<details><summary>How many points are on the true pool front?</summary><p class="a">26 of 92.</p></details>
+<details><summary>What does regret 0 mean operationally?</summary><p class="a">Every one of the 26 true front points is among the selected runs.</p></details>
+</section>
+
+<section class="entry" id="c21"><header><input type="checkbox" data-id="c21" id="k21"><h3><label for="k21">21. Expected hypervolume improvement against max-variance</label></h3></header>
+<p class="where"><b>In the talk:</b> S14, S15. <b>Record:</b> <code>surrogate/acquisition.py</code> functions <code>ehvi_mc</code>, <code>max_variance</code>.</p>
+<span class="lbl">Definition</span>
+<p>An acquisition function scores every unselected candidate from the GP posterior and the best candidate is run next. EHVI is the expected increase of the hypervolume if the candidate were observed, taken over the posterior of both objectives. The code estimates it by Monte Carlo: 128 draws per candidate from the two independent Gaussians, the exact hypervolume improvement of each draw, then the mean. Max-variance picks the candidate with the largest predictive variance; it learns the whole box and ignores the front. Both are deterministic given the seed.</p>
+<span class="lbl">Key relation</span>
+<div class="eq">\[
+\begin{aligned}
+\mathrm{EHVI}(\mathbf{x}) &= \mathbb{E}\left[\mathrm{HV}\!\left(\mathrm{front} \cup \{\mathbf{f}(\mathbf{x})\}\right) - \mathrm{HV}(\mathrm{front})\right], \qquad
+f_j(\mathbf{x}) \sim \mathcal{N}\!\left(\mu_j(\mathbf{x}), \sigma_j^2(\mathbf{x})\right) \\
+\mathrm{EHVI}(\mathbf{x}) &\approx \frac{1}{128}\sum_{k=1}^{128} \mathrm{HVI}\!\left(\mathbf{f}^{(k)}\right)
+\end{aligned}
+\]</div>
+<span class="lbl">Worked example (final replay)</span>
+<p>Median held-out \(\mathrm{RMSE}_{\mathrm{recovery}}\):</p>
+\[
+\begin{array}{lcccc}
+n & \text{random} & \text{LHS} & \text{EHVI} & \text{max-variance} \\ \hline
+20 & 1.0 \times 10^{-4} & 6.5 \times 10^{-5} & 2.9 \times 10^{-4} & 5.9 \times 10^{-5} \\
+32 & 6.1 \times 10^{-5} & 3.9 \times 10^{-5} & 1.8 \times 10^{-4} & 2.2 \times 10^{-5} \\
+48 & 3.1 \times 10^{-5} & 2.3 \times 10^{-5} & 1.6 \times 10^{-5} & 1.4 \times 10^{-5}
+\end{array}
+\]
+<p>EHVI reaches zero regret at \(n = 32\) in every seed, is the worst strategy on held-out error from \(n = 12\) to \(32\), overtakes random and LHS at \(n = 40\), and ends close to max-variance. One EHVI step costs 1.7 s on the container CPU at \(n = 48\); max-variance 1.5 s.</p>
+<span class="lbl">Interview questions</span>
+<details><summary>So active learning did not beat Latin hypercube?</summary><p class="a">On the objective it targets, the front, it beat everything at every budget after the shared start and found the complete front from 32 runs in every seed. On global accuracy it was the worst until 32 runs because it spends its runs on the front. Both statements are on the slide. If the goal is a globally accurate surrogate, max-variance is the better choice.</p></details>
+<details><summary>Who chooses the next design?</summary><p class="a">The acquisition function, from the GP posterior, with a seeded generator. The language model calls tools and reads records; it never picks a point. This is written into the repository rules and the code path shows it.</p></details>
+<span class="lbl">Self-check</span>
+<details><summary>How many Monte Carlo samples per candidate does ehvi_mc use?</summary><p class="a">128.</p></details>
+<details><summary>At which budget does EHVI overtake random and LHS on held-out error?</summary><p class="a">n = 40.</p></details>
+</section>
+
+<section class="entry" id="c22"><header><input type="checkbox" data-id="c22" id="k22"><h3><label for="k22">22. The baselines and the replay design</label></h3></header>
+<p class="where"><b>In the talk:</b> S15. <b>Record:</b> <code>surrogate/replay.py</code>, <code>runs/replay/2026-11-02_full/replay.csv</code>, <code>docs/validation/2026-11-02_replay.md</code>.</p>
+<span class="lbl">Definition</span>
+<p>A pool-based replay compares sampling strategies offline on a fixed set of completed runs. Each strategy may only "run" points from the pool, so all strategies share the same ground truth and no extra CFD is needed. Random picks uniformly among unused pool points. LHS draws a fresh maximin Latin hypercube for each budget and takes the nearest unused pool point to each sample. All four strategies start from the same 8 random points for a given seed, add one point per step to 48, over 10 seeds, and report at n in 8, 12, 16, 20, 24, 32, 40, 48.</p>
+<span class="lbl">Key relation</span>
+<div class="eq">\[
+\begin{aligned}
+\mathrm{RMSE}_{\mathrm{recovery}} &= \left(\frac{1}{n_{\mathrm{held}}}\sum_i \left(\mu_i - y_i\right)^2\right)^{1/2} \\
+\mathrm{RMSE}_{q,\mathrm{rel}} &= \left(\frac{1}{n_{\mathrm{held}}}\sum_i \left(e^{\,\mu_{\log,i} - y_{\log,i}} - 1\right)^2\right)^{1/2}
+\end{aligned}
+\]</div>
+<span class="lbl">Worked example (final against interim)</span>
+<p>The interim replay on 67 points and the final on 92 gave the same verdicts. Two numbers moved: the budget at which EHVI overtakes random and LHS on error went from 32 to 40, and the true front grew from 22 to 26 points. The report keeps both runs and says which numbers changed.</p>
+<span class="lbl">Interview questions</span>
+<details><summary>Is a replay on 92 points a fair test of active learning?</summary><p class="a">It is a fair test of the ordering of strategies at small budgets, which is the question. Its limit is that candidates are restricted to the pool, so EHVI cannot pick a point between pool points. The confirmation run is the one online step that escapes this limit.</p></details>
+<details><summary>Why 10 seeds?</summary><p class="a">Enough to show the spread as an interquartile band and to say "10 of 10 seeds" for the zero-regret result; the whole replay then takes about 20 minutes on a CPU. More seeds would not change a verdict that is unanimous.</p></details>
+<span class="lbl">Self-check</span>
+<details><summary>How many initial points, seeds and budgets?</summary><p class="a">8 initial points, 10 seeds, budgets 8 to 48 at eight report values.</p></details>
+<details><summary>How does the LHS baseline map a continuous sample to the pool?</summary><p class="a">Nearest unused pool point.</p></details>
+</section>
+
+<section class="entry" id="c23"><header><input type="checkbox" data-id="c23" id="k23"><h3><label for="k23">23. The inverse query under a heat-flux cap and its confirmation</label></h3></header>
+<p class="where"><b>In the talk:</b> S19. <b>Record:</b> <code>runs/analysis/2026-11-02/inverse_q40/result.json</code>, <code>docs/validation/2026-11-02_pareto_inverse.md</code> section 3, tolerance C2.</p>
+<span class="lbl">Definition</span>
+<p>The query is: the highest recovery with peak heat flux at or below a cap. The cap is the 40th percentile of the pool's q_peak, fixed before the answer is computed. On a 201 by 201 grid inside the gates, a grid point is feasible when the predictive probability P(q_peak at most cap) is at least 0.9. Among feasible points the one with the highest predicted mean recovery is the answer. The confirmation test C2 is a real SU2 run at that design; it passes when the result falls inside the 90 percent intervals.</p>
+<span class="lbl">Key relation</span>
+<div class="eq">\[
+\begin{aligned}
+P(q \le q_{\mathrm{cap}}) &= \Phi\!\left(\frac{\ln q_{\mathrm{cap}} - \mu_{\log}}{\sigma_{\log}}\right) \ge \tfrac{9}{10} \\
+\text{answer} &= \arg\max_{\mathbf{x}\,\in\,\text{feasible grid}} \mu_{\mathrm{recovery}}(\mathbf{x})
+\end{aligned}
+\]</div>
+<span class="lbl">Worked example (result.json)</span>
+\[
+\begin{aligned}
+q_{\mathrm{cap}} &= Q_{0.40}(q_{\mathrm{peak,pool}}) = 31\,493\ \mathrm{W/m^2} \\
+\mathbf{x}^{*} &= (\theta_1, \theta_2) = (11.965^\circ,\ 7.115^\circ) \\
+\mathrm{recovery} &= 0.34515 \quad [0.34506,\ 0.34523]_{90\%} \\
+q_{\mathrm{peak}} &= 31\,470\ \mathrm{W/m^2} \quad [31\,450,\ 31\,490]_{90\%}, \qquad P(q \le q_{\mathrm{cap}}) = 0.972 \ge 0.9
+\end{aligned}
+\]
+<p>The nearest pool runs are \((11.877^\circ, 6.759^\circ)\) with recovery \(0.33973\) and \(q = 30\,591\ \mathrm{W/m^2}\), and \((11.772^\circ, 7.798^\circ)\) with \(0.35233\) and \(32\,937\ \mathrm{W/m^2}\); the answer sits between them. The gain over the best observed point under the cap is \(0.34515 - 0.33973 = 0.0054\) in recovery.</p>
+<p>Confirmation run on Colab (<code>runs/confirm/inlet2r-374dad241f</code>, 1248 iterations, converged):</p>
+\[
+\mathrm{recovery} = 0.34513 \in [0.34506,\ 0.34523], \quad z = -0.41; \qquad q_{\mathrm{peak}} = 31\,462\ \mathrm{W/m^2} \in [31\,450,\ 31\,490], \quad z_{\log} = -0.66
+\]
+<p>C2 passes. Refitting with the new row shrinks the predictive std at that design from \(5.1 \times 10^{-5}\) to \(4.6 \times 10^{-5}\) in recovery and from \(3.9 \times 10^{-4}\) to \(3.5 \times 10^{-4}\) in \(\log q\) (<code>runs/analysis/2026-11-02/confirm/confirm.json</code>).</p>
+<span class="lbl">Interview questions</span>
+<details><summary>The confirmation run passed. How much does one run prove?</summary><p class="a">One run inside a 90 percent interval is one draw, not a calibration statistic; the calibration evidence is the replay on 44 held-out points. What the run adds is a check at a design the pool never visited, with intervals only 1.7e-4 wide in recovery and 40 W/m2 in heat flux, and it landed within half a standard deviation of both predictions. Had it missed, the slide would show the miss with both numbers.</p></details>
+<details><summary>Why a probability threshold of 0.9 and not the mean?</summary><p class="a">A design chosen on the mean would sit exactly at the cap half the time. Requiring 0.9 probability under the predictive distribution gives a margin that scales with the model's own uncertainty rather than with an arbitrary safety factor.</p></details>
+<span class="lbl">Self-check</span>
+<details><summary>Where does the cap come from?</summary><p class="a">The 40th percentile of the pool's q_peak, 31 493 W/m2, fixed before the answer.</p></details>
+<details><summary>What is the predicted recovery at the answer, and its interval?</summary><p class=\"a\">\(0.34515\), interval \([0.34506,\ 0.34523]\).</p></details>
+</section>
+
+<!-- ============================ D ============================ -->
+<h2 id="d4">D. The automation layer</h2>
+<p>Free: the Model Context Protocol specification (modelcontextprotocol.io), the pydantic documentation. In the repository: <code>docs/specs/01_interfaces.md</code>, <code>docs/faults/README.md</code>, <code>docs/transcripts/</code>.</p>
+
+<section class="entry" id="c24"><header><input type="checkbox" data-id="c24" id="k24"><h3><label for="k24">24. Typed tools, schemas and the MCP server</label></h3></header>
+<p class="where"><b>In the talk:</b> S9, S12. <b>Record:</b> <code>mcp_server/server.py</code>, <code>mcp_server/schemas.py</code>, <code>docs/transcripts/2026-11-01_first_mcp_call.md</code>.</p>
+<span class="lbl">Definition</span>
+<p>The Model Context Protocol lets a language model call functions that a server exposes with typed inputs and outputs. The server here exposes eleven tools: validate_config, create_case, submit, status, list_results, queue_batch, export_batch, record_transfer, ingest_result, ingest_error, postprocess. Each input passes a pydantic schema with types, bounds and allowed values before any code runs. Unknown fields are refused.</p>
+<span class="lbl">Worked example (schemas.py and the fault matrix)</span>
+<p>Fault F1: theta2 = 20 degrees, bound 14. Refused at stage "schema" with the message "theta2_deg: 20 outside [5, 14] for family inlet2r". Nothing is written. The first live call (S12) returned ten rows from list_results, all pending at that time, and chose nothing.</p>
+<span class="lbl">Interview questions</span>
+<details><summary>What does the language model add if it never chooses a point?</summary><p class="a">Convenience: it reads records, writes the queue files, runs the scripts, drafts the reports and catches inconsistencies in the text. The physics and the statistics do not depend on it. The talk calls it a convenience layer over validated tools, and nothing more.</p></details>
+<details><summary>Why MCP and not a plain Python API?</summary><p class="a">The tools are plain Python functions underneath. MCP adds a typed boundary that any client can call, a log of every call with its arguments, and a place to put the gates so that no path around them exists. The protocol is a thin wrapper, not the substance.</p></details>
+<span class="lbl">Self-check</span>
+<details><summary>Name four of the eleven tools.</summary><p class="a">Any four of the list above.</p></details>
+<details><summary>At which stage is a theta out of bounds refused?</summary><p class="a">Schema, before gates, mesh and config.</p></details>
+</section>
+
+<section class="entry" id="c25"><header><input type="checkbox" data-id="c25" id="k25"><h3><label for="k25">25. The five physics gates before any CFD</label></h3></header>
+<p class="where"><b>In the talk:</b> S10. <b>Record:</b> <code>physics/gates.py</code>, <code>docs/specs/01_interfaces.md</code> "Physics gates", <code>runs/dev/2026-11-01_inlet_box_diagnostics/README.md</code>.</p>
+<span class="lbl">Definition</span>
+<p>A gate is a pure function of the parameters that refuses a design before a mesh exists. Each message names the gate, the value and the limit.</p>
+<ul>
+<li>Gate 1, attached shocks: theta1 at most theta_max(M_inf) minus 2 degrees; theta2 at most theta_max(M1) minus 2 degrees.</li>
+<li>Gate 2, shock-on-lip feasibility: the lip is at least 0.02 m downstream of the corner and below 0.6 of the domain height.</li>
+<li>Gate 3, duct height at least 0.008 m.</li>
+<li>Gate 4, total turning theta1 plus theta2 at most 24 degrees (26 at Task 0, trimmed on the 12/14 evidence).</li>
+<li>Gate 5, wall-cell Reynolds number on ramp 2 at most 50.</li>
+</ul>
+<span class="lbl">Worked example (box diagnostics)</span>
+<p>12/12, 8/14 and 5/14 converged. 12/14 diverged on both meshes and with both CFL caps. The gate was set at 24 degrees, which excluded 4 of the 96 Sobol points (indices 0, 40, 72, 80 in <code>designs/pool_sobol96.csv</code>). The 25 degree band was not tested and the slide says so.</p>
+<span class="lbl">Interview questions</span>
+<details><summary>Is gate 4 physics or a patch?</summary><p class="a">It is a design-space definition made on recorded evidence: the laminar solution at 26 degrees total turning does not reach a steady state. Whether the real flow separates there is not claimed. The gate keeps the pool inside the region where the model is trustworthy, and the front is stated to hold inside that region only.</p></details>
+<details><summary>Why a 2 degree margin on detachment?</summary><p class="a">theta_max is an inviscid value; the boundary layer displaces the ramp and the shock is slightly stronger. Two degrees keeps the shocks attached with margin without excluding useful designs: theta_max is 38.8 degrees at Mach 4 and the box ends at 12.</p></details>
+<span class="lbl">Self-check</span>
+<details><summary>Which gate removed the 12/14 corner?</summary><p class="a">Gate 4, total turning at most 24 degrees.</p></details>
+<details><summary>How many pool points did it exclude?</summary><p class="a">4 of 96.</p></details>
+</section>
+
+<section class="entry" id="c26"><header><input type="checkbox" data-id="c26" id="k26"><h3><label for="k26">26. Hashes, fingerprints and digests</label></h3></header>
+<p class="where"><b>In the talk:</b> S11, S21 rows 4 and 5. <b>Record:</b> <code>worker/make_case.py</code> function <code>config_sha256</code>, <code>docs/faults/README.md</code> last section, <code>docs/transcripts/2026-11-02_worker_restart_and_retry.md</code>.</p>
+<span class="lbl">Definition</span>
+<p>Three checksums protect the chain. The <strong>mesh fingerprint</strong> is a hash of the mesh the staging side built; the worker rebuilds the mesh from the parameters and must get the same fingerprint. The <strong>config hash</strong> covers the lines of case.cfg that SU2 reads, not the comment lines. The <strong>result digest</strong> is a sha256 the worker writes next to every result and error file; ingest refuses a text that does not match it.</p>
+<span class="lbl">Worked example (the two tooling failures)</span>
+<p>Failure 5: the first config hash covered the whole file. One geometry number in a comment line differed in its last digit between the container and Colab (\(h_{\mathrm{duct}}\), \(3 \times 10^{-18}\)), so the worker refused pool job db92dcf68d, and later 63 jobs, as config mismatches. Fix: hash only the lines SU2 reads; all 92 pool points then converged. Transfer failure: an agent retyping base64 altered 2 of 4 result files. Fix: the worker's digest. With the gate on, 6 of 84 later transcriptions were wrong at the first attempt and every one was caught; 0 bad records entered the repository.</p>
+<span class="lbl">Interview questions</span>
+<details><summary>Why did the whole-file hash fail across machines?</summary><p class="a">The comment line prints the geometry at full floating-point precision, and the last digit of one value differed by 3e-18 between two machines. SU2 ignores comment lines, so the case was identical. The guard was stricter than the thing it guarded.</p></details>
+<details><summary>Is retyping base64 by an agent a real risk?</summary><p class="a">It happened: two files out of four were altered, and one mixed the fields of two records. The lesson on the slide is that any copy step without a checksum is a silent-corruption path, whoever performs it. The digest closed it, and the later error rate shows why it was needed.</p></details>
+<span class="lbl">Self-check</span>
+<details><summary>What does the config hash cover now?</summary><p class="a">Only the non-comment, non-blank lines of case.cfg.</p></details>
+<details><summary>What does ingest do with a result that does not match its digest?</summary><p class="a">Refuses it and stores nothing.</p></details>
+</section>
+
+<section class="entry" id="c27"><header><input type="checkbox" data-id="c27" id="k27"><h3><label for="k27">27. The Drive queue and the restart-safe worker</label></h3></header>
+<p class="where"><b>In the talk:</b> S11. <b>Record:</b> <code>worker/run_worker.py</code>, <code>docs/specs/01_interfaces.md</code>, <code>docs/transcripts/2026-11-02_worker_restart_and_retry.md</code>, fault matrix row F8.</p>
+<span class="lbl">Definition</span>
+<p>Colab cannot accept inbound connections, so jobs travel through a shared Drive folder. A job is one JSON file in <code>jobs/</code> with the parameters, the code commit, the config hash and the mesh fingerprint. The worker polls the folder every 20 seconds, writes flag files in <code>runs/&lt;id&gt;/status/</code> (0-seen, 1-running, 2-done, 2-failed), rebuilds the mesh, checks the fingerprint and hash, runs SU2 with mpirun, and writes result.json with its digest. A heartbeat file is updated while a case runs. After a restart, a 1-running job whose heartbeat is older than 10 minutes is re-run once; finished jobs are never repeated.</p>
+<span class="lbl">Worked example (the transcript of 2 November)</span>
+<p>The worker restarted at 01:46 UTC with <code>--retry-reason config_mismatch</code>, cleared 63 failed flags, and failed them again within four minutes because their job files still carried the old hash. The 63 jobs were re-staged as single files; the same worker picked them up from 04:01 without a second restart and finished them by 10:46. Failure reasons come from a fixed list: timeout, nonzero_exit, nan, postprocess_error, mesh_mismatch, config_mismatch.</p>
+<span class="lbl">Interview questions</span>
+<details><summary>What happens if Colab disconnects in the middle of a run?</summary><p class="a">The flag stays at 1-running and the heartbeat stops. The next worker sees a stale heartbeat, re-runs the job once and writes a fresh result. Finished runs have 2-done flags and are not touched. Fault F8 tests this with a killed process.</p></details>
+<details><summary>Why does the worker rebuild the mesh instead of downloading it?</summary><p class="a">The mesh is a few megabytes and deterministic from the parameters at a given commit. Rebuilding keeps the job file at 600 bytes and gives an independent check: if the fingerprints differ, the two sides are not running the same geometry and SU2 is not started.</p></details>
+<span class="lbl">Self-check</span>
+<details><summary>Name the four flag files.</summary><p class="a">0-seen, 1-running, 2-done, 2-failed.</p></details>
+<details><summary>After how long is a running job's heartbeat considered stale?</summary><p class="a">10 minutes by default.</p></details>
+</section>
+
+<section class="entry" id="c28"><header><input type="checkbox" data-id="c28" id="k28"><h3><label for="k28">28. What the language model decides, and what it does not</label></h3></header>
+<p class="where"><b>In the talk:</b> S1, S9, S14, S21, S24. <b>Record:</b> <code>CLAUDE.md</code> rules, <code>docs/faults/README.md</code>, <code>PLAN.md</code> status log.</p>
+<span class="lbl">Definition</span>
+<p>The repository has standing rules: open data and solvers only; never invent a result; every number from a recorded run; validation before machine learning; a failed validation is reported, not tuned away; active learning is reported honestly even when it does not win; the language model never chooses a sampling point; bad inputs are gated before submission; every run records inputs, solver version, seed and logs. The agent layer is tools plus gates plus logs.</p>
+<span class="lbl">Worked example (what the records show)</span>
+<p>Five failures on the way, each recorded: the carbuncle, the AUSM wedge, the 12/14 corner, the wrong "check the units" message, and the over-strict config hash. The two tooling failures were surfaced by the layer, not hidden by it, and both are closed with a test. The replay slide carries the result that active learning lost on global error until 40 runs.</p>
+<span class="lbl">Interview questions</span>
+<details><summary>How do we know the model did not quietly tune something?</summary><p class="a">Every number on a slide is traced to a committed file, every run has its inputs and seed, and the repository history shows when each value appeared. The replay and the Pareto scripts are deterministic from the pool CSV. An auditor can rerun them and diff the outputs.</p></details>
+<details><summary>What would you automate next, and what would you keep manual?</summary><p class="a">Automate the fine-mesh confirmation and a Mach sweep through the same queue. Keep manual every decision that changes the physics model: the turbulence choice, the gate limits and the tolerances. Those need a person who can defend them to this audience.</p></details>
+<span class="lbl">Self-check</span>
+<details><summary>State the rule about sampling points in one sentence.</summary><p class="a">The surrogate and the acquisition function choose the sampling points; the language model never does.</p></details>
+<details><summary>What must a slide do with a check that was not run?</summary><p class="a">Say "not run" or "pending" with the name of the record that will hold it.</p></details>
+</section>
+
+<h2 id="d5">Deck run-through (Tue 10, Wed 11)</h2>
+<p>Open <code>docs/talk/deck.pptx</code> and <code>docs/talk/outline.md</code> side by side. Present each slide aloud with a timer. For each slide, say the one message, point at the figure, and give the source in one sentence. When you are not sure of a number, open the record named in the footer. Mark slides that ran long; the talk is fixed at 40 minutes (4, 9, 6, 9, 7 and 5 minutes for the six sections) with 20 minutes of discussion.</p>
+<ul>
+<li>Section 1 to 3, slides S1 to S12: 19 minutes in the outline.</li>
+<li>Section 4, S13 to S16: 9 minutes.</li>
+<li>Section 5, S17 to S20: 7 minutes.</li>
+<li>Section 6, S21 to S23: 5 minutes.</li>
+<li>Backup B1 to B6: open only on a question.</li>
+</ul>
+
+<h2 id="d6">Question drill (Thu 12)</h2>
+<p>Answer the 56 interview questions in this plan aloud, in a random order, without opening the answers. For each one, name the slide you would open. Stop after two hours. Do not change the deck on the last day; a wrong late edit costs more than a known small flaw.</p>
+
+<h2>References</h2>
+<ul class="ref">
+<li>Anderson, J. D., <em>Modern Compressible Flow</em>, 3rd ed., McGraw-Hill: chapters 3 (normal shocks), 4 (oblique shocks and expansion waves).</li>
+<li>Anderson, J. D., <em>Hypersonic and High-Temperature Gas Dynamics</em>, AIAA: chapter 6 (viscous flow: boundary layers and aerodynamic heating).</li>
+<li>White, F. M., <em>Viscous Fluid Flow</em>, 3rd ed., McGraw-Hill: chapter 7 (compressible boundary-layer flow).</li>
+<li>Blazek, J., <em>Computational Fluid Dynamics: Principles and Applications</em>, 3rd ed., Elsevier: chapters 4 to 6.</li>
+<li>Ames Research Staff, <em>Equations, Tables, and Charts for Compressible Flow</em>, NACA Report 1135, 1953 (free).</li>
+<li>NASA Glenn Research Center, "Oblique shock waves" and "Normal shock waves" (free web pages with the relations).</li>
+<li>Oswatitsch, K., "Pressure recovery for missiles with reaction propulsion at high supersonic speeds", NACA TM 1140, 1947 (free translation).</li>
+<li>Eckert, E. R. G., "Engineering relations for friction and heat transfer to surfaces in high velocity flow", J. Aeronautical Sciences 22, 1955.</li>
+<li>Fay, J. A., and Riddell, F. R., "Theory of stagnation point heat transfer in dissociated air", J. Aeronautical Sciences 25, 1958.</li>
+<li>Billig, F. S., "Shock-wave shapes around spherical- and cylindrical-nosed bodies", J. Spacecraft and Rockets 4, 1967.</li>
+<li>Roe, P. L., "Approximate Riemann solvers, parameter vectors, and difference schemes", J. Computational Physics 43, 1981.</li>
+<li>Venkatakrishnan, V., "Convergence to steady state solutions of the Euler equations on unstructured grids with limiters", J. Computational Physics 118, 1995.</li>
+<li>Roache, P. J., "Perspective: a method for uniform reporting of grid refinement studies", J. Fluids Engineering 116, 1994.</li>
+<li>SU2 documentation, su2code.github.io: "Convective schemes", "Slope limiters and gradients", "Linear solvers", "Markers and BC" (free).</li>
+<li>Rasmussen, C. E., and Williams, C. K. I., <em>Gaussian Processes for Machine Learning</em>, MIT Press, 2006, free at gaussianprocess.org/gpml: chapters 2, 4, 5.</li>
+<li>Jones, D. R., Schonlau, M., and Welch, W. J., "Efficient global optimization of expensive black-box functions", J. Global Optimization 13, 1998.</li>
+<li>Emmerich, M., Deutz, A., and Klinkenberg, J. W., "Hypervolume-based expected improvement", IEEE CEC 2011.</li>
+<li>McKay, M. D., Beckman, R. J., and Conover, W. J., "A comparison of three methods for selecting values of input variables", Technometrics 21, 1979.</li>
+<li>Model Context Protocol specification, modelcontextprotocol.io (free).</li>
+<li>Repository: <code>docs/specs/00_decisions.md</code>, <code>docs/specs/01_interfaces.md</code>, <code>docs/validation/</code>, <code>docs/faults/README.md</code>, <code>docs/talk/outline.md</code>.</li>
+</ul>
+</div>
+
+<script>
+(function(){
+  var boxes=document.querySelectorAll('input[data-id]');
+  var key='inlet-talk-study-plan';
+  var state={};
+  try{ state=JSON.parse(localStorage.getItem(key)||'{}')||{}; }catch(e){ state={}; }
+  function paint(){
+    var n=0; boxes.forEach(function(b){ if(b.checked) n++; });
+    document.getElementById('pcount').textContent=n+' of '+boxes.length+' ticked';
+    document.getElementById('pbar').style.width=(100*n/boxes.length)+'%';
+  }
+  boxes.forEach(function(b){
+    b.checked=!!state[b.dataset.id];
+    b.addEventListener('change',function(){
+      state[b.dataset.id]=b.checked;
+      try{ localStorage.setItem(key,JSON.stringify(state)); }catch(e){}
+      paint();
+    });
+  });
+  paint();
+})();
+</script>
+</body>
+</html>
