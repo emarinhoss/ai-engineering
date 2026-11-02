@@ -91,15 +91,21 @@ def _inlet_recovery(case, surf, geometry, fs):
     return out
 
 
-def _inlet_heating(surf, geometry):
-    """q_peak, x_q_peak, heat load on ramp 2 and q_peak_cowl, with the 2 mm exclusions."""
+def ramp2_window(surf, geometry):
+    """Body nodes of ramp 2 that the heating objective uses: x >= X1, nodes within 2 mm of the
+    throat plane left out. Also used for the heat-flux profiles of Task 4c (analysis/profiles.py)."""
     theta = math.radians(geometry["theta_t_deg"])
     n = np.array([math.cos(theta), math.sin(theta)])
     body = surf["body_ramp2"]
     dist_to_throat = np.abs((body["x"] - geometry["E_body"][0]) * n[0]
                             + (body["y"] - geometry["E_body"][1]) * n[1])
     keep = dist_to_throat > EXCLUDE_M
-    ramp2 = {k: v[keep] for k, v in body.items()}
+    return {k: v[keep] for k, v in body.items()}
+
+
+def _inlet_heating(surf, geometry):
+    """q_peak, x_q_peak, heat load on ramp 2 and q_peak_cowl, with the 2 mm exclusions."""
+    ramp2 = ramp2_window(surf, geometry)
     k = int(np.argmax(ramp2["q"]))
 
     cowl = surf["cowl_inner"]
