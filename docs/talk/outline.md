@@ -1,7 +1,7 @@
 # Talk outline: aero-thermal inlet design, surrogate and automation
 
 Slide-by-slide outline for the 40-minute talk (plus 20 minutes of discussion), following the seven
-sections of `PLAN.md`, Task 7. Status as of 2026-11-01. Nothing here is a result yet; every
+sections of `PLAN.md`, Task 7. Status as of 2026-11-02 (first written 2026-11-01). every
 quantitative claim is either backed by a record named in the Source line or marked PENDING.
 
 ## Conventions
@@ -122,7 +122,7 @@ Backup slides B1 to B6 follow S24 and are not timed.
 
 - **Message:** Colab cannot take inbound connections, so jobs go through a Drive folder, and a restarted worker resumes without losing or repeating finished runs.
 - **Figure or table:** Queue folder diagram: `jobs/`, `runs/<id>/status/` flags, `result.json` and `error.json`.
-- **Source:** `PENDING: validation batch` (a restart on Colab has not been recorded yet; the local tests use a fake solver).
+- **Source:** `docs/transcripts/2026-11-02_worker_restart_and_retry.md` (the worker on Colab restarted with `--retry-reason config_mismatch` on 2026-11-02 and re-ran the 63 refused pool jobs without repeating the 29 finished ones; all 92 pool points converged, `docs/validation/2026-11-01_colab_records.md`); `docs/faults/fault_matrix.md` row F8 (killed worker, local test with the fake solver).
 - **Speaker notes:** The worker never decides physics; it rebuilds the mesh from the uploaded parameters and checks a fingerprint before it runs SU2. Failure reasons come from a fixed list, so a failed job always says why.
 
 ### S12. The first live agent call (17:30, 1.5 min)
@@ -217,9 +217,9 @@ Backup slides B1 to B6 follow S24 and are not timed.
 
 ### S23. What is still to be recorded (38:30, 1.5 min)
 
-- **Message:** The official validation batch, the fault matrix and the turbulence sensitivity are recorded; the 92-point pool and the confirmation run are what remains.
+- **Message:** The official validation batch, the fault matrix, the turbulence sensitivity, the 92-point pool, the replay and the Pareto analysis are recorded; the confirmation run is what remains.
 - **Figure or table:** Status table: done, running, pending, each with its record.
-- **Source:** `docs/validation/2026-11-01_report.md` (development runs); `docs/validation/2026-11-01_colab_records.md` (official validation batch: V3, V4m, V4e metrics form, X1, and the two 12/14 failures); `docs/faults/fault_matrix.md` (fault injection, run without SU2). Pending rows: `PENDING: pool batch`, `PENDING: confirmation run`.
+- **Source:** `docs/validation/2026-11-01_report.md` (development runs); `docs/validation/2026-11-01_colab_records.md` (official validation batch: V3, V4m, V4e metrics form, X1, and the two 12/14 failures); `docs/faults/fault_matrix.md` (fault injection, run without SU2). Done rows added on 2026-11-02: `docs/validation/2026-11-01_colab_records.md` (92 of 92 pool points converged, 0 failures), `docs/validation/2026-11-02_replay.md`, `docs/validation/2026-11-02_pareto_inverse.md`. Pending row: `PENDING: confirmation run` (`inlet2r-374dad241f`, in the Drive queue since 2026-11-02 11:52 UTC).
 - **Speaker notes:** Each pending item has a named batch or an explicit note that none is assigned yet. The talk claims nothing beyond what the records show on the day.
 
 ---
