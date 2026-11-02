@@ -262,5 +262,7 @@ numerics and validation work to be done on Day 1 instead of Days 2 to 4.
   fields of two records). The worker now writes a sha256 digest next to every result and failure
   (back-filled at start-up) and ingest refuses a text that does not match it. The 16 pool and
   13 validation records ingested before digests existed are to be re-checked against the
-  back-filled digests after the restart (to do; the integrity checks they passed cover case id,
-  mesh fingerprint and config hash, not every digit of the metrics).
+  back-filled digests after the restart: done on 2026-11-02 01:50 UTC, 16 of 16 match byte for
+  byte (`python -m mcp_server.verify_digests`). The 21 later results were copied with the digest
+  gate on: 4 of 21 first copies were wrong (Fable's own transcription, caught and redone), 0 bad
+  records entered the repo. Worker restarted by Éder at 01:46 UTC on the new main.

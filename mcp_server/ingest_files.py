@@ -34,7 +34,11 @@ def ingest_dir(directory, drive_ids=None, require_digest=True):
             case_id, fn = name[: -len(".error.json")], queue.ingest_error
         else:
             continue
-        text = path.read_text()
+        try:
+            text = path.read_bytes().decode("utf-8")
+        except UnicodeDecodeError as exc:          # a damaged copy: not even text
+            out.append((name, {"ok": False, "stage": "digest", "errors": [f"not valid UTF-8: {exc}"]}))
+            continue
         digest_file = path.with_name(name[: -len(".json")] + ".sha256")
         digest = digest_file.read_text().strip() if digest_file.exists() else ""
         if not digest and require_digest:
