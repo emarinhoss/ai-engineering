@@ -154,14 +154,14 @@ Backup slides B1 to B6 follow S24 and are not timed.
 
 - **Message:** The curves decide whether active learning beats random and Latin hypercube sampling on the same pool; this slide makes no claim before they exist.
 - **Figure or table:** Held-out error against number of runs for al_ehvi, al_maxvar, random and LHS, with bands over 10 seeds.
-- **Source:** `PENDING: pool batch` (replay on the 92-point pool).
+- **Source:** `docs/validation/2026-11-02_replay_error_vs_n.png`, `docs/validation/2026-11-02_replay_summary.md`, `docs/validation/2026-11-02_replay.md` (interim replay on the 67 converged pool points of 92; to be rerun on the complete pool). EHVI has the lowest hypervolume regret at every budget (0 in 10 of 10 seeds from n = 32); on held-out error it is behind LHS and max-variance until n = 32 and level with max-variance at n = 40 and 48.
 - **Speaker notes:** Every strategy uses the same pool, so the ground truth is shared and no extra CFD is needed. If active learning does not beat the baselines, the slide says so and the next step is to investigate, not to retune.
 
 ### S16. Calibration (25:30, 2.5 min)
 
 - **Message:** The 90 percent intervals should cover about 90 percent of held-out points, and coverage outside 80 to 97 percent is flagged.
 - **Figure or table:** Calibration plot: nominal against observed coverage on held-out points.
-- **Source:** `PENDING: pool batch`. The 80 to 97 percent flag band is the report tolerance C1 in `docs/specs/00_decisions.md`, section 5.
+- **Source:** `docs/validation/2026-11-02_replay_calibration.png`, `docs/validation/2026-11-02_replay.md` (interim, 67 pool points, n = 48, 19 held-out points). q_peak coverage is inside the band (0.89 to 0.95 at the 90 percent level); recovery is over-covered (0.95 to 1.0 at the 90 percent level), which is flagged and explained, not refitted. The 80 to 97 percent flag band is the report tolerance C1 in `docs/specs/00_decisions.md`, section 5.
 - **Speaker notes:** Coverage is the check that the uncertainty means something, and it is reported whatever it shows. A flagged result gets an explanation, not a refit.
 
 ---

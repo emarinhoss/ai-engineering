@@ -262,6 +262,11 @@ numerics and validation work to be done on Day 1 instead of Days 2 to 4.
   on Drive, the refused run folders trashed) and run again by the restarted worker; 19 of them
   are ingested (48 of 92 pool points converged, 0 pool failures; the db92dcf68d retry converged
   and its result replaced the failure record). The other 44 are still running.
+- 2026-11-02 08:30 UTC: 67 of 92 pool points converged and committed (0 failures). Task 4 replay run on
+  them (`runs/replay/2026-11-02/`, 10 seeds, n to 48): EHVI lowest hypervolume regret at every budget
+  and 0 regret in 10 of 10 seeds from n = 32; behind LHS and max-variance on held-out error until
+  n = 32; q_peak intervals calibrated, recovery intervals over-cover (reported, not refitted).
+  `docs/validation/2026-11-02_replay.md`. To be rerun on the complete pool, then Task 5.
 - Transfer integrity: a Haiku agent retyping base64 altered 2 of 4 result files (one mixed the
   fields of two records). The worker now writes a sha256 digest next to every result and failure
   (back-filled at start-up) and ingest refuses a text that does not match it. The 16 pool and
