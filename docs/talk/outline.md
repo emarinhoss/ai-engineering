@@ -52,7 +52,7 @@ Backup slides B1 to B6 follow S24 and are not timed.
 
 - **Message:** The inlet trades total pressure recovery against peak wall heating, and neither objective alone is a design.
 - **Figure or table:** Schematic of the two-ramp inlet with cowl, throat plane and the two objectives marked (to draw from `geometry/inlet.py`; no data).
-- **Source:** none (no number). Definitions are in `docs/specs/00_decisions.md`, sections 2 and 3.
+- **Source:** schematic: none (no number), definitions in `docs/specs/00_decisions.md`, sections 2 and 3. Schlieren: `runs/dev/2026-11-02_flow_fields/figures/inlet_8_8_schlieren.png` from the development run `runs/dev/2026-11-02_flow_fields/inlet2r-92352faad1` (laminar 8/8, medium mesh, volume output; same metrics as the Colab record `runs/val/inlet2r-d4d29884be`).
 - **Speaker notes:** Recovery includes the terminal normal shock, which is what makes external compression worth anything. Peak heating is taken on ramp 2 including the duct wall, not on the sharp leading edge, where the computed peak is a mesh artifact.
 
 ### S3. The design box (2:00, 2 min)
@@ -77,7 +77,7 @@ Backup slides B1 to B6 follow S24 and are not timed.
 
 - **Message:** Analytic checks run before any machine learning; hard checks must pass, soft and report checks are reported.
 - **Figure or table:** The tolerance table (hard, soft, report) with the verdict column filled from the report.
-- **Source:** `docs/validation/2026-11-01_report.md` (verdict column; development runs unless a row says official).
+- **Source:** `docs/validation/2026-11-01_report.md` (verdict column; development runs unless a row says official). The V3 Billig stand-off row, "not run" in the report, was run on 2026-11-02 with volume output: +5.6 percent (`runs/dev/2026-11-02_flow_fields/cylinder-04b6b912c5/standoff.json`).
 - **Speaker notes:** A hard failure means a bug in mesh, boundary condition, units or scheme, so we fix the cause and do not change the tolerance. The verdicts are shown as the report gives them, including the one that failed.
 
 ### S6. Oblique shock and laminar heating (7:00, 2 min)
@@ -90,8 +90,8 @@ Backup slides B1 to B6 follow S24 and are not timed.
 ### S7. The cylinder: the hard check failed first (9:00, 2 min)
 
 - **Message:** With the first numerics (Roe, entropy fix 0.1) the stagnation heating failed Fay-Riddell on the fine mesh; with entropy fix 0.3 it passes on that mesh.
-- **Figure or table:** `docs/validation/2026-11-01_cylinder_heat_flux.png` (heat flux by mesh level) and `docs/validation/2026-11-01_grid_study.png`.
-- **Source:** `docs/validation/2026-11-01_report.md` (V3 rows and grid study); `runs/dev/2026-11-01_cylinder_v3_attempt1/README.md` (the failure); `runs/dev/2026-11-01_cylinder_v3_attempt3/README.md` (the final numerics).
+- **Figure or table:** `docs/validation/2026-11-01_cylinder_heat_flux.png` (heat flux by mesh level) and `runs/dev/2026-11-02_flow_fields/figures/cylinder.png` (bow shock, Mach contours, measured stand-off against Billig; the grid-study figure moved to B3).
+- **Source:** `docs/validation/2026-11-01_report.md` (V3 rows and grid study); `runs/dev/2026-11-01_cylinder_v3_attempt1/README.md` (the failure); `runs/dev/2026-11-01_cylinder_v3_attempt3/README.md` (the final numerics); `runs/dev/2026-11-02_flow_fields/cylinder-04b6b912c5/standoff.json` (stand-off delta/R = 0.546 against Billig 0.517, +5.6 percent, report tolerance 15 percent; development run 2026-11-02).
 - **Speaker notes:** The failure was kept and not tuned away, and the fix was chosen from a six-scheme comparison and a split test. The grid study passes on two levels only, so no order of convergence is claimed.
 
 ### S8. Inlet design point at 8/8 (11:00, 2 min)
@@ -186,7 +186,7 @@ Backup slides B1 to B6 follow S24 and are not timed.
 ### S19. Inverse query: maximum recovery under a heat-flux cap (31:30, 2 min)
 
 - **Message:** The surrogate answers "highest recovery with peak heat flux under the 40th percentile of pool heating", and one real SU2 run checks the answer.
-- **Figure or table:** Table: query, surrogate answer with interval, confirmation run result, and whether it falls inside the interval.
+- **Figure or table:** Table: query, surrogate answer with interval, confirmation run result, and whether it falls inside the interval; schlieren of the confirmed design from `runs/dev/2026-11-02_flow_fields/figures/inlet_confirm_schlieren.png` (development run `runs/dev/2026-11-02_flow_fields/inlet2r-ef324f2106`, same metrics as the Colab confirmation run).
 - **Source:** `runs/analysis/2026-11-02/inverse_q40/result.json`, `runs/analysis/2026-11-02/confirm/confirm.json`, `runs/confirm/inlet2r-374dad241f/result.json`, `docs/validation/2026-11-02_pareto_inverse.md`, section 3 (cap 31493 W/m2; answer theta1 = 11.965, theta2 = 7.115; predicted recovery 0.34515, interval 0.34506 to 0.34523, SU2 0.34513, inside; predicted q_peak 31470, interval 31450 to 31490 W/m2, SU2 31462, inside; C2 pass; refit shrinks the predictive std by 10 and 8 percent).
 - **Speaker notes:** The cap is set from the pool before the answer is known. The check passes if the confirmation run falls inside the predicted interval; a miss is documented and explained.
 

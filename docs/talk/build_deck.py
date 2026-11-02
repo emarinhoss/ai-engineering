@@ -633,15 +633,19 @@ def draw_cylinder_schemes(path):
 def body_s2(slide):
     path = "docs/talk/figures/inlet_schematic.png"
     draw_inlet_schematic(ROOT / path)
-    w, h = add_figure(slide, path, LM, CT, 11.6, 3.35)
-    text_box(slide, LM, CT + h + 0.1, CW, 1.0,
-             ["Maximise: total pressure recovery at the throat plane, including the terminal normal shock.",
-              "Minimise: peak wall heat flux on ramp 2, including the duct wall; not on the sharp leading edge."],
+    w, h = add_figure(slide, path, LM, CT, 6.2, 3.0)
+    sch = "runs/dev/2026-11-02_flow_fields/figures/inlet_8_8_schlieren.png"
+    w2, h2 = add_figure(slide, sch, LM + 6.5, CT, 5.8, 3.0)
+    caption(slide, LM + 6.5, CT + h2 + 0.04, 5.8, "Numerical schlieren of the laminar SU2 solution at 8/8 (medium mesh): the two ramp "
+            "shocks meet at the cowl lip. Figure: " + sch + ". Record: runs/dev/2026-11-02_flow_fields/inlet2r-92352faad1.", lines=3)
+    text_box(slide, LM, CT + 3.35, CW, 1.0,
+             ["Maximize: total pressure recovery at the throat plane, including the terminal normal shock.",
+              "Minimize: peak wall heat flux on ramp 2, including the duct wall; not on the sharp leading edge."],
              size=14, bullets=True, space_after=4)
     caption(slide, LM, 6.3, CW,
-            f"Figure: {path}, drawn by docs/talk/build_deck.py from geometry.inlet.design_points(8, 8), the geometry function "
-            "of geometry/inlet.py (theta1 = theta2 = 8 deg). Dotted lines: the shock-on-lip rule. Definitions: "
-            "docs/specs/00_decisions.md, sections 2 and 3. No CFD data.", lines=2)
+            f"Left: {path}, drawn by docs/talk/build_deck.py from geometry.inlet.design_points(8, 8), the geometry function "
+            "of geometry/inlet.py (theta1 = theta2 = 8 deg); dotted lines: the shock-on-lip rule. Definitions: "
+            "docs/specs/00_decisions.md, sections 2 and 3.", lines=2)
 
 
 def body_s3(slide):
@@ -679,7 +683,7 @@ def body_s5(slide):
             ["V2b wall heat flux vs Eckert", "mean 10%, max 15%", "hard", "PASS (mean 1.60%, max 1.95%)", "development"],
             ["V3 q_stag vs Fay-Riddell, fine mesh; medium to fine change", "15%; 5%", "hard",
              "first numerics: FAIL (+216.84%; +628.92%)\nfinal numerics: PASS (-4.49%; -3.46%)", "development"],
-            ["V3 stand-off vs Billig", "15%", "report", "not run: no flow.dat", "development"],
+            ["V3 stand-off vs Billig", "15%", "report", "REPORT (+5.6%, run 2026-11-02 with volume output)", "development"],
             ["V4e throat p0 and Mach, Euler 8/8", "2%", "hard", "PASS (-0.34%, -0.14%)", "development"],
             ["V4v core p0, laminar", "5%", "soft", "PASS (-0.04% to +0.50% on the 6 laminar 8/8 runs)", "development"],
             ["V4m grid, 8/8: recovery; q_peak", "2%; 5%", "hard", "PASS (+0.09%; -1.68%); 12/14 not run", "development"],
@@ -707,11 +711,13 @@ def body_s6(slide):
 
 def body_s7(slide):
     w1, h1 = add_figure(slide, "docs/validation/2026-11-01_cylinder_heat_flux.png", LM, CT, 5.0, 3.2)
-    w2, h2 = add_figure(slide, "docs/validation/2026-11-01_grid_study.png", LM + 5.3, CT, 6.8, 3.2, crop=(0, 0, 2 / 3, 0))
+    cyl = "runs/dev/2026-11-02_flow_fields/figures/cylinder.png"
+    w2, h2 = add_figure(slide, cyl, LM + 5.3, CT, 7.0, 3.2)
     caption(slide, LM, CT + h1 + 0.04, 5.0, "Figure: docs/validation/2026-11-01_cylinder_heat_flux.png. "
             "Record: docs/validation/2026-11-01_report.md.", lines=2)
-    caption(slide, LM + 5.3, CT + h2 + 0.04, 6.8, "Figure: docs/validation/2026-11-01_grid_study.png (left two panels, "
-            "cylinder q_stag, first and final numerics). Record: docs/validation/2026-11-01_report.md.", lines=2)
+    caption(slide, LM + 5.3, CT + h2 + 0.04, 7.0, "Bow shock of the final numerics (fine mesh, development run with volume output): "
+            "measured stand-off delta/R = 0.546 against Billig 0.517 (+5.6 percent, report tolerance 15 percent). "
+            "Figure: " + cyl + ". Record: runs/dev/2026-11-02_flow_fields/cylinder-04b6b912c5/standoff.json.", lines=3)
     rows = [["Cylinder, hard checks", "q_stag vs Fay-Riddell, fine mesh (15%)", "Medium to fine change (5%)"],
             ["Roe, entropy fix 0.1 (attempt 1)", "FAIL: +216.84%", "FAIL: +628.92%"],
             ["Roe, entropy fix 0.3 (attempt 3)", "PASS: -4.49%", "PASS: -3.46%"]]
@@ -916,14 +922,16 @@ def body_s19(slide):
     table.cell(1, 0).merge(table.cell(2, 0))
     text_box(slide, LM, CT + 2.4, CW, 0.5, "C2 pass: the SU2 run inlet2r-374dad241f (Colab, 2026-11-02 14:38 UTC, 1248 iterations, converged) "
              "falls inside both 90 percent intervals and below the cap.", size=14, color=ACCENT, bold=True)
-    text_box(slide, LM, CT + 3.0, CW, 1.6,
+    text_box(slide, LM, CT + 3.0, 6.8, 1.9,
              ["The cap is fixed from the pool before the answer is known (40th percentile of the pool's q_peak).",
               "One run inside a 90 percent interval is one draw, not a calibration statistic; the calibration evidence is the replay (S16).",
               "Refitting the GPs with this one new point shrinks the predictive std at the design from 5.1e-5 to 4.6e-5 in recovery "
               "and from 3.9e-4 to 3.5e-4 in log q_peak (ratios 0.90 and 0.92)."],
-             size=14, bullets=True, space_after=6)
-    caption(slide, LM, CT + 4.7, CW, "Records: runs/analysis/2026-11-02/inverse_q40/result.json; runs/confirm/inlet2r-374dad241f/result.json; "
-            "runs/analysis/2026-11-02/confirm/confirm.json; docs/validation/2026-11-02_pareto_inverse.md, section 3.", lines=2)
+             size=13, bullets=True, space_after=5)
+    sch = "runs/dev/2026-11-02_flow_fields/figures/inlet_confirm_schlieren.png"
+    w, h = add_figure(slide, sch, LM + 7.1, CT + 2.85, 5.2, 1.6)
+    caption(slide, LM + 7.1, CT + 2.85 + h + 0.02, 5.2, "Schlieren of the confirmed design (development run with volume output, "
+            "same metrics as the Colab run): " + sch + ".", lines=2)
 
 
 def body_s20(slide):
@@ -1107,7 +1115,7 @@ def body_b6(slide):
             ["V4m grid, 8/8", "hard", "PASS", "development"]]
     right = [head,
              ["X1 AVG_TOTALPRESS", "hard", "PASS on the 7 runs at 8/8", "development"],
-             ["V3 stand-off vs Billig", "report", "not run: no flow.dat", "7 cases"],
+             ["V3 stand-off vs Billig", "report", "+5.6% (development run 2026-11-02)", "1 case"],
              ["V1 on two dev runs", "hard", "not run: flow.dat absent", "development"],
              ["V2b on four cases", "hard", "not run: surface_flow.dat absent", "task1 and numerics"],
              ["V4v, V4m, X1 at 12/14", "soft, hard", "not run: diverged runs", "development"],
@@ -1121,7 +1129,7 @@ def body_b6(slide):
 REPORT = "docs/validation/2026-11-01_report.md"
 SLIDES = {
     "S2": {"title": "The design question", "body": body_s2,
-           "sources": ["geometry/inlet.py", "docs/specs/00_decisions.md (sections 2, 3)"]},
+           "sources": ["geometry/inlet.py", "docs/specs/00_decisions.md (sections 2, 3)", "runs/dev/2026-11-02_flow_fields/README.md"]},
     "S3": {"title": "The design box", "body": body_s3,
            "sources": ["designs/pool_sobol96.csv", "runs/dev/2026-11-01_inlet_box_diagnostics/README.md"]},
     "S4": {"title": "Flight condition, and why laminar", "body": body_s4,
@@ -1131,7 +1139,7 @@ SLIDES = {
            "sources": ["runs/task1/README.md", "runs/task1/v1_oblique_shock.json", "runs/task1/v2a.json", REPORT]},
     "S7": {"title": "The cylinder: the hard check failed first", "body": body_s7,
            "sources": [REPORT, "runs/dev/2026-11-01_cylinder_v3_attempt1/README.md",
-                       "runs/dev/2026-11-01_cylinder_v3_attempt3/README.md"]},
+                       "runs/dev/2026-11-01_cylinder_v3_attempt3/README.md", "runs/dev/2026-11-02_flow_fields/cylinder-04b6b912c5/standoff.json"]},
     "S8": {"title": "Inlet design point at 8/8", "body": body_s8,
            "sources": ["runs/dev/2026-11-01_inlet_design_point/README.md", REPORT, "runs/dev/2026-11-01_inlet_grid_study_ef03/8_8_medium/surface_flow.dat.gz",
                        "runs/dev/2026-11-01_turbulence_sensitivity_SA/README.md",
@@ -1164,7 +1172,8 @@ SLIDES = {
                         "docs/validation/2026-11-02_pareto_inverse.md (section 2)"]},
     "S19": {"title": "Inverse query under a heat-flux cap", "body": body_s19,
             "sources": ["runs/analysis/2026-11-02/inverse_q40/result.json", "runs/confirm/inlet2r-374dad241f/result.json",
-                        "runs/analysis/2026-11-02/confirm/confirm.json", "docs/validation/2026-11-02_pareto_inverse.md (section 3)"]},
+                        "runs/analysis/2026-11-02/confirm/confirm.json", "docs/validation/2026-11-02_pareto_inverse.md (section 3)",
+                        "runs/dev/2026-11-02_flow_fields/inlet2r-ef324f2106/result.json"]},
     "S20": {"title": "Design maps over the box", "body": body_s20,
             "sources": ["runs/analysis/2026-11-02/design_map.png", "runs/analysis/2026-11-02/oswatitsch_cut.png",
                         "runs/analysis/2026-11-02/grid.csv", "docs/validation/2026-11-02_pareto_inverse.md (section 4)"]},

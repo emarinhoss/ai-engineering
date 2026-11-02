@@ -297,6 +297,13 @@ numerics and validation work to be done on Day 1 instead of Days 2 to 4.
   peak heating 2.59 / 2.61 / 2.52 times laminar at 8/8 medium, 8/8 fine, 12/12 medium; identical to the
   container development runs to every printed digit. Task 5 acceptance met; nothing on the talk's
   list is pending.
+- 2026-11-02 17:00 UTC: flow-field pictures for the deck. Éder allowed the SU2 v8.2.0 release binary on the
+  container; three development runs with volume output (`runs/dev/2026-11-02_flow_fields/`: inlet 8/8, the confirmed design
+  11.965/7.115, fine cylinder) reproduce the Colab metrics to every printed digit. `postprocess.plot_flowfield`
+  makes Mach / p / T / schlieren panels and the bow-shock picture; the V3 Billig stand-off item, "not run" in
+  the report, gives +5.6 percent (inside the 15 percent report tolerance). Deck: schlieren on S2 and S19,
+  bow shock on S7; the committed-surface figures (mesh, wall distributions, 12/14 divergence, six-scheme
+  carbuncle test) went on S8, S10, B3 and B4 earlier today.
 - Transfer integrity: a Haiku agent retyping base64 altered 2 of 4 result files (one mixed the
   fields of two records). The worker now writes a sha256 digest next to every result and failure
   (back-filled at start-up) and ingest refuses a text that does not match it. The 16 pool and
