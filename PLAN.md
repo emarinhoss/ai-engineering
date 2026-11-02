@@ -266,3 +266,13 @@ numerics and validation work to be done on Day 1 instead of Days 2 to 4.
   byte (`python -m mcp_server.verify_digests`). The 21 later results were copied with the digest
   gate on: 4 of 21 first copies were wrong (Fable's own transcription, caught and redone), 0 bad
   records entered the repo. Worker restarted by Éder at 01:46 UTC on the new main.
+- 2026-11-02 03:50 UTC: the restart re-ran the 63 refused jobs and all 63 failed again within four
+  minutes, config_mismatch under the new code too. Cause: their job files carried the old
+  whole-file hash, and the whole file differs by the comment line on Colab, so the "accept the
+  old hash" path can never match for exactly these jobs (an error of reasoning on 11-01, not of
+  code). Fix without a second restart: the 63 staged job files were re-hashed with
+  `config_sha256` (all pool jobs share one hash, b0c231e7..., because the lines SU2 reads are
+  identical and the geometry lives in the mesh), uploaded as single `jobs/<id>.json` files
+  (single files take precedence over batch entries), and the 63 refused `runs/<id>/` folders
+  were moved to the Drive trash so the running worker sees the jobs as new. First retried job
+  started at 04:03 UTC and ran SU2; 63 jobs at about 5 minutes each end around 09:30 UTC.

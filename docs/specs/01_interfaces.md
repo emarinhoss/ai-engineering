@@ -114,7 +114,9 @@ and the container cannot see Drive. Consequences:
   of `case.cfg` that SU2 reads (comment and blank lines left out, `worker.make_case.config_sha256`),
   because the geometry comment line carries floats whose last digit differed between the container
   and Colab (pool job inlet2r-db92dcf68d, 2026-11-01). The worker and `ingest_result` also accept the
-  whole-file sha256 for job files staged before that change.
+  whole-file sha256 for job files staged before that change, which only helps when the whole file
+  is byte-identical on both machines; a job refused for the comment-line difference has to be
+  re-staged with the new hash (done for the 63 pool jobs on 2026-11-02).
 - Digests: the worker writes `runs/<case_id>.result.sha256` next to each result and
   `runs/<case_id>.error.sha256` for each failure (sha256 of the file bytes), back-filled at start-up.
   `ingest_result` / `ingest_error` take the digest as an optional argument and refuse a text that
