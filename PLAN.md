@@ -272,6 +272,12 @@ numerics and validation work to be done on Day 1 instead of Days 2 to 4.
   fd8bbe1147) were checked against the worker digests before ingest; fd8bbe1147 had finished at
   06:00 UTC and was missed by the 08:00 ingest pass, found by searching the Drive runs folder by
   case id. Next: Task 4 replay on the full pool, then Task 5 on runs/analysis/2026-11-02/.
+- 2026-11-02 12:05 UTC: Task 4 replay rerun on all 92 points (`runs/replay/2026-11-02_full/`): verdicts
+  unchanged from the interim run (EHVI best regret, 0 in 10 of 10 seeds from n = 32; worst held-out error
+  until n = 32, overtakes random and LHS at n = 40; q_peak coverage in band, recovery over-covered).
+  Task 5 run on the full pool (`runs/analysis/2026-11-02/`, `docs/validation/2026-11-02_pareto_inverse.md`);
+  the inverse answer (11.965, 7.115) staged and submitted through the MCP tools, job file uploaded to the
+  Drive queue at 11:52 UTC as `inlet2r-374dad241f`; C2 waits for its result.
 - Transfer integrity: a Haiku agent retyping base64 altered 2 of 4 result files (one mixed the
   fields of two records). The worker now writes a sha256 digest next to every result and failure
   (back-filled at start-up) and ingest refuses a text that does not match it. The 16 pool and
