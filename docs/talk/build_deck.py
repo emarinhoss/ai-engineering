@@ -61,7 +61,7 @@ def read_outline():
     """Return {slide id: {"message": ..., "notes": ...}} read from docs/talk/outline.md."""
     out, current = {}, None
     for line in OUTLINE.read_text(encoding="utf-8").splitlines():
-        head = re.match(r"^### (S\d+|B\d+)\. ", line)
+        head = re.match(r"^### (S\d+[a-z]?|B\d+)\. ", line)
         if head:
             current = out.setdefault(head.group(1), {})
         elif current is not None and line.startswith("- **Message:** "):
@@ -630,6 +630,41 @@ def draw_cylinder_schemes(path):
 
 
 # ---- slide bodies (one function per slide that has drawn or composed content) -----------------
+def body_s1a(slide):
+    rows = [["Question", "Answered on"],
+            ["Design trade: how much pressure recovery does a lower peak heat flux on ramp 2 cost?",
+             "S18, Pareto front with 90% bands"],
+            ["Inverse design: which ramp angles give the most recovery with peak heat flux at most "
+             "40 kW/m2, and does a new SU2 run confirm it?", "S19, confirmation run (C2)"],
+            ["Sampling cost: does active learning find the answers with fewer CFD runs than random "
+             "or Latin hypercube sampling?", "S15, reported whichever way it goes"],
+            ["Trust: does the solver match analytic cases first, and do the 90% intervals hold?",
+             "S5 to S8, S16"],
+            ["Automation: can an agent run the pipeline while the surrogate, not the LLM, picks every point?",
+             "S9 to S12"]]
+    add_table(slide, LM, CT, [5.4, 2.1], rows, size=12, row_h=0.64)
+    text_box(slide, LM, CT + 3.95, 7.5, 0.9,
+             "Why it matters: recovery sets how much useful air reaches the engine; wall heating sets the cooling "
+             "and thermal-protection load. Each CFD run is expensive, so the number of runs is the budget.",
+             size=13, color=TEXT, space_after=0)
+    x, w = LM + 7.8, CW - 7.8
+    text_box(slide, x, CT - 0.05, w, 0.35, "Where the same loop applies", size=15, color=BLUE, bold=True, space_after=0)
+    text_box(slide, x, CT + 0.3, w, 0.3, "Illustrations of the method; not run in this study.", size=11, color=GREY,
+             space_after=0)
+    text_box(slide, x, CT + 0.7, w, 2.0,
+             ["Heat exchanger or cold plate: pressure drop against heat transfer.",
+              "Nozzle, diffuser or duct shape: total pressure loss against flow distortion.",
+              "Leading edge or nose radius: drag against stagnation heating.",
+              "Electronics or HVAC cooling: fan power against peak temperature."],
+             size=13, bullets=True, space_after=4)
+    text_box(slide, x, CT + 2.85, w, 2.0,
+             ["Transfers: validation ladder, input gates, run queue, GP with uncertainty, acquisition, "
+              "replay against random and LHS.",
+              "Does not transfer as is: the physics choices (laminar flow, 300 K wall, tolerances). "
+              "An exact GP suits a few inputs and up to a few thousand runs; past that, another surrogate."],
+             size=13, bullets=True, space_after=4)
+
+
 def body_s2(slide):
     path = "docs/talk/figures/inlet_schematic.png"
     draw_inlet_schematic(ROOT / path)
@@ -1142,6 +1177,8 @@ def body_b6(slide):
 # ---- the deck: one dict per slide -------------------------------------------------------------
 REPORT = "docs/validation/2026-11-01_report.md"
 SLIDES = {
+    "S1a": {"title": "The questions this study answers", "body": body_s1a,
+            "sources": ["PLAN.md (Framing, Problem)", "docs/specs/00_decisions.md (section 3)"]},
     "S2": {"title": "The design question", "body": body_s2,
            "sources": ["geometry/inlet.py", "docs/specs/00_decisions.md (sections 2, 3)", "runs/dev/2026-11-02_flow_fields/README.md"]},
     "S3": {"title": "The design box", "body": body_s3,
@@ -1229,9 +1266,9 @@ SLIDES = {
 
 # deck order: (section divider title, sub line, slide ids)
 SECTIONS = [
-    ("1. Problem and why it matters", "4 minutes", ["S1", "S2", "S3"]),
+    ("1. Problem and why it matters", "5 minutes", ["S1", "S1a", "S2", "S3"]),
     ("2. Physics setup and validation", "9 minutes", ["S4", "S5", "S6", "S7", "S8"]),
-    ("3. Automation layer: MCP tools, gates, queue", "6 minutes", ["S9", "S10", "S11", "S12"]),
+    ("3. Automation layer: MCP tools, gates, queue", "5 minutes", ["S9", "S10", "S11", "S12"]),
     ("4. Surrogate, active learning, UQ", "9 minutes", ["S13", "S14", "S15", "S16"]),
     ("5. Results, Pareto front, inverse query", "7 minutes", ["S17", "S18", "S19", "S20"]),
     ("6. What failed, limits, next steps", "5 minutes", ["S21", "S22", "S23"]),

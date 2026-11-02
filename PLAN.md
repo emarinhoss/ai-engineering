@@ -150,9 +150,9 @@ section 5 and the per-task specs are in `docs/specs/`.
 Structure for 60 minutes (40 talk, 20 discussion; the section minutes were set to 40 on
 2026-11-02, Éder's decision, from the 48 first proposed):
 
-1. Problem and why it matters (4 min).
+1. Problem and why it matters (5 min; S1a, the questions the study answers, added 2026-11-02 at Éder's request).
 2. Physics setup and validation (9 min).
-3. Automation layer: MCP tools, gates, queue (6 min).
+3. Automation layer: MCP tools, gates, queue (5 min).
 4. Surrogate, active learning, UQ (9 min).
 5. Results, Pareto front, inverse query (7 min).
 6. What failed, limits, next steps (5 min).
