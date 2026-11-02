@@ -267,6 +267,11 @@ numerics and validation work to be done on Day 1 instead of Days 2 to 4.
   and 0 regret in 10 of 10 seeds from n = 32; behind LHS and max-variance on held-out error until
   n = 32; q_peak intervals calibrated, recovery intervals over-cover (reported, not refitted).
   `docs/validation/2026-11-02_replay.md`. To be rerun on the complete pool, then Task 5.
+- 2026-11-02 12:00 UTC: pool complete. 92 of 92 points converged and committed, 0 failures
+  (wall 195 to 581 s, mean 345 s on 4 ranks). The last three results (0c0990b14f, e643166375,
+  fd8bbe1147) were checked against the worker digests before ingest; fd8bbe1147 had finished at
+  06:00 UTC and was missed by the 08:00 ingest pass, found by searching the Drive runs folder by
+  case id. Next: Task 4 replay on the full pool, then Task 5 on runs/analysis/2026-11-02/.
 - Transfer integrity: a Haiku agent retyping base64 altered 2 of 4 result files (one mixed the
   fields of two records). The worker now writes a sha256 digest next to every result and failure
   (back-filled at start-up) and ingest refuses a text that does not match it. The 16 pool and
