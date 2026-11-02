@@ -147,13 +147,14 @@ section 5 and the per-task specs are in `docs/specs/`.
 
 ### Task 7 (Day 11): deck (Fable 5.1 narrative; Haiku drafts text and figures)
 
-Proposed structure for 60 minutes (about 40 talk, 20 discussion):
+Structure for 60 minutes (40 talk, 20 discussion; the section minutes were set to 40 on
+2026-11-02, Éder's decision, from the 48 first proposed):
 
-1. Problem and why it matters (5 min).
-2. Physics setup and validation (10 min).
-3. Automation layer: MCP tools, gates, queue (8 min).
-4. Surrogate, active learning, UQ (12 min).
-5. Results, Pareto front, inverse query (8 min).
+1. Problem and why it matters (4 min).
+2. Physics setup and validation (9 min).
+3. Automation layer: MCP tools, gates, queue (6 min).
+4. Surrogate, active learning, UQ (9 min).
+5. Results, Pareto front, inverse query (7 min).
 6. What failed, limits, next steps (5 min).
 7. Discussion (about 20 min); keep backup slides for fidelity questions (turbulence model, wall
    BC, mesh convergence).
@@ -304,6 +305,8 @@ numerics and validation work to be done on Day 1 instead of Days 2 to 4.
   the report, gives +5.6 percent (inside the 15 percent report tolerance). Deck: schlieren on S2 and S19,
   bow shock on S7; the committed-surface figures (mesh, wall distributions, 12/14 divergence, six-scheme
   carbuncle test) went on S8, S10, B3 and B4 earlier today.
+- 2026-11-02 17:30 UTC: talk length fixed at 40 minutes (4, 9, 6, 9, 7, 5) plus 20 minutes of discussion;
+  the outline's slide times stand and the Task 7 section list above now carries the same minutes.
 - Transfer integrity: a Haiku agent retyping base64 altered 2 of 4 result files (one mixed the
   fields of two records). The worker now writes a sha256 digest next to every result and failure
   (back-filled at start-up) and ingest refuses a text that does not match it. The 16 pool and

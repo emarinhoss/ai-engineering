@@ -21,9 +21,7 @@ quantitative claim is either backed by a record named in the Source line or mark
 
 ## Timing
 
-`PLAN.md` Task 7 gives six talk sections of 5, 10, 8, 12, 8 and 5 minutes. Those add to **48 minutes**, not the
-"about 40 talk" the same section states. This outline uses **40 minutes** (4, 9, 6, 9, 7, 5) and keeps the
-discussion at 20 minutes. Which sections to shorten is a decision for Éder and Fable 5.1 before rehearsal (Task 8).
+`PLAN.md` Task 7 first gave six talk sections of 5, 10, 8, 12, 8 and 5 minutes, 48 in all. On 2026-11-02 Éder fixed the talk at **40 minutes** (4, 9, 6, 9, 7, 5) with 20 minutes of discussion; `PLAN.md` now carries the same minutes and the slide times below are the ones to rehearse.
 
 | Section | Talk | PLAN.md minutes | Outline minutes | Slides |
 |---|---|---|---|---|
