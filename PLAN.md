@@ -307,6 +307,13 @@ numerics and validation work to be done on Day 1 instead of Days 2 to 4.
   carbuncle test) went on S8, S10, B3 and B4 earlier today.
 - 2026-11-02 17:30 UTC: talk length fixed at 40 minutes (4, 9, 6, 9, 7, 5) plus 20 minutes of discussion;
   the outline's slide times stand and the Task 7 section list above now carries the same minutes.
+- 2026-11-02 19:40 UTC: Task 4b (Éder's request: a neural network as surrogate). Spec fixed and committed before
+  the run (c5d8692): deep ensemble of five 2-64-64-1 tanh networks, same replay as the GP. Result
+  (`docs/validation/2026-11-02_replay_mlp.md`): GP 2 to 10 times more accurate on held-out designs at every
+  budget and strategy (worse in 10 of 10 seeds on identical training sets), EHVI step 1.7 s against 6.2 s;
+  EHVI with the ensemble still reaches zero regret at n = 32 in 10 of 10 seeds. Backup slide B7 added (39 slides).
+  A Fourier neural operator was not attempted: no field data set large enough; a 1D operator on the 92 wall
+  heat-flux profiles is the next candidate.
 - Transfer integrity: a Haiku agent retyping base64 altered 2 of 4 result files (one mixed the
   fields of two records). The worker now writes a sha256 digest next to every result and failure
   (back-filled at start-up) and ingest refuses a text that does not match it. The 16 pool and

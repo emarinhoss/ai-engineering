@@ -1003,8 +1003,9 @@ def body_s23(slide):
 def body_s24(slide):
     items = ["B1  Turbulence model (why laminar?)", "B2  Wall boundary condition (is the wall really at 300 K?)",
              "B3  Mesh convergence (is the mesh converged?)", "B4  The numerics story (why this scheme?)",
-             "B5  Design-box trim (why 24 degrees?)", "B6  Full validation table (what did not run?)"]
-    text_box(slide, LM, CT + 0.2, CW, 3.8, items, size=22, space_after=12)
+             "B5  Design-box trim (why 24 degrees?)", "B6  Full validation table (what did not run?)",
+             "B7  Neural-network ensemble against the GP (why a GP?)"]
+    text_box(slide, LM, CT + 0.2, CW, 4.2, items, size=20, space_after=10)
 
 
 def body_b1(slide):
@@ -1101,6 +1102,19 @@ def body_b5(slide):
               "12/12, 8/14 and 5/14 converged.",
               "Gate 4: total turning at most 24 deg; 4 of 96 pool points excluded.",
               "The 25 deg band between 24 and 26 was not tested."], size=15, bullets=True, space_after=8)
+
+
+def body_b7(slide):
+    fig = "docs/validation/2026-11-02_replay_gp_vs_mlp.png"
+    w, h = add_figure(slide, fig, LM, CT, CW, 2.85)
+    caption(slide, LM, CT + h + 0.03, CW, "Figure: " + fig + " (GP solid, MLP ensemble dashed; median and interquartile band "
+            "over 10 seeds). Records: runs/replay/2026-11-02_full/replay.csv, runs/replay/2026-11-02_mlp/replay.csv.", lines=2)
+    rows = [["At n = 48 (median of 10 seeds)", "GP", "MLP ensemble (5 x 2-64-64-1)"],
+            ["RMSE recovery_total, lhs / al_maxvar", "2.26e-5 / 1.42e-5", "1.27e-4 / 7.41e-5"],
+            ["Relative RMSE q_peak, lhs / al_maxvar", "3.9e-4 / 3.6e-4", "7.6e-4 / 4.3e-4"],
+            ["EHVI: seeds with zero regret from n = 32", "10 of 10", "10 of 10"],
+            ["EHVI step (fit both outputs + acquisition)", "1.7 s", "6.2 s"]]
+    add_table(slide, LM, CT + h + 0.5, [5.2, 3.2, 3.7], rows, size=11, row_h=0.28)
 
 
 def body_b6(slide):
@@ -1208,6 +1222,9 @@ SLIDES = {
            "sources": ["runs/dev/2026-11-01_inlet_box_diagnostics/README.md",
                        "runs/dev/2026-11-01_inlet_grid_study_ef03/README.md", "designs/pool_sobol96.csv"]},
     "B6": {"title": "Backup: full validation table", "body": body_b6, "sources": [REPORT]},
+    "B7": {"title": "Backup: a neural-network ensemble against the GP", "body": body_b7,
+           "sources": ["runs/replay/2026-11-02_mlp/replay.csv", "docs/validation/2026-11-02_replay_mlp.md",
+                       "docs/validation/2026-11-02_replay_gp_vs_mlp.md", "docs/specs/task4b_mlp_ensemble.md"]},
 }
 
 # deck order: (section divider title, sub line, slide ids)
@@ -1219,7 +1236,7 @@ SECTIONS = [
     ("5. Results, Pareto front, inverse query", "7 minutes", ["S17", "S18", "S19", "S20"]),
     ("6. What failed, limits, next steps", "5 minutes", ["S21", "S22", "S23"]),
     ("Discussion", "about 20 minutes, outside the 40", ["S24"]),
-    ("Backup", "not timed", ["B1", "B2", "B3", "B4", "B5", "B6"]),
+    ("Backup", "not timed", ["B1", "B2", "B3", "B4", "B5", "B6", "B7"]),
 ]
 
 
