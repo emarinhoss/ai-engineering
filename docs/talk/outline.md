@@ -172,28 +172,28 @@ Backup slides B1 to B6 follow S24 and are not timed.
 
 - **Message:** The 92 runnable points span the trimmed box, and their objective values are the ground truth for every comparison.
 - **Figure or table:** Scatter of theta1 against theta2, coloured by recovery and by peak heat flux (design map).
-- **Source:** `PENDING: pool batch`.
+- **Source:** `runs/analysis/2026-11-02/design_map.png` (panel "observed runs", 92 points), `runs/pool/results.csv` (92 converged, 0 failed), `docs/validation/2026-11-01_colab_records.md`. The 4 of the 96 Sobol points in `designs/pool_sobol96.csv` with theta1 + theta2 > 24 deg were refused by gate 4 and never staged.
 - **Speaker notes:** Only converged and stationary runs enter the surrogate, and each point keeps its status. Points rejected by a gate are listed as excluded, not dropped.
 
 ### S18. Pareto front with uncertainty (29:30, 2 min)
 
 - **Message:** Observed points, the predicted front, the posterior band and the discretisation error bar, shown together, say how far the front can be trusted.
 - **Figure or table:** Front plot from `analysis/pareto.py`: observed points, predicted front, posterior band, discretisation error bar.
-- **Source:** `PENDING: pool batch`.
+- **Source:** `runs/analysis/2026-11-02/pareto_front.png`, `runs/analysis/2026-11-02/pareto.csv`, `docs/validation/2026-11-02_pareto_inverse.md`, section 2: 26 observed front points of 92; posterior band 1.2e-4 to 1.8e-3 wide in recovery; discretisation bar 3.1e-4 in recovery and 530 W/m2 in q_peak (V4m grid study), 25 times the posterior uncertainty in heat flux.
 - **Speaker notes:** The band is posterior uncertainty and the error bar is discretisation error from the grid study, and both are shown separately. The front is only as good as the mesh levels behind it (B3).
 
 ### S19. Inverse query: maximum recovery under a heat-flux cap (31:30, 2 min)
 
 - **Message:** The surrogate answers "highest recovery with peak heat flux under the 40th percentile of pool heating", and one real SU2 run checks the answer.
 - **Figure or table:** Table: query, surrogate answer with interval, confirmation run result, and whether it falls inside the interval.
-- **Source:** `PENDING: pool batch` (surrogate answer); `PENDING: confirmation run` (SU2 check).
+- **Source:** `runs/analysis/2026-11-02/inverse_q40/result.json`, `docs/validation/2026-11-02_pareto_inverse.md`, section 3 (cap 31493 W/m2; answer theta1 = 11.965, theta2 = 7.115; recovery 0.34515, interval 0.34506 to 0.34523; q_peak 31470, interval 31450 to 31490 W/m2; P(q <= cap) 0.972). `PENDING: confirmation run` `inlet2r-374dad241f` (submitted 2026-11-02 11:52 UTC; result and C2 verdict from `analysis.confirm`).
 - **Speaker notes:** The cap is set from the pool before the answer is known. The check passes if the confirmation run falls inside the predicted interval; a miss is documented and explained.
 
 ### S20. Design maps over the box (33:30, 1.5 min)
 
 - **Message:** Design maps show recovery and heat flux over the trimmed box, with the surrogate and the observed points on top.
 - **Figure or table:** Map output from `analysis/design_map.py`.
-- **Source:** `PENDING: pool batch`.
+- **Source:** `runs/analysis/2026-11-02/design_map.png`, `runs/analysis/2026-11-02/oswatitsch_cut.png`, `runs/analysis/2026-11-02/grid.csv`, `docs/validation/2026-11-02_pareto_inverse.md`, section 4 (recovery std 1.8e-5 to 1.1e-4 over the box; GP mean 0.0008 to 0.0022 above the inviscid analytic curve along the Oswatitsch cut, explained from the recorded throat Mach).
 - **Speaker notes:** The maps show where the trade-off bends for an aerodynamics audience. They are interpolations between runs and are labelled that way.
 
 ---
