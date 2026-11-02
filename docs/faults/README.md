@@ -91,5 +91,5 @@ turned out to be wrong in the other direction. Records: `PLAN.md` Day-1 status l
    ingest refuses a text that does not match it
    (`tests/test_ingest.py::test_ingest_checks_the_workers_digest`). The 16 pool and 13 validation
    records ingested before the digests existed were re-checked with `python -m mcp_server.verify_digests`
-   (16 of 16 pool records match byte for byte). With the gate on, 6 of the next 61 transcriptions
+   (16 of 16 pool records match byte for byte). With the gate on, 6 of the 84 later transcriptions (21, 19, 19, 22 and 3 result files)
    were wrong at the first attempt and every one was caught and redone; 0 bad records entered the repo.
