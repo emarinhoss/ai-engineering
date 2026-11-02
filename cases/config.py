@@ -4,7 +4,11 @@ from pathlib import Path
 from string import Template
 
 TEMPLATES = Path(__file__).parent / "templates"
-SOLVER_TEMPLATE = {"EULER": "euler.cfg", "NAVIER_STOKES": "navier_stokes.cfg"}
+SOLVER_TEMPLATE = {"EULER": "euler.cfg", "NAVIER_STOKES": "navier_stokes.cfg", "RANS_SA": "rans_sa.cfg"}
+# RANS_SA: the laminar template with SOLVER= RANS, KIND_TURB_MODEL= SA and the five turbulence-equation
+# lines of the development runs in runs/dev/2026-11-01_turbulence_sensitivity_SA (FREESTREAM_NU_FACTOR
+# is left at the SU2 default of 3, as there; the key is not in the pinned config template). No transition
+# model: turbulent from the leading edge, so it is a sensitivity bound, not a validated turbulent model.
 
 # Which mesh markers play which role, per geometry family (names from 01_interfaces.md).
 ROLES = {

@@ -63,7 +63,7 @@ def test_required_and_forbidden_fields():
 
 
 def test_unknown_field_and_bad_literals_rejected():
-    for extra in ({"colour": "red"}, {"altitude_km": 25}, {"solver": "RANS"},
+    for extra in ({"colour": "red"}, {"altitude_km": 25}, {"solver": "LES"},
                   {"mesh_level": "ultra"}, {"tag": "Has Space"}, {"tag": "x" * 33},
                   {"family": "sphere"}, {"mach": float("nan")}, {"save_volume": "yes"}):
         model, errors, _ = validate({**BASE["wedge"], **extra})
@@ -88,3 +88,8 @@ def test_case_id_stable_across_key_order_and_matches_make_case():
     # Spelling out a default gives the same id; changing it does not.
     assert case_id(to_params(validate({**raw, "mach": 4.0})[0])) == case_id(p1)
     assert case_id(to_params(validate({**raw, "mach": 4.5})[0])) != case_id(p1)
+
+
+def test_rans_sa_solver_accepted():
+    model, errors, _ = validate({**BASE["inlet2r"], "solver": "RANS_SA"})
+    assert errors == [] and model is not None and model.solver == "RANS_SA"

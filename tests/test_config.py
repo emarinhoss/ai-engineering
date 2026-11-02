@@ -28,7 +28,7 @@ def lines(cfg):
 
 
 @pytest.mark.parametrize("family", list(MARKERS))
-@pytest.mark.parametrize("solver", ["EULER", "NAVIER_STOKES"])
+@pytest.mark.parametrize("solver", ["EULER", "NAVIER_STOKES", "RANS_SA"])
 def test_every_marker_present_and_no_other(family, solver):
     cfg = render(params(family, solver=solver), {}, markers(family))
     marker_lines = [ln for ln in lines(cfg) if ln.startswith("MARKER_")]
@@ -62,6 +62,21 @@ def test_euler_vs_navier_stokes():
     assert "MARKER_ISOTHERMAL= ( body, 300.0 )" in lines(ns) and "MARKER_EULER" not in ns
     assert "SOLVER= NAVIER_STOKES" in lines(ns)
     assert "HEAT" in ns.split("HISTORY_OUTPUT=")[1].splitlines()[0]
+
+
+def test_rans_sa_adds_only_the_turbulence_lines():
+    ns = lines(render(params("inlet2r"), {}, markers("inlet2r")))
+    sa = lines(render(params("inlet2r", solver="RANS_SA"), {}, markers("inlet2r")))
+    assert "SOLVER= RANS" in sa and "KIND_TURB_MODEL= SA" in sa
+    for line in ["FREESTREAM_TURBULENCEINTENSITY= 0.01", "CONV_NUM_METHOD_TURB= SCALAR_UPWIND",
+                 "MUSCL_TURB= NO", "TIME_DISCRE_TURB= EULER_IMPLICIT", "CFL_REDUCTION_TURB= 0.5"]:
+        assert line in sa
+    # everything else (freestream, wall, numerics, markers) is the laminar configuration
+    only_sa = {l for l in set(sa) - set(ns) if not l.startswith("%")}   # the header comment names the solver
+    assert {l.split("=")[0] for l in only_sa} == {"SOLVER", "KIND_TURB_MODEL", "FREESTREAM_TURBULENCEINTENSITY",
+        "CONV_NUM_METHOD_TURB", "MUSCL_TURB", "TIME_DISCRE_TURB", "CFL_REDUCTION_TURB"}
+    only_ns = {l for l in set(ns) - set(sa) if not l.startswith("%")}
+    assert {l.split("=")[0] for l in only_ns} == {"SOLVER", "KIND_TURB_MODEL"}
 
 
 def test_inlet_analyze_and_wall_temperature():
@@ -98,7 +113,7 @@ def test_deterministic():
 
 
 @pytest.mark.skipif(not SU2_TEMPLATE.exists(), reason="SU2 v8.2.0 config_template.cfg not downloaded")
-@pytest.mark.parametrize("solver", ["EULER", "NAVIER_STOKES"])
+@pytest.mark.parametrize("solver", ["EULER", "NAVIER_STOKES", "RANS_SA"])
 @pytest.mark.parametrize("family", list(MARKERS))
 def test_no_unknown_su2_keys(solver, family):
     cfg = render(params(family, solver=solver, save_volume=True), {}, markers(family))

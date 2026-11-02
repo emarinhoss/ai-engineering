@@ -25,7 +25,7 @@ class CaseParams(BaseModel):
     mach: float = Field(4.0, ge=3.0, le=5.0, allow_inf_nan=False)
     altitude_km: Literal[30] = 30
     T_wall_K: float = Field(300.0, ge=250.0, le=1200.0, allow_inf_nan=False)
-    solver: Literal["NAVIER_STOKES", "EULER"] = "NAVIER_STOKES"
+    solver: Literal["NAVIER_STOKES", "EULER", "RANS_SA"] = "NAVIER_STOKES"
     mesh_level: Literal["coarse", "medium", "fine"] = "medium"
     save_volume: bool = False
     tag: str = Field(pattern=r"^[a-z0-9_-]{1,32}$")

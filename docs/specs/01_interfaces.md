@@ -38,7 +38,7 @@ Validated by `mcp_server/schemas.py` (pydantic) and by `physics/gates.py`.
 | mach | float, [3.0, 5.0] | 4.0 | warning if not 4.0 |
 | altitude_km | 30 (only value in the table) | 30 | lookup in physics.constants |
 | T_wall_K | float, [250, 1200] | 300.0 | ignored for EULER |
-| solver | "NAVIER_STOKES", "EULER" | "NAVIER_STOKES" | |
+| solver | "NAVIER_STOKES", "EULER", "RANS_SA" | "NAVIER_STOKES" | RANS_SA: Spalart-Allmaras, no transition model, sensitivity runs only (tag `sensitivity`) |
 | mesh_level | "coarse", "medium", "fine" | "medium" | |
 | save_volume | bool | false | volume CSV (large) for validation only |
 | tag | str, [a-z0-9_-]{1,32} | required | "val", "pool", "confirm", "test", ... |
