@@ -40,28 +40,41 @@ This is the mass-flux-weighted throat recovery of result.json against the invisc
 | inlet2r-029b302750 | +2.77e-07 | PASS |
 | inlet2r-0bc11adc67 | -1.33e-06 | PASS |
 | inlet2r-0f6d6f25a5 | -1.04e-06 | PASS |
+| inlet2r-102501e8bf | -3.61e-08 | PASS |
 | inlet2r-11029b89c6 | -3.17e-07 | PASS |
 | inlet2r-11e84f189a | -8.60e-08 | PASS |
 | inlet2r-14ffd596da | -9.45e-07 | PASS |
+| inlet2r-1510e49879 | +2.47e-07 | PASS |
 | inlet2r-16bac34457 | +3.55e-07 | PASS |
 | inlet2r-17df42e8c0 | -3.41e-08 | PASS |
+| inlet2r-1f848caa5e | -1.35e-07 | PASS |
 | inlet2r-220f4898c9 | +3.09e-07 | PASS |
 | inlet2r-253b3be348 | -1.30e-06 | PASS |
 | inlet2r-2bbb9d087a | -6.43e-07 | PASS |
+| inlet2r-30c3b22b94 | +2.79e-08 | PASS |
+| inlet2r-34dac4854d | -1.10e-06 | PASS |
+| inlet2r-3caae68646 | -8.55e-09 | PASS |
+| inlet2r-3e2f2f6374 | -1.65e-07 | PASS |
 | inlet2r-416ab0cf09 | +7.33e-07 | PASS |
+| inlet2r-4225de1685 | -3.73e-07 | PASS |
 | inlet2r-4451cf1d53 | +5.41e-07 | PASS |
 | inlet2r-4785f67cfc | +4.32e-07 | PASS |
 | inlet2r-486d51086a | -7.35e-07 | PASS |
+| inlet2r-4cd34b685a | +1.71e-08 | PASS |
 | inlet2r-4eb03bd80a | -1.58e-07 | PASS |
 | inlet2r-50505ac2ad | +1.22e-07 | PASS |
+| inlet2r-559b668dc7 | +8.15e-07 | PASS |
+| inlet2r-5b288e5154 | -1.21e-07 | PASS |
 | inlet2r-5fb38e14fb | +1.84e-06 | PASS |
 | inlet2r-6760184cee | +1.94e-07 | PASS |
+| inlet2r-68c32c709f | +5.20e-07 | PASS |
 | inlet2r-6e537e581a | -5.93e-07 | PASS |
 | inlet2r-71046a4afa | -1.32e-06 | PASS |
 | inlet2r-73d6742f4b | -3.72e-07 | PASS |
 | inlet2r-740910506e | -1.31e-07 | PASS |
 | inlet2r-74c8255f21 | -2.67e-07 | PASS |
 | inlet2r-75d57723a3 | +2.44e-07 | PASS |
+| inlet2r-76ceec2678 | -2.00e-07 | PASS |
 | inlet2r-7af9849a8d | +1.04e-07 | PASS |
 | inlet2r-7c1a440fd4 | +4.95e-07 | PASS |
 | inlet2r-7d87d8922e | +3.36e-07 | PASS |
@@ -75,6 +88,7 @@ This is the mass-flux-weighted throat recovery of result.json against the invisc
 | inlet2r-8af01f9381 | +1.04e-07 | PASS |
 | inlet2r-9061304e5d | -1.16e-06 | PASS |
 | inlet2r-92c1503c7e | -1.15e-07 | PASS |
+| inlet2r-96bc7761af | -1.59e-07 | PASS |
 | inlet2r-9d2434743d | -7.34e-07 | PASS |
 | inlet2r-a46ec2831e | -1.96e-07 | PASS |
 | inlet2r-a5c6a311bf | +8.21e-07 | PASS |
@@ -84,6 +98,8 @@ This is the mass-flux-weighted throat recovery of result.json against the invisc
 | inlet2r-b388f30264 | -2.51e-07 | PASS |
 | inlet2r-b6d1ece6b7 | -3.76e-07 | PASS |
 | inlet2r-b74f0f51a9 | -1.14e-06 | PASS |
+| inlet2r-b80b2907ed | -4.03e-07 | PASS |
+| inlet2r-b8ea9253b3 | +6.11e-07 | PASS |
 | inlet2r-bbc8c9b0d2 | -1.26e-07 | PASS |
 | inlet2r-bcfa2002c2 | +1.81e-07 | PASS |
 | inlet2r-c011ab4eea | -1.52e-07 | PASS |
@@ -91,24 +107,30 @@ This is the mass-flux-weighted throat recovery of result.json against the invisc
 | inlet2r-c245808718 | -7.86e-07 | PASS |
 | inlet2r-c4fa33c916 | +5.74e-07 | PASS |
 | inlet2r-c702f6059e | +4.08e-07 | PASS |
+| inlet2r-c93a3070e2 | -1.35e-07 | PASS |
 | inlet2r-cc166bf1d2 | -7.65e-08 | PASS |
+| inlet2r-d245bc9949 | -1.13e-07 | PASS |
 | inlet2r-d91e4d0bef | +4.42e-07 | PASS |
 | inlet2r-d9368a016d | +1.67e-07 | PASS |
 | inlet2r-d949535fce | -3.39e-07 | PASS |
 | inlet2r-d9a0311396 | -1.28e-07 | PASS |
 | inlet2r-db92dcf68d | +1.58e-07 | PASS |
+| inlet2r-e22faf8af1 | +5.11e-07 | PASS |
 | inlet2r-e4b2a4a9ee | +4.42e-07 | PASS |
+| inlet2r-e519016299 | -1.09e-07 | PASS |
+| inlet2r-e5a8f5e051 | +5.34e-07 | PASS |
 | inlet2r-e5adce4198 | +2.49e-08 | PASS |
 | inlet2r-e6ffacaa4b | +5.44e-07 | PASS |
 | inlet2r-ec7e292214 | -2.67e-08 | PASS |
+| inlet2r-eda4e60b76 | +1.13e-07 | PASS |
 | inlet2r-fa49a61941 | +2.13e-07 | PASS |
 | inlet2r-fc098c90d9 | +1.30e-09 | PASS |
 | inlet2r-fe1f4b9b0c | -2.39e-07 | PASS |
 
 ## Pool
 
-67 pool results recorded, 0 pool failures recorded.
-67 of 67 converged to the residual target; wall time per case 195 to 549 s, mean 312 s on 4 MPI ranks.
+89 pool results recorded, 0 pool failures recorded.
+89 of 89 converged to the residual target; wall time per case 195 to 581 s, mean 342 s on 4 MPI ranks.
 
 ## Runs and budget
 
@@ -125,28 +147,41 @@ This is the mass-flux-weighted throat recovery of result.json against the invisc
 | inlet2r-029b302750 | inlet2r | 8.51751/10.884316 | medium | 28000 | 1687 | converged | 336 | 4 |
 | inlet2r-0bc11adc67 | inlet2r | 5.92935/11.139788 | medium | 29400 | 1604 | converged | 400 | 4 |
 | inlet2r-0f6d6f25a5 | inlet2r | 5.102678/9.036375 | medium | 32200 | 1273 | converged | 335 | 4 |
+| inlet2r-102501e8bf | inlet2r | 8.023555/13.908019 | medium | 26400 | 2148 | converged | 460 | 4 |
 | inlet2r-11029b89c6 | inlet2r | 5.212808/6.556449 | medium | 35800 | 1032 | converged | 220 | 4 |
 | inlet2r-11e84f189a | inlet2r | 6.630823/12.101062 | medium | 28200 | 1770 | converged | 305 | 4 |
 | inlet2r-14ffd596da | inlet2r | 8.717216/5.840297 | medium | 32400 | 1038 | converged | 246 | 4 |
+| inlet2r-1510e49879 | inlet2r | 8.978729/5.46338 | medium | 32600 | 1028 | converged | 337 | 4 |
 | inlet2r-16bac34457 | inlet2r | 9.836935/7.224938 | medium | 30000 | 1186 | converged | 220 | 4 |
 | inlet2r-17df42e8c0 | inlet2r | 10.571853/10.982697 | medium | 27000 | 1808 | converged | 407 | 4 |
+| inlet2r-1f848caa5e | inlet2r | 11.062507/11.218852 | medium | 26600 | 1881 | converged | 356 | 4 |
 | inlet2r-220f4898c9 | inlet2r | 10.87377/9.427901 | medium | 27600 | 1597 | converged | 257 | 4 |
 | inlet2r-253b3be348 | inlet2r | 7.676638/8.902178 | medium | 30200 | 1351 | converged | 330 | 4 |
 | inlet2r-2bbb9d087a | inlet2r | 5.947582/7.27311 | medium | 33600 | 1088 | converged | 213 | 4 |
+| inlet2r-30c3b22b94 | inlet2r | 9.755932/13.177102 | medium | 26200 | 2115 | converged | 565 | 4 |
+| inlet2r-34dac4854d | inlet2r | 5.347069/12.921555 | medium | 28400 | 1812 | converged | 581 | 4 |
+| inlet2r-3caae68646 | inlet2r | 10.238553/11.076194 | medium | 27000 | 1817 | converged | 553 | 4 |
+| inlet2r-3e2f2f6374 | inlet2r | 9.237748/11.757766 | medium | 27000 | 1859 | converged | 578 | 4 |
 | inlet2r-416ab0cf09 | inlet2r | 6.558529/6.404129 | medium | 34000 | 1035 | converged | 235 | 4 |
+| inlet2r-4225de1685 | inlet2r | 11.175688/8.001143 | medium | 28600 | 1358 | converged | 425 | 4 |
 | inlet2r-4451cf1d53 | inlet2r | 5.484923/6.917848 | medium | 34800 | 1053 | converged | 220 | 4 |
 | inlet2r-4785f67cfc | inlet2r | 7.558252/9.89649 | medium | 29200 | 1493 | converged | 368 | 4 |
 | inlet2r-486d51086a | inlet2r | 8.491727/8.064677 | medium | 30200 | 1259 | converged | 268 | 4 |
+| inlet2r-4cd34b685a | inlet2r | 7.269427/5.873943 | medium | 34000 | 1022 | converged | 342 | 4 |
 | inlet2r-4eb03bd80a | inlet2r | 7.447909/12.516493 | medium | 27400 | 1878 | converged | 314 | 4 |
 | inlet2r-50505ac2ad | inlet2r | 9.533532/12.156181 | medium | 26600 | 1936 | converged | 363 | 4 |
+| inlet2r-559b668dc7 | inlet2r | 6.764282/8.255447 | medium | 31400 | 1220 | converged | 443 | 4 |
+| inlet2r-5b288e5154 | inlet2r | 7.786753/6.703499 | medium | 32400 | 1077 | converged | 385 | 4 |
 | inlet2r-5fb38e14fb | inlet2r | 8.160955/6.502433 | medium | 32200 | 1068 | converged | 215 | 4 |
 | inlet2r-6760184cee | inlet2r | 8.842719/12.69708 | medium | 26600 | 1985 | converged | 329 | 4 |
+| inlet2r-68c32c709f | inlet2r | 5.593331/8.657226 | medium | 32000 | 1232 | converged | 424 | 4 |
 | inlet2r-6e537e581a | inlet2r | 9.200723/6.624378 | medium | 31000 | 1098 | converged | 207 | 4 |
 | inlet2r-71046a4afa | inlet2r | 8.001856/5.683195 | medium | 33400 | 1024 | converged | 241 | 4 |
 | inlet2r-73d6742f4b | inlet2r | 8.732603/9.6574 | medium | 28600 | 1514 | converged | 252 | 4 |
 | inlet2r-740910506e | inlet2r | 6.741152/10.324807 | medium | 29400 | 1520 | converged | 279 | 4 |
 | inlet2r-74c8255f21 | inlet2r | 7.377847/7.472139 | medium | 31800 | 1144 | converged | 307 | 4 |
 | inlet2r-75d57723a3 | inlet2r | 5.238436/11.744685 | medium | 29400 | 1637 | converged | 299 | 4 |
+| inlet2r-76ceec2678 | inlet2r | 8.269374/9.085563 | medium | 29400 | 1400 | converged | 424 | 4 |
 | inlet2r-7af9849a8d | inlet2r | 11.771976/7.797844 | medium | 28400 | 1356 | converged | 324 | 4 |
 | inlet2r-7c1a440fd4 | inlet2r | 10.162793/7.350205 | medium | 29600 | 1215 | converged | 253 | 4 |
 | inlet2r-7d87d8922e | inlet2r | 7.914933/10.762396 | medium | 28400 | 1647 | converged | 405 | 4 |
@@ -160,6 +195,7 @@ This is the mass-flux-weighted throat recovery of result.json against the invisc
 | inlet2r-8af01f9381 | inlet2r | 6.057713/6.059363 | medium | 35400 | 1019 | converged | 291 | 4 |
 | inlet2r-9061304e5d | inlet2r | 6.85584/11.278364 | medium | 28600 | 1663 | converged | 292 | 4 |
 | inlet2r-92c1503c7e | inlet2r | 7.232398/13.67797 | medium | 27000 | 2034 | converged | 549 | 4 |
+| inlet2r-96bc7761af | inlet2r | 8.608594/7.581316 | medium | 30600 | 1197 | converged | 427 | 4 |
 | inlet2r-9d2434743d | inlet2r | 5.435152/5.540505 | medium | 37400 | 1011 | converged | 252 | 4 |
 | inlet2r-a46ec2831e | inlet2r | 10.023403/10.055786 | medium | 27800 | 1643 | converged | 281 | 4 |
 | inlet2r-a5c6a311bf | inlet2r | 11.284321/5.416371 | medium | 30600 | 1060 | converged | 197 | 4 |
@@ -169,6 +205,8 @@ This is the mass-flux-weighted throat recovery of result.json against the invisc
 | inlet2r-b388f30264 | inlet2r | 7.186394/12.278106 | medium | 27800 | 1814 | converged | 318 | 4 |
 | inlet2r-b6d1ece6b7 | inlet2r | 9.645817/11.402505 | medium | 27200 | 1828 | converged | 420 | 4 |
 | inlet2r-b74f0f51a9 | inlet2r | 9.446613/9.325752 | medium | 28600 | 1506 | converged | 257 | 4 |
+| inlet2r-b80b2907ed | inlet2r | 9.947279/8.437044 | medium | 28800 | 1370 | converged | 450 | 4 |
+| inlet2r-b8ea9253b3 | inlet2r | 8.193617/10.422163 | medium | 28400 | 1605 | converged | 313 | 4 |
 | inlet2r-bbc8c9b0d2 | inlet2r | 11.397671/9.158294 | medium | 27600 | 1563 | converged | 304 | 4 |
 | inlet2r-bcfa2002c2 | inlet2r | 10.594256/5.937438 | medium | 30600 | 1075 | converged | 200 | 4 |
 | inlet2r-c011ab4eea | inlet2r | 11.193553/11.585403 | medium | 26400 | 1951 | converged | 530 | 4 |
@@ -176,16 +214,22 @@ This is the mass-flux-weighted throat recovery of result.json against the invisc
 | inlet2r-c245808718 | inlet2r | 7.807994/12.821214 | medium | 27200 | 1933 | converged | 320 | 4 |
 | inlet2r-c4fa33c916 | inlet2r | 10.130134/13.520888 | medium | 25800 | 2237 | converged | 445 | 4 |
 | inlet2r-c702f6059e | inlet2r | 6.253497/12.425211 | medium | 28200 | 1787 | converged | 421 | 4 |
+| inlet2r-c93a3070e2 | inlet2r | 10.378745/7.028123 | medium | 29800 | 1180 | converged | 243 | 4 |
 | inlet2r-cc166bf1d2 | inlet2r | 7.077774/10.117401 | medium | 29400 | 1505 | converged | 273 | 4 |
+| inlet2r-d245bc9949 | inlet2r | 6.144864/9.983253 | medium | 30200 | 1442 | converged | 488 | 4 |
 | inlet2r-d91e4d0bef | inlet2r | 6.986686/9.482843 | medium | 30000 | 1407 | converged | 246 | 4 |
 | inlet2r-d9368a016d | inlet2r | 5.731765/13.845625 | medium | 27400 | 1976 | converged | 448 | 4 |
 | inlet2r-d949535fce | inlet2r | 9.77717/5.232224 | medium | 32200 | 1031 | converged | 195 | 4 |
 | inlet2r-d9a0311396 | inlet2r | 5.125077/11.83039 | medium | 29400 | 1645 | converged | 483 | 4 |
 | inlet2r-db92dcf68d | inlet2r | 8.305256/13.144555 | medium | 26600 | 2001 | converged | 387 | 4 |
+| inlet2r-e22faf8af1 | inlet2r | 11.661647/5.60192 | medium | 30200 | 1076 | converged | 359 | 4 |
 | inlet2r-e4b2a4a9ee | inlet2r | 7.484581/7.100824 | medium | 32000 | 1103 | converged | 250 | 4 |
+| inlet2r-e519016299 | inlet2r | 11.415907/10.354058 | medium | 27000 | 1786 | converged | 550 | 4 |
+| inlet2r-e5a8f5e051 | inlet2r | 5.842094/10.803208 | medium | 29600 | 1538 | converged | 484 | 4 |
 | inlet2r-e5adce4198 | inlet2r | 10.763441/6.247047 | medium | 30400 | 1105 | converged | 207 | 4 |
 | inlet2r-e6ffacaa4b | inlet2r | 10.270112/8.629074 | medium | 28600 | 1424 | converged | 323 | 4 |
 | inlet2r-ec7e292214 | inlet2r | 8.824165/8.742896 | medium | 29400 | 1382 | converged | 424 | 4 |
+| inlet2r-eda4e60b76 | inlet2r | 9.555234/6.318549 | medium | 31000 | 1082 | converged | 379 | 4 |
 | inlet2r-fa49a61941 | inlet2r | 11.912861/9.588432 | medium | 27200 | 1815 | converged | 305 | 4 |
 | inlet2r-fc098c90d9 | inlet2r | 6.874397/5.072953 | medium | 35800 | 1005 | converged | 258 | 4 |
 | inlet2r-fe1f4b9b0c | inlet2r | 6.162733/8.504934 | medium | 31800 | 1239 | converged | 269 | 4 |

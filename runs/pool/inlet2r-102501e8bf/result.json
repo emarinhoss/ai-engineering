@@ -1,0 +1,139 @@
+{
+ "case_id": "inlet2r-102501e8bf",
+ "code": {
+  "dirty": false,
+  "git_commit": "45c3805d1df10f8914e09bc0951c06907fffb8e9"
+ },
+ "convergence": {
+  "drift_pct": {
+   "q_peak": 3.4191516438974897e-06,
+   "recovery_total": 0.0010098426438915353
+  },
+  "drop_orders": 6.992169475000001,
+  "iterations": 2148,
+  "rms_rho_log10_end": -10.00068072,
+  "rms_rho_log10_start": -3.008511245,
+  "status": "converged"
+ },
+ "files": {
+  "history": "history.csv",
+  "log": "log.txt",
+  "surface": "surface_flow.dat"
+ },
+ "geometry": {
+  "C": [
+   0.1,
+   0.014096009143286162
+  ],
+  "E_body": [
+   0.2173761079834876,
+   0.061356053968379023
+  ],
+  "E_cowl": [
+   0.20994836600697522,
+   0.07980376064185418
+  ],
+  "G": [
+   0.20994836600697522,
+   0.08571929884886201
+  ],
+  "L_d": 0.05,
+  "M1": 3.425574842328159,
+  "M2_inviscid": 2.6191609215699803,
+  "P": [
+   0.1635668374792845,
+   0.061128809197874154
+  ],
+  "X1": 0.1,
+  "beta1_deg": 20.49190902881481,
+  "beta2_abs_deg": 36.49756222188541,
+  "body_length": 0.2173761079834876,
+  "cells": 26400,
+  "delta_ext_deg": 6.0,
+  "h_duct": 0.019886911081920786,
+  "level": "medium",
+  "mach": 4.0,
+  "nodes": 26821,
+  "p_th_over_p_inf_inviscid": 6.246599234097878,
+  "recovery_2shock_inviscid": 0.8456156806901689,
+  "theta1_deg": 8.023555,
+  "theta2_deg": 13.908019,
+  "theta_t_deg": 21.931574,
+  "x_in": -0.03,
+  "y_top": 0.2
+ },
+ "job": {
+  "code_commit": "04e824d6f7f94e3c54fc6d5f74c03d42bc2900bc",
+  "config_sha256": "b0c231e7668fa3ee1edc4cce608d0d06a2b83743a3b8517e0a2eb26dd776028e",
+  "mesh_fingerprint": "55f3ae4e89730a37a9059f5b671c80d4126f408b833f33f9b28ea0dbdcc80bad"
+ },
+ "mesh": {
+  "cells": 26400,
+  "level": "medium",
+  "nodes": 26821,
+  "quality": {
+   "failures": [],
+   "first_cell_height": {
+    "body": 1.975993646444268e-05,
+    "cowl": 2.000000000000602e-05
+   },
+   "max_aspect_ratio": 235.5671514813215,
+   "max_growth": 1.2000000000005262,
+   "min_angle_deg": 50.64559516638178,
+   "n_inverted": 0,
+   "pass": true,
+   "requested_first_cell_m": {
+    "body": 2e-05,
+    "cowl": 2e-05
+   }
+  }
+ },
+ "metrics": {
+  "capture_ratio": 0.9842111703170382,
+  "heat_load_body_W_per_m": 3916.6931818203434,
+  "mach_throat_massavg": 2.596879023742234,
+  "notes": [],
+  "p0_inf_Pa": 181751.31060714056,
+  "q_peak_W_m2": 47635.46,
+  "q_peak_cowl_W_m2": 187189.0,
+  "recovery_throat": 0.8622633352118934,
+  "recovery_total": 0.3868492881176093,
+  "recovery_total_bulk": 0.3977634172457774,
+  "su2_avg_totalpress_Pa": 156717.4856,
+  "su2_crosscheck_pass": true,
+  "x_q_peak_m": 0.1137834
+ },
+ "params": {
+  "T_wall_K": 300.0,
+  "altitude_km": 30,
+  "family": "inlet2r",
+  "mach": 4.0,
+  "max_iter": 6000,
+  "mesh_level": "medium",
+  "save_volume": false,
+  "solver": "NAVIER_STOKES",
+  "tag": "pool",
+  "theta1_deg": 8.023555,
+  "theta2_deg": 13.908019
+ },
+ "run": {
+  "exit_code": 0,
+  "finished_at": "2026-11-02T09:00:02+00:00",
+  "iterations": 2148,
+  "runtime": {
+   "nproc": 8,
+   "ram_gb": 50.99
+  },
+  "started_at": "2026-11-02T08:52:21+00:00",
+  "timeout": false,
+  "wall_time_s": 460.37675419699735,
+  "worker_id": "colab-03fd494d7144"
+ },
+ "solver": {
+  "command": "mpirun -n 4 --allow-run-as-root /content/su2mpi/bin/SU2_CFD case.cfg",
+  "config_sha256": "b0c231e7668fa3ee1edc4cce608d0d06a2b83743a3b8517e0a2eb26dd776028e",
+  "n_cores": 4,
+  "name": "SU2_CFD",
+  "version": "SU2 v8.2.0 \"Harrier\", The Open-Source CFD Code"
+ }
+}
