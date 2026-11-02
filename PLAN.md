@@ -278,6 +278,10 @@ numerics and validation work to be done on Day 1 instead of Days 2 to 4.
   Task 5 run on the full pool (`runs/analysis/2026-11-02/`, `docs/validation/2026-11-02_pareto_inverse.md`);
   the inverse answer (11.965, 7.115) staged and submitted through the MCP tools, job file uploaded to the
   Drive queue at 11:52 UTC as `inlet2r-374dad241f`; C2 waits for its result.
+- 2026-11-02 12:40 UTC: Task 7 deck built ahead of schedule: `docs/talk/build_deck.py` generates
+  `docs/talk/deck.pptx` (38 slides: 24 talk, 6 backup, 8 dividers) from the outline and the committed
+  records; messages and speaker notes are read from `docs/talk/outline.md`, every figure is a committed
+  PNG, and PENDING items (confirmation run) are shown as such. Rebuild after the confirmation run lands.
 - Transfer integrity: a Haiku agent retyping base64 altered 2 of 4 result files (one mixed the
   fields of two records). The worker now writes a sha256 digest next to every result and failure
   (back-filled at start-up) and ingest refuses a text that does not match it. The 16 pool and

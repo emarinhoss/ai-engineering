@@ -152,9 +152,9 @@ Backup slides B1 to B6 follow S24 and are not timed.
 
 ### S15. Active learning against random and Latin hypercube (23:00, 2.5 min)
 
-- **Message:** The curves decide whether active learning beats random and Latin hypercube sampling on the same pool; this slide makes no claim before they exist.
+- **Message:** On the same pool, EHVI finds the Pareto front fastest and max-variance learns the whole box fastest; active learning beats random and Latin hypercube on the objective it targets, not on global error, and both are shown.
 - **Figure or table:** Held-out error against number of runs for al_ehvi, al_maxvar, random and LHS, with bands over 10 seeds.
-- **Source:** `docs/validation/2026-11-02_replay_full_error_vs_n.png`, `docs/validation/2026-11-02_replay_full_summary.md`, `docs/validation/2026-11-02_replay.md` (final replay on all 92 pool points, 10 seeds, n = 8 to 48). EHVI has the lowest hypervolume regret at every budget and 0 regret in 10 of 10 seeds from n = 32 (the 26-point true front is contained), while no other strategy reaches 0 by n = 48; on held-out error it is the worst strategy from n = 12 to 32 and overtakes random and LHS only at n = 40; max-variance is the best global learner throughout.
+- **Source:** `docs/validation/2026-11-02_replay_full_error_vs_n.png`, `docs/validation/2026-11-02_replay_full_summary.md`, `docs/validation/2026-11-02_replay.md` (final replay on all 92 pool points, 10 seeds, n = 8 to 48). EHVI has the lowest hypervolume regret at every budget after the shared 8-point start and 0 regret in 10 of 10 seeds from n = 32 (the 26-point true front is contained), while no other strategy reaches 0 by n = 48; on held-out error it is the worst strategy from n = 12 to 32 and overtakes random and LHS only at n = 40; max-variance has the lowest held-out error from n = 16 on (LHS at n = 12).
 - **Speaker notes:** Every strategy uses the same pool, so the ground truth is shared and no extra CFD is needed. If active learning does not beat the baselines, the slide says so and the next step is to investigate, not to retune.
 
 ### S16. Calibration (25:30, 2.5 min)
