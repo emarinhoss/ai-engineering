@@ -100,7 +100,7 @@ def text_box(slide, x, y, w, h, paragraphs, size=14, color=TEXT, bold=False, fon
 
 
 def caption(slide, x, y, w, text, lines=2):
-    """10 pt grey caption (figure path and record path)."""
+    """10 pt gray caption (figure path and record path)."""
     return text_box(slide, x, y, w, 0.17 * lines + 0.1, text, size=10, color=GREY, space_after=0)
 
 
@@ -219,7 +219,7 @@ def set_cell(cell, text, size, bold=False, color=TEXT, fill=None, align=PP_ALIGN
 
 def add_table(slide, x, y, widths, rows, size=12, row_h=0.4, flag=("FAIL", "PENDING", "not run")):
     """Table with a dark blue header. rows[0] is the header. A cell whose text starts with a word in
-    `flag` (FAIL, PENDING, not run) is shown in the accent colour, bold."""
+    `flag` (FAIL, PENDING, not run) is shown in the accent color, bold."""
     shape = slide.shapes.add_table(len(rows), len(widths), Inches(x), Inches(y), Inches(sum(widths)),
                                    Inches(row_h * len(rows)))
     table = shape.table
@@ -274,15 +274,15 @@ def arrow(slide, x1, y1, x2, y2, head=True, color=GREY, width=1.5):
 
 def draw_pipeline(slide, labels, x0, y0, per_row, bw, bh, gx, gy, highlight=()):
     """Boxes left to right, `per_row` per row, joined by arrows; at a row end the arrow goes down,
-    across and down into the first box of the next row. Returns the box centres (x, y)."""
-    centres = []
+    across and down into the first box of the next row. Returns the box centers (x, y)."""
+    centers = []
     for i, label in enumerate(labels):
         r, c = divmod(i, per_row)
         x, y = x0 + c * (bw + gx), y0 + r * (bh + gy)
         box(slide, x, y, bw, bh, label, size=13, fill=TINT if i in highlight else WHITE)
-        centres.append((x + bw / 2, y + bh / 2))
+        centers.append((x + bw / 2, y + bh / 2))
     for i in range(len(labels) - 1):
-        (xa, ya), (xb, yb) = centres[i], centres[i + 1]
+        (xa, ya), (xb, yb) = centers[i], centers[i + 1]
         if (i + 1) % per_row:                                  # same row: short arrow
             arrow(slide, xa + bw / 2, ya, xb - bw / 2, yb)
         else:                                                  # row end: down, across, down
@@ -290,7 +290,7 @@ def draw_pipeline(slide, labels, x0, y0, per_row, bw, bh, gx, gy, highlight=()):
             arrow(slide, xa, ya + bh / 2, xa, ymid, head=False)
             arrow(slide, xa, ymid, xb, ymid, head=False)
             arrow(slide, xb, ymid, xb, yb - bh / 2)
-    return centres
+    return centers
 
 
 # ---- drawings made from committed data (matplotlib, saved under docs/talk/figures) ------------
@@ -600,7 +600,7 @@ def body_s14(slide):
     text_box(slide, 9.4, CT + 2.3, 3.3, 0.8, "deterministic given the seed; LLM not in the loop", size=13, color=ACCENT, bold=True)
     text_box(slide, LM, CT + 3.45, CW, 1.4,
              ["EHVI: Monte-Carlo expected hypervolume improvement on (-recovery_total, log q_peak).",
-              "Max-variance: sum of the standardised posterior variances; pure exploration, the control.",
+              "Max-variance: sum of the standardized posterior variances; pure exploration, the control.",
               "Candidates: in the replay, the unselected pool points."], size=14, bullets=True, space_after=6)
     caption(slide, LM, CT + 4.55, CW, "Specification: docs/specs/task4_surrogate_active_learning.md. Drawing, no data.", lines=1)
 
@@ -650,7 +650,7 @@ def body_s18(slide):
     text_box(slide, 7.6, CT, 5.1, 4.4,
              ["26 observed front points of 92.",
               "Posterior band: 1.2e-4 to 1.8e-3 wide in recovery.",
-              "Discretisation error bar (V4m grid study): 3.1e-4 in recovery and 530 W/m2 in q_peak; "
+              "Discretization error bar (V4m grid study): 3.1e-4 in recovery and 530 W/m2 in q_peak; "
               "25 times the posterior uncertainty in heat flux.",
               "Source: docs/validation/2026-11-02_pareto_inverse.md, section 2."],
              size=14, bullets=True, space_after=8)
@@ -717,7 +717,7 @@ def body_s22(slide):
              "Gate 4 trims total turning to 24 deg, so the front holds inside the trimmed box; the 25 deg band was not tested"],
             ["Sharp leading edge: wall-node temperature departs from 300 K within about 30 mm (750 K at the tip)",
              "Both objectives are placed away from it: ramp 2 only, x >= 0.1 m"],
-            ["Mesh level", "Discretisation error bar 3.1e-4 in recovery and 530 W/m2 in q_peak (V4m, 8/8); "
+            ["Mesh level", "Discretization error bar 3.1e-4 in recovery and 530 W/m2 in q_peak (V4m, 8/8); "
              "no converged grid study at 12/14"]]
     add_table(slide, LM, CT + 0.1, [4.6, 7.5], rows, size=14, row_h=0.8)
 

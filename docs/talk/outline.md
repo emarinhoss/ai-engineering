@@ -17,6 +17,7 @@ quantitative claim is either backed by a record named in the Source line or mark
   (marked `validation batch (to add)`). The fault-injection runs of Task 6 have no batch yet (marked
   `PENDING: no batch yet`).
 - **Speaker notes** are at most three sentences each.
+- **Spelling** is standard US English on every slide, caption, figure label and speaker note.
 
 ## Timing
 
@@ -52,7 +53,7 @@ Backup slides B1 to B6 follow S24 and are not timed.
 - **Message:** The inlet trades total pressure recovery against peak wall heating, and neither objective alone is a design.
 - **Figure or table:** Schematic of the two-ramp inlet with cowl, throat plane and the two objectives marked (to draw from `geometry/inlet.py`; no data).
 - **Source:** none (no number). Definitions are in `docs/specs/00_decisions.md`, sections 2 and 3.
-- **Speaker notes:** Recovery includes the terminal normal shock, which is what makes external compression worth anything. Peak heating is taken on ramp 2 including the duct wall, not on the sharp leading edge, where the computed peak is a mesh artefact.
+- **Speaker notes:** Recovery includes the terminal normal shock, which is what makes external compression worth anything. Peak heating is taken on ramp 2 including the duct wall, not on the sharp leading edge, where the computed peak is a mesh artifact.
 
 ### S3. The design box (2:00, 2 min)
 
@@ -171,16 +172,16 @@ Backup slides B1 to B6 follow S24 and are not timed.
 ### S17. The pool across the box (28:00, 1.5 min)
 
 - **Message:** The 92 runnable points span the trimmed box, and their objective values are the ground truth for every comparison.
-- **Figure or table:** Scatter of theta1 against theta2, coloured by recovery and by peak heat flux (design map).
+- **Figure or table:** Scatter of theta1 against theta2, colored by recovery and by peak heat flux (design map).
 - **Source:** `runs/analysis/2026-11-02/design_map.png` (panel "observed runs", 92 points), `runs/pool/results.csv` (92 converged, 0 failed), `docs/validation/2026-11-01_colab_records.md`. The 4 of the 96 Sobol points in `designs/pool_sobol96.csv` with theta1 + theta2 > 24 deg were refused by gate 4 and never staged.
 - **Speaker notes:** Only converged and stationary runs enter the surrogate, and each point keeps its status. Points rejected by a gate are listed as excluded, not dropped.
 
 ### S18. Pareto front with uncertainty (29:30, 2 min)
 
-- **Message:** Observed points, the predicted front, the posterior band and the discretisation error bar, shown together, say how far the front can be trusted.
-- **Figure or table:** Front plot from `analysis/pareto.py`: observed points, predicted front, posterior band, discretisation error bar.
-- **Source:** `runs/analysis/2026-11-02/pareto_front.png`, `runs/analysis/2026-11-02/pareto.csv`, `docs/validation/2026-11-02_pareto_inverse.md`, section 2: 26 observed front points of 92; posterior band 1.2e-4 to 1.8e-3 wide in recovery; discretisation bar 3.1e-4 in recovery and 530 W/m2 in q_peak (V4m grid study), 25 times the posterior uncertainty in heat flux.
-- **Speaker notes:** The band is posterior uncertainty and the error bar is discretisation error from the grid study, and both are shown separately. The front is only as good as the mesh levels behind it (B3).
+- **Message:** Observed points, the predicted front, the posterior band and the discretization error bar, shown together, say how far the front can be trusted.
+- **Figure or table:** Front plot from `analysis/pareto.py`: observed points, predicted front, posterior band, discretization error bar.
+- **Source:** `runs/analysis/2026-11-02/pareto_front.png`, `runs/analysis/2026-11-02/pareto.csv`, `docs/validation/2026-11-02_pareto_inverse.md`, section 2: 26 observed front points of 92; posterior band 1.2e-4 to 1.8e-3 wide in recovery; discretization bar 3.1e-4 in recovery and 530 W/m2 in q_peak (V4m grid study), 25 times the posterior uncertainty in heat flux.
+- **Speaker notes:** The band is posterior uncertainty and the error bar is discretization error from the grid study, and both are shown separately. The front is only as good as the mesh levels behind it (B3).
 
 ### S19. Inverse query: maximum recovery under a heat-flux cap (31:30, 2 min)
 
@@ -194,7 +195,7 @@ Backup slides B1 to B6 follow S24 and are not timed.
 - **Message:** Design maps show recovery and heat flux over the trimmed box, with the surrogate and the observed points on top.
 - **Figure or table:** Map output from `analysis/design_map.py`.
 - **Source:** `runs/analysis/2026-11-02/design_map.png`, `runs/analysis/2026-11-02/oswatitsch_cut.png`, `runs/analysis/2026-11-02/grid.csv`, `docs/validation/2026-11-02_pareto_inverse.md`, section 4 (recovery std 1.8e-5 to 1.1e-4 over the box; GP mean 0.0008 to 0.0022 above the inviscid analytic curve along the Oswatitsch cut, explained from the recorded throat Mach).
-- **Speaker notes:** The maps show where the trade-off bends for an aerodynamics audience. They are interpolations between runs and are labelled that way.
+- **Speaker notes:** The maps show where the trade-off bends for an aerodynamics audience. They are interpolations between runs and are labeled that way.
 
 ---
 
@@ -212,7 +213,7 @@ Backup slides B1 to B6 follow S24 and are not timed.
 
 - **Message:** The model is laminar, sub-scale and two-dimensional with two variables, and the corner of the box that does not converge limits what the front means.
 - **Figure or table:** List of limits, each with its consequence for the Pareto front.
-- **Source:** `runs/dev/2026-11-01_inlet_grid_study_ef03/README.md` (12/14 divergence); `runs/dev/2026-11-01_numerics/README.md` (leading-edge wall temperature); turbulence sensitivity: `runs/dev/2026-11-01_turbulence_sensitivity_SA/README.md` (Spalart-Allmaras at 8/8 and 12/12, development runs, labelled a sensitivity bound).
+- **Source:** `runs/dev/2026-11-01_inlet_grid_study_ef03/README.md` (12/14 divergence); `runs/dev/2026-11-01_numerics/README.md` (leading-edge wall temperature); turbulence sensitivity: `runs/dev/2026-11-01_turbulence_sensitivity_SA/README.md` (Spalart-Allmaras at 8/8 and 12/12, development runs, labeled a sensitivity bound).
 - **Speaker notes:** A full-scale vehicle at lower altitude would be turbulent, and the talk does not claim a turbulent result. Objective values near sharp leading edges are excluded by construction, not because they were checked.
 
 ### S23. What is still to be recorded (38:30, 1.5 min)
@@ -239,7 +240,7 @@ Backup slides B1 to B6 follow S24 and are not timed.
 
 ### B1. Turbulence model (fidelity question: why laminar?)
 
-- **Message:** Laminar is the model for this sub-scale condition; a Spalart-Allmaras sensitivity run shows what a turbulent layer would change and is labelled as a bound, not a result.
+- **Message:** Laminar is the model for this sub-scale condition; a Spalart-Allmaras sensitivity run shows what a turbulent layer would change and is labeled as a bound, not a result.
 - **Figure or table:** Bar chart of both objectives at 8/8 and 12/12, laminar against Spalart-Allmaras (numbers in the record's table).
 - **Source:** `runs/dev/2026-11-01_turbulence_sensitivity_SA/README.md`: Spalart-Allmaras at 8/8 (medium and fine) and 12/12 (medium), development runs on the container. Peak heating 2.5 to 2.6 times laminar, throat recovery 0.857 against 0.909 at 8/8, wall y+ median 2.3 (medium) and 1.7 (fine); a sensitivity bound, not a validated turbulent prediction.
 - **Speaker notes:** The SA run has no transition model and y+ above 1, so it bounds the effect rather than predicting it. The trade-off keeps its direction; the heating level does not.
@@ -277,4 +278,4 @@ Backup slides B1 to B6 follow S24 and are not timed.
 - **Message:** Every check in the report is shown, including the ones not run and why.
 - **Figure or table:** The verdict table from the report, condensed to the check, type, verdict and records column.
 - **Source:** `docs/validation/2026-11-01_report.md`.
-- **Speaker notes:** The not-run rows are shown, not hidden: the stand-off check, the 12/14 grid study and the pressure cross-check on some runs. Official and development rows are labelled, and the report says which are which.
+- **Speaker notes:** The not-run rows are shown, not hidden: the stand-off check, the 12/14 grid study and the pressure cross-check on some runs. Official and development rows are labeled, and the report says which are which.

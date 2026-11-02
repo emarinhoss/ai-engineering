@@ -1,10 +1,10 @@
-"""Pareto plot (Task 5): observed pool front, GP predicted front, posterior band, discretisation.
+"""Pareto plot (Task 5): observed pool front, GP predicted front, posterior band, discretization.
 
     python -m analysis.plot_pareto PARETO_CSV --out PNG --disc-rec-pct X --disc-q-pct Y \
         [--inverse RESULT_JSON]
 
 PARETO_CSV is written by analysis/pareto.py (kinds observed, predicted, band). The two
-discretisation percentages come from the grid study (medium to fine). The inverse query
+discretization percentages come from the grid study (medium to fine). The inverse query
 result.json is optional. Everything drawn comes from these inputs; nothing is invented.
 """
 import argparse
@@ -67,12 +67,12 @@ def plot_pareto(pareto_csv, out_png, disc_rec_pct, disc_q_pct, inverse_json=None
     ax.fill_between(lq[ok], p05[ok], p95[ok], color="tab:orange", alpha=0.35, lw=0,
                     label="posterior 5-95% band (50 samples)")
 
-    # discretisation error on the observed point with the median q (upper median if even)
+    # discretization error on the observed point with the median q (upper median if even)
     i = np.argsort(oq)[len(oq) // 2]
     ax.errorbar(oq[i], orec[i], xerr=disc_q_pct / 100 * oq[i],
                 yerr=disc_rec_pct / 100 * orec[i], fmt="none", ecolor="tab:purple",
                 elinewidth=1.8, capsize=4, zorder=4,
-                label="discretisation (grid study, medium to fine)")
+                label="discretization (grid study, medium to fine)")
 
     # inverse query answer: star at (median q, mean recovery), 90% box as error bars
     if inverse_json is not None:
@@ -94,7 +94,7 @@ def plot_pareto(pareto_csv, out_png, disc_rec_pct, disc_q_pct, inverse_json=None
     ax.grid(alpha=0.3)
     ax.legend(fontsize=8, loc="best")
     fig.text(0.5, 0.02, f"{len(observed)} observed points (SU2). Band: posterior uncertainty. "
-             "Error bar: discretisation error (grid study).", ha="center", fontsize=8)
+             "Error bar: discretization error (grid study).", ha="center", fontsize=8)
     fig.tight_layout(rect=(0, 0.06, 1, 1))
     fig.savefig(out_png, dpi=150)
     plt.close(fig)
@@ -106,9 +106,9 @@ def main():
     ap.add_argument("pareto_csv")
     ap.add_argument("--out", required=True, help="output PNG")
     ap.add_argument("--disc-rec-pct", type=float, required=True,
-                    help="discretisation error of recovery_total, percent")
+                    help="discretization error of recovery_total, percent")
     ap.add_argument("--disc-q-pct", type=float, required=True,
-                    help="discretisation error of q_peak, percent")
+                    help="discretization error of q_peak, percent")
     ap.add_argument("--inverse", default=None, help="result.json of the inverse query")
     a = ap.parse_args()
     n = plot_pareto(a.pareto_csv, a.out, a.disc_rec_pct, a.disc_q_pct, a.inverse)
