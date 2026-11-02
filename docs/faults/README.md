@@ -65,3 +65,31 @@ in `runs/dev/2026-11-01_inlet_box_diagnostics/`.
 - Postprocess: the saved surface file of the diverged run has pressures up to about 8e10 Pa and
   densities up to about 1e8 kg/m^3. The validation report (`python -m postprocess.report`) used to
   say "check the units" for it; it now says "solution diverged".
+
+## Two more real failures, from the pool campaign (2026-11-01 and 2026-11-02)
+
+Both are failures of the tooling, not of the physics, and both were caught by a guard that then
+turned out to be wrong in the other direction. Records: `PLAN.md` Day-1 status log and
+`docs/transcripts/2026-11-02_worker_restart_and_retry.md`.
+
+1. **An over-strict guard: `config_mismatch` on a comment line.** The worker refused pool job
+   `inlet2r-db92dcf68d` because the whole-file sha256 of `case.cfg` differed between the container
+   and Colab. The lines SU2 reads were identical; one geometry number in a `%` comment line
+   (`h_duct`) differed in its last digit, by 3e-18. By 20:30 UTC on 2026-11-01 about 62 of the 92
+   pool jobs had been refused for the same reason. Fix: `worker/make_case.config_sha256` hashes only
+   the lines SU2 reads (test `tests/test_make_case.py::test_config_sha256_ignores_comment_lines_only`).
+   A second error followed from the first: the restarted worker re-ran the 63 refused jobs and all
+   failed again within four minutes, because their job files still carried the old whole-file hash
+   that can never match on Colab. The 63 jobs were re-staged with the new hash as single job files;
+   all 92 pool points then converged (`docs/validation/2026-11-01_colab_records.md`). The failure
+   record of `inlet2r-db92dcf68d` is at commit 915f5f8; its retry's result replaced it.
+2. **A transfer without a check: corrupted result files.** Results cross from Drive to the repo as
+   text through the connector, and an agent retyping base64 altered 2 of 4 result files on
+   2026-11-01 (one mixed the fields of two records). Guard: the worker now writes a sha256 digest
+   next to every result and failure (`<id>.result.sha256`, back-filled at start-up for older
+   records, test `tests/test_worker_failures.py::test_backfill_writes_digests_for_old_results`) and
+   ingest refuses a text that does not match it
+   (`tests/test_ingest.py::test_ingest_checks_the_workers_digest`). The 16 pool and 13 validation
+   records ingested before the digests existed were re-checked with `python -m mcp_server.verify_digests`
+   (16 of 16 pool records match byte for byte). With the gate on, 6 of the next 61 transcriptions
+   were wrong at the first attempt and every one was caught and redone; 0 bad records entered the repo.
