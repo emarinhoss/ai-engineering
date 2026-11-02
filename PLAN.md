@@ -258,6 +258,10 @@ numerics and validation work to be done on Day 1 instead of Days 2 to 4.
   differences in the geometry comment are common, not rare) and finished 37. Operator step:
   restart the Colab worker cell on the new main; its command now carries
   `--retry-reason config_mismatch`, so the refused jobs are re-run without touching Drive.
+- 2026-11-02 06:10 UTC: the 63 refused jobs were re-staged with the new hash (single job files
+  on Drive, the refused run folders trashed) and run again by the restarted worker; 19 of them
+  are ingested (48 of 92 pool points converged, 0 pool failures; the db92dcf68d retry converged
+  and its result replaced the failure record). The other 44 are still running.
 - Transfer integrity: a Haiku agent retyping base64 altered 2 of 4 result files (one mixed the
   fields of two records). The worker now writes a sha256 digest next to every result and failure
   (back-filled at start-up) and ingest refuses a text that does not match it. The 16 pool and
