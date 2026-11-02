@@ -9,11 +9,14 @@ Rules this script follows (CLAUDE.md):
 - Every number on a slide is copied from the file named in that slide's "sources" list.
 - Every figure is a committed PNG (repo-relative path, printed in its caption) or a drawing made
   here from committed data (docs/talk/figures/*.png). No invented data.
-- Anything not yet run says PENDING on the slide.
+- Anything not yet run says PENDING on the slide (nothing is pending as of 2026-11-02 16:00 UTC).
 """
 import gzip
+import json
 import re
+import shutil
 import sys
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -32,6 +35,8 @@ from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
 from pptx.util import Inches, Pt
 
 from geometry.inlet import design_points
+from postprocess.tecplot import read_su2_points, read_tecplot_ascii, surface_nodes_for_marker
+from worker.make_case import make
 
 OUTLINE = ROOT / "docs/talk/outline.md"
 FIG_DIR = ROOT / "docs/talk/figures"
@@ -395,6 +400,235 @@ def draw_wall_temperature(path):
     plt.close(fig)
 
 
+# ---- drawings made from the meshes and surface files of committed runs -------------------------
+P_INF = 1197.03                        # Pa, docs/specs/00_decisions.md section 1
+GRID_RUNS = "runs/dev/2026-11-01_inlet_grid_study_ef03"
+SA_RUNS = "runs/dev/2026-11-01_turbulence_sensitivity_SA"
+BOX_RUNS = "runs/dev/2026-11-01_inlet_box_diagnostics"
+CYL_SCHEMES = "runs/dev/2026-11-01_cylinder_v3_attempt2/schemes"
+Q_FR_KW = 244.3                        # Fay-Riddell q_stag [kW/m^2], cylinder_v3_attempt2/README.md
+EXCLUDE_M = 2e-3                       # q_peak ignores body nodes this close to the throat plane (00_decisions.md 3.2)
+
+
+def read_json(path):
+    return json.loads(Path(path).read_text())
+
+
+def same_quality(got, want):
+    """True if every entry of the committed mesh_quality.json `want` is in `got` to 1e-9 relative."""
+    for key, w in want.items():
+        pairs = [(got[key][k], w[k]) for k in w] if isinstance(w, dict) else [(got[key], w)]
+        if not all(np.isclose(a, b, rtol=1e-9) for a, b in pairs):
+            return False
+    return True
+
+
+def rebuild_inlet_case(run_rel, out_dir):
+    """Rebuild mesh.su2, mesh_markers.json and geometry.json of a committed inlet run in out_dir.
+
+    The run folders keep params.json and mesh_quality.json but not the mesh, so the mesh is made again
+    from params.json by worker.make_case.make (the function that made it for the run). It must give the
+    mesh_quality.json that the run recorded, otherwise this stops. The run's surface_flow.dat.gz is
+    unzipped next to the mesh. Returns out_dir as a Path."""
+    run, out = ROOT / run_rel, Path(out_dir)
+    make(read_json(run / "params.json"), out)
+    assert same_quality(read_json(out / "mesh_quality.json"), read_json(run / "mesh_quality.json")), \
+        f"{run_rel}: the rebuilt mesh differs from the recorded mesh_quality.json"
+    with gzip.open(run / "surface_flow.dat.gz", "rb") as src, open(out / "surface_flow.dat", "wb") as dst:
+        shutil.copyfileobj(src, dst)
+    return out
+
+
+def body_profile(run_rel):
+    """x, p [Pa], q [W/m^2] on the body marker of a committed inlet run, ordered from the leading edge.
+
+    The body nodes are the ones of the mesh marker "body" (mesh_markers.json of the rebuilt mesh), found in
+    surface_flow.dat by coordinates and ordered along the wall (postprocess.tecplot.surface_nodes_for_marker).
+    q is SU2's Heat_Flux, positive into the wall (postprocess/surface.py). Also returns geometry.json."""
+    with tempfile.TemporaryDirectory() as tmp:
+        case = rebuild_inlet_case(run_rel, tmp)
+        data = read_tecplot_ascii(case / "surface_flow.dat")
+        rows = surface_nodes_for_marker(data, case / "mesh_markers.json", "body")
+        geometry = read_json(case / "geometry.json")
+    cols = data["data"]
+    out = {"x": cols["x"][rows], "y": cols["y"][rows], "p": cols["Pressure"][rows], "q": cols["Heat_Flux"][rows]}
+    assert np.all(np.diff(out["x"]) > 0), f"{run_rel}: body nodes are not ordered by x"
+    out["p_max_file"] = float(cols["Pressure"].max())          # over every node of the surface file
+    return out, geometry
+
+
+def q_peak_on_ramp2(body, geometry):
+    """(q_peak, x) as postprocess/metrics.py defines it: ramp 2 (x >= X1) without the nodes within 2 mm
+    of the throat plane."""
+    th = np.radians(geometry["theta_t_deg"])
+    dist = np.abs((body["x"] - geometry["E_body"][0]) * np.cos(th) + (body["y"] - geometry["E_body"][1]) * np.sin(th))
+    keep = (body["x"] >= geometry["X1"] - 1e-9) & (dist > EXCLUDE_M)
+    k = int(np.argmax(np.where(keep, body["q"], -np.inf)))
+    return float(body["q"][k]), float(body["x"][k])
+
+
+def read_su2_quads(path):
+    """Node ids of every quadrilateral of an SU2 mesh as an (n_elem, 4) array (lines: 9 n0 n1 n2 n3 id)."""
+    lines = Path(path).read_text().splitlines()
+    k = next(i for i, line in enumerate(lines) if line.startswith("NELEM="))
+    n = int(lines[k].split("=")[1])
+    rows = np.array([line.split() for line in lines[k + 1:k + 1 + n]], dtype=int)
+    assert np.all(rows[:, 0] == 9), "only quadrilaterals (SU2 type 9) are drawn"
+    return rows[:, 1:5]
+
+
+def draw_mesh_8_8_medium(path):
+    """B3: the 8/8 medium inlet mesh, whole domain and a zoom at the cowl lip and throat."""
+    from matplotlib.collections import LineCollection
+    run = f"{GRID_RUNS}/8_8_medium"
+    with tempfile.TemporaryDirectory() as tmp:
+        case = rebuild_inlet_case(run, tmp)
+        pts, quads = read_su2_points(case / "mesh.su2"), read_su2_quads(case / "mesh.su2")
+        geometry = read_json(case / "geometry.json")
+    assert (len(quads), len(pts)) == (geometry["cells"], geometry["nodes"])
+    edges = np.concatenate([quads[:, [0, 1]], quads[:, [1, 2]], quads[:, [2, 3]], quads[:, [3, 0]]])
+    edges = np.unique(np.sort(edges, axis=1), axis=0)                    # each edge once
+    segments = pts[edges]
+
+    d = design_points(8.0, 8.0)
+    fig = plt.figure(figsize=(9.6, 4.4), dpi=200)
+    grid = fig.add_gridspec(2, 2, width_ratios=[1.45, 1.0], hspace=0.62, wspace=0.15)
+    axes = [fig.add_subplot(grid[:, 0]), fig.add_subplot(grid[0, 1]), fig.add_subplot(grid[1, 1])]
+    boxes = [(None, "whole domain"),
+             ((0.185, 0.267, 0.045, 0.105), "cowl lip and throat (orange box)"),
+             ((d["P"][0] - 0.0015, d["P"][0] + 0.0045, d["P"][1] - 0.0021, d["P"][1] + 0.0021), "cowl lip, 6 mm wide")]
+    for ax, (box_xy, title) in zip(axes, boxes):
+        ax.add_collection(LineCollection(segments, colors=BLUE_H, linewidths=0.12 if box_xy is None else 0.25))
+        ax.plot(*zip(d["P"], d["E_cowl"]), color=ACCENT_H, lw=1.0)
+        ax.plot(*zip(d["E_body"], d["E_cowl"]), color=ACCENT_H, lw=1.0, ls="--")      # throat plane
+        if box_xy is None:
+            ax.set_xlim(-0.035, 0.272)
+            ax.set_ylim(-0.005, 0.205)
+        else:
+            ax.set_xlim(*box_xy[:2])
+            ax.set_ylim(*box_xy[2:])
+        ax.set_aspect("equal")
+        ax.set_title(title, fontsize=11)
+        ax.tick_params(labelsize=9)
+        ax.set_xlabel("x (m)", fontsize=10)
+        ax.set_ylabel("y (m)", fontsize=10)
+    z = boxes[1][0]
+    axes[0].plot([z[0], z[1], z[1], z[0], z[0]], [z[2], z[2], z[3], z[3], z[2]], color=ACCENT_H, lw=1.0)
+    fig.savefig(path, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
+    return len(quads), len(pts)
+
+
+def draw_wall_laminar_vs_sa(path):
+    """S8 and B1: wall pressure and wall heat flux along the body, laminar and SA, 8/8 medium."""
+    runs = [("laminar", f"{GRID_RUNS}/8_8_medium", BLUE_H), ("Spalart-Allmaras", f"{SA_RUNS}/8_8_medium_SA", ACCENT_H)]
+    fig, (ax_p, ax_q) = plt.subplots(2, 1, sharex=True, figsize=(7.0, 4.1), dpi=200,
+                                     gridspec_kw={"height_ratios": [1, 1], "hspace": 0.1})
+    edge_q, peaks = [], []
+    for label, run, color in runs:
+        body, geometry = body_profile(run)
+        q_peak, x_peak = q_peak_on_ramp2(body, geometry)
+        recorded = read_json(ROOT / run / "metrics.json")["q_peak_W_m2"]
+        assert abs(q_peak - recorded) <= 0.01 * recorded, f"{run}: plotted q_peak {q_peak} vs recorded {recorded}"
+        ax_p.plot(body["x"], body["p"] / P_INF, color=color, lw=1.6, label=label)
+        ax_q.plot(body["x"], body["q"] / 1e3, color=color, lw=1.6)
+        ax_q.plot([x_peak], [q_peak / 1e3], "o", color=color, ms=5)
+        edge_q.append(body["q"][0] / 1e3)
+        peaks.append((color, q_peak / 1e3, x_peak, label))
+    X1, x_throat = geometry["X1"], geometry["E_body"][0]
+    for ax in (ax_p, ax_q):
+        ax.axvspan(X1, x_throat, color="#EAF0F7", zorder=0)
+        ax.axvline(X1, color=GREY_H, lw=1.0, ls="--")
+        ax.axvline(x_throat, color=GREY_H, lw=1.0, ls=":")
+        ax.grid(alpha=0.25, lw=0.5)
+    ax_p.set_ylabel("wall pressure p / p_inf")
+    ax_q.set_ylabel("wall heat flux (kW/m2)")
+    ax_q.set_xlabel("x along the body (m)")
+    ax_p.set_xlim(0, x_throat + 0.004)
+    ax_p.text(X1 + 0.003, 0.97, "heating objective window: ramp 2, x >= 0.1 m", transform=ax_p.get_xaxis_transform(),
+              fontsize=8.5, color=GREY_H, va="top")
+    ax_p.text(X1 - 0.003, 0.97, "corner\nx = 0.1 m", transform=ax_p.get_xaxis_transform(), fontsize=8.5, color=GREY_H,
+              ha="right", va="top")
+    ax_p.text(x_throat - 0.002, 0.03, "throat", transform=ax_p.get_xaxis_transform(), fontsize=8.5, color=GREY_H,
+              ha="right", va="bottom")
+    ax_p.legend(loc="upper left", fontsize=9, frameon=False)
+    top = 1.5 * max(q for _, q, _, _ in peaks)
+    ax_q.set_ylim(0, top)
+    for (color, q, x, label), dy in zip(peaks, (-0.2 * top, 0.15 * top)):
+        ax_q.annotate(f"{label} q_peak {q:.2f} kW/m2", (x, q), xytext=(0.125, q + dy), fontsize=8.5, color=color,
+                      arrowprops=dict(arrowstyle="-", color=color, lw=0.8))
+    ax_q.text(0.02, 0.97, f"off scale at x = 0:\n{edge_q[0]:.0f} (laminar), {edge_q[1]:.0f} (SA) kW/m2",
+              transform=ax_q.transAxes, fontsize=8.5, color=GREY_H, va="top")
+    fig.savefig(path, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
+    return peaks, edge_q
+
+
+def draw_wall_12_14_diverged(path):
+    """S10: body wall pressure of the diverged 12/14 medium case against the converged 12/12 medium case."""
+    fig, ax = plt.subplots(figsize=(6.2, 4.2), dpi=200)
+    info = {}
+    for label, run, color in [("12/12 medium, converged", f"{BOX_RUNS}/12_12_medium", BLUE_H),
+                              ("12/14 medium, diverged (exit with an error)", f"{GRID_RUNS}/12_14_medium", ACCENT_H)]:
+        body, _ = body_profile(run)
+        ax.semilogy(body["x"], body["p"] / P_INF, color=color, lw=1.6, label=label)
+        info[run] = (float(body["p"].max()), body["p_max_file"])
+    ax.axvline(0.1, color=GREY_H, lw=1.0, ls="--")
+    ax.text(0.1 + 0.002, 0.5, "corner", transform=ax.get_xaxis_transform(), fontsize=9, color=GREY_H)
+    ax.set_xlabel("x along the body (m)")
+    ax.set_ylabel("wall pressure p / p_inf (log scale)")
+    ax.set_xlim(0, 0.23)
+    ax.set_ylim(1, 3e8)
+    ax.grid(alpha=0.25, lw=0.5, which="both")
+    ax.legend(loc="center left", bbox_to_anchor=(0.0, 0.5), fontsize=9, frameon=True)
+    fig.savefig(path, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
+    return info
+
+
+SCHEME_STYLES = [("hllc", "HLLC", "#999999", "-"), ("ausmpup2", "AUSM+-up2", "#777777", (0, (4, 2))),
+                 ("slau2", "SLAU2", "#555555", "-."), ("jst", "JST, first order", "#AAAAAA", ":"),
+                 ("roe_firstorder", "Roe, first order", "#222222", (0, (10, 3)))]
+
+
+def cylinder_wall_q(scheme):
+    """(phi in degrees from the stagnation line, q in kW/m^2) at the wall nodes of one scheme's surface file.
+
+    The cylinder has R = 10 mm and its center at the origin (geometry/cylinder.py); the freestream comes
+    from -x, so phi = atan2(y, -x). The surface file holds only the wall marker (nodes at r = R)."""
+    R = 0.010
+    with tempfile.TemporaryDirectory() as tmp:
+        with gzip.open(ROOT / CYL_SCHEMES / scheme / "surface_flow.dat.gz", "rb") as src, \
+                open(Path(tmp) / "surface_flow.dat", "wb") as dst:
+            shutil.copyfileobj(src, dst)
+        cols = read_tecplot_ascii(Path(tmp) / "surface_flow.dat")["data"]
+    assert np.allclose(np.hypot(cols["x"], cols["y"]), R, atol=1e-8), f"{scheme}: not all nodes are on the wall"
+    phi = np.degrees(np.arctan2(cols["y"], -cols["x"]))
+    order = np.argsort(phi)
+    assert abs(phi[order][0]) < 1e-6 and abs(cols["x"][order][0] + R) < 1e-8, "no stagnation node at phi = 0"
+    return phi[order], cols["Heat_Flux"][order] / 1e3
+
+
+def draw_cylinder_schemes(path):
+    """B4: stagnation-region heat flux against angle for the six convective schemes of attempt 2."""
+    fig, ax = plt.subplots(figsize=(5.6, 3.9), dpi=200)
+    for name, label, color, ls in SCHEME_STYLES:
+        phi, q = cylinder_wall_q(name)
+        keep = phi <= 90.0
+        ax.plot(phi[keep], q[keep], color=color, ls=ls, lw=1.5, label=label)
+    phi, q = cylinder_wall_q("roe_ef03_cfl5")
+    keep = phi <= 90.0
+    ax.plot(phi[keep], q[keep], color=ACCENT_H, lw=2.6, label="Roe, entropy fix 0.3, CFL max 5")
+    ax.axhline(Q_FR_KW, color=BLUE_H, lw=1.3, ls="--", label=f"Fay-Riddell {Q_FR_KW} kW/m2")
+    ax.set_xlim(0, 90)
+    ax.set_xlabel("angle from the stagnation line, phi (deg)")
+    ax.set_ylabel("wall heat flux q (kW/m2)")
+    ax.grid(alpha=0.25, lw=0.5)
+    ax.legend(fontsize=8.5, frameon=True, loc="upper right")
+    fig.savefig(path, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
+
+
 # ---- slide bodies (one function per slide that has drawn or composed content) -----------------
 def body_s2(slide):
     path = "docs/talk/figures/inlet_schematic.png"
@@ -485,16 +719,24 @@ def body_s7(slide):
 
 
 def body_s8(slide):
-    w, h = add_figure_with_caption(slide, "docs/validation/2026-11-01_inlet_throat_p0.png",
-                                   "docs/validation/2026-11-01_report.md and "
-                                   "runs/dev/2026-11-01_inlet_design_point/README.md", LM, CT, 6.4, 4.1)
+    wall = "docs/talk/figures/wall_8_8_laminar_vs_sa.png"
+    draw_wall_laminar_vs_sa(ROOT / wall)
+    throat = "docs/validation/2026-11-01_inlet_throat_p0.png"
+    w1, h1 = add_figure(slide, throat, LM, CT, 4.7, 2.75)
+    w2, h2 = add_figure(slide, wall, LM + 4.7 + 0.3, CT, 7.1, 2.75)
+    caption(slide, LM, CT + h1 + 0.04, 4.7, f"Figure: {throat}. Record: docs/validation/2026-11-01_report.md and "
+            "runs/dev/2026-11-01_inlet_design_point/README.md. Development run, not the official Task 2 record.", lines=4)
+    caption(slide, LM + 5.0, CT + h2 + 0.04, 7.1, f"Figure: {wall}, drawn by docs/talk/build_deck.py from the body-wall nodes of "
+            "surface_flow.dat.gz in runs/dev/2026-11-01_inlet_grid_study_ef03/8_8_medium (laminar) and "
+            "runs/dev/2026-11-01_turbulence_sensitivity_SA/8_8_medium_SA (Spalart-Allmaras, a sensitivity bound). "
+            "Labeled q_peak values equal metrics.json of each run; p_inf = 1197.03 Pa.", lines=4)
     rows = [["Check (8/8, medium)", "Measured", "Tolerance", "Verdict"],
             ["V4e throat p0/p0_inf, Euler", "0.9284 vs 0.9316 two-shock, -0.34%", "2% hard", "PASS"],
             ["V4e throat Mach, Euler", "2.958 vs 2.962, -0.14%", "2% hard", "PASS"],
             ["V4v core p0/p0_inf, laminar", "0.9351 vs 0.9316, +0.39%", "5% soft", "PASS"],
-            ["Laminar, whole throat", "area average 0.8824; mass-averaged 0.9114", "shown, not gated", "boundary-layer loss about 2%"]]
-    add_table(slide, 7.3, CT + 0.1, [1.9, 1.9, 0.8, 0.8], rows, size=11, row_h=0.6)
-    caption(slide, 7.3, CT + 3.4, 5.4, "Development run, not the official Task 2 record.", lines=1)
+            ["Laminar, whole throat", "area average 0.8824; mass-averaged 0.9114", "shown, not gated",
+             "boundary-layer loss about 2%"]]
+    add_table(slide, LM, CT + 3.65, [3.0, 4.5, 1.7, 2.93], rows, size=11, row_h=0.28)
 
 
 def body_s9(slide):
@@ -517,11 +759,19 @@ def body_s10(slide):
             ["12/12", "24 deg", "converged (2063 iterations)", "0.4065", "46.9"],
             ["8/14", "22 deg", "converged (2160 iterations)", "0.3876", "47.9"],
             ["5/14", "19 deg", "converged (1952 iterations)", "0.3481", "43.1"]]
-    add_table(slide, LM, CT + 0.1, [4.0, 1.4, 3.6, 1.5, 1.6], rows, size=13, row_h=0.5)
-    text_box(slide, LM, CT + 3.4, CW, 1.2,
+    add_table(slide, LM, CT + 0.1, [2.2, 0.8, 2.0, 1.2, 1.0], rows, size=10, row_h=0.5)
+    path = "docs/talk/figures/wall_12_14_diverged.png"
+    info = draw_wall_12_14_diverged(ROOT / path)
+    p_max_file = info[f"{GRID_RUNS}/12_14_medium"][1]
+    w, h = add_figure(slide, path, 8.05, CT + 0.05, 4.65, 3.2)
+    caption(slide, 8.05, CT + 0.05 + h + 0.04, 4.65,
+            f"Figure: {path}, drawn by docs/talk/build_deck.py from surface_flow.dat.gz of {GRID_RUNS}/12_14_medium "
+            f"(exited with an error after 4347 iterations; {GRID_RUNS}/README.md) and {BOX_RUNS}/12_12_medium. "
+            f"Largest pressure in the 12/14 surface file: {p_max_file / 1e10:.1f}e10 Pa; p_inf = 1197.03 Pa.", lines=5)
+    text_box(slide, LM, CT + 3.3, 7.2, 1.4,
              ["Gate 4: total turning at most 24 deg; 4 of the 96 pool points (indices 0, 40, 72, 80) are excluded.",
               "12/14 diverged on both meshes, medium and fine, with both entropy fixes and both CFL caps (20 and 5)."],
-             size=15, bullets=True, space_after=8)
+             size=13, bullets=True, space_after=4)
 
 
 def body_s11(slide):
@@ -660,18 +910,20 @@ def body_s19(slide):
     rows = [["Query", "Surrogate answer (90 percent interval)", "Confirmation run result", "Inside interval?"],
             ["Highest recovery with q_peak under the 40th percentile of pool heating (cap 31493 W/m2); "
              "answer theta1 = 11.965 deg, theta2 = 7.115 deg",
-             "recovery_total 0.34515 (0.34506 to 0.34523)", "PENDING", "PENDING"],
-            ["", "q_peak 31470 W/m2 (31450 to 31490); P(q <= cap) = 0.972", "PENDING", "PENDING"]]
+             "recovery_total 0.34515 (0.34506 to 0.34523)", "0.34513 (z = -0.41)", "yes"],
+            ["", "q_peak 31470 W/m2 (31450 to 31490); P(q <= cap) = 0.972", "31462 W/m2 (z = -0.66)", "yes"]]
     table = add_table(slide, LM, CT + 0.1, [4.6, 3.9, 2.2, 1.4], rows, size=13, row_h=0.7)
     table.cell(1, 0).merge(table.cell(2, 0))
-    pending(slide, LM, CT + 2.4, CW, "Confirmation run: PENDING (inlet2r-374dad241f in the Drive queue since 2026-11-02 11:52 UTC). "
-            "Result and C2 verdict will come from analysis.confirm.")
-    text_box(slide, LM, CT + 3.1, CW, 1.4,
+    text_box(slide, LM, CT + 2.4, CW, 0.5, "C2 pass: the SU2 run inlet2r-374dad241f (Colab, 2026-11-02 14:38 UTC, 1248 iterations, converged) "
+             "falls inside both 90 percent intervals and below the cap.", size=14, color=ACCENT, bold=True)
+    text_box(slide, LM, CT + 3.0, CW, 1.6,
              ["The cap is fixed from the pool before the answer is known (40th percentile of the pool's q_peak).",
-              "The test (C2): the SU2 result falls inside the intervals above; a miss is documented and explained."],
+              "One run inside a 90 percent interval is one draw, not a calibration statistic; the calibration evidence is the replay (S16).",
+              "Refitting the GPs with this one new point shrinks the predictive std at the design from 5.1e-5 to 4.6e-5 in recovery "
+              "and from 3.9e-4 to 3.5e-4 in log q_peak (ratios 0.90 and 0.92)."],
              size=14, bullets=True, space_after=6)
-    caption(slide, LM, CT + 4.4, CW, "Records: runs/analysis/2026-11-02/inverse_q40/result.json; "
-            "docs/validation/2026-11-02_pareto_inverse.md, section 3.", lines=2)
+    caption(slide, LM, CT + 4.7, CW, "Records: runs/analysis/2026-11-02/inverse_q40/result.json; runs/confirm/inlet2r-374dad241f/result.json; "
+            "runs/analysis/2026-11-02/confirm/confirm.json; docs/validation/2026-11-02_pareto_inverse.md, section 3.", lines=2)
 
 
 def body_s20(slide):
@@ -733,8 +985,10 @@ def body_s23(slide):
             ["92-point pool", "done: 92 of 92 converged, 0 failures", "docs/validation/2026-11-01_colab_records.md"],
             ["Replay: active learning against random and LHS", "done", "docs/validation/2026-11-02_replay.md"],
             ["Pareto front and inverse query", "done", "docs/validation/2026-11-02_pareto_inverse.md"],
-            ["Confirmation run inlet2r-374dad241f", "PENDING: in the Drive queue since 2026-11-02 11:52 UTC",
-             "result and C2 verdict from analysis.confirm"]]
+            ["Confirmation run inlet2r-374dad241f", "done: C2 pass (both objectives inside the 90 percent interval)",
+             "runs/confirm/, runs/analysis/2026-11-02/confirm/confirm.json"],
+            ["Spalart-Allmaras sensitivity on Colab (3 runs)", "done (a bound, no transition model)",
+             "runs/sensitivity/, docs/validation/2026-11-02_sa_sensitivity.md"]]
     add_table(slide, LM, CT, [4.6, 3.9, 3.6], rows, size=13, row_h=0.5)
 
 
@@ -746,17 +1000,19 @@ def body_s24(slide):
 
 
 def body_b1(slide):
-    rows = [["Case", "Model", "recovery_total", "recovery_throat", "q_peak [kW/m2] (x)", "wall y+ median / max"],
-            ["8/8 medium", "laminar", "0.3163", "0.9085", "29.73 (0.1151)", "-"],
-            ["8/8 medium", "SA", "0.3112", "0.8565", "76.98 (0.1121)", "2.3 / 3.0"],
-            ["8/8 fine", "SA", "0.3109", "0.8592", "76.29 (0.1126)", "1.7 / 2.6"],
-            ["12/12 medium", "laminar", "0.4065", "-", "46.9 (0.1113)", "-"],
-            ["12/12 medium", "SA", "0.3925", "0.7441", "118.20 (0.1103)", "3.1 / 3.6"]]
-    add_table(slide, LM, CT + 0.1, [1.9, 1.2, 1.9, 1.9, 2.7, 2.5], rows, size=13, row_h=0.5)
-    text_box(slide, LM, CT + 3.4, CW, 1.4,
-             ["Peak heating 2.5 to 2.6 times laminar; throat recovery 0.857 against 0.909 at 8/8.",
-              "Development runs; SA without a transition model. A sensitivity bound, not a validated turbulent prediction."],
-             size=14, bullets=True, space_after=6)
+    rows = [["Case", "Model", "Record", "recovery_total", "recovery_throat", "q_peak [kW/m2]", "wall y+ (dev run)"],
+            ["8/8 medium", "laminar", "runs/val/inlet2r-d4d29884be", "0.3163", "0.9085", "29.73", "-"],
+            ["8/8 medium", "SA", "runs/sensitivity/inlet2r-1731bdea74", "0.3112", "0.8565", "76.98", "2.3 / 3.0"],
+            ["8/8 fine", "laminar", "runs/val/inlet2r-5e844a838c", "0.3166", "0.9105", "29.23", "-"],
+            ["8/8 fine", "SA", "runs/sensitivity/inlet2r-8a09596911", "0.3109", "0.8592", "76.29", "1.7 / 2.6"],
+            ["12/12 medium", "laminar", "runs/dev/.../12_12_medium", "0.4065", "0.8222", "46.86", "-"],
+            ["12/12 medium", "SA", "runs/sensitivity/inlet2r-d7e3815b57", "0.3925", "0.7441", "118.20", "3.1 / 3.6"]]
+    add_table(slide, LM, CT + 0.1, [1.4, 0.9, 3.4, 1.5, 1.6, 1.5, 1.8], rows, size=11, row_h=0.42)
+    text_box(slide, LM, CT + 3.6, CW, 1.4,
+             ["Peak heating 2.59, 2.61 and 2.52 times laminar; recovery_total lower by 0.005 to 0.014; throat recovery 0.857 against 0.909 at 8/8.",
+              "Colab runs (RANS_SA, 4 ranks) equal the container development runs to every printed digit. "
+              "SA without a transition model and with y+ above 1: a sensitivity bound, not a validated turbulent prediction."],
+             size=13, bullets=True, space_after=6)
 
 
 def body_b2(slide):
@@ -774,15 +1030,28 @@ def body_b2(slide):
 
 
 def body_b3(slide):
-    w, h = add_figure_with_caption(slide, "docs/validation/2026-11-01_grid_study.png",
-                                   "docs/validation/2026-11-01_report.md", LM, CT, CW, 2.3)
+    path = "docs/validation/2026-11-01_grid_study.png"
+    # the two inlet panels of the final numerics (entropy fix 0.3: panels 3 and 4 of 6); the table below matches them
+    w, h = add_figure(slide, path, LM, CT, 6.3, 2.0, crop=(2 / 6, 0, 2 / 6, 0))
+    caption(slide, LM, CT + h + 0.04, 6.3, f"Figure: {path}, panels 3 and 4 of 6 (inlet 8/8, final numerics; the "
+            "other panels are on S7 and in the report). Record: docs/validation/2026-11-01_report.md.", lines=3)
     rows = [["8/8 laminar inlet", "Cells", "recovery_total", "q_peak [kW/m2]"],
             ["coarse", "19 620", "0.3163", "30.18"],
             ["medium", "30 600", "0.3163", "29.73"],
             ["fine", "55 640", "0.3166", "29.23"],
             ["medium to fine", "", "+0.09% (tolerance 2%)", "-1.68% (tolerance 5%)"],
             ["12/14 medium, fine", "25 000, 45 240", "diverged", "diverged"]]
-    add_table(slide, LM, CT + h + 0.55, [3.0, 2.4, 3.3, 3.3], rows, size=12, row_h=0.33, flag=("diverged",))
+    add_table(slide, LM, CT + h + 0.75, [1.7, 1.4, 1.7, 1.5], rows, size=11, row_h=0.4, flag=("diverged",))
+    mesh = "docs/talk/figures/mesh_8_8_medium.png"
+    cells, nodes = draw_mesh_8_8_medium(ROOT / mesh)
+    quality = read_json(ROOT / f"{GRID_RUNS}/8_8_medium/mesh_quality.json")["first_cell_height"]
+    mw, mh = add_figure(slide, mesh, 6.9, CT, 5.8, 3.5)
+    n_cells, n_nodes = (f"{n:,}".replace(",", " ") for n in (cells, nodes))     # deck style: 30 600
+    caption(slide, 6.9, CT + mh + 0.04, 5.8,
+            f"Figure: {mesh}, drawn by docs/talk/build_deck.py. The mesh of {GRID_RUNS}/8_8_medium is rebuilt from "
+            f"its params.json by worker/make_case.py and matches the run's mesh_quality.json. Structured, {n_cells} cells, "
+            f"{n_nodes} nodes; first cell {quality['body'] * 1e6:.1f} um on the body and {quality['cowl'] * 1e6:.1f} um "
+            "on the cowl (mesh_quality.json).", lines=6)
 
 
 def body_b4(slide):
@@ -798,14 +1067,19 @@ def body_b4(slide):
               ["JST, first order", "-91%", "no (stagnation point smeared)"],
               ["Roe, first order", "+53%", "no"],
               ["Roe, entropy fix 0.3, CFL max 5", "-0.3%", "yes"]]
-    add_table(slide, LM, CT, [1.8, 2.4, 1.8], rows_a, size=11, row_h=0.5, flag=())
-    add_table(slide, 7.0, CT, [2.5, 1.6, 1.6], rows_b, size=11, row_h=0.5, flag=())
-    text_box(slide, LM, CT + 3.9, CW, 0.6,
-             ["Attempt 3: only the entropy fix cured the carbuncle; the CFL cap did not. "
-              "Wedge Eckert window: mean 0.75% at entropy fix 0.1, 1.60% at 0.3."], size=14, bullets=True)
-    caption(slide, LM, CT + 4.45, CW, "Records: runs/dev/2026-11-01_numerics/README.md (A to D), "
-            "runs/dev/2026-11-01_cylinder_v3_attempt2/README.md (six schemes), runs/dev/2026-11-01_cylinder_v3_attempt3/README.md.",
-            lines=2)
+    add_table(slide, LM, CT, [1.5, 2.6, 1.9], rows_a, size=10, row_h=0.32, flag=())
+    add_table(slide, 6.9, CT, [2.6, 1.6, 1.6], rows_b, size=10, row_h=0.32, flag=())
+    path = "docs/talk/figures/cylinder_schemes.png"
+    draw_cylinder_schemes(ROOT / path)
+    w, h = add_figure(slide, path, LM, CT + 1.8, 6.0, 3.0)
+    text_box(slide, 6.9, CT + 2.55, 5.8, 1.0,
+             ["Attempt 3: only the entropy fix cured the carbuncle; the CFL cap did not.",
+              "Wedge Eckert window: mean 0.75% at entropy fix 0.1, 1.60% at 0.3."], size=12, bullets=True, space_after=3)
+    caption(slide, 6.9, CT + 3.5, 5.8,
+            f"Figure: {path}, drawn by docs/talk/build_deck.py from surface_flow.dat.gz of the six schemes in "
+            f"{CYL_SCHEMES}/ (coarse mesh, 57 wall nodes, R = 10 mm); Fay-Riddell 244.3 kW/m2 from the same "
+            "runs/dev/2026-11-01_cylinder_v3_attempt2/README.md. Records: runs/dev/2026-11-01_numerics/README.md "
+            "(A to D), runs/dev/2026-11-01_cylinder_v3_attempt3/README.md.", lines=7)
 
 
 def body_b5(slide):
@@ -859,11 +1133,15 @@ SLIDES = {
            "sources": [REPORT, "runs/dev/2026-11-01_cylinder_v3_attempt1/README.md",
                        "runs/dev/2026-11-01_cylinder_v3_attempt3/README.md"]},
     "S8": {"title": "Inlet design point at 8/8", "body": body_s8,
-           "sources": ["runs/dev/2026-11-01_inlet_design_point/README.md", REPORT]},
+           "sources": ["runs/dev/2026-11-01_inlet_design_point/README.md", REPORT, "runs/dev/2026-11-01_inlet_grid_study_ef03/8_8_medium/surface_flow.dat.gz",
+                       "runs/dev/2026-11-01_turbulence_sensitivity_SA/README.md",
+                       "runs/dev/2026-11-01_turbulence_sensitivity_SA/8_8_medium_SA/surface_flow.dat.gz"]},
     "S9": {"title": "The pipeline on one slide", "body": body_s9, "sources": ["docs/specs/01_interfaces.md"]},
     "S10": {"title": "Gates reject before any CFD", "body": body_s10,
             "sources": ["runs/dev/2026-11-01_inlet_box_diagnostics/README.md",
-                        "runs/dev/2026-11-01_inlet_grid_study_ef03/README.md"]},
+                        "runs/dev/2026-11-01_inlet_grid_study_ef03/README.md",
+                        "runs/dev/2026-11-01_inlet_grid_study_ef03/12_14_medium/surface_flow.dat.gz",
+                        "runs/dev/2026-11-01_inlet_box_diagnostics/12_12_medium/surface_flow.dat.gz"]},
     "S11": {"title": "Drive queue and a restart-safe worker", "body": body_s11,
             "sources": ["docs/specs/01_interfaces.md", "docs/transcripts/2026-11-02_worker_restart_and_retry.md",
                         "docs/validation/2026-11-01_colab_records.md", "docs/faults/fault_matrix.md"]},
@@ -885,8 +1163,8 @@ SLIDES = {
             "sources": ["runs/analysis/2026-11-02/pareto_front.png", "runs/analysis/2026-11-02/pareto.csv",
                         "docs/validation/2026-11-02_pareto_inverse.md (section 2)"]},
     "S19": {"title": "Inverse query under a heat-flux cap", "body": body_s19,
-            "sources": ["runs/analysis/2026-11-02/inverse_q40/result.json",
-                        "docs/validation/2026-11-02_pareto_inverse.md (section 3)"]},
+            "sources": ["runs/analysis/2026-11-02/inverse_q40/result.json", "runs/confirm/inlet2r-374dad241f/result.json",
+                        "runs/analysis/2026-11-02/confirm/confirm.json", "docs/validation/2026-11-02_pareto_inverse.md (section 3)"]},
     "S20": {"title": "Design maps over the box", "body": body_s20,
             "sources": ["runs/analysis/2026-11-02/design_map.png", "runs/analysis/2026-11-02/oswatitsch_cut.png",
                         "runs/analysis/2026-11-02/grid.csv", "docs/validation/2026-11-02_pareto_inverse.md (section 4)"]},
@@ -902,18 +1180,21 @@ SLIDES = {
                         "docs/validation/2026-11-02_pareto_inverse.md (section 2)"]},
     "S23": {"title": "What is still to be recorded", "body": body_s23,
             "sources": [REPORT, "docs/validation/2026-11-01_colab_records.md", "docs/faults/fault_matrix.md",
-                        "docs/validation/2026-11-02_replay.md", "docs/validation/2026-11-02_pareto_inverse.md"]},
+                        "docs/validation/2026-11-02_replay.md", "docs/validation/2026-11-02_pareto_inverse.md",
+                        "runs/analysis/2026-11-02/confirm/confirm.json", "docs/validation/2026-11-02_sa_sensitivity.md"]},
     "S24": {"title": "Questions, and where the answers are", "body": body_s24, "sources": []},
     "B1": {"title": "Backup: turbulence model", "body": body_b1,
-           "sources": ["runs/dev/2026-11-01_turbulence_sensitivity_SA/README.md"]},
+           "sources": ["runs/sensitivity/results.csv", "docs/validation/2026-11-02_sa_sensitivity.md",
+                       "runs/dev/2026-11-01_turbulence_sensitivity_SA/README.md"]},
     "B2": {"title": "Backup: wall boundary condition", "body": body_b2,
            "sources": ["runs/dev/2026-11-01_numerics/README.md",
                        "runs/dev/2026-11-01_numerics/wedge-381c48d17f-tecplot/surface_flow.dat.gz"]},
     "B3": {"title": "Backup: mesh convergence", "body": body_b3,
-           "sources": [REPORT, "runs/dev/2026-11-01_inlet_grid_study_ef03/README.md"]},
+           "sources": [REPORT, "runs/dev/2026-11-01_inlet_grid_study_ef03/README.md", "runs/dev/2026-11-01_inlet_grid_study_ef03/8_8_medium/mesh_quality.json"]},
     "B4": {"title": "Backup: the numerics story", "body": body_b4,
            "sources": ["runs/dev/2026-11-01_numerics/README.md", "runs/dev/2026-11-01_cylinder_v3_attempt2/README.md",
-                       "runs/dev/2026-11-01_cylinder_v3_attempt3/README.md"]},
+                       "runs/dev/2026-11-01_cylinder_v3_attempt3/README.md",
+                       "runs/dev/2026-11-01_cylinder_v3_attempt2/schemes/*/surface_flow.dat.gz"]},
     "B5": {"title": "Backup: design-box trim", "body": body_b5,
            "sources": ["runs/dev/2026-11-01_inlet_box_diagnostics/README.md",
                        "runs/dev/2026-11-01_inlet_grid_study_ef03/README.md", "designs/pool_sobol96.csv"]},
@@ -948,7 +1229,7 @@ def build(out_path=DEFAULT_OUT):
                 add_title_slide(prs, number, "Aero-thermal inlet design: surrogate and automation", info["message"],
                                 ["Mach 4 at 30 km, two-ramp inlet, two design variables.",
                                  "Status 2026-11-02: every number comes from a record in this repository; "
-                                 "the confirmation run is PENDING."], info["notes"])
+                                 "the confirmation run passed (C2)."], info["notes"])
                 continue
             spec = SLIDES[sid]
             slide = start_slide(prs, number, sid, spec["title"], info["message"], spec["sources"], info["notes"])

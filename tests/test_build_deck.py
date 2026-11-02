@@ -25,4 +25,10 @@ def test_notes_come_from_the_outline_and_pending_is_visible(tmp_path):
         if slide.has_notes_slide:
             notes.append(slide.notes_slide.notes_text_frame.text)
     assert all(o["notes"] in notes for o in outline.values())
-    assert any("PENDING" in t and "inlet2r-374dad241f" in t for t in texts)
+    assert any("C2 pass" in t and "inlet2r-374dad241f" in t for t in texts)
+
+
+def test_figures_made_from_run_data_are_placed(tmp_path):
+    build_deck.build(tmp_path / "deck.pptx")
+    for name in ("mesh_8_8_medium", "wall_8_8_laminar_vs_sa", "wall_12_14_diverged", "cylinder_schemes"):
+        assert f"docs/talk/figures/{name}.png" in build_deck.USED_FIGURES
