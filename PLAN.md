@@ -275,4 +275,4 @@ numerics and validation work to be done on Day 1 instead of Days 2 to 4.
   identical and the geometry lives in the mesh), uploaded as single `jobs/<id>.json` files
   (single files take precedence over batch entries), and the 63 refused `runs/<id>/` folders
   were moved to the Drive trash so the running worker sees the jobs as new. First retried job
-  started at 04:03 UTC and ran SU2; 63 jobs at about 5 minutes each end around 09:30 UTC.
+  started at 04:01 UTC and ran SU2 (log in `docs/transcripts/2026-11-02_worker_restart_and_retry.md`); 5 to 7.5 minutes per case, so the 63 jobs end around 10:30 UTC.
