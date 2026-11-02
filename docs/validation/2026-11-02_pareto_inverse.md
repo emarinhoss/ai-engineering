@@ -65,19 +65,27 @@ difference as noise.
   theta2 and the predicted recovery by 2.8e-4. The answer is stable to the sampling at the level of the
   discretisation error.
 
-### Confirmation run (C2)
+### Confirmation run (C2): pass
 
-`inverse_q40/params.json` (`{"family": "inlet2r", "theta1_deg": 11.965, "theta2_deg": 7.115,
-"mesh_level": "medium", "tag": "confirm", "save_volume": false}`) was passed through `validate_config`
-(schema, gates, geometry, mesh quality: all pass, min angle 58.4 deg, 28800 cells) and staged with
-`create_case` and `submit` through the MCP server; its `config_sha256` is `b0c231e7...` (identical to
-the pool). The job file `inlet2r-374dad241f.json` was uploaded to the Drive jobs folder at 11:52 UTC
-(Drive id `1DdL1kOMnsYHRuHLu_QpWksKcKwc-igQs`, recorded with `record_transfer`). C2 is the test that the
-SU2 result falls inside the 90 percent intervals above. It is a strict test: the recovery interval is
-1.7e-4 wide and the q_peak interval 40 W/m2 wide, and the replay calibration (`2026-11-02_replay.md`)
-found the recovery intervals conservative and the q_peak intervals about nominal, so a miss, if any, is
-more likely in q_peak. The outcome is reported either way by `analysis.confirm` once the result is
-ingested; until then no claim is made.
+`inverse_q40/params.json` was passed through `validate_config` (schema, gates, geometry, mesh quality:
+all pass, min angle 58.4 deg, 28800 cells), staged with `create_case` and `submit` through the MCP
+server (`config_sha256` `b0c231e7...`, identical to the pool), and its job file uploaded to the Drive
+jobs folder at 11:52 UTC. The Colab worker ran it at 14:38 UTC (4 MPI ranks, 334 s, 1248 iterations,
+converged; record `runs/confirm/inlet2r-374dad241f/`, digest checked). `python -m analysis.confirm`
+wrote `runs/analysis/2026-11-02/confirm/confirm.json`:
+
+| quantity | predicted (90 percent interval) | SU2 | inside | z |
+|---|---|---|---|---|
+| recovery_total | 0.34515 (0.34506 to 0.34523) | 0.34513 | yes | -0.41 |
+| q_peak_W_m2 | 31470 (31450 to 31490) | 31462 | yes | -0.66 |
+
+Both objectives fall inside the 90 percent predictive intervals, q_peak is below the cap (31462
+against 31493 W/m2), so C2 passes. The intervals are narrow (1.7e-4 in recovery, 40 W/m2 in heat
+flux) and the run lands within half a standard deviation of both predictions. Refitting the two GPs
+with the new row added shrinks the predictive std at that design from 5.1e-5 to 4.6e-5 in recovery
+(ratio 0.90) and from 3.9e-4 to 3.5e-4 in log q_peak (ratio 0.92); the predicted mean moves by
+minus 9e-6 in recovery and minus 3 W/m2 in q_peak. This is the one online active-learning step of
+the study, and it is reported as a single run, not as a statistic.
 
 ## 4. Design maps (`design_map.png`, `oswatitsch_cut.png`, `grid.csv`)
 
@@ -98,6 +106,6 @@ ingested; until then no claim is made.
 
 ## Verdict against the Task 5 acceptance
 
-The front, its band, the discretisation bar, the inverse answer and the design maps come from committed
-runs and committed scripts. The acceptance test (confirmation inside the predicted interval, or the miss
-documented) is pending the SU2 result of `inlet2r-374dad241f`.
+The front, its band, the discretization bar, the inverse answer and the design maps come from committed
+runs and committed scripts. The acceptance test (confirmation inside the predicted interval) passes:
+`runs/confirm/inlet2r-374dad241f` is inside the 90 percent intervals of both objectives.

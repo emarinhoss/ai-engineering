@@ -187,7 +187,7 @@ Backup slides B1 to B6 follow S24 and are not timed.
 
 - **Message:** The surrogate answers "highest recovery with peak heat flux under the 40th percentile of pool heating", and one real SU2 run checks the answer.
 - **Figure or table:** Table: query, surrogate answer with interval, confirmation run result, and whether it falls inside the interval.
-- **Source:** `runs/analysis/2026-11-02/inverse_q40/result.json`, `docs/validation/2026-11-02_pareto_inverse.md`, section 3 (cap 31493 W/m2; answer theta1 = 11.965, theta2 = 7.115; recovery 0.34515, interval 0.34506 to 0.34523; q_peak 31470, interval 31450 to 31490 W/m2; P(q <= cap) 0.972). `PENDING: confirmation run` `inlet2r-374dad241f` (submitted 2026-11-02 11:52 UTC; result and C2 verdict from `analysis.confirm`).
+- **Source:** `runs/analysis/2026-11-02/inverse_q40/result.json`, `runs/analysis/2026-11-02/confirm/confirm.json`, `runs/confirm/inlet2r-374dad241f/result.json`, `docs/validation/2026-11-02_pareto_inverse.md`, section 3 (cap 31493 W/m2; answer theta1 = 11.965, theta2 = 7.115; predicted recovery 0.34515, interval 0.34506 to 0.34523, SU2 0.34513, inside; predicted q_peak 31470, interval 31450 to 31490 W/m2, SU2 31462, inside; C2 pass; refit shrinks the predictive std by 10 and 8 percent).
 - **Speaker notes:** The cap is set from the pool before the answer is known. The check passes if the confirmation run falls inside the predicted interval; a miss is documented and explained.
 
 ### S20. Design maps over the box (33:30, 1.5 min)
@@ -213,15 +213,15 @@ Backup slides B1 to B6 follow S24 and are not timed.
 
 - **Message:** The model is laminar, sub-scale and two-dimensional with two variables, and the corner of the box that does not converge limits what the front means.
 - **Figure or table:** List of limits, each with its consequence for the Pareto front.
-- **Source:** `runs/dev/2026-11-01_inlet_grid_study_ef03/README.md` (12/14 divergence); `runs/dev/2026-11-01_numerics/README.md` (leading-edge wall temperature); turbulence sensitivity: `runs/dev/2026-11-01_turbulence_sensitivity_SA/README.md` (Spalart-Allmaras at 8/8 and 12/12, development runs, labeled a sensitivity bound).
+- **Source:** `runs/dev/2026-11-01_inlet_grid_study_ef03/README.md` (12/14 divergence); `runs/dev/2026-11-01_numerics/README.md` (leading-edge wall temperature); turbulence sensitivity: `runs/sensitivity/` and `docs/validation/2026-11-02_sa_sensitivity.md` (Spalart-Allmaras at 8/8 and 12/12 on Colab, a sensitivity bound).
 - **Speaker notes:** A full-scale vehicle at lower altitude would be turbulent, and the talk does not claim a turbulent result. Objective values near sharp leading edges are excluded by construction, not because they were checked.
 
 ### S23. What is still to be recorded (38:30, 1.5 min)
 
-- **Message:** The official validation batch, the fault matrix, the turbulence sensitivity, the 92-point pool, the replay and the Pareto analysis are recorded; the confirmation run is what remains.
+- **Message:** The official validation batch, the fault matrix, the turbulence sensitivity on Colab, the 92-point pool, the replay, the Pareto analysis and the confirmation run are all recorded; nothing on the talk's list is pending.
 - **Figure or table:** Status table: done, running, pending, each with its record.
-- **Source:** `docs/validation/2026-11-01_report.md` (development runs); `docs/validation/2026-11-01_colab_records.md` (official validation batch: V3, V4m, V4e metrics form, X1, and the two 12/14 failures); `docs/faults/fault_matrix.md` (fault injection, run without SU2). Done rows added on 2026-11-02: `docs/validation/2026-11-01_colab_records.md` (92 of 92 pool points converged, 0 failures), `docs/validation/2026-11-02_replay.md`, `docs/validation/2026-11-02_pareto_inverse.md`. Pending row: `PENDING: confirmation run` (`inlet2r-374dad241f`, in the Drive queue since 2026-11-02 11:52 UTC).
-- **Speaker notes:** Each pending item has a named batch or an explicit note that none is assigned yet. The talk claims nothing beyond what the records show on the day.
+- **Source:** `docs/validation/2026-11-01_report.md` (development runs); `docs/validation/2026-11-01_colab_records.md` (official validation batch: V3, V4m, V4e metrics form, X1, and the two 12/14 failures); `docs/faults/fault_matrix.md` (fault injection, run without SU2). Done rows added on 2026-11-02: `docs/validation/2026-11-01_colab_records.md` (92 of 92 pool points converged, 0 failures), `docs/validation/2026-11-02_replay.md`, `docs/validation/2026-11-02_pareto_inverse.md`. Confirmation run: `runs/confirm/inlet2r-374dad241f/`, `runs/analysis/2026-11-02/confirm/confirm.json` (C2 pass). Spalart-Allmaras on Colab: `runs/sensitivity/`, `docs/validation/2026-11-02_sa_sensitivity.md`.
+- **Speaker notes:** Every item on the list has a record in the repository. The talk claims nothing beyond what those records show.
 
 ---
 
@@ -242,7 +242,7 @@ Backup slides B1 to B6 follow S24 and are not timed.
 
 - **Message:** Laminar is the model for this sub-scale condition; a Spalart-Allmaras sensitivity run shows what a turbulent layer would change and is labeled as a bound, not a result.
 - **Figure or table:** Bar chart of both objectives at 8/8 and 12/12, laminar against Spalart-Allmaras (numbers in the record's table).
-- **Source:** `runs/dev/2026-11-01_turbulence_sensitivity_SA/README.md`: Spalart-Allmaras at 8/8 (medium and fine) and 12/12 (medium), development runs on the container. Peak heating 2.5 to 2.6 times laminar, throat recovery 0.857 against 0.909 at 8/8, wall y+ median 2.3 (medium) and 1.7 (fine); a sensitivity bound, not a validated turbulent prediction.
+- **Source:** `runs/sensitivity/` (Colab, tag sensitivity, solver RANS_SA: 8/8 medium inlet2r-1731bdea74, 8/8 fine inlet2r-8a09596911, 12/12 medium inlet2r-d7e3815b57) and `docs/validation/2026-11-02_sa_sensitivity.md`; the development runs in `runs/dev/2026-11-01_turbulence_sensitivity_SA/README.md` give the same values to every printed digit. Peak heating 2.5 to 2.6 times laminar, throat recovery 0.857 against 0.909 at 8/8, wall y+ median 2.3 (medium) and 1.7 (fine) from the development runs; a sensitivity bound, not a validated turbulent prediction.
 - **Speaker notes:** The SA run has no transition model and y+ above 1, so it bounds the effect rather than predicting it. The trade-off keeps its direction; the heating level does not.
 
 ### B2. Wall boundary condition (fidelity question: is the wall really at 300 K?)

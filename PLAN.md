@@ -289,6 +289,14 @@ numerics and validation work to be done on Day 1 instead of Days 2 to 4.
   8/8 fine `inlet2r-8a09596911`, 12/12 medium `inlet2r-d7e3815b57` (same points as runs/dev). The
   queue now holds these three and the confirmation case `inlet2r-374dad241f`; the worker must run
   main at or after dbb23c0.
+- 2026-11-02 16:00 UTC: Colab back (worker colab-a83ef64abf32). All four jobs converged and were ingested
+  with digest checks. C2 PASS: confirmation run inlet2r-374dad241f gives recovery 0.34513 (predicted
+  0.34515, interval 0.34506 to 0.34523) and q_peak 31462 W/m2 (predicted 31470, interval 31450 to
+  31490); refit shrinks the predictive std by 10 and 8 percent (`runs/analysis/2026-11-02/confirm/`).
+  Spalart-Allmaras on Colab (`runs/sensitivity/`, `docs/validation/2026-11-02_sa_sensitivity.md`):
+  peak heating 2.59 / 2.61 / 2.52 times laminar at 8/8 medium, 8/8 fine, 12/12 medium; identical to the
+  container development runs to every printed digit. Task 5 acceptance met; nothing on the talk's
+  list is pending.
 - Transfer integrity: a Haiku agent retyping base64 altered 2 of 4 result files (one mixed the
   fields of two records). The worker now writes a sha256 digest next to every result and failure
   (back-filled at start-up) and ingest refuses a text that does not match it. The 16 pool and
