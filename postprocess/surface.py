@@ -120,12 +120,18 @@ def _mostly_on_surface(points, data, tol=ON_SURFACE_TOL):
 
 
 def _split_inlet(out, geometry):
-    """body -> body_ramp1 / body_ramp2 at x = X1; cowl -> cowl_inner / cowl_outer, both from the lip."""
+    """body -> body_ramp1 / body_ramp2 at x = X1 (and body_ramp3 at x = X2 for the three-ramp inlet,
+    whose geometry has X2); cowl -> cowl_inner / cowl_outer, both from the lip."""
     X1 = geometry["X1"]
     if "body" in out:
         x = out["body"]["x"]
         out["body_ramp1"] = _subset(out["body"], x < X1 - 1e-9)
-        out["body_ramp2"] = _subset(out["body"], x >= X1 - 1e-9)
+        if "X2" in geometry:
+            X2 = geometry["X2"]
+            out["body_ramp2"] = _subset(out["body"], (x >= X1 - 1e-9) & (x < X2 - 1e-9))
+            out["body_ramp3"] = _subset(out["body"], x >= X2 - 1e-9)
+        else:
+            out["body_ramp2"] = _subset(out["body"], x >= X1 - 1e-9)
     if "cowl" in out:
         P, E = np.array(geometry["P"]), np.array(geometry["E_cowl"])
         axis = (E - P) / np.linalg.norm(E - P)

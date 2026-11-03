@@ -17,7 +17,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from cases.config import render
-from geometry import cylinder, inlet, wedge
+from geometry import cylinder, inlet, inlet3r, wedge
 from geometry.structured import mesh_bbox, mesh_fingerprint
 
 REPO = Path(__file__).resolve().parent.parent
@@ -28,7 +28,7 @@ FIRST_CELL_TOL = 0.10
 MAX_GROWTH = 1.25
 MAX_ASPECT = 5000.0
 
-BUILDERS = {"wedge": wedge.build, "inlet2r": inlet.build, "cylinder": cylinder.build}
+BUILDERS = {"wedge": wedge.build, "inlet2r": inlet.build, "inlet3r": inlet3r.build, "cylinder": cylinder.build}
 
 
 class StageError(ValueError):
@@ -56,8 +56,9 @@ def requested_first_cell(params):
     family, level = params["family"], params.get("mesh_level", "medium")
     if family == "wedge":
         return {"body": wedge.sizes(level)["d0"]}
-    if family == "inlet2r":
-        d0 = inlet.sizes(level)["d0"]
+    if family in ("inlet2r", "inlet3r"):
+        # inlet3r: d0 x 0.6 (gate 5 over the Task 9 envelope)
+        d0 = (inlet3r if family == "inlet3r" else inlet).sizes(level)["d0"]
         return {"body": d0, "cowl": d0}
     if family == "cylinder":
         return {"wall": cylinder.LEVELS[level][0]}

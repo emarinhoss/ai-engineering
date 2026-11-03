@@ -42,6 +42,10 @@ argument true over the whole envelope.
   P. Cowl, duct (L_D = 0.05 m), throat plane and the external cowl angle follow inlet2r.
 - Mesh: inlet2r's eight blocks plus one column for ramp 3 (ten blocks), same spacing rules, same
   mesh-quality gate. Levels coarse, medium, fine as in inlet2r; the pool uses medium.
+- First-cell height 0.6 times inlet2r's (12 um at medium). Reason, found while writing gate 5
+  before any run: with 20 um the wall-cell Reynolds number reaches 77.6 at the envelope corner
+  (28 km, Mach 4.5, 27 deg, 300 K), above the gate's 50; with 12 um it is at most 46.6. V5c checks
+  this mesh.
 
 ## 4. Gates (`physics/gates.py`, family inlet3r)
 

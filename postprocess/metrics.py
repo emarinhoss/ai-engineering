@@ -10,13 +10,19 @@ the plane, unit normal n = duct axis and mass flux phi = rho (u n_x + v n_y):
 with p0 = p (1 + 0.2 M^2)^3.5 and pi_NS the normal-shock total pressure ratio (1 for M <= 1).
 Heating: peak of q (into the wall) on body_ramp2 and the heat load on it, both without nodes
 within 2 mm of the throat plane; the peak on cowl_inner without the first 2 mm from the lip.
-Euler runs have no heat flux: those fields are None. Wedge and cylinder report what applies.
+Three-ramp inlet (family inlet3r, Task 9): the same definitions, with the heating window on the last
+ramp, body_ramp3 (x >= X2).
+Euler runs have no heat flux: those fields are None. For an Euler run of inlet3r, q_peak_lf_W_m2
+is the low-fidelity peak heating of Task 9: Eckert's flat-plate relation at every node of the same
+window, with the Euler wall state (M, T, p) as the edge state and the arc length from the leading
+edge as x. Wedge and cylinder report what applies.
 """
 import math
 from pathlib import Path
 
 import numpy as np
 
+from physics.heating import eckert_flat_plate
 from physics.shock import normal
 from postprocess import history, surface
 from postprocess.tecplot import read_tecplot_ascii
@@ -91,16 +97,35 @@ def _inlet_recovery(case, surf, geometry, fs):
     return out
 
 
+def last_ramp(geometry):
+    """Marker of the ramp that ends at the throat: body_ramp3 for inlet3r (geometry has X2), else body_ramp2."""
+    return "body_ramp3" if "X2" in geometry else "body_ramp2"
+
+
 def ramp2_window(surf, geometry):
-    """Body nodes of ramp 2 that the heating objective uses: x >= X1, nodes within 2 mm of the
-    throat plane left out. Also used for the heat-flux profiles of Task 4c (analysis/profiles.py)."""
+    """Body nodes of the last ramp that the heating objective uses (ramp 2 of inlet2r: x >= X1; ramp 3
+    of inlet3r: x >= X2), nodes within 2 mm of the throat plane left out. Also used for the heat-flux
+    profiles of Task 4c (analysis/profiles.py)."""
     theta = math.radians(geometry["theta_t_deg"])
     n = np.array([math.cos(theta), math.sin(theta)])
-    body = surf["body_ramp2"]
+    body = surf[last_ramp(geometry)]
     dist_to_throat = np.abs((body["x"] - geometry["E_body"][0]) * n[0]
                             + (body["y"] - geometry["E_body"][1]) * n[1])
     keep = dist_to_throat > EXCLUDE_M
     return {k: v[keep] for k, v in body.items()}
+
+
+def eckert_window(surf, geometry, T_wall):
+    """Low-fidelity heat flux on the heating window of inlet3r: (x, q) with q from eckert_flat_plate at
+    every node, edge state = the (Euler) wall state, and the flat-plate length = distance along the
+    body from the leading edge O: |C1 - O| + |C2 - C1| + |node - C2|. (The marker's own arc length
+    "s" restarts at C2, so it is not used.)"""
+    w = ramp2_window(surf, geometry)
+    C1 = np.array([geometry["X1"], geometry["X1"] * math.tan(math.radians(geometry["theta1_deg"]))])
+    C2 = np.array(geometry["C2"])
+    s_le = np.linalg.norm(C1) + np.linalg.norm(C2 - C1) + np.hypot(w["x"] - C2[0], w["y"] - C2[1])
+    q = np.array([eckert_flat_plate(M, T, p, T_wall, s) for M, T, p, s in zip(w["M"], w["T"], w["p"], s_le)])
+    return w["x"], q
 
 
 def _inlet_heating(surf, geometry):
@@ -162,14 +187,18 @@ def compute(case_dir):
     notes = []
     out = {"p0_inf_Pa": fs["p0"]}
 
-    if family == "inlet2r":
-        _require(surf, "outlet_duct", "body_ramp2", "cowl_inner")
+    if family in ("inlet2r", "inlet3r"):
+        _require(surf, "outlet_duct", last_ramp(geometry), "cowl_inner")
         out.update(_inlet_recovery(case, surf, geometry, fs))
         if euler:
             out.update(q_peak_W_m2=None, x_q_peak_m=None, q_peak_cowl_W_m2=None,
                        heat_load_body_W_per_m=None)
             notes.append("EULER run: heat-flux metrics not computed")
-        elif "q" not in surf["body_ramp2"]:
+            if family == "inlet3r":
+                x, q = eckert_window(surf, geometry, float(params.get("T_wall_K", 300.0)))
+                out.update(q_peak_lf_W_m2=float(q.max()), x_q_peak_lf_m=float(x[int(np.argmax(q))]))
+                notes.append("q_peak_lf_W_m2: Eckert flat plate on the Euler wall state (Task 9 low fidelity)")
+        elif "q" not in surf[last_ramp(geometry)]:
             raise ValueError("NAVIER_STOKES run but surface_flow.dat has no Heat_Flux column")
         else:
             out.update(_inlet_heating(surf, geometry))
