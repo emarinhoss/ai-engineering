@@ -33,7 +33,7 @@ quantitative claim is either backed by a record named in the Source line or mark
 | 6. What failed, limits, next steps | 6 | 5 | 5 | S21 to S23 |
 | 7. Discussion (outside the 40 minutes) | - | about 20 | 20 | S24 |
 
-Backup slides B1 to B8 follow S24 and are not timed.
+Backup slides B1 to B9 follow S24 and are not timed.
 
 ---
 
@@ -136,7 +136,7 @@ Backup slides B1 to B8 follow S24 and are not timed.
 - **Message:** The agent reads the queue through a typed tool and answers from flag files and result records; it chose no sampling point.
 - **Figure or table:** The `list_results` output from the first live call, reproduced from the transcript (ten rows, all pending at that time).
 - **Source:** `docs/transcripts/2026-11-01_first_mcp_call.md`. **Deviation:** a transcript, not a `runs/` record; the claim is limited to what the tool returned.
-- **Speaker notes:** This is a convenience layer over validated tools, and the transcript shows what the tool read and what it did not choose. Anything stronger rests on the Task 6 transcripts and injected faults, which have not been run yet.
+- **Speaker notes:** This is a convenience layer over validated tools, and the transcript shows what the tool read and what it did not choose. The faults injected through real SU2 (B9) found two gaps in the worker, both now guarded.
 
 ---
 
@@ -223,9 +223,9 @@ Backup slides B1 to B8 follow S24 and are not timed.
 
 ### S23. What is still to be recorded (38:30, 1.5 min)
 
-- **Message:** The official validation batch, the fault matrix, the turbulence sensitivity on Colab, the 92-point pool, the replay, the Pareto analysis and the confirmation run are all recorded; nothing on the talk's list is pending.
+- **Message:** The official validation batch, the fault matrix, the turbulence sensitivity on Colab, the 92-point pool, the replay, the Pareto analysis, the confirmation run and the faults through real SU2 are all recorded; nothing on the talk's list is pending.
 - **Figure or table:** Status table: done, running, pending, each with its record.
-- **Source:** `docs/validation/2026-11-01_report.md` (development runs); `docs/validation/2026-11-01_colab_records.md` (official validation batch: V3, V4m, V4e metrics form, X1, and the two 12/14 failures); `docs/faults/fault_matrix.md` (fault injection, run without SU2). Done rows added on 2026-11-02: `docs/validation/2026-11-01_colab_records.md` (92 of 92 pool points converged, 0 failures), `docs/validation/2026-11-02_replay.md`, `docs/validation/2026-11-02_pareto_inverse.md`. Confirmation run: `runs/confirm/inlet2r-374dad241f/`, `runs/analysis/2026-11-02/confirm/confirm.json` (C2 pass). Spalart-Allmaras on Colab: `runs/sensitivity/`, `docs/validation/2026-11-02_sa_sensitivity.md`.
+- **Source:** `docs/validation/2026-11-01_report.md` (development runs); `docs/validation/2026-11-01_colab_records.md` (official validation batch: V3, V4m, V4e metrics form, X1, and the two 12/14 failures); `docs/faults/fault_matrix.md` (fault injection, run without SU2); `docs/faults/real_fault_matrix.md` (faults through real SU2, 2026-11-03). Done rows added on 2026-11-02: `docs/validation/2026-11-01_colab_records.md` (92 of 92 pool points converged, 0 failures), `docs/validation/2026-11-02_replay.md`, `docs/validation/2026-11-02_pareto_inverse.md`. Confirmation run: `runs/confirm/inlet2r-374dad241f/`, `runs/analysis/2026-11-02/confirm/confirm.json` (C2 pass). Spalart-Allmaras on Colab: `runs/sensitivity/`, `docs/validation/2026-11-02_sa_sensitivity.md`.
 - **Speaker notes:** Every item on the list has a record in the repository. The talk claims nothing beyond what those records show.
 
 ---
@@ -235,7 +235,7 @@ Backup slides B1 to B8 follow S24 and are not timed.
 ### S24. Questions, and where the answers are (40:00 onward, about 20 min)
 
 - **Message:** The discussion is open, and the backup slides answer the fidelity questions.
-- **Figure or table:** Index of B1 to B8.
+- **Figure or table:** Index of B1 to B9.
 - **Source:** none (no number).
 - **Speaker notes:** Start with the limit that matters to the person asking, then open the matching backup slide. Do not quote a number that is not on a slide.
 
@@ -298,3 +298,11 @@ Backup slides B1 to B8 follow S24 and are not timed.
 - **Figure or table:** `docs/validation/2026-11-02_operator.png` (four held-out profiles with both models, and the error distributions), with a short table of medians.
 - **Source:** `runs/profiles/2026-11-02/operator_compare.csv`, `docs/validation/2026-11-02_operator_profiles.md`, `runs/profiles/2026-11-02/pca_floor.csv`; settings fixed in `docs/specs/task4c_operator_profiles.md` before the run. Median relative L2 error with all data: 0.11 percent (FNO) against 0.32 percent (PCA plus GP); peak error 0.013 percent (scalar GP), 0.092 percent (FNO), 0.18 percent (PCA plus GP); fit 1030 s against 4.7 s.
 - **Speaker notes:** All 92 pool cases were re-run on the container to recover the wall profiles, and every one matched its Colab record. The PCA plus GP error equals its three-component truncation floor, so the FNO margin comes from the 99.9 percent rule fixed in the spec; more components were not run. For the design objective the scalar GP remains the right tool; the operator adds where the peak sits and the shape of the whole load.
+
+### B9. Faults through real SU2 (question: what happens when the solver fails?)
+
+- **Message:** With the real SU2 binary the worker recorded every solver failure; the injected faults also found two gaps in the worker, both now guarded, and showed that SU2 silently accepts a tangled mesh.
+- **Figure or table:** Table of the real-SU2 faults R1 to R9: what was injected, what happened, what was done.
+- **Source:** `docs/faults/real_fault_matrix.md` (generated from `runs/faults/2026-11-03/*/observed.json`), `docs/faults/README.md`, spec `docs/specs/task6b_real_su2_faults.md`, guards tested in `tests/test_worker_guards.py`. R9: 4347 iterations, 450 s, last history line equal to `runs/dev/2026-11-01_inlet_grid_study_ef03/12_14_medium`; R7b heat load 4887.01 against 4718.25 W/m.
+- **Speaker notes:** The solver failures we planned for were all recorded with a reason, including a kill and a timeout. The useful results were the ones nobody planned: a hand-made job skipped the gates and burned a solver slot, and a dead worker left its solver running so a restart put two in one folder; both are now guarded and tested. The tangled-mesh run shows why the mesh gate exists: SU2 converged to a wrong answer without a warning.
+

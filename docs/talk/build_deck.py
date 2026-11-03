@@ -841,7 +841,7 @@ def body_s11(slide):
              ["Ingest refuses a result that does not match the sha256 digest the worker wrote next to it.",
               "2026-11-02: the worker on Colab restarted with --retry-reason config_mismatch and re-ran the 63 refused pool "
               "jobs without repeating the 29 finished ones; all 92 pool points converged.",
-              "F8: a killed worker is found by its stale heartbeat and the job is re-run once (local test with the fake solver)."],
+              "F8: a killed worker is found by its stale heartbeat and the job is re-run once (fake solver; with real SU2, R4 in B9)."],
              size=14, bullets=True, space_after=8)
 
 
@@ -1023,6 +1023,7 @@ def body_s23(slide):
             ["Official validation batch: V3, V4m, V4e metrics form, X1, two 12/14 failures", "done",
              "docs/validation/2026-11-01_colab_records.md"],
             ["Fault matrix F1 to F10b (run without SU2)", "done", "docs/faults/fault_matrix.md"],
+            ["Faults through real SU2, R0 to R9 (two guards added)", "done", "docs/faults/real_fault_matrix.md"],
             ["Turbulence sensitivity (Spalart-Allmaras)", "done (development, a bound)",
              "runs/dev/2026-11-01_turbulence_sensitivity_SA/README.md"],
             ["92-point pool", "done: 92 of 92 converged, 0 failures", "docs/validation/2026-11-01_colab_records.md"],
@@ -1032,7 +1033,7 @@ def body_s23(slide):
              "runs/confirm/, runs/analysis/2026-11-02/confirm/confirm.json"],
             ["Spalart-Allmaras sensitivity on Colab (3 runs)", "done (a bound, no transition model)",
              "runs/sensitivity/, docs/validation/2026-11-02_sa_sensitivity.md"]]
-    add_table(slide, LM, CT, [4.6, 3.9, 3.6], rows, size=13, row_h=0.5)
+    add_table(slide, LM, CT, [4.3, 3.4, 4.4], rows, size=11, row_h=0.4)
 
 
 def body_s24(slide):
@@ -1040,7 +1041,8 @@ def body_s24(slide):
              "B3  Mesh convergence (is the mesh converged?)", "B4  The numerics story (why this scheme?)",
              "B5  Design-box trim (why 24 degrees?)", "B6  Full validation table (what did not run?)",
              "B7  Neural-network ensemble against the GP (why a GP?)",
-             "B8  Neural operator for the heat-flux profile (why not the whole profile?)"]
+             "B8  Neural operator for the heat-flux profile (why not the whole profile?)",
+             "B9  Faults through real SU2 (what if the solver fails?)"]
     text_box(slide, LM, CT + 0.2, CW, 4.2, items, size=20, space_after=10)
 
 
@@ -1173,6 +1175,21 @@ def body_b8(slide):
              size=12, bullets=True, space_after=5)
 
 
+def body_b9(slide):
+    rows = [["Fault (real SU2 v8.2.0, real worker)", "What happened", "Action"],
+            ["R2 SU2 killed mid-run (SIGKILL)", "2-failed, nonzero_exit, exit code -9, partial history kept", "none needed"],
+            ["R3 worker timeout 10 s", "2-failed, timeout; no SU2 process left", "none needed"],
+            ["R4 runtime restart (worker and SU2 killed)", "job re-run once; metrics equal the control run", "none needed"],
+            ["R6 unknown key reaches SU2 (gate bypassed)", "SU2 stops in 0.01 s; gate F4 refuses it before staging", "none needed"],
+            ["R7b tangled cell reaches SU2 (gate bypassed)", "SU2 converges, no warning; heat load +3.6%", "only the mesh gate stops it"],
+            ["R5 worker dies, SU2 keeps running", "restarted worker ran a 2nd SU2 in the same folder", "guard: stop leftover solvers (R5g: 1 at once)"],
+            ["R9 hand-made 12/14 job, gates never ran", "SU2 diverged after 4347 iterations (450 s), as the record", "guard: worker re-checks gates (R9g: refused, 0 s)"],
+            ["R1 CFL 1e4 in the template", "converged; heat load within 7e-6 of the control", "no fault on this case"]]
+    add_table(slide, LM, CT, [4.0, 4.6, 3.5], rows, size=11, row_h=0.45, flag=())
+    caption(slide, LM, CT + 4.2, CW, "Matrix generated from runs/faults/2026-11-03/*/observed.json: docs/faults/real_fault_matrix.md. "
+            "Control: wedge, coarse mesh, laminar, 672 iterations in 21 s. R7b and R9 were added after the first results.", lines=2)
+
+
 def body_b6(slide):
     head = ["Check", "Type", "Verdict", "Records"]
     left = [head,
@@ -1262,7 +1279,8 @@ SLIDES = {
     "S23": {"title": "What is still to be recorded", "body": body_s23,
             "sources": [REPORT, "docs/validation/2026-11-01_colab_records.md", "docs/faults/fault_matrix.md",
                         "docs/validation/2026-11-02_replay.md", "docs/validation/2026-11-02_pareto_inverse.md",
-                        "runs/analysis/2026-11-02/confirm/confirm.json", "docs/validation/2026-11-02_sa_sensitivity.md"]},
+                        "runs/analysis/2026-11-02/confirm/confirm.json", "docs/validation/2026-11-02_sa_sensitivity.md",
+                        "docs/faults/real_fault_matrix.md"]},
     "S24": {"title": "Questions, and where the answers are", "body": body_s24, "sources": []},
     "B1": {"title": "Backup: turbulence model", "body": body_b1,
            "sources": ["runs/sensitivity/results.csv", "docs/validation/2026-11-02_sa_sensitivity.md",
@@ -1286,6 +1304,9 @@ SLIDES = {
     "B8": {"title": "Backup: a neural operator for the heat-flux profile", "body": body_b8,
            "sources": ["runs/profiles/2026-11-02/operator_compare.csv", "docs/validation/2026-11-02_operator_profiles.md",
                        "runs/profiles/2026-11-02/pca_floor.csv", "docs/specs/task4c_operator_profiles.md"]},
+    "B9": {"title": "Backup: faults through real SU2", "body": body_b9,
+           "sources": ["docs/faults/real_fault_matrix.md", "docs/faults/README.md", "runs/faults/2026-11-03/",
+                       "docs/specs/task6b_real_su2_faults.md", "tests/test_worker_guards.py"]},
 }
 
 # deck order: (section divider title, sub line, slide ids)
@@ -1297,7 +1318,7 @@ SECTIONS = [
     ("5. Results, Pareto front, inverse query", "7 minutes", ["S17", "S18", "S19", "S20"]),
     ("6. What failed, limits, next steps", "5 minutes", ["S21", "S22", "S23"]),
     ("Discussion", "about 20 minutes, outside the 40", ["S24"]),
-    ("Backup", "not timed", ["B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8"]),
+    ("Backup", "not timed", ["B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8", "B9"]),
 ]
 
 

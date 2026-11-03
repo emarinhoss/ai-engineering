@@ -98,7 +98,7 @@ a{color:var(--ink)}
 <tr><td>Sat 7, Sun 8</td><td>C. Surrogates and active learning</td><td>17 to 23, 23a</td><td>Explain the GP interval, the hypervolume regret and the honest replay verdict.</td></tr>
 <tr><td>Mon 9</td><td>D. Automation layer</td><td>24 to 28</td><td>Draw the pipeline from memory and name what caught each of the five failures.</td></tr>
 <tr><td>Tue 10, Wed 11</td><td>Deck run-through</td><td>all</td><td>Present the deck to the wall with a timer. Open the record behind any number you are not sure of.</td></tr>
-<tr><td>Thu 12</td><td>Question drill and rest</td><td>all</td><td>Answer the 58 interview questions below aloud. Stop early.</td></tr>
+<tr><td>Thu 12</td><td>Question drill and rest</td><td>all</td><td>Answer the 60 interview questions below aloud. Stop early.</td></tr>
 </table></div>
 
 <!-- ============================ A ============================ -->
@@ -801,7 +801,7 @@ K = 3:\ 0.32\ \%, \qquad K = 5:\ 0.12\ \%, \qquad K = 8:\ 0.056\ \%
 </section>
 
 <section class="entry" id="c25"><header><input type="checkbox" data-id="c25" id="k25"><h3><label for="k25">25. The five physics gates before any CFD</label></h3></header>
-<p class="where"><b>In the talk:</b> S10. <b>Record:</b> <code>physics/gates.py</code>, <code>docs/specs/01_interfaces.md</code> "Physics gates", <code>runs/dev/2026-11-01_inlet_box_diagnostics/README.md</code>.</p>
+<p class="where"><b>In the talk:</b> S10, B9. <b>Record:</b> <code>physics/gates.py</code>, <code>docs/specs/01_interfaces.md</code> "Physics gates", <code>runs/dev/2026-11-01_inlet_box_diagnostics/README.md</code>.</p>
 <span class="lbl">Definition</span>
 <p>A gate is a pure function of the parameters that refuses a design before a mesh exists. Each message names the gate, the value and the limit.</p>
 <ul>
@@ -816,6 +816,7 @@ K = 3:\ 0.32\ \%, \qquad K = 5:\ 0.12\ \%, \qquad K = 8:\ 0.056\ \%
 <span class="lbl">Interview questions</span>
 <details><summary>Is gate 4 physics or a patch?</summary><p class="a">It is a design-space definition made on recorded evidence: the laminar solution at 26 degrees total turning does not reach a steady state. Whether the real flow separates there is not claimed. The gate keeps the pool inside the region where the model is trustworthy, and the front is stated to hold inside that region only.</p></details>
 <details><summary>Why a 2 degree margin on detachment?</summary><p class="a">theta_max is an inviscid value; the boundary layer displaces the ramp and the shock is slightly stronger. Two degrees keeps the shocks attached with margin without excluding useful designs: theta_max is 38.8 degrees at Mach 4 and the box ends at 12.</p></details>
+<details><summary>Does the worker trust the job file?</summary><p class="a">Not any more. The fault run through real SU2 showed that the gates ran only in the MCP layer: a job file written by hand for 12/14 reached SU2, which diverged after 4347 iterations (450 s), exactly as the recorded failure (R9). The worker now checks the gates again before it builds anything, and the same job is refused in 0 s (R9g, <code>docs/faults/real_fault_matrix.md</code>). It also regenerates mesh and config from the parameters and compares their hashes, so an edited job file is refused too (R8).</p></details>
 <span class="lbl">Self-check</span>
 <details><summary>Which gate removed the 12/14 corner?</summary><p class="a">Gate 4, total turning at most 24 degrees.</p></details>
 <details><summary>How many pool points did it exclude?</summary><p class="a">4 of 96.</p></details>
@@ -836,7 +837,7 @@ K = 3:\ 0.32\ \%, \qquad K = 5:\ 0.12\ \%, \qquad K = 8:\ 0.056\ \%
 </section>
 
 <section class="entry" id="c27"><header><input type="checkbox" data-id="c27" id="k27"><h3><label for="k27">27. The Drive queue and the restart-safe worker</label></h3></header>
-<p class="where"><b>In the talk:</b> S11. <b>Record:</b> <code>worker/run_worker.py</code>, <code>docs/specs/01_interfaces.md</code>, <code>docs/transcripts/2026-11-02_worker_restart_and_retry.md</code>, fault matrix row F8.</p>
+<p class="where"><b>In the talk:</b> S11, B9. <b>Record:</b> <code>worker/run_worker.py</code>, <code>docs/specs/01_interfaces.md</code>, <code>docs/transcripts/2026-11-02_worker_restart_and_retry.md</code>, fault matrix row F8, <code>docs/faults/real_fault_matrix.md</code>.</p>
 <span class="lbl">Definition</span>
 <p>Colab cannot accept inbound connections, so jobs travel through a shared Drive folder. A job is one JSON file in <code>jobs/</code> with the parameters, the code commit, the config hash and the mesh fingerprint. The worker polls the folder every 20 seconds, writes flag files in <code>runs/&lt;id&gt;/status/</code> (0-seen, 1-running, 2-done, 2-failed), rebuilds the mesh, checks the fingerprint and hash, runs SU2 with mpirun, and writes result.json with its digest. A heartbeat file is updated while a case runs. After a restart, a 1-running job whose heartbeat is older than 10 minutes is re-run once; finished jobs are never repeated.</p>
 <span class="lbl">Worked example (the transcript of 2 November)</span>
@@ -844,6 +845,7 @@ K = 3:\ 0.32\ \%, \qquad K = 5:\ 0.12\ \%, \qquad K = 8:\ 0.056\ \%
 <span class="lbl">Interview questions</span>
 <details><summary>What happens if Colab disconnects in the middle of a run?</summary><p class="a">The flag stays at 1-running and the heartbeat stops. The next worker sees a stale heartbeat, re-runs the job once and writes a fresh result. Finished runs have 2-done flags and are not touched. Fault F8 tests this with a killed process.</p></details>
 <details><summary>Why does the worker rebuild the mesh instead of downloading it?</summary><p class="a">The mesh is a few megabytes and deterministic from the parameters at a given commit. Rebuilding keeps the job file at 600 bytes and gives an independent check: if the fingerprints differ, the two sides are not running the same geometry and SU2 is not started.</p></details>
+<details><summary>What happens if the worker dies but SU2 keeps running?</summary><p class="a">SU2 runs in its own session, so that a timeout can kill its whole process group, and it survives a worker that dies alone. In the real-SU2 fault run (R5) a restarted worker then started a second SU2 in the same folder; the record was still right, because both runs were the same deterministic case, but two writers in one folder is unsafe. The worker now stops any process still running in the run folder before it starts a job (R5g: one solver at a time). A Colab runtime restart ends every process, so this needs the Python process to die alone, for example from an out-of-memory kill.</p></details>
 <span class="lbl">Self-check</span>
 <details><summary>Name the four flag files.</summary><p class="a">0-seen, 1-running, 2-done, 2-failed.</p></details>
 <details><summary>After how long is a running job's heartbeat considered stale?</summary><p class="a">10 minutes by default.</p></details>
@@ -870,11 +872,11 @@ K = 3:\ 0.32\ \%, \qquad K = 5:\ 0.12\ \%, \qquad K = 8:\ 0.056\ \%
 <li>Section 4, S13 to S16: 9 minutes.</li>
 <li>Section 5, S17 to S20: 7 minutes.</li>
 <li>Section 6, S21 to S23: 5 minutes.</li>
-<li>Backup B1 to B8: open only on a question.</li>
+<li>Backup B1 to B9: open only on a question.</li>
 </ul>
 
 <h2 id="d6">Question drill (Thu 12)</h2>
-<p>Answer the 58 interview questions in this plan aloud, in a random order, without opening the answers. For each one, name the slide you would open. Stop after two hours. Do not change the deck on the last day; a wrong late edit costs more than a known small flaw.</p>
+<p>Answer the 60 interview questions in this plan aloud, in a random order, without opening the answers. For each one, name the slide you would open. Stop after two hours. Do not change the deck on the last day; a wrong late edit costs more than a known small flaw.</p>
 
 <h2>References</h2>
 <ul class="ref">

@@ -45,8 +45,70 @@ crash, F7 timeout, F8 killed worker, F9 tampered job, F10a and F10b tampered res
 checks that this test exists and quotes the worker's message.
 
 The faults are injected through the fake solver `tests/fake_su2.py` and by monkeypatching, so the
-matrix shows that the gates and records work. It does not show that real SU2 fails in these ways;
-only F2 and F5 have a real counterpart (below).
+matrix shows that the gates and records work. The same chain was then run with the real SU2 binary
+(next section).
+
+## Faults through real SU2 (2026-11-03)
+
+Spec: `docs/specs/task6b_real_su2_faults.md`. Harness: `python -m analysis.real_faults` (the real
+worker on a local queue folder, the SU2 v8.2.0 release binary, one process). Matrix, generated from
+the run folders: [real_fault_matrix.md](real_fault_matrix.md). Records: `runs/faults/2026-11-03/`.
+Control case R0: wedge, coarse mesh, laminar; 672 iterations in 21 s; body heat load 4718.25 W/m.
+
+What held, as designed:
+
+- R2, SU2 killed by SIGKILL mid-run: 2-failed, reason nonzero_exit, exit code -9, 55 history rows kept.
+- R3, timeout 10 s: 2-failed, reason timeout; no SU2 process left afterwards.
+- R4, worker and SU2 both killed (a runtime restart): the job was re-run once, and its metrics equal
+  R0's exactly.
+- R6, unknown key reaching SU2 (gate F4 bypassed): SU2 itself stops in 0.01 s with exit code 1 and
+  names the line. Gate F4 refuses the same key before staging, so a bad key never takes a Colab slot.
+- R8, edited mesh fingerprint: mesh_mismatch, SU2 never started.
+
+What did not behave as the spec expected, and what was done:
+
+1. **R9, a job file not made by create_case reached SU2.** The physics gates ran only in the MCP
+   layer (`mcp_server/queue.py`); the worker regenerates mesh and config and compares hashes, but
+   `worker.make_case.make` accepts 12/14. A job file for 12/14 written with `make` was run: SU2
+   diverged after 4347 iterations (450 s), with the last history line equal to the 2026-11-01 record
+   `runs/dev/2026-11-01_inlet_grid_study_ef03/12_14_medium` to every digit, and the worker flagged
+   2-failed, reason nonzero_exit ("SU2 has diverged (Residual > 10^20 detected)"). The record was
+   correct, but a solver slot was spent on a case a gate refuses. **Guard:** the worker checks the
+   physics gates again before it builds anything (`worker/run_worker.check_regenerated`, reason
+   `gates`; test `tests/test_worker_guards.py`). **R9g**, the same job after the guard: refused at
+   `gates` in 0 s, SU2 not started.
+2. **R5, two solvers in one folder.** When the worker process dies alone, SU2 keeps running (it is in
+   its own session so that a timeout can kill its whole process group). A restarted worker that
+   treats the job as a crash victim started a second SU2 in the same folder; at most 2 ran at once.
+   The final record was correct here (metrics equal R0), because both runs were the same
+   deterministic case, but two writers in one folder can leave mixed files. **Guard:** before it
+   runs a job, the worker stops any process whose working directory is the run folder
+   (`stop_leftover_solvers`, logged; test `tests/test_worker_guards.py`). **R5g** after the guard:
+   "stopped 1 leftover solver process(es)", at most 1 solver at once, metrics equal R0.
+   On Colab a runtime restart ends every process, so this case needs the worker to die without the
+   runtime (for example an out-of-memory kill of the Python process).
+   R5g ran with the guard in the working tree before its commit; the records say commit a731580.
+
+Findings that need no guard, reported as observed:
+
+- **R1, a bad template edit (CFL 1e4 fixed) did not diverge.** The implicit solver converged in 201
+  iterations, and the heat load differs from R0 by 7e-6 relative. The spec expected a divergence; on
+  this case there was none. R9 supplied the real divergence through the worker instead.
+- **R7, a reversed element is repaired by SU2.** SU2 printed "There has been a re-orientation of 1
+  QUADRILATERAL volume elements" and the result equals R0 to every digit. Reversed node order is not
+  a test of the mesh gate.
+- **R7b, a tangled cell is not detected by SU2.** One node moved past the opposite corner of its
+  cell: SU2 re-oriented one element, ran, converged (1078 iterations) and reported a body heat load of
+  4887.01 W/m, 3.6 percent above R0, with exit code 0 and no warning. Only the mesh-quality gate
+  (inverted cells, minimum angle) stops this, and the worker never runs a mesh it did not build and
+  check itself.
+- Every clean run prints "There has been a re-orientation of 200 LINE surface elements": SU2 flips
+  the boundary edges our mesh writer emits. It is harmless (SU2 fixes it on read) and is recorded
+  here so that nobody mistakes it for a fault.
+
+The input faults F1 and F2 were also sent through the live MCP tool `validate_config` from Claude
+Code (`docs/transcripts/2026-11-03_mcp_input_faults.md`). The first three calls left out the
+required `tag` field, a real mistake by the agent, and the schema refused them and named the field.
 
 ## One real failure, end to end
 

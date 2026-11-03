@@ -1,0 +1,23 @@
+{
+ "fault": "R5g",
+ "flags": [
+  "0-seen",
+  "1-running",
+  "2-done"
+ ],
+ "injected": "worker killed alone after 50 history rows (SU2 left running); new worker with --stale-minutes 0",
+ "case_id": "wedge-3672a0fec4",
+ "orphan_solvers": 1,
+ "max_solvers_in_folder_at_once": 1,
+ "samples": 44,
+ "worker_exit": 0,
+ "iterations": 672,
+ "metrics_equal_R0": true,
+ "error": null,
+ "worker_output": [
+  "[2026-11-03T06:20:04+00:00] wedge-3672a0fec4: regenerating mesh and config at commit a731580ea2",
+  "[2026-11-03T06:20:05+00:00] wedge-3672a0fec4: stopped 1 leftover solver process(es) still running in the run folder",
+  "[2026-11-03T06:20:05+00:00] wedge-3672a0fec4: running /tmp/claude-0/-home-user-ai-engineering/4e62754b-8c8b-5b87-a61c-cb95358da47b/scratchpad/su2dl/su2/inner/bin/SU2_CFD",
+  "[2026-11-03T06:20:26+00:00] wedge-3672a0fec4: done, convergence converged"
+ ]
+}

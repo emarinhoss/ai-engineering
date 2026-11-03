@@ -7,6 +7,9 @@ jobs/<batch_id>.batch.json (many jobs in one file, each entry handled like a job
 runs/<case_id>/ (written here). Layout and flags: docs/specs/01_interfaces.md, "Job directory".
 Pending = a job file with no status/2-done and no status/2-failed flag in its run directory. A job
 flagged 1-running whose heartbeat is older than --stale-minutes is a crash victim and is re-run.
+Before a job runs, the worker checks the physics gates again (a job file not made by create_case
+has not been checked) and stops any process still running in its run folder (an SU2 left behind
+by a worker that died alone).
 The worker never deletes or moves anything; re-running a job overwrites its outputs. The one
 exception is `--retry-reason R`: at start-up, a job flagged 2-failed whose error.json has reason R
 gets its 2-failed and 1-running flags removed (error.json is kept as error.retried.json), so it is
@@ -28,6 +31,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from geometry.structured import mesh_bbox, mesh_fingerprint
+from physics import gates
 from worker.make_case import REPO, StageError, case_id, config_sha256, git_commit, make, sha256_file
 from worker.run_case import run
 
@@ -210,6 +214,11 @@ def check_regenerated(job, run_dir):
     try:
         if case_id(job["params"]) != job["case_id"]:
             return "bad_job", "case_id does not match the sha256 of the params in the job file"
+        # The MCP layer checks the gates before staging; a job file made any other way has not been
+        # checked (real-SU2 fault R9, 2026-11-03: a hand-made 12/14 job reached SU2). Check again here.
+        errors = gates.check(job["params"])
+        if errors:
+            return "gates", errors
         make(job["params"], run_dir)
     except (StageError, ValueError, NotImplementedError) as err:
         return "make_error", str(err)
@@ -323,6 +332,9 @@ def process(job, args):
     if problem:
         return fail(queue, run_dir, job, *problem)
 
+    left = stop_leftover_solvers(run_dir)
+    if left:
+        say(f"{cid}: stopped {left} leftover solver process(es) still running in the run folder")
     set_flag(run_dir, "1-running")
     say(f"{cid}: running {args.su2_cmd}")
     box, timeout_s = run_with_heartbeat(run_dir, job, args)
@@ -344,6 +356,21 @@ def process(job, args):
 
 
 # ---------------------------------------------------------------- the loop
+
+def stop_leftover_solvers(run_dir):
+    """Kill processes still running in run_dir (an SU2 left behind by a worker that died alone;
+    real-SU2 fault R5, 2026-11-03: two solvers wrote in one folder). Returns how many were stopped.
+    Linux only: without /proc nothing is found."""
+    stopped = 0
+    for proc in Path("/proc").glob("[0-9]*"):
+        try:
+            if int(proc.name) != os.getpid() and Path(os.readlink(proc / "cwd")) == Path(run_dir).resolve():
+                os.kill(int(proc.name), signal.SIGKILL)
+                stopped += 1
+        except (OSError, ValueError):
+            pass
+    return stopped
+
 
 def write_worker_heartbeat(args, current_case=None):
     folder = Path(args.queue) / "worker"

@@ -325,6 +325,13 @@ numerics and validation work to be done on Day 1 instead of Days 2 to 4.
   1030 s against 4.7 s; the scalar GP predicts the peak 7 times better than the FNO. Post-hoc diagnostic: the PCA plus
   GP error equals its 3-component truncation floor; more components were not run. Backup slide B8 (41 slides),
   study-guide entry 23a.
+- 2026-11-03 07:00 UTC: Task 6b, faults through real SU2 (Éder's request, before the harder case). Spec
+  `docs/specs/task6b_real_su2_faults.md`; harness `analysis/real_faults.py`; matrix `docs/faults/real_fault_matrix.md`.
+  Kill, timeout and runtime restart recorded as designed; unknown key stopped by SU2 in 0.01 s. Found: a hand-made 12/14
+  job skipped the gates and diverged in SU2 after 4347 iterations (identical to the 2026-11-01 record), and a worker
+  killed alone left its SU2 running so the restart ran two in one folder. Guards: the worker re-checks the gates and
+  stops leftover solvers (tests in `tests/test_worker_guards.py`); R9g and R5g confirm. SU2 accepts a tangled mesh
+  silently (+3.6 percent heat load). Backup slide B9 (42 slides). Next: option 1, the six-variable inlet.
 - Transfer integrity: a Haiku agent retyping base64 altered 2 of 4 result files (one mixed the
   fields of two records). The worker now writes a sha256 digest next to every result and failure
   (back-filled at start-up) and ingest refuses a text that does not match it. The 16 pool and
