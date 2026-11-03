@@ -54,6 +54,37 @@ def staged(case_dir, tmp):
     return params
 
 
+def offwall_plateaus(tmp, params, geometry, fs, ref):
+    """Added after the first V5a result (2026-11-03): the wall-node Mach of an Euler run carries the
+    numerical entropy layer of the sharp leading edge (wall T 354 K against 276 K on ramp 1), so the
+    plateau is also measured off the wall, as V1 does: volume nodes 1 to 3 mm from the ramp, over the
+    middle 60 percent of it, and at least 1 mm below the shock that starts at the ramp's first corner."""
+    from geometry.inlet3r import design_points
+    from postprocess.tecplot import read_tecplot_ascii
+    g = design_points(*[params[f"theta{i}_deg"] for i in (1, 2, 3)])
+    cols = read_tecplot_ascii(tmp / "flow.dat")["data"]
+    x, y = np.asarray(cols["x"]), np.asarray(cols["y"])
+    p, mach = np.asarray(cols["Pressure"]), np.asarray(cols["Mach"])
+    starts = [np.zeros(2), np.asarray(g["C1"]), np.asarray(g["C2"])]
+    ends = [np.asarray(g["C1"]), np.asarray(g["C2"]), np.asarray(g["P"])]
+    shock = [g["beta1"], g["beta2_abs"], g["beta3_abs"]]
+    wall = np.cumsum([math.radians(params[f"theta{i}_deg"]) for i in (1, 2, 3)])
+    rows, ok = [], True
+    for i in range(3):
+        a, b = starts[i][0], ends[i][0]
+        n = np.array([-math.sin(wall[i]), math.cos(wall[i])])
+        d = (x - starts[i][0]) * n[0] + (y - starts[i][1]) * n[1]            # distance from the ramp line
+        y_shock = starts[i][1] + (x - starts[i][0]) * math.tan(shock[i])
+        keep = ((x > a + 0.2 * (b - a)) & (x < b - 0.2 * (b - a)) & (d >= 1e-3) & (d <= 3e-3)
+                & (y < y_shock - 1e-3))
+        pr, m = float(p[keep].mean() / fs["p"]), float(mach[keep].mean())
+        e_p, e_m = pr / ref[i]["p_ratio"] - 1, m / ref[i]["M"] - 1
+        ok &= abs(e_p) <= TOL_RATIO and abs(e_m) <= TOL_RATIO
+        rows.append({"ramp": i + 1, "nodes": int(keep.sum()), "p_ratio": pr, "p_ratio_ref": ref[i]["p_ratio"],
+                     "p_rel": e_p, "M": m, "M_ref": ref[i]["M"], "M_rel": e_m})
+    return {"pass": bool(ok), "ramps": rows}
+
+
 def v5a_v5b(case_dir):
     with tempfile.TemporaryDirectory() as t:
         tmp = Path(t)
@@ -64,6 +95,7 @@ def v5a_v5b(case_dir):
         surf = surface.load(tmp)
         fs = surface.freestream(params)
         shock1 = oblique_shock_check(tmp, th[0], mach=4.0, stations=(0.04, 0.08), p_inf=fs["p"])
+        offwall = offwall_plateaus(tmp, params, geometry, fs, ref)
     body = surf["body"]
     corners = [0.0, geometry["X1"], geometry["X2"], geometry["P"][0]]
     rows, ok = [], abs(shock1["beta_deg"] - shock1["beta_ref_deg"]) <= TOL_BETA_DEG
@@ -77,10 +109,17 @@ def v5a_v5b(case_dir):
                      "p_rel": e_p, "M": mach, "M_ref": ref[i]["M"], "M_rel": e_m})
     rec = json.loads((case_dir / "result.json").read_text())["metrics"]["recovery_total"]
     return {"pass": bool(ok), "shock1": {"beta_deg": shock1["beta_deg"], "beta_ref_deg": shock1["beta_ref_deg"]},
-            "ramps": rows}, {"recovery_total": rec, "analytic": rec_ref, "rel": rec / rec_ref - 1}
+            "ramps": rows, "offwall": offwall,
+            "wall_T_ramp1_K": float(body["T"][(body["x"] > 0.2 * corners[1]) & (body["x"] < 0.8 * corners[1])].mean()),
+            "chain_T_ramp1_K": fs["T"] * oblique(4.0, math.radians(th[0]))["T_ratio"]}, {"recovery_total": rec, "analytic": rec_ref, "rel": rec / rec_ref - 1}
 
 
 def v5c(medium, fine):
+    for case in (medium, fine):                       # a run without metrics fails the check
+        if not (case / "result.json").exists():
+            part = json.loads((case / "result_partial.json").read_text())
+            return {"pass": False, "failed_run": case.name, "status": part.get("history_summary", {}).get("status"),
+                    "iterations": part["run"]["iterations"], "exit_code": part["run"]["exit_code"]}
     m = json.loads((medium / "result.json").read_text())["metrics"]
     f = json.loads((fine / "result.json").read_text())["metrics"]
     out, ok = {}, True
@@ -133,12 +172,21 @@ def main():
         L.append(f"| V5a ramp {r['ramp']} plateau (hard, 2%) | {verdict(abs(r['p_rel']) <= TOL_RATIO and abs(r['M_rel']) <= TOL_RATIO)} | "
                  f"p/p_inf {r['p_ratio']:.4f} against {r['p_ratio_ref']:.4f} ({r['p_rel']:+.2%}); "
                  f"M {r['M']:.4f} against {r['M_ref']:.4f} ({r['M_rel']:+.2%}); {r['nodes']} nodes |")
+    for r in a5["offwall"]["ramps"]:
+        L.append(f"| V5a' ramp {r['ramp']} plateau off the wall (added after the first result; 2%) | "
+                 f"{verdict(abs(r['p_rel']) <= TOL_RATIO and abs(r['M_rel']) <= TOL_RATIO)} | "
+                 f"p/p_inf {r['p_ratio']:.4f} against {r['p_ratio_ref']:.4f} ({r['p_rel']:+.2%}); "
+                 f"M {r['M']:.4f} against {r['M_ref']:.4f} ({r['M_rel']:+.2%}); {r['nodes']} volume nodes |")
     L.append(f"| V5b Euler recovery_total (report) | REPORT | {b5['recovery_total']:.5f} against analytic "
              f"{b5['analytic']:.5f} ({b5['rel']:+.2%}) |")
-    for k in GRID_TOL:
-        c = c5[k]
-        L.append(f"| V5c {k}, medium against fine (hard, {c['tol']:.0%}) | {verdict(abs(c['rel']) <= c['tol'])} | "
-                 f"{c['medium']:.6g} against {c['fine']:.6g} ({c['rel']:+.2%}) |")
+    if "failed_run" in c5:
+        L.append(f"| V5c medium against fine (hard) | FAIL | run {c5['failed_run']} has no metrics: status "
+                 f"{c5['status']}, exit code {c5['exit_code']} after {c5['iterations']} iterations |")
+    else:
+        for k in GRID_TOL:
+            c = c5[k]
+            L.append(f"| V5c {k}, medium against fine (hard, {c['tol']:.0%}) | {verdict(abs(c['rel']) <= c['tol'])} | "
+                     f"{c['medium']:.6g} against {c['fine']:.6g} ({c['rel']:+.2%}) |")
     L.append(f"| V5d Oswatitsch equal strength (hard, 1e-3) | {verdict(d5['pass'])} | normal Mach numbers "
              f"{', '.join(f'{m:.6f}' for m in d5['M_n'])} (spread {d5['spread']:.1e}) at angles "
              f"{', '.join(f'{x:.3f}' for x in d5['angles_deg'])} deg |")
