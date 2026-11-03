@@ -1039,7 +1039,8 @@ def body_s24(slide):
     items = ["B1  Turbulence model (why laminar?)", "B2  Wall boundary condition (is the wall really at 300 K?)",
              "B3  Mesh convergence (is the mesh converged?)", "B4  The numerics story (why this scheme?)",
              "B5  Design-box trim (why 24 degrees?)", "B6  Full validation table (what did not run?)",
-             "B7  Neural-network ensemble against the GP (why a GP?)"]
+             "B7  Neural-network ensemble against the GP (why a GP?)",
+             "B8  Neural operator for the heat-flux profile (why not the whole profile?)"]
     text_box(slide, LM, CT + 0.2, CW, 4.2, items, size=20, space_after=10)
 
 
@@ -1152,6 +1153,26 @@ def body_b7(slide):
     add_table(slide, LM, CT + h + 0.5, [5.2, 3.2, 3.7], rows, size=11, row_h=0.28)
 
 
+def body_b8(slide):
+    fig = "docs/validation/2026-11-02_operator.png"
+    w, h = add_figure(slide, fig, LM, CT, 6.9, 3.6)
+    caption(slide, LM, CT + h + 0.04, 6.9, "Figure: " + fig + ". Top: four held-out designs (5-fold CV), SU2 in black; "
+            "bottom: error over held-out designs, all data and 24 runs. Record: runs/profiles/2026-11-02/operator_compare.csv.", lines=3)
+    x = LM + 7.1
+    rows = [["Median, held out", "PCA + GP", "FNO", "scalar GP"],
+            ["Profile L2 error, all data", "0.32%", "0.11%", "-"],
+            ["Profile L2 error, 24 runs", "0.36%", "0.15%", "-"],
+            ["Peak error, all data", "0.18%", "0.092%", "0.013%"],
+            ["Points in 90% band, all data", "0.11", "0.93", "-"],
+            ["Fit time per split, all data", "4.7 s", "1030 s", "-"]]
+    add_table(slide, x, CT, [2.3, 0.95, 0.85, 0.93], rows, size=10, row_h=0.36)
+    text_box(slide, x, CT + 2.35, CW - 7.1, 2.4,
+             ["92 of 92 re-runs matched their Colab records; 128-point profiles along ramp 2.",
+              "Post hoc: the PCA + GP error equals its 3-component truncation floor; more components were not run.",
+              "For the objective q_peak, the scalar GP stays the right tool."],
+             size=12, bullets=True, space_after=5)
+
+
 def body_b6(slide):
     head = ["Check", "Type", "Verdict", "Records"]
     left = [head,
@@ -1262,6 +1283,9 @@ SLIDES = {
     "B7": {"title": "Backup: a neural-network ensemble against the GP", "body": body_b7,
            "sources": ["runs/replay/2026-11-02_mlp/replay.csv", "docs/validation/2026-11-02_replay_mlp.md",
                        "docs/validation/2026-11-02_replay_gp_vs_mlp.md", "docs/specs/task4b_mlp_ensemble.md"]},
+    "B8": {"title": "Backup: a neural operator for the heat-flux profile", "body": body_b8,
+           "sources": ["runs/profiles/2026-11-02/operator_compare.csv", "docs/validation/2026-11-02_operator_profiles.md",
+                       "runs/profiles/2026-11-02/pca_floor.csv", "docs/specs/task4c_operator_profiles.md"]},
 }
 
 # deck order: (section divider title, sub line, slide ids)
@@ -1273,7 +1297,7 @@ SECTIONS = [
     ("5. Results, Pareto front, inverse query", "7 minutes", ["S17", "S18", "S19", "S20"]),
     ("6. What failed, limits, next steps", "5 minutes", ["S21", "S22", "S23"]),
     ("Discussion", "about 20 minutes, outside the 40", ["S24"]),
-    ("Backup", "not timed", ["B1", "B2", "B3", "B4", "B5", "B6", "B7"]),
+    ("Backup", "not timed", ["B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8"]),
 ]
 
 

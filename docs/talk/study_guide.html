@@ -84,7 +84,7 @@ a{color:var(--ink)}
 <p>Every number in this plan comes from a file in the repository. The file name is given with the number. Do not quote a number in the talk that is not on a slide.</p>
 </div>
 
-<div class="progress"><span id="pcount">0 of 28 ticked</span><div class="bar"><span id="pbar"></span></div></div>
+<div class="progress"><span id="pcount">0 of 29 ticked</span><div class="bar"><span id="pbar"></span></div></div>
 
 <nav class="days" aria-label="Study days">
 <a href="#d1">Tue 3</a><a href="#d1">Wed 4</a><a href="#d2">Thu 5</a><a href="#d2">Fri 6</a><a href="#d3">Sat 7</a><a href="#d3">Sun 8</a><a href="#d4">Mon 9</a><a href="#d5">Tue 10</a><a href="#d5">Wed 11</a><a href="#d6">Thu 12</a>
@@ -95,10 +95,10 @@ a{color:var(--ink)}
 <tr><th>Day</th><th>Block</th><th>Entries</th><th>Goal at the end of the day</th></tr>
 <tr><td>Tue 3, Wed 4</td><td>A. Compressible flow and heating</td><td>1 to 9</td><td>Derive the 8/8 recovery by hand. Explain why the flow is laminar and what the turbulent bound shows.</td></tr>
 <tr><td>Thu 5, Fri 6</td><td>B. CFD numerics and validation</td><td>10 to 16</td><td>Explain every line of the tolerance table and why the carbuncle failure was kept.</td></tr>
-<tr><td>Sat 7, Sun 8</td><td>C. Surrogates and active learning</td><td>17 to 23</td><td>Explain the GP interval, the hypervolume regret and the honest replay verdict.</td></tr>
+<tr><td>Sat 7, Sun 8</td><td>C. Surrogates and active learning</td><td>17 to 23, 23a</td><td>Explain the GP interval, the hypervolume regret and the honest replay verdict.</td></tr>
 <tr><td>Mon 9</td><td>D. Automation layer</td><td>24 to 28</td><td>Draw the pipeline from memory and name what caught each of the five failures.</td></tr>
 <tr><td>Tue 10, Wed 11</td><td>Deck run-through</td><td>all</td><td>Present the deck to the wall with a timer. Open the record behind any number you are not sure of.</td></tr>
-<tr><td>Thu 12</td><td>Question drill and rest</td><td>all</td><td>Answer the 56 interview questions below aloud. Stop early.</td></tr>
+<tr><td>Thu 12</td><td>Question drill and rest</td><td>all</td><td>Answer the 58 interview questions below aloud. Stop early.</td></tr>
 </table></div>
 
 <!-- ============================ A ============================ -->
@@ -743,6 +743,45 @@ q_{\mathrm{peak}} &= 31\,470\ \mathrm{W/m^2} \quad [31\,450,\ 31\,490]_{90\%}, \
 <details><summary>What is the predicted recovery at the answer, and its interval?</summary><p class=\"a\">\(0.34515\), interval \([0.34506,\ 0.34523]\).</p></details>
 </section>
 
+<section class="entry" id="c29"><header><input type="checkbox" data-id="c29" id="k29"><h3><label for="k29">23a. A neural operator for the heat-flux profile</label></h3></header>
+<p class="where"><b>In the talk:</b> B8. <b>Record:</b> <code>runs/profiles/2026-11-02/operator_compare.csv</code>, <code>docs/validation/2026-11-02_operator_profiles.md</code>, <code>runs/profiles/2026-11-02/pca_floor.csv</code>, spec <code>docs/specs/task4c_operator_profiles.md</code>.</p>
+<span class="lbl">Definition</span>
+<p>A scalar surrogate predicts one number per design. An operator model predicts a whole function per design. Here the function is the wall heat flux along ramp 2, on 128 points in the coordinate \(s \in [0, 1]\) of the objective window. The Fourier neural operator (FNO) lifts the inputs to 32 channels. Each of its four layers adds two terms: a pointwise linear map, and a convolution done in Fourier space on the lowest 16 modes only. The baseline projects the profiles onto their principal components and fits one GP to each coefficient. Both models predict \(\log q\). The scalar GP on \(\log q_{\mathrm{peak}}\) is the third model, for the peak only.</p>
+<span class="lbl">Key relations</span>
+<div class="eq">\[
+\begin{aligned}
+v_{l+1}(s) &= \sigma\!\left( W_l\, v_l(s) + \mathcal{F}^{-1}\!\left[ R_l(k)\, \mathcal{F}[v_l](k) \right]\!(s) \right), \qquad k \le 16 \\
+\log q(s) &\approx \mu(s) + \sigma_y \sum_{j=1}^{K} c_j(\theta_1, \theta_2)\, v_j(s), \qquad K = \text{fewest components for } 99.9\ \% \text{ of variance} \\
+\varepsilon_{L2} &= \frac{\lVert \hat{q} - q \rVert_2}{\lVert q \rVert_2}
+\end{aligned}
+\]</div>
+<span class="lbl">Worked example (operator_compare.csv, pca_floor.csv)</span>
+<p>Data: 92 pool cases re-run on the container; all 92 match their Colab records (largest difference \(3.3 \times 10^{-16}\)). The window is 110 to 218 mm long, so the grid step is</p>
+\[
+\Delta x = \frac{L}{127} = \frac{110\ \mathrm{mm}}{127} \text{ to } \frac{218\ \mathrm{mm}}{127} = 0.86 \text{ to } 1.72\ \mathrm{mm}
+\]
+<p>Medians over held-out designs, 5-fold cross-validation (all data):</p>
+\[
+\begin{aligned}
+\varepsilon_{L2}: &\quad \text{FNO } 0.11\ \%, \quad \text{PCA + GP } 0.32\ \%, \quad \frac{0.32}{0.11} \approx 3 \\
+\text{peak error}: &\quad \text{scalar GP } 0.013\ \%, \quad \text{FNO } 0.092\ \%, \quad \text{PCA + GP } 0.18\ \% \\
+\text{points in the 90\% band}: &\quad \text{FNO } 0.93, \quad \text{PCA + GP } 0.11 \\
+\text{fit time}: &\quad \text{FNO } 1030\ \mathrm{s}, \quad \text{PCA + GP } 4.7\ \mathrm{s}
+\end{aligned}
+\]
+<p>With 24 training runs: \(\varepsilon_{L2}\) is 0.15 percent (FNO) against 0.36 percent (PCA + GP). The 99.9 percent rule kept \(K = 3\). The post-hoc truncation floor, the best projection onto \(K\) training components, is</p>
+\[
+K = 3:\ 0.32\ \%, \qquad K = 5:\ 0.12\ \%, \qquad K = 8:\ 0.056\ \%
+\]
+<p>The \(K = 3\) floor equals the PCA + GP error. So all of the baseline error is truncation, and its GPs are almost exact. A baseline with more components was not run, because the rule was fixed before the results.</p>
+<span class="lbl">Interview questions</span>
+<details><summary>The FNO won. Why does the design still use the scalar GP?</summary><p class="a">The design objective is the peak, and the scalar GP predicts the peak 7 times better than the FNO (median 0.013 against 0.092 percent). It models exactly the quantity asked; the operator spends its capacity on the whole curve. The operator adds where the peak sits and the shape of the load, which a scalar cannot give.</p></details>
+<details><summary>Is the FNO really better than PCA + GP?</summary><p class="a">Under the settings fixed in the spec, yes: about 3 times lower profile error, lower for 91 of 92 designs. But the baseline error equals its 3-component truncation floor, and the floor at 5 components equals the FNO error. So the margin comes from the 99.9 percent rule, not from a limit of GP regression. I did not re-run the baseline with more components after seeing the result; that would be tuning the comparison.</p></details>
+<span class="lbl">Self-check</span>
+<details><summary>Why is the PCA + GP band too narrow (11 percent coverage)?</summary><p class="a">Its variance carries only the coefficient uncertainty. The error of the dropped components is not in the band.</p></details>
+<details><summary>What does the FNO band cover with all data, and with 24 runs?</summary><p class="a">93 percent and 81 percent of points; the target is 90.</p></details>
+</section>
+
 <!-- ============================ D ============================ -->
 <h2 id="d4">D. The automation layer</h2>
 <p>Free: the Model Context Protocol specification (modelcontextprotocol.io), the pydantic documentation. In the repository: <code>docs/specs/01_interfaces.md</code>, <code>docs/faults/README.md</code>, <code>docs/transcripts/</code>.</p>
@@ -831,11 +870,11 @@ q_{\mathrm{peak}} &= 31\,470\ \mathrm{W/m^2} \quad [31\,450,\ 31\,490]_{90\%}, \
 <li>Section 4, S13 to S16: 9 minutes.</li>
 <li>Section 5, S17 to S20: 7 minutes.</li>
 <li>Section 6, S21 to S23: 5 minutes.</li>
-<li>Backup B1 to B7: open only on a question.</li>
+<li>Backup B1 to B8: open only on a question.</li>
 </ul>
 
 <h2 id="d6">Question drill (Thu 12)</h2>
-<p>Answer the 56 interview questions in this plan aloud, in a random order, without opening the answers. For each one, name the slide you would open. Stop after two hours. Do not change the deck on the last day; a wrong late edit costs more than a known small flaw.</p>
+<p>Answer the 58 interview questions in this plan aloud, in a random order, without opening the answers. For each one, name the slide you would open. Stop after two hours. Do not change the deck on the last day; a wrong late edit costs more than a known small flaw.</p>
 
 <h2>References</h2>
 <ul class="ref">
@@ -856,6 +895,7 @@ q_{\mathrm{peak}} &= 31\,470\ \mathrm{W/m^2} \quad [31\,450,\ 31\,490]_{90\%}, \
 <li>Rasmussen, C. E., and Williams, C. K. I., <em>Gaussian Processes for Machine Learning</em>, MIT Press, 2006, free at gaussianprocess.org/gpml: chapters 2, 4, 5.</li>
 <li>Jones, D. R., Schonlau, M., and Welch, W. J., "Efficient global optimization of expensive black-box functions", J. Global Optimization 13, 1998.</li>
 <li>Emmerich, M., Deutz, A., and Klinkenberg, J. W., "Hypervolume-based expected improvement", IEEE CEC 2011.</li>
+<li>Li, Z., Kovachki, N., Azizzadenesheli, K., Liu, B., Bhattacharya, K., Stuart, A., and Anandkumar, A., "Fourier neural operator for parametric partial differential equations", ICLR 2021, arXiv:2010.08895 (free).</li>
 <li>McKay, M. D., Beckman, R. J., and Conover, W. J., "A comparison of three methods for selecting values of input variables", Technometrics 21, 1979.</li>
 <li>Model Context Protocol specification, modelcontextprotocol.io (free).</li>
 <li>Repository: <code>docs/specs/00_decisions.md</code>, <code>docs/specs/01_interfaces.md</code>, <code>docs/validation/</code>, <code>docs/faults/README.md</code>, <code>docs/talk/outline.md</code>.</li>

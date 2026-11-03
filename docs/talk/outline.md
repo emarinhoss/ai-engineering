@@ -33,7 +33,7 @@ quantitative claim is either backed by a record named in the Source line or mark
 | 6. What failed, limits, next steps | 6 | 5 | 5 | S21 to S23 |
 | 7. Discussion (outside the 40 minutes) | - | about 20 | 20 | S24 |
 
-Backup slides B1 to B7 follow S24 and are not timed.
+Backup slides B1 to B8 follow S24 and are not timed.
 
 ---
 
@@ -235,7 +235,7 @@ Backup slides B1 to B7 follow S24 and are not timed.
 ### S24. Questions, and where the answers are (40:00 onward, about 20 min)
 
 - **Message:** The discussion is open, and the backup slides answer the fidelity questions.
-- **Figure or table:** Index of B1 to B7.
+- **Figure or table:** Index of B1 to B8.
 - **Source:** none (no number).
 - **Speaker notes:** Start with the limit that matters to the person asking, then open the matching backup slide. Do not quote a number that is not on a slide.
 
@@ -290,4 +290,11 @@ Backup slides B1 to B7 follow S24 and are not timed.
 - **Message:** On the same replay, an ensemble of five neural networks is 2 to 10 times less accurate than the GP on held-out designs, but EHVI driven by it still finds the whole front by 32 runs.
 - **Figure or table:** `docs/validation/2026-11-02_replay_gp_vs_mlp.png` (GP solid, ensemble dashed: held-out error of both objectives and hypervolume regret against n), with a short table at n = 48.
 - **Source:** `runs/replay/2026-11-02_mlp/replay.csv`, `docs/validation/2026-11-02_replay_mlp.md`, `docs/validation/2026-11-02_replay_gp_vs_mlp.md`; settings fixed in `docs/specs/task4b_mlp_ensemble.md` before the run. Recovery RMSE at n = 48: 1.27e-4 against 2.26e-5 (lhs); zero regret for EHVI in 10 of 10 seeds from n = 32 with both models; EHVI step 6.2 s against 1.7 s.
-- **Speaker notes:** The ensemble was not tuned, by rule, so this answers the question for this problem only: with two inputs and under fifty smooth samples, the GP's prior wins on accuracy and cost. The front-finding result does not depend on the surrogate, which is the stronger statement. A neural operator would be tested next on the 92 wall heat-flux profiles, where the output is a function.
+- **Speaker notes:** The ensemble was not tuned, by rule, so this answers the question for this problem only: with two inputs and under fifty smooth samples, the GP's prior wins on accuracy and cost. The front-finding result does not depend on the surrogate, which is the stronger statement. B8 tests a neural operator on the 92 wall heat-flux profiles, where the output is a function.
+
+### B8. A neural operator for the heat-flux profile (question: why not predict the whole profile?)
+
+- **Message:** A Fourier neural operator predicts the whole ramp-2 heat-flux profile about 3 times more accurately than PCA plus GP, but the scalar GP still predicts the peak 7 times better than the operator.
+- **Figure or table:** `docs/validation/2026-11-02_operator.png` (four held-out profiles with both models, and the error distributions), with a short table of medians.
+- **Source:** `runs/profiles/2026-11-02/operator_compare.csv`, `docs/validation/2026-11-02_operator_profiles.md`, `runs/profiles/2026-11-02/pca_floor.csv`; settings fixed in `docs/specs/task4c_operator_profiles.md` before the run. Median relative L2 error with all data: 0.11 percent (FNO) against 0.32 percent (PCA plus GP); peak error 0.013 percent (scalar GP), 0.092 percent (FNO), 0.18 percent (PCA plus GP); fit 1030 s against 4.7 s.
+- **Speaker notes:** All 92 pool cases were re-run on the container to recover the wall profiles, and every one matched its Colab record. The PCA plus GP error equals its three-component truncation floor, so the FNO margin comes from the 99.9 percent rule fixed in the spec; more components were not run. For the design objective the scalar GP remains the right tool; the operator adds where the peak sits and the shape of the whole load.

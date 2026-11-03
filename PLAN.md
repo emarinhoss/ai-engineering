@@ -314,6 +314,17 @@ numerics and validation work to be done on Day 1 instead of Days 2 to 4.
   EHVI with the ensemble still reaches zero regret at n = 32 in 10 of 10 seeds. Backup slide B7 added (39 slides).
   A Fourier neural operator was not attempted: no field data set large enough; a 1D operator on the 92 wall
   heat-flux profiles is the next candidate.
+- 2026-11-02 20:30 UTC: S1a added at Éder's request (the five questions the study answers, why they matter, where the
+  loop applies, labeled as not run); section 1 to 5 minutes and section 3 to 5 to keep 40 (40 slides).
+- 2026-11-03: Task 4c (Éder's request: the 1D operator on the heat-flux profiles). Spec fixed before any run
+  (`docs/specs/task4c_operator_profiles.md`). All 92 pool cases re-run on the container; all match their Colab
+  records (largest difference 3.3e-16). Process slip: 20 check rows were lost when a git branch switch replaced the
+  tracked file under the running driver; those 20 cases were re-run and `main` is now updated by a refspec push.
+  Result (`docs/validation/2026-11-02_operator_profiles.md`): FNO profile error about 3 times lower than PCA plus GP
+  in both regimes (0.11 against 0.32 percent, median, 5-fold CV), FNO band coverage 0.93 (PCA plus GP 0.11), fit
+  1030 s against 4.7 s; the scalar GP predicts the peak 7 times better than the FNO. Post-hoc diagnostic: the PCA plus
+  GP error equals its 3-component truncation floor; more components were not run. Backup slide B8 (41 slides),
+  study-guide entry 23a.
 - Transfer integrity: a Haiku agent retyping base64 altered 2 of 4 result files (one mixed the
   fields of two records). The worker now writes a sha256 digest next to every result and failure
   (back-filled at start-up) and ingest refuses a text that does not match it. The 16 pool and
