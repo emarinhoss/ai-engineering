@@ -1,14 +1,14 @@
-"""The talk deck builds, has 41 slides, and every figure it places exists."""
+"""The talk deck builds, has 42 slides, and every figure it places exists."""
 from pptx import Presentation
 
 from docs.talk import build_deck
 
 
-def test_deck_builds_with_41_slides_and_existing_figures(tmp_path):
+def test_deck_builds_with_42_slides_and_existing_figures(tmp_path):
     out = tmp_path / "deck.pptx"
     n = build_deck.build(out)
-    assert n == 41                                   # 25 talk (S1a added) + 8 backup + 8 section dividers
-    assert len(Presentation(str(out)).slides) == 41
+    assert n == 42                                   # 25 talk (S1a added) + 9 backup + 8 section dividers
+    assert len(Presentation(str(out)).slides) == 42
     assert build_deck.USED_FIGURES, "no figure was placed"
     for rel in build_deck.USED_FIGURES:
         assert (build_deck.ROOT / rel).is_file(), rel
@@ -18,7 +18,7 @@ def test_notes_come_from_the_outline_and_pending_is_visible(tmp_path):
     out = tmp_path / "deck.pptx"
     build_deck.build(out)
     outline = build_deck.read_outline()
-    assert len(outline) == 33                        # S1 to S24, S1a and B1 to B8
+    assert len(outline) == 34                        # S1 to S24, S1a and B1 to B9
     texts, notes = [], []
     for slide in Presentation(str(out)).slides:
         texts.append(" ".join(sh.text_frame.text for sh in slide.shapes if sh.has_text_frame))
