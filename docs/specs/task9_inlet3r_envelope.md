@@ -97,8 +97,13 @@ the acquisition multiplies EHVI by the predicted probability of convergence.
 
 Nominal point: 7/7/7 deg, Mach 4.0, 30 km, 300 K.
 
-- V5a (hard): Euler at the nominal point: shock angle and pressure ratio on each ramp against the
-  oblique-shock chain (`physics/shock.py`), V1 tolerances.
+- V5a (hard): Euler at the nominal point against the oblique-shock chain (`physics/shock.py`), V1
+  tolerances: the shock-1 angle by the V1 station method (`postprocess/validation.oblique_shock_check`,
+  stations at x = 0.04 and 0.08 m on ramp 1), and the wall pressure ratio and wall Mach number on each
+  of the three ramps (mean over the middle 60 percent of each ramp, 2 percent). Amended on 2026-11-03
+  before the run finished: shocks 2 and 3 converge on the lip a few millimetres apart, so their angles
+  are not measured one by one; the ramp plateaus test the same relations (each plateau follows only
+  if the shock before it has the right angle).
 - V5b (report): Euler recovery_total at the nominal point against the analytic three-shock-plus-
   normal-shock value.
 - V5c (hard): Navier-Stokes grid check at the nominal point, medium against fine: recovery_total and
