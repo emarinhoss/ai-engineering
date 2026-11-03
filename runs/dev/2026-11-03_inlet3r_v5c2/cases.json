@@ -1,0 +1,34 @@
+[
+ {
+  "name": "nominal_ns_medium_pressure_outlet",
+  "params": {
+   "family": "inlet3r",
+   "theta1_deg": 7.0,
+   "theta2_deg": 7.0,
+   "theta3_deg": 7.0,
+   "mach": 4.0,
+   "altitude_km": 30,
+   "T_wall_K": 300.0,
+   "solver": "NAVIER_STOKES",
+   "mesh_level": "medium",
+   "max_iter": 8000,
+   "tag": "v5c2"
+  }
+ },
+ {
+  "name": "nominal_ns_fine_pressure_outlet",
+  "params": {
+   "family": "inlet3r",
+   "theta1_deg": 7.0,
+   "theta2_deg": 7.0,
+   "theta3_deg": 7.0,
+   "mach": 4.0,
+   "altitude_km": 30,
+   "T_wall_K": 300.0,
+   "solver": "NAVIER_STOKES",
+   "mesh_level": "fine",
+   "max_iter": 12000,
+   "tag": "v5c2"
+  }
+ }
+]
