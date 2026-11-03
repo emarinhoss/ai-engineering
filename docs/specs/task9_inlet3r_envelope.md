@@ -157,3 +157,13 @@ elsewhere). Euler runs and inlet2r keep `MARKER_SUPERSONIC_OUTLET`. The failed f
 the V5 report; V5c is run again with this condition on both meshes, and the medium-mesh metrics are
 compared with the first medium run to show what the change does where both converged.
 
+
+## Addendum 3 (2026-11-03): NS pool failures are outflow-boundary numerics
+
+Four of the first 56 container NS pool runs diverged. One was diagnosed
+(`runs/dev/2026-11-03_pool3r_fail_diag/README.md`): flow enters the domain through the cowl side of
+the duct outlet during the start-up transient and the run diverges; with the supersonic outlet instead
+it reaches -8.3 and then drifts and breaks down near iteration 7500. Both outlet conditions fail at the
+outlet itself. The pool settings are not changed half way through; failed runs stay failed records.
+Question 3 is answered for this solver set-up, and the report states that the diagnosed failure is a
+numerical outflow-boundary failure, not an inlet operating limit.
