@@ -1,0 +1,48 @@
+{
+ "run": {
+  "started_at": "2026-11-03T18:52:39+00:00",
+  "finished_at": "2026-11-03T19:01:04+00:00",
+  "wall_time_s": 505.524946806996,
+  "iterations": 2111,
+  "exit_code": 0,
+  "timeout": false,
+  "runtime": {
+   "nproc": 4,
+   "ram_gb": 15.71
+  }
+ },
+ "solver": {
+  "name": "SU2_CFD",
+  "version": "SU2 v8.2.0 \"Harrier\", The Open-Source CFD Code",
+  "command": "/tmp/claude-0/-home-user-ai-engineering/4e62754b-8c8b-5b87-a61c-cb95358da47b/scratchpad/su2dl/su2/inner/bin/SU2_CFD case.cfg",
+  "n_cores": 1,
+  "config_sha256": "f059ead2e40c933d8b19f7424a2b2dfd64d21db7680df56401442b34cd55cd01"
+ },
+ "case_id": "inlet3r-56d524c458",
+ "history_summary": {
+  "rms_rho_log10_start": -3.470400989,
+  "rms_rho_log10_end": -10.00116661,
+  "drop_orders": 6.5307656210000005,
+  "drift_pct": {
+   "recovery_total": 0.00023166403790869427,
+   "q_peak": 2.0354139054622843e-06
+  },
+  "status": "converged",
+  "iterations": 2111
+ },
+ "metrics": {
+  "p0_inf_Pa": 73425.66756374261,
+  "recovery_throat": 0.9224525080993095,
+  "recovery_total": 0.4205941635473902,
+  "recovery_total_bulk": 0.43728731751294747,
+  "mach_throat_massavg": 2.563502967278342,
+  "capture_ratio": 0.9163632841743133,
+  "su2_avg_totalpress_Pa": 67731.70381,
+  "su2_crosscheck_pass": true,
+  "q_peak_W_m2": 13037.46,
+  "x_q_peak_m": 0.1915002,
+  "q_peak_cowl_W_m2": 81669.43,
+  "heat_load_body_W_per_m": 1412.115825736848,
+  "notes": []
+ }
+}
