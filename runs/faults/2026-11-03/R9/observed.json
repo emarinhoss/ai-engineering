@@ -1,0 +1,41 @@
+{
+ "fault": "R9",
+ "flags": [
+  "0-seen",
+  "1-running",
+  "2-failed"
+ ],
+ "injected": "job file for theta1 = 12, theta2 = 14 (gate 4 limit 24 deg) written with worker.make_case.make, not create_case",
+ "case_id": "inlet2r-ce84616ed0",
+ "config_equals_runs_dev_record": true,
+ "worker_exit": 0,
+ "wall_s": 449.5,
+ "solver_started": true,
+ "iterations": 4347,
+ "error": {
+  "at": "2026-11-03T06:25:32+00:00",
+  "case_id": "inlet2r-ce84616ed0",
+  "detail": {
+   "exit_code": 1,
+   "log_tail": [
+    "",
+    "",
+    "Error in \"void CSolver::SetResidual_RMS(const CGeometry*, const CConfig*)\": ",
+    "-------------------------------------------------------------------------",
+    "SU2 has diverged (Residual > 10^20 detected).",
+    "------------------------------ Error Exit -------------------------------",
+    "",
+    ""
+   ]
+  },
+  "reason": "nonzero_exit"
+ },
+ "log_tail": [
+  "|        4250|   13.922659|   16.204478|   16.066132|   18.369624|",
+  "|        4300|   13.504566|   15.786383|   15.648038|   17.951532|",
+  "Error in \"void CSolver::SetResidual_RMS(const CGeometry*, const CConfig*)\": ",
+  "-------------------------------------------------------------------------",
+  "SU2 has diverged (Residual > 10^20 detected).",
+  "------------------------------ Error Exit -------------------------------"
+ ]
+}

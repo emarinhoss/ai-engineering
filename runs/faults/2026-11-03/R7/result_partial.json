@@ -1,0 +1,50 @@
+{
+ "run": {
+  "started_at": "2026-11-03T06:27:31+00:00",
+  "finished_at": "2026-11-03T06:27:52+00:00",
+  "wall_time_s": 21.474634486000014,
+  "iterations": 672,
+  "exit_code": 0,
+  "timeout": false,
+  "runtime": {
+   "nproc": 4,
+   "ram_gb": 15.71
+  }
+ },
+ "solver": {
+  "name": "SU2_CFD",
+  "version": "SU2 v8.2.0 \"Harrier\", The Open-Source CFD Code",
+  "command": "/tmp/claude-0/-home-user-ai-engineering/4e62754b-8c8b-5b87-a61c-cb95358da47b/scratchpad/su2dl/su2/inner/bin/SU2_CFD case.cfg",
+  "n_cores": 1,
+  "config_sha256": "62b8e2b296b76d6a7e7f5775fff641aa675fe02d0da2e25b23bab12b8136f330"
+ },
+ "case_id": "wedge-3672a0fec4",
+ "history_summary": {
+  "rms_rho_log10_start": -2.958733596,
+  "rms_rho_log10_end": -10.0051135,
+  "drop_orders": 7.046379904,
+  "drift_pct": {
+   "recovery_total": null,
+   "q_peak": 0.0
+  },
+  "status": "converged",
+  "iterations": 672
+ },
+ "metrics": {
+  "p0_inf_Pa": 181751.31060714056,
+  "recovery_throat": null,
+  "recovery_total": null,
+  "recovery_total_bulk": null,
+  "mach_throat_massavg": null,
+  "capture_ratio": null,
+  "q_peak_W_m2": null,
+  "x_q_peak_m": null,
+  "q_peak_cowl_W_m2": null,
+  "heat_load_body_W_per_m": 4718.250879380898,
+  "su2_avg_totalpress_Pa": 0.0,
+  "su2_crosscheck_pass": null,
+  "notes": [
+   "wedge: no throat, recovery and capture not computed; no peak-heating definition (sharp leading edge), only the heat load on the body"
+  ]
+ }
+}
