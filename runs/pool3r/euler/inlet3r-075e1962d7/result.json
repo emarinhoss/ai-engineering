@@ -1,0 +1,53 @@
+{
+ "run": {
+  "started_at": "2026-11-03T17:51:02+00:00",
+  "finished_at": "2026-11-03T17:54:42+00:00",
+  "wall_time_s": 220.03115997099667,
+  "iterations": 1197,
+  "exit_code": 0,
+  "timeout": false,
+  "runtime": {
+   "nproc": 4,
+   "ram_gb": 15.71
+  }
+ },
+ "solver": {
+  "name": "SU2_CFD",
+  "version": "SU2 v8.2.0 \"Harrier\", The Open-Source CFD Code",
+  "command": "/tmp/claude-0/-home-user-ai-engineering/4e62754b-8c8b-5b87-a61c-cb95358da47b/scratchpad/su2dl/su2/inner/bin/SU2_CFD case.cfg",
+  "n_cores": 1,
+  "config_sha256": "66f04d9252fa984d2c8a7cb733512811c2a32e97c3a201c21b10d260e0746e7e"
+ },
+ "case_id": "inlet3r-075e1962d7",
+ "history_summary": {
+  "rms_rho_log10_start": -3.064732769,
+  "rms_rho_log10_end": -10.00080347,
+  "drop_orders": 6.936070700999999,
+  "drift_pct": {
+   "recovery_total": 0.0001426450770783491,
+   "q_peak": null
+  },
+  "status": "converged",
+  "iterations": 1197
+ },
+ "metrics": {
+  "p0_inf_Pa": 300136.2469728723,
+  "recovery_throat": 0.8679610398322387,
+  "recovery_total": 0.30003813093952614,
+  "recovery_total_bulk": 0.30364486414811176,
+  "mach_throat_massavg": 2.926108883677135,
+  "capture_ratio": 1.0000492673148174,
+  "su2_avg_totalpress_Pa": 260506.7119,
+  "su2_crosscheck_pass": true,
+  "q_peak_W_m2": null,
+  "x_q_peak_m": null,
+  "q_peak_cowl_W_m2": null,
+  "heat_load_body_W_per_m": null,
+  "q_peak_lf_W_m2": 25275.65107044337,
+  "x_q_peak_lf_m": 0.1600052,
+  "notes": [
+   "EULER run: heat-flux metrics not computed",
+   "q_peak_lf_W_m2: Eckert flat plate on the Euler wall state (Task 9 low fidelity)"
+  ]
+ }
+}
