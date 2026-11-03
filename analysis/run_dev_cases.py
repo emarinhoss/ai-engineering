@@ -8,6 +8,7 @@ the schema, run with worker.run_case.run, and kept as OUT/<name>/ with params.js
 mesh_quality.json, case.cfg, job.json, result.json or result_partial.json, solver_version.txt, and
 gzipped history.csv, surface_flow.dat, flow.dat and log.txt. mesh.su2 is left out: make() rebuilds it
 from params.json, and job.json holds its fingerprint.
+A case that already has OUT/<name>/result_partial.json is skipped, so the script can be restarted.
 """
 import argparse
 import gzip
@@ -64,6 +65,9 @@ def main():
     ap.add_argument("--jobs", type=int, default=3)
     a = ap.parse_args()
     cases = json.loads(Path(a.cases).read_text())
+    done = [c for c in cases if (Path(a.out) / c["name"] / "result_partial.json").exists()]
+    cases = [c for c in cases if c not in done]               # restartable: a recorded case is skipped
+    print(f"{len(cases)} cases to run, {len(done)} already recorded", flush=True)
     Path(a.out).mkdir(parents=True, exist_ok=True)
     shutil.copy(a.cases, Path(a.out) / "cases.json")
     with Pool(a.jobs) as pool:
