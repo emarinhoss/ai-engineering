@@ -49,6 +49,21 @@ def test_config_freestream_follows_altitude_and_30_km_text_is_unchanged(tmp_path
     job = make(params, tmp_path)                      # the template now reads T and p from the atmosphere
     assert recorded in (job["config_sha256"], sha256_file(tmp_path / "case.cfg"))
     markers = {m: [] for m in ("body", "cowl", "symmetry", "inlet", "top", "outlet_duct", "outlet_ext")}
-    text = render({**params, "family": "inlet3r", "altitude_km": 31.5}, {}, markers)
+    text = render({**params, "family": "inlet3r", "theta3_deg": 7.0, "altitude_km": 31.5}, {}, markers)
     T, p = ussa1976(31.5)
     assert f"FREESTREAM_TEMPERATURE= {T!r}" in text and f"FREESTREAM_PRESSURE= {p!r}" in text
+
+
+def test_inlet3r_viscous_duct_outlet_imposes_the_three_shock_pressure_only_where_subsonic():
+    markers = {m: [] for m in ("body", "cowl", "symmetry", "inlet", "top", "outlet_duct", "outlet_ext")}
+    base = {"family": "inlet3r", "theta1_deg": 7.0, "theta2_deg": 7.0, "theta3_deg": 7.0, "mach": 4.0,
+            "altitude_km": 30, "T_wall_K": 300.0, "solver": "NAVIER_STOKES"}
+    lines = [l for l in render(base, {}, markers).splitlines() if "OUTLET" in l]
+    p_back = 1197.03 * 1.9397633839844466 * (3.4949 / 1.9397633839844466) * (5.9227 / 3.4949)   # chain ratios (V5a)
+    assert lines[0] == "MARKER_SUPERSONIC_OUTLET= ( outlet_ext )"
+    assert lines[1].startswith("MARKER_OUTLET= ( outlet_duct, ") and abs(float(lines[1].split(",")[1].strip(" )")) / p_back - 1) < 1e-4
+    euler = [l for l in render({**base, "solver": "EULER"}, {}, markers).splitlines() if "OUTLET" in l]
+    assert euler == ["MARKER_SUPERSONIC_OUTLET= ( outlet_duct, outlet_ext )"]            # Euler: unchanged
+    two = {"family": "inlet2r", "theta1_deg": 8.0, "theta2_deg": 8.0, "solver": "NAVIER_STOKES"}
+    assert [l for l in render(two, {}, markers).splitlines() if "OUTLET" in l] == \
+        ["MARKER_SUPERSONIC_OUTLET= ( outlet_duct, outlet_ext )"]                          # inlet2r: unchanged

@@ -143,3 +143,17 @@ from records with the comparisons stated as measured, including a null result; t
 atmosphere, the inlet3r geometry (all three shocks through P to 1e-9 m; theta3 -> 0 reproduces
 inlet2r's lip), the gates, the low-fidelity heating, the two-level GP on a synthetic pair and the
 classifier on a synthetic set.
+
+## Addendum 2 (2026-11-03): duct outlet boundary condition for viscous inlet3r runs
+
+The first V5c attempt failed: the nominal fine-mesh laminar run diverged at iteration 4498 after its
+residual fell to about -8.3; with a CFL cap of 5 it diverged later (iteration 11017) from the same flow
+state. Volume snapshots place the onset at the corner where the body wall meets the duct outlet, in
+the subsonic part of the boundary layer, moving upstream from there
+(`runs/dev/2026-11-03_inlet3r_v5c_diag/README.md`). The duct outlet of viscous inlet3r runs is
+therefore `MARKER_OUTLET` with the back pressure p_inf times the inviscid three-shock pressure ratio
+at the flight Mach (SU2 imposes it only at nodes where the outflow is subsonic, and extrapolates
+elsewhere). Euler runs and inlet2r keep `MARKER_SUPERSONIC_OUTLET`. The failed first attempt stays in
+the V5 report; V5c is run again with this condition on both meshes, and the medium-mesh metrics are
+compared with the first medium run to show what the change does where both converged.
+

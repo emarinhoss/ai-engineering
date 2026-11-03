@@ -1,9 +1,11 @@
 """Render an SU2 config from a parameter dict (pure function, no file access except templates)."""
 import json
+import math
 from pathlib import Path
 from string import Template
 
 from physics import atmosphere
+from physics.shock import oblique
 
 TEMPLATES = Path(__file__).parent / "templates"
 SOLVER_TEMPLATE = {"EULER": "euler.cfg", "NAVIER_STOKES": "navier_stokes.cfg", "RANS_SA": "rans_sa.cfg"}
@@ -27,6 +29,27 @@ ROLES = {
 
 def _lst(names):
     return "( " + ", ".join(names) + " )"
+
+
+def duct_back_pressure(params, fs):
+    """Inviscid static pressure behind the three ramp shocks at the flight Mach (Pa): p_inf times the
+    product of the oblique-shock pressure ratios. Used as the back pressure of the inlet3r duct outlet."""
+    M, p = float(params.get("mach", 4.0)), float(fs["p"])
+    for i in (1, 2, 3):
+        s = oblique(M, math.radians(float(params[f"theta{i}_deg"])))
+        M, p = s["M2"], p * s["p_ratio"]
+    return p
+
+
+def _outlet(params, roles, fs):
+    """Text after MARKER_SUPERSONIC_OUTLET=. For inlet3r the duct outlet is moved to MARKER_OUTLET,
+    which SU2 applies node by node: extrapolation where the outflow is supersonic, the given static
+    pressure where it is subsonic (the wall boundary layer). With the supersonic outlet everywhere, the
+    nominal fine-mesh run diverged from the duct-outlet corner (runs/dev/2026-11-03_inlet3r_v5c_diag)."""
+    if params["family"] != "inlet3r" or params.get("solver", "NAVIER_STOKES") == "EULER":
+        return _lst(roles["outlet"])                  # Euler: no subsonic wall layer, all supersonic
+    rest = [m for m in roles["outlet"] if m != "outlet_duct"]
+    return _lst(rest) + f"\nMARKER_OUTLET= ( outlet_duct, {duct_back_pressure(params, fs)!r} )"
 
 
 def render(params, geometry, markers):
@@ -71,7 +94,7 @@ def render(params, geometry, markers):
         "isothermal": "( " + ", ".join(f"{w}, {t_wall!r}" for w in walls) + " )",
         "sym": _lst(roles["sym"]),
         "far": _lst(roles["far"]),
-        "outlet": _lst(roles["outlet"]),
+        "outlet": _outlet(params, roles, fs),
         "plotting": _lst(walls + analyze),
         "monitoring": _lst(walls),
         "analyze": analyze_lines,
