@@ -21,9 +21,16 @@ Table: `runs/pool3r/pool3r_table.csv` (`python -m analysis.pool3r_table`). Notes
   NS pool run had the container limit of 7200 s, so it was run again on the container: it converged
   at iteration 8000 in 1969 s (residual -9.55, 6.4 orders, drift below tolerance). Both records are
   kept; the table uses the container one. This point turned out to lie on the pool's Pareto front.
-- The one failure diagnosed (`runs/dev/2026-11-03_pool3r_fail_diag/README.md`) is a numerical
-  failure at the duct outflow boundary, not an inlet operating limit. The other six were not
-  diagnosed.
+- All seven failures were diagnosed after the analyses (`runs/dev/2026-11-04_pool3r_startup_diag/README.md`, spec addendum 4). They are one
+  numerical start-up failure at the duct outflow boundary, first seen in the field snapshots of
+  `inlet3r-fe9cd9771d` (`runs/dev/2026-11-03_pool3r_fail_diag/README.md`): the imposed back
+  pressure on the uniform initial state drives flow back into the domain at the cowl side of the
+  outlet. Started with the back pressure at freestream for 500 iterations and the pool config
+  restarted from there, all 7 converge to the pool's residual target (886 to 2540 iterations after
+  the restart); two converged pool cases run the same way reproduce their pool records; the seven
+  recovered values lie within 2.8 predictive standard deviations of the GP fitted on the 152
+  converged runs. A CFL cap of 2 alone recovers 4 of the 7. The pool records stay failed and the
+  recovered values are used in no analysis (decision in the diagnosis README, for Éder to confirm).
 
 ## Question 1: active learning against LHS and random in six dimensions
 
@@ -102,8 +109,10 @@ cross-validation on the 159 NS points with 7 failures).
 - At 0.9 it would have skipped 3 failures and lost 14 good runs.
 
 Five of the seven failures are below Mach 3.8, so there is a weak trend with Mach, but 7 failures in
-159 is too few for six inputs. With the diagnosed failure being an outflow-boundary problem, the
-classifier is learning where this solver set-up breaks, not where the inlet stops working.
+159 is too few for six inputs. All seven failures are one numerical start-up failure at the duct
+outflow boundary, and each converges under a two-stage start to a value the surrogate already
+predicts (pool notes above), so the classifier is learning where this solver set-up breaks, not where
+the inlet stops working.
 
 ## Question 4: robust inverse query
 
@@ -124,6 +133,6 @@ P(q_peak <= cap) >= 0.9 at all 125 points of the 5 x 5 x 5 envelope grid.
 
 ## What was not done
 
-- The other six NS failures were not diagnosed.
+- The NS pool was not re-run with the two-stage start; the seven recovered values enter no analysis.
 - No second, relaxed inverse query was run.
 - No confirmation run was made.

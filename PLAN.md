@@ -359,7 +359,11 @@ numerics and validation work to be done on Day 1 instead of Days 2 to 4.
   decision, no confirmation run. Two changes to `surrogate/mf_gp.py` before the full run: one standardization
   for both levels (the low-fidelity one), and predict(noise=True); the interval change followed a one-seed trial and
   is stated in `analysis/mf3r.py`. Talk section 5b (S20a to S20d, 47 slides; S17, S20, S23 to backup), study-guide
-  entry 23b. Not done: the six other NS failures were not diagnosed.
+  entry 23b. Later on 2026-11-04 (Fable): all seven NS failures diagnosed as one start-up failure at the duct outlet
+  (addendum 4, `runs/dev/2026-11-04_pool3r_startup_diag/README.md`): back pressure at freestream for 500 iterations,
+  then the pool config restarted, converges 7 of 7 to the pool's residual target; the two converged controls reproduce
+  their pool records; the recovered values are within 2.8 predictive sd of the GP; CFL cap 2 alone recovers 4 of 7.
+  Pool records stay failed, recovered values used nowhere (for Éder to confirm).
 - Transfer integrity: a Haiku agent retyping base64 altered 2 of 4 result files (one mixed the
   fields of two records). The worker now writes a sha256 digest next to every result and failure
   (back-filled at start-up) and ingest refuses a text that does not match it. The 16 pool and

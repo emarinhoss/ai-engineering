@@ -994,7 +994,7 @@ def body_s20a(slide):
               "Gate V5 as first specified: FAIL (Euler wall-Mach plateaus; first fine-mesh NS run diverged at the duct outlet).",
               "Gate after two recorded changes (plateaus measured off the wall; pressure outlet on the duct): PASS. "
               "Recovery medium against fine -0.13%, q_peak +2.28%; Euler recovery against analytic -0.07%.",
-              "The diagnosed NS pool failure is outflow-boundary numerics, not an inlet limit."],
+              "All 7 NS pool failures are start-up numerics at the duct outlet, not an inlet limit: each converges with a two-stage start."],
              size=14, bullets=True, space_after=6)
 
 
@@ -1024,7 +1024,7 @@ def body_s20d(slide):
     rows = [["Question", "Result", "Read"],
             ["Can a classifier learn where the solver converges?",
              "CV accuracy 0.950 against 0.956 (always converges); AUC 0.63; at p < 0.5: 0 of 7 failures skipped, 1 good run lost",
-             "No. 7 failures in 159 runs; the diagnosed one is outflow numerics"],
+             "No. 7 failures in 159 runs; all 7 are start-up numerics and converge with a two-stage start"],
             ["Best recovery with P(q_peak <= cap) >= 0.9 at all 125 envelope points",
              "Cap 16,081 W/m2 (40th percentile). No feasible design: 22 envelope points cannot be met by any design; "
              "worst Mach 4.5, 28 km, 300 K, lowest predicted q 27,202 W/m2",

@@ -1,0 +1,24 @@
+{
+ "source": "runs/pool3r/ns/inlet3r-8a4e02ae3d",
+ "variant": "pramp",
+ "stage1_edits": [
+  [
+   "ITER= 8000",
+   "ITER= 500"
+  ],
+  [
+   "OUTPUT_FILES= ( SURFACE_TECPLOT_ASCII )",
+   "OUTPUT_FILES= ( RESTART )"
+  ],
+  [
+   "MARKER_OUTLET= ( outlet_duct, 3879.681833719932 )",
+   "MARKER_OUTLET= ( outlet_duct, 674.3701517439764 )"
+  ]
+ ],
+ "stage2_edits": [
+  [
+   "MATH_PROBLEM= DIRECT",
+   "MATH_PROBLEM= DIRECT\nRESTART_SOL= YES"
+  ]
+ ]
+}

@@ -167,3 +167,22 @@ it reaches -8.3 and then drifts and breaks down near iteration 7500. Both outlet
 outlet itself. The pool settings are not changed half way through; failed runs stay failed records.
 Question 3 is answered for this solver set-up, and the report states that the diagnosed failure is a
 numerical outflow-boundary failure, not an inlet operating limit.
+
+## Addendum 4 (2026-11-04): all seven NS pool failures are one start-up failure
+
+All seven solver errors of the NS pool were diagnosed after the analyses (`runs/dev/2026-11-04_pool3r_startup_diag/README.md`). Every failed
+history has the same signature: the residual stops falling at -3.3 to -4.4 before iteration 200 and
+rises by 3.5 to 10 orders; converged histories are still falling at iteration 300. Five of the seven
+are in the thinnest air of the pool and five are below Mach 3.8. `RAMP_OUTLET_PRESSURE` does nothing
+for `MARKER_OUTLET` in SU2 v8.2.0 (identical histories with and without), so the gentle start was done
+by hand: 500 iterations with the duct back pressure equal to the freestream pressure, then the pool
+config restarted from that state. All seven converge to the pool's residual target; two converged
+pool cases run the same way reproduce their pool records (recovery to 7 figures, q_peak to the last
+printed digit); the recovered values lie within 2.8 predictive standard deviations of the GP fitted on
+the 152 converged runs. A CFL cap of 2 alone recovers 4 of the 7. The failures are therefore numerics
+of the start, not an operating limit, which is what question 3's answer assumed.
+
+Decision: the pool records stay failed and the seven recovered values enter no table and no analysis,
+because they come from a different start than the other 152 runs and were produced after the
+analyses. Any future NS pool of this family uses the two-stage start from the beginning, recorded as
+two configs and a restart in every run folder.

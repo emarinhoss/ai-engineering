@@ -1,0 +1,24 @@
+{
+ "source": "runs/pool3r/ns/inlet3r-86f013e6e9",
+ "variant": "cfl2",
+ "stage1_edits": [
+  [
+   "ITER= 8000",
+   "ITER= 1000"
+  ],
+  [
+   "OUTPUT_FILES= ( SURFACE_TECPLOT_ASCII )",
+   "OUTPUT_FILES= ( RESTART )"
+  ],
+  [
+   "CFL_ADAPT_PARAM= ( 0.5, 1.05, 1.0, 20.0 )",
+   "CFL_ADAPT_PARAM= ( 0.5, 1.05, 1.0, 2.0 )"
+  ]
+ ],
+ "stage2_edits": [
+  [
+   "MATH_PROBLEM= DIRECT",
+   "MATH_PROBLEM= DIRECT\nRESTART_SOL= YES"
+  ]
+ ]
+}
