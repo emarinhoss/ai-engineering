@@ -21,7 +21,7 @@ quantitative claim is either backed by a record named in the Source line or mark
 
 ## Timing
 
-`PLAN.md` Task 7 first gave six talk sections of 5, 10, 8, 12, 8 and 5 minutes, 48 in all. On 2026-11-02 Éder fixed the talk at **40 minutes** (4, 9, 6, 9, 7, 5) with 20 minutes of discussion. Later the same day Éder asked for a background slide with the questions the study answers (S1a); to keep 40 minutes, section 1 went to 5 minutes and section 3 to 5 (5, 9, 5, 9, 7, 5). `PLAN.md` carries the same minutes and the slide times below are the ones to rehearse.
+`PLAN.md` Task 7 first gave six talk sections of 5, 10, 8, 12, 8 and 5 minutes, 48 in all. On 2026-11-02 Éder fixed the talk at **40 minutes** (4, 9, 6, 9, 7, 5) with 20 minutes of discussion. Later the same day Éder asked for a background slide with the questions the study answers (S1a); to keep 40 minutes, section 1 went to 5 minutes and section 3 to 5 (5, 9, 5, 9, 7, 5). On 2026-11-04 the Task 9 section (5b, the three-ramp inlet over a flight envelope, 5 minutes) was added as its spec fixed: the time comes from section 5 (S17 and S20 moved to backup, 7 to 4 minutes) and section 6 (S23 moved to backup and S21 shortened, 5 to 3 minutes), so the talk stays at 40 minutes (5, 9, 5, 9, 4, 5, 3). `PLAN.md` carries the same minutes and the slide times below are the ones to rehearse.
 
 | Section | Talk | PLAN.md minutes | Outline minutes | Slides |
 |---|---|---|---|---|
@@ -29,11 +29,12 @@ quantitative claim is either backed by a record named in the Source line or mark
 | 2. Physics setup and validation | 2 | 10 | 9 | S4 to S8 |
 | 3. Automation layer: MCP tools, gates, queue | 3 | 8 | 5 | S9 to S12 |
 | 4. Surrogate, active learning, UQ | 4 | 12 | 9 | S13 to S16 |
-| 5. Results, Pareto front, inverse query | 5 | 8 | 7 | S17 to S20 |
-| 6. What failed, limits, next steps | 6 | 5 | 5 | S21 to S23 |
+| 5. Results, Pareto front, inverse query | 5 | 8 | 4 | S18, S19 |
+| 5b. Six inputs over a flight envelope (Task 9) | - | 5 | 5 | S20a to S20d |
+| 6. What failed, limits, next steps | 6 | 5 | 3 | S21, S22 |
 | 7. Discussion (outside the 40 minutes) | - | about 20 | 20 | S24 |
 
-Backup slides B1 to B9 follow S24 and are not timed.
+Backup slides B1 to B9, then S17, S20 and S23 (moved there on 2026-11-04), follow S24 and are not timed.
 
 ---
 
@@ -172,41 +173,59 @@ Backup slides B1 to B9 follow S24 and are not timed.
 
 ---
 
-## Section 5: Results, Pareto front, inverse query (7 minutes)
+## Section 5: Results, Pareto front, inverse query (4 minutes)
 
-### S17. The pool across the box (28:00, 1.5 min)
-
-- **Message:** The 92 runnable points span the trimmed box, and their objective values are the ground truth for every comparison.
-- **Figure or table:** Scatter of theta1 against theta2, colored by recovery and by peak heat flux (design map).
-- **Source:** `runs/analysis/2026-11-02/design_map.png` (panel "observed runs", 92 points), `runs/pool/results.csv` (92 converged, 0 failed), `docs/validation/2026-11-01_colab_records.md`. The 4 of the 96 Sobol points in `designs/pool_sobol96.csv` with theta1 + theta2 > 24 deg were refused by gate 4 and never staged.
-- **Speaker notes:** Only converged and stationary runs enter the surrogate, and each point keeps its status. Points rejected by a gate are listed as excluded, not dropped.
-
-### S18. Pareto front with uncertainty (29:30, 2 min)
+### S18. Pareto front with uncertainty (28:00, 2 min)
 
 - **Message:** Observed points, the predicted front, the posterior band and the discretization error bar, shown together, say how far the front can be trusted.
 - **Figure or table:** Front plot from `analysis/pareto.py`: observed points, predicted front, posterior band, discretization error bar.
 - **Source:** `runs/analysis/2026-11-02/pareto_front.png`, `runs/analysis/2026-11-02/pareto.csv`, `docs/validation/2026-11-02_pareto_inverse.md`, section 2: 26 observed front points of 92; posterior band 1.2e-4 to 1.8e-3 wide in recovery; discretization bar 3.1e-4 in recovery and 530 W/m2 in q_peak (V4m grid study), 25 times the posterior uncertainty in heat flux.
 - **Speaker notes:** The band is posterior uncertainty and the error bar is discretization error from the grid study, and both are shown separately. The front is only as good as the mesh levels behind it (B3).
 
-### S19. Inverse query: maximum recovery under a heat-flux cap (31:30, 2 min)
+### S19. Inverse query: maximum recovery under a heat-flux cap (30:00, 2 min)
 
 - **Message:** The surrogate answers "highest recovery with peak heat flux under the 40th percentile of pool heating", and one real SU2 run checks the answer.
 - **Figure or table:** Table: query, surrogate answer with interval, confirmation run result, and whether it falls inside the interval; schlieren of the confirmed design from `runs/dev/2026-11-02_flow_fields/figures/inlet_confirm_schlieren.png` (development run `runs/dev/2026-11-02_flow_fields/inlet2r-ef324f2106`, same metrics as the Colab confirmation run).
 - **Source:** `runs/analysis/2026-11-02/inverse_q40/result.json`, `runs/analysis/2026-11-02/confirm/confirm.json`, `runs/confirm/inlet2r-374dad241f/result.json`, `docs/validation/2026-11-02_pareto_inverse.md`, section 3 (cap 31493 W/m2; answer theta1 = 11.965, theta2 = 7.115; predicted recovery 0.34515, interval 0.34506 to 0.34523, SU2 0.34513, inside; predicted q_peak 31470, interval 31450 to 31490 W/m2, SU2 31462, inside; C2 pass; refit shrinks the predictive std by 10 and 8 percent).
 - **Speaker notes:** The cap is set from the pool before the answer is known. The check passes if the confirmation run falls inside the predicted interval; a miss is documented and explained.
 
-### S20. Design maps over the box (33:30, 1.5 min)
+---
 
-- **Message:** Design maps show recovery and heat flux over the trimmed box, with the surrogate and the observed points on top.
-- **Figure or table:** Map output from `analysis/design_map.py`.
-- **Source:** `runs/analysis/2026-11-02/design_map.png`, `runs/analysis/2026-11-02/oswatitsch_cut.png`, `runs/analysis/2026-11-02/grid.csv`, `docs/validation/2026-11-02_pareto_inverse.md`, section 4 (recovery std 1.8e-5 to 1.1e-4 over the box; GP mean 0.0008 to 0.0022 above the inviscid analytic curve along the Oswatitsch cut, explained from the recorded throat Mach).
-- **Speaker notes:** The maps show where the trade-off bends for an aerodynamics audience. They are interpolations between runs and are labeled that way.
+## Section 5b: Six inputs over a flight envelope (Task 9, 5 minutes)
+
+### S20a. The three-ramp inlet over a flight envelope (32:00, 1 min)
+
+- **Message:** The same workflow, run on a harder case: three ramp angles plus Mach, altitude and wall temperature, 159 laminar NS runs and 316 Euler runs, with the validation gate passed first.
+- **Figure or table:** Table of the six inputs and their ranges; pool counts; the V5 verdicts in one line each.
+- **Source:** `docs/specs/task9_inlet3r_envelope.md`; `docs/validation/2026-11-03_inlet3r_v5.md` (gate as first specified FAIL: wall-Mach plateaus and the first fine-mesh run; PASS after two recorded changes: plateaus measured off the wall, pressure outlet on the duct); `docs/validation/2026-11-04_task9_report.md` (NS pool 159 points, 152 converged, 7 failed with solver errors; Euler pool 316 points, all converged; 15 NS runs on Colab, 144 on the container).
+- **Speaker notes:** The gate failed first, and both failures are in the report with their causes; the two changes were made on that evidence, not to pass. Mach, altitude and wall temperature are inputs the designer does not choose, so this is a design question over an envelope. Seven of 159 NS runs failed, and the one we diagnosed is a numerical failure at the outflow boundary.
+
+### S20b. Active learning in six dimensions (33:00, 1.5 min)
+
+- **Message:** EHVI finds the pool's best trade-offs by 24 runs, where random and LHS are still well short at 96; on surrogate accuracy the active strategies win only from about 80 runs, by a factor of 1.5 to 1.8.
+- **Figure or table:** `docs/validation/2026-11-04_task9_replay.png` (held-out error and hypervolume regret against the number of NS runs, five strategies, median and quartiles over 10 seeds).
+- **Source:** `runs/pool3r/analysis/replay_s*.csv`, `docs/validation/2026-11-04_task9_tables.md` (section 1), `docs/validation/2026-11-04_task9_report.md` (question 1): hypervolume regret at 24 runs 0.000 (EHVI), 0.047 (max-variance), 0.246 (random), 0.292 (LHS); at 96 runs 0.057 (random), 0.113 (LHS); RMSE recovery at 96 runs 0.0008 (active) against 0.0013 to 0.0014; relative q error 0.007 to 0.008 against 0.013 to 0.014; the pool front has 7 points, all at Mach 3.50 to 3.71.
+- **Speaker notes:** The large win has a plain reason that I state with it: the front has only seven points and all sit at the low-Mach end, so it is mostly a front over flight conditions, which a targeted search finds fast. A failed pick costs a run in this replay, and every strategy made about four failed picks by 96 runs. The feasibility factor on EHVI changed nothing measurable, for the reason on S20d.
+
+### S20c. Cheap physics as a first level (34:30, 1.5 min)
+
+- **Message:** A two-level model that starts from Euler plus Eckert reaches with 12 NS runs the heat-flux error that NS alone needs 48 for; for recovery it helps only below about 24 runs, because Euler is already close.
+- **Figure or table:** `docs/validation/2026-11-04_task9_mf.png` (held-out error against the number of NS runs, NS only against the two-level model, with the raw low-fidelity error as a line).
+- **Source:** `runs/pool3r/analysis/mf.csv`, `docs/validation/2026-11-04_task9_tables.md` (section 2), `docs/validation/2026-11-04_task9_report.md` (question 2): relative q error 0.025 (two-level, 12 runs) against 0.026 (NS only, 48 runs); recovery RMSE 0.0032 (two-level, 12 runs) against 0.0064 (NS only, 12 runs) and 0.0029 (NS only, 24 runs); raw Eckert q off by 0.295, raw Euler recovery off by 0.0047; fitted rho 1.00 to 1.07; 90 percent intervals of the two-level model cover 0.52 to 0.58 at 12 runs.
+- **Speaker notes:** Eckert on the Euler wall state is about 30 percent off in level but tracks the NS heating closely, which is exactly what the linear two-level form uses. The model is Kennedy and O'Hagan's autoregressive form: one GP for the cheap level and one for the discrepancy. Its intervals are too narrow at small budgets, so I trust its means there, not its error bars.
+
+### S20d. What did not work: learned feasibility and the robust query (36:00, 1 min)
+
+- **Message:** The convergence classifier does not beat "always converges", and the robust heat-flux query has no feasible design; both are reported as they came out.
+- **Figure or table:** Two-row table: classifier (accuracy, baseline, AUC, skipped failures, lost good runs); robust query (cap, envelope points that no design can meet, the worst point).
+- **Source:** `runs/pool3r/analysis/feasibility.json`, `runs/pool3r/analysis/inverse/result.json`, `docs/validation/2026-11-04_task9_report.md` (questions 3 and 4): cross-validated accuracy 0.950 against 0.956 for always converges, AUC 0.63, at threshold 0.5 no failure skipped and 1 good run lost; cap 16,081 W/m2 (40th percentile of pool q_peak), no design meets P(q <= cap) >= 0.9 at all 125 envelope points, 22 points cannot be met by any design, worst Mach 4.5, 28 km, 300 K with lowest predicted q 27,202 W/m2.
+- **Speaker notes:** Seven failures in 159 runs are too few to learn six inputs, and the one diagnosed failure is outflow-boundary numerics, so the classifier would learn the solver set-up, not the inlet. The robust query combined a pool-wide cap with a worst case over the envelope, and flight condition moves the heating far more than the ramp angles do. I kept the query as specified and report the null result; no confirmation run was made because there is no design to confirm.
 
 ---
 
-## Section 6: What failed, limits, next steps (5 minutes)
+## Section 6: What failed, limits, next steps (3 minutes)
 
-### S21. What failed, in order (35:00, 2 min)
+### S21. What failed, in order (37:00, 1.5 min)
 
 - **Message:** Five things failed on the way, each was recorded, and each change was made on that evidence.
 - **Figure or table:** Table with columns: what failed, what the record shows, what changed.
@@ -214,19 +233,12 @@ Backup slides B1 to B9 follow S24 and are not timed.
 - **Source:** `runs/dev/2026-11-01_cylinder_v3_attempt1/README.md`; `runs/dev/2026-11-01_numerics/README.md`; `runs/dev/2026-11-01_inlet_grid_study_ef03/README.md`; `docs/faults/README.md` (the "check the units" fix); the config-mismatch failure record of pool job inlet2r-db92dcf68d (`runs/pool/inlet2r-db92dcf68d/error.json` at commit 915f5f8, reason and both hashes; the retried job later converged and its result replaced the record) and `docs/transcripts/2026-11-02_worker_restart_and_retry.md`.
 - **Speaker notes:** Failures 4 and 5 are failures of the tooling, not of the physics, and they are the ones an agent layer must surface rather than hide: a wrong message and an over-strict guard. Both are closed with a test.
 
-### S22. Limits of the model (37:00, 1.5 min)
+### S22. Limits of the model (38:30, 1.5 min)
 
 - **Message:** The model is laminar, sub-scale and two-dimensional with two variables, and the corner of the box that does not converge limits what the front means.
 - **Figure or table:** List of limits, each with its consequence for the Pareto front.
 - **Source:** `runs/dev/2026-11-01_inlet_grid_study_ef03/README.md` (12/14 divergence); `runs/dev/2026-11-01_numerics/README.md` (leading-edge wall temperature); turbulence sensitivity: `runs/sensitivity/` and `docs/validation/2026-11-02_sa_sensitivity.md` (Spalart-Allmaras at 8/8 and 12/12 on Colab, a sensitivity bound).
 - **Speaker notes:** A full-scale vehicle at lower altitude would be turbulent, and the talk does not claim a turbulent result. Objective values near sharp leading edges are excluded by construction, not because they were checked.
-
-### S23. What is still to be recorded (38:30, 1.5 min)
-
-- **Message:** The official validation batch, the fault matrix, the turbulence sensitivity on Colab, the 92-point pool, the replay, the Pareto analysis, the confirmation run and the faults through real SU2 are all recorded; nothing on the talk's list is pending.
-- **Figure or table:** Status table: done, running, pending, each with its record.
-- **Source:** `docs/validation/2026-11-01_report.md` (development runs); `docs/validation/2026-11-01_colab_records.md` (official validation batch: V3, V4m, V4e metrics form, X1, and the two 12/14 failures); `docs/faults/fault_matrix.md` (fault injection, run without SU2); `docs/faults/real_fault_matrix.md` (faults through real SU2, 2026-11-03). Done rows added on 2026-11-02: `docs/validation/2026-11-01_colab_records.md` (92 of 92 pool points converged, 0 failures), `docs/validation/2026-11-02_replay.md`, `docs/validation/2026-11-02_pareto_inverse.md`. Confirmation run: `runs/confirm/inlet2r-374dad241f/`, `runs/analysis/2026-11-02/confirm/confirm.json` (C2 pass). Spalart-Allmaras on Colab: `runs/sensitivity/`, `docs/validation/2026-11-02_sa_sensitivity.md`.
-- **Speaker notes:** Every item on the list has a record in the repository. The talk claims nothing beyond what those records show.
 
 ---
 
@@ -235,7 +247,7 @@ Backup slides B1 to B9 follow S24 and are not timed.
 ### S24. Questions, and where the answers are (40:00 onward, about 20 min)
 
 - **Message:** The discussion is open, and the backup slides answer the fidelity questions.
-- **Figure or table:** Index of B1 to B9.
+- **Figure or table:** Index of B1 to B9 and of S17, S20 and S23 (moved to backup on 2026-11-04).
 - **Source:** none (no number).
 - **Speaker notes:** Start with the limit that matters to the person asking, then open the matching backup slide. Do not quote a number that is not on a slide.
 
@@ -305,4 +317,27 @@ Backup slides B1 to B9 follow S24 and are not timed.
 - **Figure or table:** Table of the real-SU2 faults R1 to R9: what was injected, what happened, what was done.
 - **Source:** `docs/faults/real_fault_matrix.md` (generated from `runs/faults/2026-11-03/*/observed.json`), `docs/faults/README.md`, spec `docs/specs/task6b_real_su2_faults.md`, guards tested in `tests/test_worker_guards.py`. R9: 4347 iterations, 450 s, last history line equal to `runs/dev/2026-11-01_inlet_grid_study_ef03/12_14_medium`; R7b heat load 4887.01 against 4718.25 W/m.
 - **Speaker notes:** The solver failures we planned for were all recorded with a reason, including a kill and a timeout. The useful results were the ones nobody planned: a hand-made job skipped the gates and burned a solver slot, and a dead worker left its solver running so a restart put two in one folder; both are now guarded and tested. The tangled-mesh run shows why the mesh gate exists: SU2 converged to a wrong answer without a warning.
+
+### S17. The pool across the box (moved to backup on 2026-11-04)
+
+- **Message:** The 92 runnable points span the trimmed box, and their objective values are the ground truth for every comparison.
+- **Figure or table:** Scatter of theta1 against theta2, colored by recovery and by peak heat flux (design map).
+- **Source:** `runs/analysis/2026-11-02/design_map.png` (panel "observed runs", 92 points), `runs/pool/results.csv` (92 converged, 0 failed), `docs/validation/2026-11-01_colab_records.md`. The 4 of the 96 Sobol points in `designs/pool_sobol96.csv` with theta1 + theta2 > 24 deg were refused by gate 4 and never staged.
+- **Speaker notes:** Only converged and stationary runs enter the surrogate, and each point keeps its status. Points rejected by a gate are listed as excluded, not dropped.
+
+
+### S20. Design maps over the box (moved to backup on 2026-11-04)
+
+- **Message:** Design maps show recovery and heat flux over the trimmed box, with the surrogate and the observed points on top.
+- **Figure or table:** Map output from `analysis/design_map.py`.
+- **Source:** `runs/analysis/2026-11-02/design_map.png`, `runs/analysis/2026-11-02/oswatitsch_cut.png`, `runs/analysis/2026-11-02/grid.csv`, `docs/validation/2026-11-02_pareto_inverse.md`, section 4 (recovery std 1.8e-5 to 1.1e-4 over the box; GP mean 0.0008 to 0.0022 above the inviscid analytic curve along the Oswatitsch cut, explained from the recorded throat Mach).
+- **Speaker notes:** The maps show where the trade-off bends for an aerodynamics audience. They are interpolations between runs and are labeled that way.
+
+
+### S23. What is still to be recorded (moved to backup on 2026-11-04)
+
+- **Message:** The official validation batch, the fault matrix, the turbulence sensitivity on Colab, the 92-point pool, the replay, the Pareto analysis, the confirmation run and the faults through real SU2 are all recorded; nothing on the talk's list is pending.
+- **Figure or table:** Status table: done, running, pending, each with its record.
+- **Source:** `docs/validation/2026-11-01_report.md` (development runs); `docs/validation/2026-11-01_colab_records.md` (official validation batch: V3, V4m, V4e metrics form, X1, and the two 12/14 failures); `docs/faults/fault_matrix.md` (fault injection, run without SU2); `docs/faults/real_fault_matrix.md` (faults through real SU2, 2026-11-03). Done rows added on 2026-11-02: `docs/validation/2026-11-01_colab_records.md` (92 of 92 pool points converged, 0 failures), `docs/validation/2026-11-02_replay.md`, `docs/validation/2026-11-02_pareto_inverse.md`. Confirmation run: `runs/confirm/inlet2r-374dad241f/`, `runs/analysis/2026-11-02/confirm/confirm.json` (C2 pass). Spalart-Allmaras on Colab: `runs/sensitivity/`, `docs/validation/2026-11-02_sa_sensitivity.md`.
+- **Speaker notes:** Every item on the list has a record in the repository. The talk claims nothing beyond what those records show.
 

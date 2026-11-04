@@ -154,10 +154,20 @@ Structure for 60 minutes (40 talk, 20 discussion; the section minutes were set t
 2. Physics setup and validation (9 min).
 3. Automation layer: MCP tools, gates, queue (5 min).
 4. Surrogate, active learning, UQ (9 min).
-5. Results, Pareto front, inverse query (7 min).
-6. What failed, limits, next steps (5 min).
+5. Results, Pareto front, inverse query (4 min; S17 and S20 moved to backup on 2026-11-04 for 5b).
+5b. Six inputs over a flight envelope, Task 9 (5 min; S20a to S20d, added 2026-11-04 as the Task 9 spec fixed).
+6. What failed, limits, next steps (3 min; S23 moved to backup, S21 shortened).
 7. Discussion (about 20 min); keep backup slides for fidelity questions (turbulence model, wall
    BC, mesh convergence).
+
+### Task 9 (added 2026-11-03, Éder's "option 1"): three-ramp inlet over a flight envelope (Fable 5.1 spec, numerics and review)
+
+Spec `docs/specs/task9_inlet3r_envelope.md` (questions, inputs, gates, fidelity levels, analyses and
+acceptance fixed before any run; addenda 2 and 3 record the duct-outlet change and the pool-failure
+diagnosis). Six inputs: three ramp angles, flight Mach, altitude, wall temperature. Gate V5 before any
+ML; pools of 159 NS and 316 Euler runs; four questions answered from records, including null results:
+active learning in 6-D, two-level model against NS alone, learned feasibility, robust inverse query.
+Report `docs/validation/2026-11-04_task9_report.md`; talk section 5b.
 
 ### Task 8 (Day 12): rehearsal and buffer
 
@@ -332,6 +342,24 @@ numerics and validation work to be done on Day 1 instead of Days 2 to 4.
   killed alone left its SU2 running so the restart ran two in one folder. Guards: the worker re-checks the gates and
   stops leftover solvers (tests in `tests/test_worker_guards.py`); R9g and R5g confirm. SU2 accepts a tangled mesh
   silently (+3.6 percent heat load). Backup slide B9 (42 slides). Next: option 1, the six-variable inlet.
+- 2026-11-03 to 11-04: Task 9, the three-ramp inlet over a flight envelope (Éder's "option 1"). Spec
+  `docs/specs/task9_inlet3r_envelope.md` fixed before any run. Gate V5 (`docs/validation/2026-11-03_inlet3r_v5.md`):
+  FAIL as first specified (Euler wall-Mach plateaus; the first fine-mesh NS run diverged at the duct outlet,
+  diagnosed in `runs/dev/2026-11-03_inlet3r_v5c_diag/`), PASS after two recorded changes (plateaus off the wall;
+  pressure outlet on the viscous duct, addendum 2). Pools (`runs/pool3r/`): NS 159 points, 144 on the container and
+  15 on Colab (the Colab worker stopped after 15; its results were packed into one Drive file, checked against the
+  worker digests and ingested; one Colab timeout at the worker's 2400 s limit converged when re-run on the container
+  under the pool's 7200 s limit, both records kept); 152 converged, 7 solver errors, one diagnosed as outflow-boundary
+  numerics (addendum 3); Euler 316 of 316 converged. Analyses (`runs/pool3r/analysis/`,
+  `docs/validation/2026-11-04_task9_report.md`): EHVI zero hypervolume regret by 24 runs (random 0.057 and LHS 0.113 at
+  96; the pool front is 7 points at Mach 3.50 to 3.71); active strategies' surrogate error 0.55 to 0.65 of random and
+  LHS from 80 runs; two-level model reaches with 12 NS runs the q_peak error of 48 NS-only runs; feasibility classifier
+  0.950 against 0.956 for always-converges (no gain; the feasibility factor in EHVI changed nothing measurable); robust
+  query infeasible (22 of 125 envelope points cannot meet the 40th-percentile cap), kept as specified by Éder's
+  decision, no confirmation run. Two changes to `surrogate/mf_gp.py` before the full run: one standardization
+  for both levels (the low-fidelity one), and predict(noise=True); the interval change followed a one-seed trial and
+  is stated in `analysis/mf3r.py`. Talk section 5b (S20a to S20d, 47 slides; S17, S20, S23 to backup), study-guide
+  entry 23b. Not done: the six other NS failures were not diagnosed.
 - Transfer integrity: a Haiku agent retyping base64 altered 2 of 4 result files (one mixed the
   fields of two records). The worker now writes a sha256 digest next to every result and failure
   (back-filled at start-up) and ingest refuses a text that does not match it. The 16 pool and

@@ -1,4 +1,4 @@
-"""Build docs/talk/deck.pptx (38 slides: 24 talk, 6 backup, 8 section dividers) from committed files.
+"""Build docs/talk/deck.pptx (47 slides: 26 talk, 12 backup, 9 section dividers) from committed files.
 
 Run from the repository root with either of:
     python -m docs.talk.build_deck
@@ -981,6 +981,57 @@ def body_s20(slide):
              size=12, bullets=True, space_after=4)
 
 
+def body_s20a(slide):
+    rows = [["Input", "Range", "Note"],
+            ["theta1, theta2, theta3", "3 to 10 deg each", "total turning at most 27 deg (gate 4); shock-on-lip at Mach 4.0"],
+            ["Flight Mach", "3.5 to 4.5", "geometry fixed: spills below Mach 4, ingests shocks above"],
+            ["Altitude", "28 to 35 km", "lower bound keeps throat Re below about 8e5 (laminar argument)"],
+            ["Wall temperature", "300 to 600 K", "isothermal body and cowl"]]
+    add_table(slide, LM, CT, [3.0, 2.4, 6.7], rows, size=13, row_h=0.42)
+    text_box(slide, LM, CT + 2.35, CW, 2.4,
+             ["Pools: laminar NS at 159 Sobol points (152 converged, 7 solver errors; 144 on the container, 15 on Colab); "
+              "Euler + Eckert at 316 points (all converged).",
+              "Gate V5 as first specified: FAIL (Euler wall-Mach plateaus; first fine-mesh NS run diverged at the duct outlet).",
+              "Gate after two recorded changes (plateaus measured off the wall; pressure outlet on the duct): PASS. "
+              "Recovery medium against fine -0.13%, q_peak +2.28%; Euler recovery against analytic -0.07%.",
+              "The diagnosed NS pool failure is outflow-boundary numerics, not an inlet limit."],
+             size=14, bullets=True, space_after=6)
+
+
+def body_s20b(slide):
+    w, h = add_figure_with_caption(slide, "docs/validation/2026-11-04_task9_replay.png",
+                                   "runs/pool3r/analysis/replay_s*.csv", LM, CT, 8.6, 3.2)
+    text_box(slide, LM + 8.8, CT, CW - 8.8, 4.6,
+             ["Hypervolume regret at 24 runs: EHVI 0.000, max-variance 0.047, random 0.246, LHS 0.292.",
+              "At 96 runs: random 0.057, LHS 0.113.",
+              "RMSE recovery at 96 runs: 0.0008 (active) against 0.0013 to 0.0014.",
+              "Caveat: the pool front has 7 points, all at Mach 3.50 to 3.71."],
+             size=13, bullets=True, space_after=6)
+
+
+def body_s20c(slide):
+    w, h = add_figure_with_caption(slide, "docs/validation/2026-11-04_task9_mf.png",
+                                   "runs/pool3r/analysis/mf.csv", LM, CT, 7.6, 3.6)
+    text_box(slide, LM + 7.9, CT, CW - 7.9, 4.6,
+             ["q_peak error 0.025 with 12 NS runs (two-level) against 0.026 with 48 (NS only).",
+              "Recovery: 0.0032 (two-level) against 0.0064 (NS only) at 12 runs; equal from about 24 runs.",
+              "Raw Eckert q_peak off by 0.295; raw Euler recovery off by 0.0047; fitted rho 1.00 to 1.07.",
+              "Two-level 90% intervals cover 0.52 to 0.58 at 12 runs: too narrow."],
+             size=13, bullets=True, space_after=6)
+
+
+def body_s20d(slide):
+    rows = [["Question", "Result", "Read"],
+            ["Can a classifier learn where the solver converges?",
+             "CV accuracy 0.950 against 0.956 (always converges); AUC 0.63; at p < 0.5: 0 of 7 failures skipped, 1 good run lost",
+             "No. 7 failures in 159 runs; the diagnosed one is outflow numerics"],
+            ["Best recovery with P(q_peak <= cap) >= 0.9 at all 125 envelope points",
+             "Cap 16,081 W/m2 (40th percentile). No feasible design: 22 envelope points cannot be met by any design; "
+             "worst Mach 4.5, 28 km, 300 K, lowest predicted q 27,202 W/m2",
+             "Infeasible as specified; no confirmation run"]]
+    add_table(slide, LM, CT + 0.1, [3.4, 5.6, 3.1], rows, size=13, row_h=0.9, flag=())
+
+
 def body_s21(slide):
     rows = [["What failed", "What the record shows", "What changed"],
             ["1. Cylinder carbuncle, Roe at entropy fix 0.1",
@@ -1042,8 +1093,9 @@ def body_s24(slide):
              "B5  Design-box trim (why 24 degrees?)", "B6  Full validation table (what did not run?)",
              "B7  Neural-network ensemble against the GP (why a GP?)",
              "B8  Neural operator for the heat-flux profile (why not the whole profile?)",
-             "B9  Faults through real SU2 (what if the solver fails?)"]
-    text_box(slide, LM, CT + 0.2, CW, 4.2, items, size=20, space_after=10)
+             "B9  Faults through real SU2 (what if the solver fails?)",
+             "S17, S20, S23  Pool across the box, design maps, record status (moved to backup)"]
+    text_box(slide, LM, CT + 0.2, CW, 4.4, items, size=18, space_after=8)
 
 
 def body_b1(slide):
@@ -1266,6 +1318,18 @@ SLIDES = {
     "S20": {"title": "Design maps over the box", "body": body_s20,
             "sources": ["runs/analysis/2026-11-02/design_map.png", "runs/analysis/2026-11-02/oswatitsch_cut.png",
                         "runs/analysis/2026-11-02/grid.csv", "docs/validation/2026-11-02_pareto_inverse.md (section 4)"]},
+    "S20a": {"title": "Three-ramp inlet over a flight envelope", "body": body_s20a,
+             "sources": ["docs/specs/task9_inlet3r_envelope.md", "docs/validation/2026-11-03_inlet3r_v5.md",
+                         "docs/validation/2026-11-04_task9_report.md", "runs/pool3r/pool3r_table.csv"]},
+    "S20b": {"title": "Active learning in six dimensions", "body": body_s20b,
+             "sources": ["docs/validation/2026-11-04_task9_replay.png", "runs/pool3r/analysis/replay_s*.csv",
+                         "docs/validation/2026-11-04_task9_tables.md (section 1)", "docs/validation/2026-11-04_task9_report.md"]},
+    "S20c": {"title": "Cheap physics as a first level", "body": body_s20c,
+             "sources": ["docs/validation/2026-11-04_task9_mf.png", "runs/pool3r/analysis/mf.csv",
+                         "docs/validation/2026-11-04_task9_tables.md (section 2)", "docs/validation/2026-11-04_task9_report.md"]},
+    "S20d": {"title": "What did not work", "body": body_s20d,
+             "sources": ["runs/pool3r/analysis/feasibility.json", "runs/pool3r/analysis/inverse/result.json",
+                         "docs/validation/2026-11-04_task9_report.md (questions 3 and 4)"]},
     "S21": {"title": "What failed, in order", "body": body_s21,
             "sources": ["runs/dev/2026-11-01_cylinder_v3_attempt1/README.md", "runs/dev/2026-11-01_cylinder_v3_attempt3/README.md",
                         "runs/dev/2026-11-01_numerics/README.md",
@@ -1315,10 +1379,11 @@ SECTIONS = [
     ("2. Physics setup and validation", "9 minutes", ["S4", "S5", "S6", "S7", "S8"]),
     ("3. Automation layer: MCP tools, gates, queue", "5 minutes", ["S9", "S10", "S11", "S12"]),
     ("4. Surrogate, active learning, UQ", "9 minutes", ["S13", "S14", "S15", "S16"]),
-    ("5. Results, Pareto front, inverse query", "7 minutes", ["S17", "S18", "S19", "S20"]),
-    ("6. What failed, limits, next steps", "5 minutes", ["S21", "S22", "S23"]),
+    ("5. Results, Pareto front, inverse query", "4 minutes", ["S18", "S19"]),
+    ("5b. Six inputs over a flight envelope", "5 minutes", ["S20a", "S20b", "S20c", "S20d"]),
+    ("6. What failed, limits, next steps", "3 minutes", ["S21", "S22"]),
     ("Discussion", "about 20 minutes, outside the 40", ["S24"]),
-    ("Backup", "not timed", ["B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8", "B9"]),
+    ("Backup", "not timed", ["B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8", "B9", "S17", "S20", "S23"]),
 ]
 
 
@@ -1335,8 +1400,9 @@ def build(out_path=DEFAULT_OUT):
             info = outline[sid]
             if sid == "S1":
                 add_title_slide(prs, number, "Aero-thermal inlet design: surrogate and automation", info["message"],
-                                ["Mach 4 at 30 km, two-ramp inlet, two design variables.",
-                                 "Status 2026-11-02: every number comes from a record in this repository; "
+                                ["Mach 4 at 30 km, two-ramp inlet, two design variables; then a three-ramp inlet over a "
+                                 "flight envelope, six inputs.",
+                                 "Status 2026-11-04: every number comes from a record in this repository; "
                                  "the confirmation run passed (C2)."], info["notes"])
                 continue
             spec = SLIDES[sid]

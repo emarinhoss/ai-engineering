@@ -84,7 +84,7 @@ a{color:var(--ink)}
 <p>Every number in this plan comes from a file in the repository. The file name is given with the number. Do not quote a number in the talk that is not on a slide.</p>
 </div>
 
-<div class="progress"><span id="pcount">0 of 29 ticked</span><div class="bar"><span id="pbar"></span></div></div>
+<div class="progress"><span id="pcount">0 of 30 ticked</span><div class="bar"><span id="pbar"></span></div></div>
 
 <nav class="days" aria-label="Study days">
 <a href="#d1">Tue 3</a><a href="#d1">Wed 4</a><a href="#d2">Thu 5</a><a href="#d2">Fri 6</a><a href="#d3">Sat 7</a><a href="#d3">Sun 8</a><a href="#d4">Mon 9</a><a href="#d5">Tue 10</a><a href="#d5">Wed 11</a><a href="#d6">Thu 12</a>
@@ -95,10 +95,10 @@ a{color:var(--ink)}
 <tr><th>Day</th><th>Block</th><th>Entries</th><th>Goal at the end of the day</th></tr>
 <tr><td>Tue 3, Wed 4</td><td>A. Compressible flow and heating</td><td>1 to 9</td><td>Derive the 8/8 recovery by hand. Explain why the flow is laminar and what the turbulent bound shows.</td></tr>
 <tr><td>Thu 5, Fri 6</td><td>B. CFD numerics and validation</td><td>10 to 16</td><td>Explain every line of the tolerance table and why the carbuncle failure was kept.</td></tr>
-<tr><td>Sat 7, Sun 8</td><td>C. Surrogates and active learning</td><td>17 to 23, 23a</td><td>Explain the GP interval, the hypervolume regret and the honest replay verdict.</td></tr>
+<tr><td>Sat 7, Sun 8</td><td>C. Surrogates and active learning</td><td>17 to 23, 23a, 23b</td><td>Explain the GP interval, the hypervolume regret and the honest replay verdict.</td></tr>
 <tr><td>Mon 9</td><td>D. Automation layer</td><td>24 to 28</td><td>Draw the pipeline from memory and name what caught each of the five failures.</td></tr>
 <tr><td>Tue 10, Wed 11</td><td>Deck run-through</td><td>all</td><td>Present the deck to the wall with a timer. Open the record behind any number you are not sure of.</td></tr>
-<tr><td>Thu 12</td><td>Question drill and rest</td><td>all</td><td>Answer the 60 interview questions below aloud. Stop early.</td></tr>
+<tr><td>Thu 12</td><td>Question drill and rest</td><td>all</td><td>Answer the 62 interview questions below aloud. Stop early.</td></tr>
 </table></div>
 
 <!-- ============================ A ============================ -->
@@ -782,6 +782,41 @@ K = 3:\ 0.32\ \%, \qquad K = 5:\ 0.12\ \%, \qquad K = 8:\ 0.056\ \%
 <details><summary>What does the FNO band cover with all data, and with 24 runs?</summary><p class="a">93 percent and 81 percent of points; the target is 90.</p></details>
 </section>
 
+<section class="entry" id="c30"><header><input type="checkbox" data-id="c30" id="k30"><h3><label for="k30">23b. Six inputs over a flight envelope: two fidelity levels, learned feasibility, a robust query</label></h3></header>
+<p class="where"><b>In the talk:</b> S20a to S20d. <b>Record:</b> <code>docs/validation/2026-11-04_task9_report.md</code>, <code>docs/validation/2026-11-04_task9_tables.md</code>, <code>runs/pool3r/analysis/</code>, <code>runs/pool3r/pool3r_table.csv</code>, spec <code>docs/specs/task9_inlet3r_envelope.md</code>.</p>
+<span class="lbl">Definition</span>
+<p>The three-ramp inlet has six inputs: three ramp angles, and the flight Mach number, altitude and wall temperature. The designer chooses the angles. The flight condition is not chosen; it varies over an envelope. The low-fidelity model is Euler CFD for recovery and the Eckert flat-plate relation on the Euler wall state for heating. The high-fidelity model is laminar Navier-Stokes. The two-level model (Kennedy and O'Hagan) uses one GP for the cheap level and a second GP for the discrepancy. The feasibility model is a logistic regression that gives the probability that SU2 converges. The robust query asks for the angles with the best nominal recovery, with the heat flux under a cap at every envelope point.</p>
+<span class="lbl">Key relations</span>
+<div class="eq">\[
+\begin{aligned}
+y_H(\mathbf{x}) &= \rho\, y_L(\mathbf{x}) + \delta(\mathbf{x}), \qquad \delta \sim \mathcal{GP} \\
+p(\mathbf{x}) &= \frac{1}{1 + e^{-(\mathbf{w}^{\top} \mathbf{f}(\mathbf{x}) + b)}}, \qquad \alpha(\mathbf{x}) = \mathrm{EHVI}(\mathbf{x})\, p(\mathbf{x}) \\
+\max_{\theta_1, \theta_2, \theta_3} &\ \mu_{\eta}(\boldsymbol{\theta}, \mathbf{e}_{\mathrm{nom}}) \quad \text{subject to} \quad \min_{\mathbf{e} \in E} \Phi\!\left( \frac{\ln Q - \mu_{\ln q}(\boldsymbol{\theta}, \mathbf{e})}{\sigma_{\ln q}(\boldsymbol{\theta}, \mathbf{e})} \right) \ge 0.9
+\end{aligned}
+\]</div>
+<span class="lbl">Worked example (task9_tables.md, feasibility.json, inverse/result.json)</span>
+<p>Pools: 159 NS points, 152 converged and 7 failed; 316 Euler points, all converged. Two-level model against NS alone, median held-out error over 10 seeds:</p>
+\[
+\begin{aligned}
+q_{\mathrm{peak}}: &\quad \text{two-level, 12 NS runs: } 0.025, \qquad \text{NS only, 48 runs: } 0.026 \;\Rightarrow\; \frac{48}{12} = 4 \text{ times fewer NS runs} \\
+\eta: &\quad \text{two-level, 12 runs: } 0.0032, \qquad \text{NS only, 12 runs: } 0.0064, \qquad \text{NS only, 24 runs: } 0.0029 \\
+\text{raw low fidelity}: &\quad q \text{ off by } 0.295, \quad \eta \text{ off by } 0.0047, \qquad \rho = 1.00 \text{ to } 1.07
+\end{aligned}
+\]
+<p>Feasibility, 5-fold cross-validation: accuracy 0.950, but the rule "always converges" scores \(152/159 = 0.956\). The rank AUC is 0.63.</p>
+<p>Robust query: the cap is \(Q = 16{,}081\ \mathrm{W/m^2}\), the 40th percentile of the pool. At Mach 4.5, 28 km and 300 K, the lowest predicted median over all angles is \(27{,}202\ \mathrm{W/m^2}\):</p>
+\[
+\ln\frac{Q}{q} = \ln\frac{16{,}081}{27{,}202} = -0.526
+\]
+<p>The held-out heating error is about 1 percent at 96 runs. A 69 percent excess is many standard deviations, so \(P(q \le Q)\) is close to zero. No angles meet the cap at this point, so the query has no answer.</p>
+<span class="lbl">Interview questions</span>
+<details><summary>Active learning won much more here than in the two-ramp study. Why?</summary><p class="a">The pool's Pareto front has only 7 points, and all are at the low-Mach end of the envelope (Mach 3.50 to 3.71). So the front is mostly a front over flight conditions. EHVI finds that corner fast: zero regret by 24 runs, where random sampling still has 0.057 at 96. On surrogate accuracy, the gain is only a factor of 1.5 to 1.8, and only from about 80 runs.</p></details>
+<details><summary>Your classifier lost to the trivial rule. Why show it?</summary><p class="a">The spec asked the question before the runs, and the answer is no. Seven failures in 159 runs are too few to learn six inputs. The one failure we diagnosed is numerical, at the duct outflow boundary. So a classifier would learn this solver set-up, not where the inlet stops working. Adding it to EHVI changed nothing measurable.</p></details>
+<span class="lbl">Self-check</span>
+<details><summary>What does a fitted rho near 1 tell you?</summary><p class="a">The cheap model has the right trend at about the right scale. The discrepancy GP only corrects the offset and a smooth error, and that needs few NS runs.</p></details>
+<details><summary>Why was no confirmation run made for the robust query?</summary><p class="a">There is no feasible design to confirm. The result is reported as infeasible, with the 22 envelope points that no design can meet.</p></details>
+</section>
+
 <!-- ============================ D ============================ -->
 <h2 id="d4">D. The automation layer</h2>
 <p>Free: the Model Context Protocol specification (modelcontextprotocol.io), the pydantic documentation. In the repository: <code>docs/specs/01_interfaces.md</code>, <code>docs/faults/README.md</code>, <code>docs/transcripts/</code>.</p>
@@ -876,7 +911,7 @@ K = 3:\ 0.32\ \%, \qquad K = 5:\ 0.12\ \%, \qquad K = 8:\ 0.056\ \%
 </ul>
 
 <h2 id="d6">Question drill (Thu 12)</h2>
-<p>Answer the 60 interview questions in this plan aloud, in a random order, without opening the answers. For each one, name the slide you would open. Stop after two hours. Do not change the deck on the last day; a wrong late edit costs more than a known small flaw.</p>
+<p>Answer the 62 interview questions in this plan aloud, in a random order, without opening the answers. For each one, name the slide you would open. Stop after two hours. Do not change the deck on the last day; a wrong late edit costs more than a known small flaw.</p>
 
 <h2>References</h2>
 <ul class="ref">
