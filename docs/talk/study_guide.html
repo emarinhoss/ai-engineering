@@ -1602,7 +1602,7 @@ q_{\mathrm{peak}}: &\quad \text{two-level, 12 NS runs: } 0.025, \qquad \text{NS 
 <p>Free: the Model Context Protocol specification (modelcontextprotocol.io), the pydantic documentation. In the repository: <code>docs/specs/01_interfaces.md</code>, <code>docs/faults/README.md</code>, <code>docs/transcripts/</code>.</p>
 
 <section class="entry" id="c24"><header><input type="checkbox" data-id="c24" id="k24"><h3><label for="k24">24. Typed tools, schemas and the MCP server</label></h3></header>
-<p class="where"><b>In the talk:</b> S9, S12. <b>Record:</b> <code>mcp_server/server.py</code>, <code>mcp_server/schemas.py</code>, <code>docs/transcripts/2026-11-01_first_mcp_call.md</code>.</p>
+<p class="where"><b>In the talk:</b> S1d, S9, S12. <b>Record:</b> <code>mcp_server/server.py</code>, <code>mcp_server/schemas.py</code>, <code>docs/transcripts/2026-11-01_first_mcp_call.md</code>.</p>
 <span class="lbl">Definition</span>
 <p>The Model Context Protocol lets a language model call functions that a server exposes with typed inputs and outputs. The server here exposes eleven tools: validate_config, create_case, submit, status, list_results, queue_batch, export_batch, record_transfer, ingest_result, ingest_error, postprocess. Each input passes a pydantic schema with types, bounds and allowed values before any code runs. Unknown fields are refused.</p>
 <span class="lbl">Key relations</span>
@@ -1642,7 +1642,7 @@ q_{\mathrm{peak}}: &\quad \text{two-level, 12 NS runs: } 0.025, \qquad \text{NS 
 </section>
 
 <section class="entry" id="c25"><header><input type="checkbox" data-id="c25" id="k25"><h3><label for="k25">25. The five physics gates before any CFD</label></h3></header>
-<p class="where"><b>In the talk:</b> S10, B9. <b>Record:</b> <code>physics/gates.py</code>, <code>docs/specs/01_interfaces.md</code> "Physics gates", <code>runs/dev/2026-11-01_inlet_box_diagnostics/README.md</code>.</p>
+<p class="where"><b>In the talk:</b> S1b, S1c, S10, B9. <b>Record:</b> <code>physics/gates.py</code>, <code>docs/specs/01_interfaces.md</code> "Physics gates", <code>runs/dev/2026-11-01_inlet_box_diagnostics/README.md</code>.</p>
 <span class="lbl">Definition</span>
 <p>A gate is a pure function of the parameters that refuses a design before a mesh exists. Each message names the gate, the value and the limit.</p>
 <ul>
@@ -1815,7 +1815,7 @@ q_{\mathrm{peak}}: &\quad \text{two-level, 12 NS runs: } 0.025, \qquad \text{NS 
 <h2 id="d5">Deck run-through (Tue 10, Wed 11)</h2>
 <p>Open <code>docs/talk/deck.pptx</code> and <code>docs/talk/outline.md</code> side by side. Present each slide aloud with a timer. For each slide, say the one message, point at the figure, and give the source in one sentence. When you are not sure of a number, open the record named in the footer. Mark slides that ran long; the talk is fixed at 40 minutes (5, 9, 5, 9, 7 and 5 minutes for the six sections) with 20 minutes of discussion.</p>
 <ul>
-<li>Section 1 to 3, slides S1, S1a and S2 to S12: 19 minutes in the outline. S1a states the five questions the study answers; say each question and the slide that answers it.</li>
+<li>Section 1 to 3, slides S1, S1b to S1d (why a gated process, 2.5 minutes), S1a and S2 to S12: 19 minutes in the outline. S1b to S1d make the case for the process: a clean exit is not a correct result (R7b), what stopped each fault, and why MCP. S1a states the five questions the study answers; say each question and the slide that answers it.</li>
 <li>Section 4, S13 to S16: 9 minutes.</li>
 <li>Section 5, S17 to S20: 7 minutes.</li>
 <li>Section 6, S21 to S23: 5 minutes.</li>

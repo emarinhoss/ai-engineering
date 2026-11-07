@@ -21,13 +21,15 @@ quantitative claim is either backed by a record named in the Source line or mark
 
 ## Timing
 
-`PLAN.md` Task 7 first gave six talk sections of 5, 10, 8, 12, 8 and 5 minutes, 48 in all. On 2026-11-02 Éder fixed the talk at **40 minutes** (4, 9, 6, 9, 7, 5) with 20 minutes of discussion. Later the same day Éder asked for a background slide with the questions the study answers (S1a); to keep 40 minutes, section 1 went to 5 minutes and section 3 to 5 (5, 9, 5, 9, 7, 5). On 2026-11-04 the Task 9 section (5b, the three-ramp inlet over a flight envelope, 5 minutes) was added as its spec fixed: the time comes from section 5 (S17 and S20 moved to backup, 7 to 4 minutes) and section 6 (S23 moved to backup and S21 shortened, 5 to 3 minutes), so the talk stays at 40 minutes (5, 9, 5, 9, 4, 5, 3). `PLAN.md` carries the same minutes and the slide times below are the ones to rehearse.
+`PLAN.md` Task 7 first gave six talk sections of 5, 10, 8, 12, 8 and 5 minutes, 48 in all. On 2026-11-02 Éder fixed the talk at **40 minutes** (4, 9, 6, 9, 7, 5) with 20 minutes of discussion. Later the same day Éder asked for a background slide with the questions the study answers (S1a); to keep 40 minutes, section 1 went to 5 minutes and section 3 to 5 (5, 9, 5, 9, 7, 5). On 2026-11-04 the Task 9 section (5b, the three-ramp inlet over a flight envelope, 5 minutes) was added as its spec fixed: the time comes from section 5 (S17 and S20 moved to backup, 7 to 4 minutes) and section 6 (S23 moved to backup and S21 shortened, 5 to 3 minutes), so the talk stays at 40 minutes (5, 9, 5, 9, 4, 5, 3). On 2026-11-07 Éder asked for slides on the benefits of the gated process and on why MCP (S1b to S1d, 2.5 minutes, right after the title slide); the time comes from section 3 (5 to 3 minutes, because S1b to S1d now carry the motivation and S9 to S12 are shortened) and from S1a (1.5 to 1 minute), so the talk stays at 40 minutes (0.5 title, 2.5, 4, 9, 3, 9, 4, 5, 3). `PLAN.md` carries the same minutes and the slide times below are the ones to rehearse.
 
 | Section | Talk | PLAN.md minutes | Outline minutes | Slides |
 |---|---|---|---|---|
-| 1. Problem and why it matters | 1 | 5 | 5 | S1, S1a, S2, S3 |
+| Title | - | - | 0.5 | S1 |
+| 1a. Why a gated, automated process | - | - | 2.5 | S1b to S1d |
+| 1. Problem and why it matters | 1 | 5 | 4 | S1a, S2, S3 |
 | 2. Physics setup and validation | 2 | 10 | 9 | S4 to S8 |
-| 3. Automation layer: MCP tools, gates, queue | 3 | 8 | 5 | S9 to S12 |
+| 3. Automation layer: MCP tools, gates, queue | 3 | 8 | 3 | S9 to S12 |
 | 4. Surrogate, active learning, UQ | 4 | 12 | 9 | S13 to S16 |
 | 5. Results, Pareto front, inverse query | 5 | 8 | 4 | S18, S19 |
 | 5b. Six inputs over a flight envelope (Task 9) | - | 5 | 5 | S20a to S20d |
@@ -38,7 +40,7 @@ Backup slides B1 to B9, then S17, S20 and S23 (moved there on 2026-11-04), follo
 
 ---
 
-## Section 1: Problem and why it matters (5 minutes)
+## Title (0.5 minutes)
 
 ### S1. Title (0:00, 0.5 min)
 
@@ -47,21 +49,48 @@ Backup slides B1 to B9, then S17, S20 and S23 (moved there on 2026-11-04), follo
 - **Source:** none (no number)
 - **Speaker notes:** The talk covers a supersonic inlet, an active-learning surrogate and a thin agent layer, in that order of importance. The agent layer is convenience; the physics and the statistics are the substance.
 
-### S1a. The questions this study answers (0:30, 1.5 min)
+## Section 1a: Why a gated, automated process (2.5 minutes)
+
+### S1b. A clean exit is not a correct result (0:30, 1 min)
+
+- **Message:** A tangled mesh cell ran to convergence in SU2 with exit code 0 and a body heat load 3.6 percent too high, so the checks have to sit before the solver.
+- **Figure or table:** Bar chart of the change in body heat load against the clean control for R1, R7 and R7b, and a four-box flow: tangled cell, mesh-quality gate, SU2, heat load.
+- **Source:** `docs/faults/README.md` (findings R1, R7 and R7b); `runs/faults/2026-11-03/R0/observed.json`, `R7/observed.json` and `R7b/observed.json` (body heat load 4718.25 and 4887.01 W/m; 1078 iterations against 672).
+- **Speaker notes:** SU2 printed one line about re-orienting an element, converged, exited with code 0, and the heat load was 3.6 percent high. Only the mesh-quality gate stops this, and the worker never runs a mesh it did not build and check itself. That is why the checks sit before the solver and not after it.
+
+### S1c. What stopped each injected fault (1:30, 1 min)
+
+- **Message:** Each injected fault was stopped by the earliest layer that could see it; the orange rows reached the solver because a layer was missing or bypassed.
+- **Figure or table:** Matrix of 17 faults against seven layers (schema, physics gates, mesh quality, config keys, worker checks, ingest checks, SU2 itself), one marker per fault, with a note on what happened.
+- **Source:** `docs/faults/fault_matrix.md` (fake solver); `docs/faults/real_fault_matrix.md` (SU2 v8.2.0); `docs/faults/README.md` (6 of 84 retyped results wrong at the first attempt and caught by the digest; R9 diverged after 449.5 s and R9g was refused in 0.0 s).
+- **Speaker notes:** Every row comes from a test or a run in the repository, and the two orange rows are the honest part. R9 shows a gap that the faults found: a hand-made job skipped the gates and diverged after 449.5 s, and the worker now refuses it in 0.0 s. R7b is the case where only the mesh gate helps.
+
+### S1d. Why MCP, and what it does not add (2:30, 0.5 min)
+
+- **Message:** MCP is one guarded door to checks that the worker repeats; the gates and checksums are plain code, and the agent never chooses a point.
+- **Figure or table:** Two-row schematic (the MCP tools, and a hand-made job through the worker) sharing one gate function, and a two-column table of what MCP adds and what does not depend on it.
+- **Source:** `docs/faults/real_fault_matrix.md` (R9, R9g); `docs/transcripts/2026-11-03_mcp_input_faults.md` (the first three calls refused for a missing tag); `docs/transcripts/2026-11-01_first_mcp_call.md` (ten rows, nothing chosen).
+- **Speaker notes:** A script with the same validation would give the same gates and checksums, so MCP is a convenience layer: one entry point, typed arguments and a log of every call. The schema did catch the agent's own mistake, three calls without the required tag. The evidence is small, because we injected the faults and the live call listed ten rows and chose nothing.
+
+---
+
+## Section 1: Problem and why it matters (4 minutes)
+
+### S1a. The questions this study answers (3:00, 1 min)
 
 - **Message:** Five questions drive the study, each answered on a later slide, and the same loop applies to any validated simulator with a few inputs and competing outputs.
 - **Figure or table:** Left: table of the five questions (design trade, inverse design, sampling cost, trust, automation) with the slide that answers each. Right: where the same loop applies, labeled "not run in this study", and what transfers and what does not.
 - **Source:** none (no number). Questions from `PLAN.md` (Framing, Problem) and `docs/specs/00_decisions.md`, section 3; the application examples are illustrations of the method, not results.
 - **Speaker notes:** Pressure recovery sets how much useful air the engine gets, and wall heating sets the cooling and thermal-protection load, so the designer needs the trade between them, not one number. Each CFD run is expensive, so the real question is how few runs answer these questions with an uncertainty you can check. The physics is specific to this inlet, but the loop of validated solver, gates, surrogate with uncertainty and acquisition is not.
 
-### S2. The design question (2:00, 1.5 min)
+### S2. The design question (4:00, 1.5 min)
 
 - **Message:** The inlet trades total pressure recovery against peak wall heating, and neither objective alone is a design.
 - **Figure or table:** Schematic of the two-ramp inlet with cowl, throat plane and the two objectives marked (to draw from `geometry/inlet.py`; no data).
 - **Source:** schematic: none (no number), definitions in `docs/specs/00_decisions.md`, sections 2 and 3. Schlieren: `runs/dev/2026-11-02_flow_fields/figures/inlet_8_8_schlieren.png` from the development run `runs/dev/2026-11-02_flow_fields/inlet2r-92352faad1` (laminar 8/8, medium mesh, volume output; same metrics as the Colab record `runs/val/inlet2r-d4d29884be`).
 - **Speaker notes:** Recovery includes the terminal normal shock, which is what makes external compression worth anything. Peak heating is taken on ramp 2 including the duct wall, not on the sharp leading edge, where the computed peak is a mesh artifact.
 
-### S3. The design box (3:30, 1.5 min)
+### S3. The design box (5:30, 1.5 min)
 
 - **Message:** Two ramp angles, theta1 and theta2, set the geometry, and the box is trimmed to 24 deg total turning on evidence.
 - **Figure or table:** Design-box diagram in the (theta1, theta2) plane, with the trimmed corner shaded and the 4 excluded pool points marked (to draw from `designs/pool_sobol96.csv`).
@@ -72,35 +101,35 @@ Backup slides B1 to B9, then S17, S20 and S23 (moved there on 2026-11-04), follo
 
 ## Section 2: Physics setup and validation (9 minutes)
 
-### S4. Flight condition and why laminar (5:00, 1.5 min)
+### S4. Flight condition and why laminar (7:00, 1.5 min)
 
 - **Message:** Mach 4 at 30 km for a sub-scale body keeps the flow laminar, and we state that as an argument, not a measurement.
 - **Figure or table:** Table of inputs: Mach 4.0, freestream temperature 226.509 K, isothermal 300 K wall, sub-scale body of about 0.3 m.
 - **Source:** `runs/dev/2026-11-01_numerics/wedge-381c48d17f/case.cfg` (Mach, freestream temperature and wall temperature). The 30 km and 0.3 m values are from `docs/specs/00_decisions.md`, section 1. The transition argument has no run record: `PENDING: no run record`. It is an analytic estimate from `docs/specs/00_decisions.md`, section 1.1, and no number from it is quoted here.
 - **Speaker notes:** Mach 5 was rejected on analytic grounds, not by a run. The laminar choice is a sub-scale, high-altitude condition; a full-scale vehicle would need RANS, and B1 covers the one sensitivity run planned for that.
 
-### S5. The validation ladder (6:30, 1.5 min)
+### S5. The validation ladder (8:30, 1.5 min)
 
 - **Message:** Analytic checks run before any machine learning; hard checks must pass, soft and report checks are reported.
 - **Figure or table:** The tolerance table (hard, soft, report) with the verdict column filled from the report.
 - **Source:** `docs/validation/2026-11-01_report.md` (verdict column; development runs unless a row says official). The V3 Billig stand-off row, "not run" in the report, was run on 2026-11-02 with volume output: +5.6 percent (`runs/dev/2026-11-02_flow_fields/cylinder-04b6b912c5/standoff.json`).
 - **Speaker notes:** A hard failure means a bug in mesh, boundary condition, units or scheme, so we fix the cause and do not change the tolerance. The verdicts are shown as the report gives them, including the one that failed.
 
-### S6. Oblique shock and laminar heating (8:00, 2 min)
+### S6. Oblique shock and laminar heating (10:00, 2 min)
 
 - **Message:** The Euler wedge matches the oblique-shock relation within the hard tolerances, and the laminar wedge heating matches the Eckert flat-plate reference within the window.
 - **Figure or table:** `docs/validation/2026-11-01_wedge_heat_flux.png`, with a V1 table beside it.
 - **Source:** `runs/task1/README.md` and `runs/task1/v1_oblique_shock.json` (V1 and V2a, official). `docs/validation/2026-11-01_report.md` (V2b, development, final numerics).
 - **Speaker notes:** The V1 check is the official Colab record, so it is the one to quote for the solver setup. The V2b check is a development run with the final numerics; the entropy-fix change moved its deviation, and B4 shows the comparison.
 
-### S7. The cylinder: the hard check failed first (10:00, 2 min)
+### S7. The cylinder: the hard check failed first (12:00, 2 min)
 
 - **Message:** With the first numerics (Roe, entropy fix 0.1) the stagnation heating failed Fay-Riddell on the fine mesh; with entropy fix 0.3 it passes on that mesh.
 - **Figure or table:** `docs/validation/2026-11-01_cylinder_heat_flux.png` (heat flux by mesh level) and `runs/dev/2026-11-02_flow_fields/figures/cylinder.png` (bow shock, Mach contours, measured stand-off against Billig; the grid-study figure moved to B3).
 - **Source:** `docs/validation/2026-11-01_report.md` (V3 rows and grid study); `runs/dev/2026-11-01_cylinder_v3_attempt1/README.md` (the failure); `runs/dev/2026-11-01_cylinder_v3_attempt3/README.md` (the final numerics); `runs/dev/2026-11-02_flow_fields/cylinder-04b6b912c5/standoff.json` (stand-off delta/R = 0.546 against Billig 0.517, +5.6 percent, report tolerance 15 percent; development run 2026-11-02).
 - **Speaker notes:** The failure was kept and not tuned away, and the fix was chosen from a six-scheme comparison and a split test. The grid study passes on two levels only, so no order of convergence is claimed.
 
-### S8. Inlet design point at 8/8 (12:00, 2 min)
+### S8. Inlet design point at 8/8 (14:00, 2 min)
 
 - **Message:** At the design point the inviscid throat matches the two-shock relations within the hard tolerance, and the laminar core is within the soft band.
 - **Figure or table:** `docs/validation/2026-11-01_inlet_throat_p0.png` with the V4e and V4v rows.
@@ -109,30 +138,30 @@ Backup slides B1 to B9, then S17, S20 and S23 (moved there on 2026-11-04), follo
 
 ---
 
-## Section 3: Automation layer: MCP tools, gates, queue (5 minutes)
+## Section 3: Automation layer: MCP tools, gates, queue (3 minutes)
 
-### S9. The pipeline on one slide (14:00, 1.5 min)
+### S9. The pipeline on one slide (16:00, 1 min)
 
 - **Message:** A design passes the schema, the physics gates and the mesh gate before SU2 sees it, and the LLM sits outside this chain.
 - **Figure or table:** Flow diagram: parameters, schema, gates, mesh quality, config, Drive queue, Colab worker, SU2, result or error, metrics, surrogate, acquisition.
 - **Source:** none (no number). Interfaces are in `docs/specs/01_interfaces.md`.
 - **Speaker notes:** Each step is a function a person can read, and each gate fails with the offending value. The language model calls typed tools and never picks a sampling point.
 
-### S10. Gates reject before any CFD (15:30, 1 min)
+### S10. Gates reject before any CFD (17:00, 0.5 min)
 
 - **Message:** The gates stop a design that would not converge, and the design box was trimmed on that evidence.
 - **Figure or table:** Table of the box diagnostics: 12/12, 8/14 and 5/14 converged; 12/14 diverged on both meshes and with both CFL caps.
 - **Source:** `runs/dev/2026-11-01_inlet_box_diagnostics/README.md`; `runs/dev/2026-11-01_inlet_grid_study_ef03/README.md` (12/14 diverged on both meshes).
 - **Speaker notes:** The 26 deg corner diverged, so the gate rejects total turning above 24 deg, and four of the 96 pool points are excluded. The 25 deg band was not tested, and any pool point near the limit that fails is recorded as a failure.
 
-### S11. Queue over Google Drive and a restart-safe worker (16:30, 1.5 min)
+### S11. Queue over Google Drive and a restart-safe worker (17:30, 1 min)
 
 - **Message:** Colab cannot take inbound connections, so jobs go through a Drive folder, and a restarted worker resumes without losing or repeating finished runs.
 - **Figure or table:** Queue folder diagram: `jobs/`, `runs/<id>/status/` flags, `result.json` and `error.json`.
 - **Source:** `docs/transcripts/2026-11-02_worker_restart_and_retry.md` (the worker on Colab restarted with `--retry-reason config_mismatch` on 2026-11-02 and re-ran the 63 refused pool jobs without repeating the 29 finished ones; all 92 pool points converged, `docs/validation/2026-11-01_colab_records.md`); `docs/faults/fault_matrix.md` row F8 (killed worker, local test with the fake solver).
 - **Speaker notes:** The worker never decides physics; it rebuilds the mesh from the uploaded parameters and checks a fingerprint before it runs SU2. Failure reasons come from a fixed list, so a failed job always says why.
 
-### S12. The first live agent call (18:00, 1 min)
+### S12. The first live agent call (18:30, 0.5 min)
 
 - **Message:** The agent reads the queue through a typed tool and answers from flag files and result records; it chose no sampling point.
 - **Figure or table:** The `list_results` output from the first live call, reproduced from the transcript (ten rows, all pending at that time).

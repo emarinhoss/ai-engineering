@@ -1,14 +1,14 @@
-"""The talk deck builds, has 47 slides, and every figure it places exists."""
+"""The talk deck builds, has 51 slides, and every figure it places exists."""
 from pptx import Presentation
 
 from docs.talk import build_deck
 
 
-def test_deck_builds_with_47_slides_and_existing_figures(tmp_path):
+def test_deck_builds_with_51_slides_and_existing_figures(tmp_path):
     out = tmp_path / "deck.pptx"
     n = build_deck.build(out)
-    assert n == 47                                   # 26 talk (S1a, S20a-d) + 12 backup + 9 section dividers
-    assert len(Presentation(str(out)).slides) == 47
+    assert n == 51                                   # 29 talk (S1a, S1b-d, S20a-d) + 12 backup + 10 section dividers
+    assert len(Presentation(str(out)).slides) == 51
     assert build_deck.USED_FIGURES, "no figure was placed"
     for rel in build_deck.USED_FIGURES:
         assert (build_deck.ROOT / rel).is_file(), rel
@@ -18,7 +18,7 @@ def test_notes_come_from_the_outline_and_pending_is_visible(tmp_path):
     out = tmp_path / "deck.pptx"
     build_deck.build(out)
     outline = build_deck.read_outline()
-    assert len(outline) == 38                        # S1 to S24, S1a, S20a to S20d and B1 to B9
+    assert len(outline) == 41                        # S1 to S24, S1a to S1d, S20a to S20d and B1 to B9
     texts, notes = [], []
     for slide in Presentation(str(out)).slides:
         texts.append(" ".join(sh.text_frame.text for sh in slide.shapes if sh.has_text_frame))

@@ -150,9 +150,12 @@ section 5 and the per-task specs are in `docs/specs/`.
 Structure for 60 minutes (40 talk, 20 discussion; the section minutes were set to 40 on
 2026-11-02, Éder's decision, from the 48 first proposed):
 
-1. Problem and why it matters (5 min; S1a, the questions the study answers, added 2026-11-02 at Éder's request).
+0. Title (0.5 min; S1).
+1a. Why a gated, automated process (2.5 min; S1b to S1d, added 2026-11-07 at Éder's request: the benefits of the
+   process from the fault matrices, and why MCP; the time comes from section 3 and S1a).
+1. Problem and why it matters (4 min; S1a, the questions the study answers, added 2026-11-02 at Éder's request, 1 min since 2026-11-07).
 2. Physics setup and validation (9 min).
-3. Automation layer: MCP tools, gates, queue (5 min).
+3. Automation layer: MCP tools, gates, queue (3 min; S9 to S12 shortened on 2026-11-07).
 4. Surrogate, active learning, UQ (9 min).
 5. Results, Pareto front, inverse query (4 min; S17 and S20 moved to backup on 2026-11-04 for 5b).
 5b. Six inputs over a flight envelope, Task 9 (5 min; S20a to S20d, added 2026-11-04 as the Task 9 spec fixed).
@@ -382,3 +385,9 @@ numerics and validation work to be done on Day 1 instead of Days 2 to 4.
   (single files take precedence over batch entries), and the 63 refused `runs/<id>/` folders
   were moved to the Drive trash so the running worker sees the jobs as new. First retried job
   started at 04:01 UTC and ran SU2 (log in `docs/transcripts/2026-11-02_worker_restart_and_retry.md`); 5 to 7.5 minutes per case, so the 63 jobs end around 10:30 UTC.
+- 2026-11-07: deck 51 slides. The title slide is slide 1. New section "Why a gated, automated process" (S1b to S1d,
+  2.5 minutes) after it: S1b (a tangled mesh cell, run R7b, converged with exit code 0 and a body heat load 3.6
+  percent high), S1c (matrix of 17 faults against the layer that stopped each, from the two fault matrices), S1d (why
+  MCP: one guarded door, what MCP adds and what does not depend on it, with the limits of the evidence). Talk stays at
+  40 minutes: section 3 from 5 to 3 minutes, S1a from 1.5 to 1. Every number is from `docs/faults/` and
+  `runs/faults/2026-11-03/`; the figures are drawn by `docs/talk/build_deck.py`.

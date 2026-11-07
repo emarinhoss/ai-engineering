@@ -1,5 +1,5 @@
-"""Build docs/talk/deck.pptx (47 slides: 26 talk, 12 backup, 9 section dividers) from committed files.
-Slide 1 is the title slide (S1), then the section 1 divider.
+"""Build docs/talk/deck.pptx (51 slides: 29 talk, 12 backup, 10 section dividers) from committed files.
+Slide 1 is the title slide (S1), then the section on why a gated process (S1b to S1d), then section 1.
 
 Run from the repository root with either of:
     python -m docs.talk.build_deck
@@ -1267,7 +1267,184 @@ def body_b6(slide):
 
 # ---- the deck: one dict per slide -------------------------------------------------------------
 REPORT = "docs/validation/2026-11-01_report.md"
+# ---- section "Why a gated, automated process" (S1b to S1d) -------------------------------------
+FAULT_RUNS = "runs/faults/2026-11-03"
+FAULT_MATRICES = ("docs/faults/fault_matrix.md", "docs/faults/real_fault_matrix.md")
+R1_REL_DIFF = 7e-6          # R1 heat load against R0, relative; docs/faults/README.md ("R1, a bad template edit")
+
+
+def read_observed(fault):
+    return json.loads((ROOT / FAULT_RUNS / fault / "observed.json").read_text())
+
+
+def draw_clean_exit(path):
+    """S1b: change of the body heat load against the clean control R0 for three runs SU2 accepted."""
+    q0 = read_observed("R0")["metrics"]["heat_load_body_W_per_m"]
+    q7 = read_observed("R7")["heat_load_body_W_per_m"]
+    q7b = read_observed("R7b")["heat_load_body_W_per_m"]
+    rows = [("R1  bad template edit\n(CFL 1e4, fixed)", 100 * R1_REL_DIFF, "converged in 201 iterations"),
+            ("R7  one element's node\norder reversed", 100 * (q7 / q0 - 1), "SU2 re-oriented it: same result"),
+            ("R7b  one node moved past\nthe opposite corner", 100 * (q7b / q0 - 1),
+             "exit code 0, converged, no warning")]
+    fig, ax = plt.subplots(figsize=(6.6, 3.3), dpi=200)
+    ys = np.arange(len(rows))[::-1]
+    for y, (label, value, note) in zip(ys, rows):
+        hot = value > 1
+        ax.barh(y, value, height=0.5, color=ACCENT_H if hot else BLUE_H)
+        ax.text(max(value, 0) + 0.12, y + 0.13, f"{value:+.3g} %", fontsize=10, fontweight="bold",
+                color=ACCENT_H if hot else BLUE_H, va="center")
+        ax.text(max(value, 0) + 0.12, y - 0.17, note, fontsize=8.5, color=GREY_H, va="center")
+    ax.set_yticks(ys)
+    ax.set_yticklabels([r[0] for r in rows], fontsize=9)
+    ax.set_xlim(0, 9.2)
+    ax.set_xlabel("change in body heat load against the clean run R0 (percent)", fontsize=9)
+    ax.spines[["top", "right"]].set_visible(False)
+    ax.axvline(0, color="black", lw=0.8)
+    fig.savefig(path, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
+
+
+# (group, label, layer index, kind, note). kind: stopped = a layer refused or recovered it, solver = SU2
+# handled it itself, reached = it reached the solver and was not stopped before it.
+LAYERS = ["Schema", "Physics\ngates", "Mesh\nquality", "Config\nkeys", "Worker\nchecks", "Ingest\nchecks", "SU2\nitself"]
+LAYER_ZONE = ["MCP tools (staging side)", "", "", "", "Colab", "staging", "SU2"]
+FAULT_ROWS = [
+    ("Bad input", "F1  theta2 = 20 deg, bound is 14", 0, "stopped", "refused, nothing written"),
+    ("", "F2  26 deg total turning", 1, "stopped", "gate 4, refused"),
+    ("", "F3  one inverted mesh cell", 2, "stopped", "mesh gate, refused"),
+    ("", "F4  key not in the SU2 template", 3, "stopped", "config check, refused"),
+    ("Worker", "F9, R8  edited mesh fingerprint", 4, "stopped", "mesh_mismatch, SU2 not started"),
+    ("", "F5  NaN residuals", 4, "stopped", "reason nan"),
+    ("", "F6, R2  SU2 killed or exits non-zero", 4, "stopped", "reason nonzero_exit"),
+    ("", "F7, R3  SU2 past the timeout", 4, "stopped", "process group killed"),
+    ("", "F8, R4  worker killed mid-run", 4, "stopped", "re-run once, same result"),
+    ("", "R5g  SU2 left by a dead worker", 4, "stopped", "stopped before the re-run"),
+    ("Transfer", "F10a, F10b  result of another job", 5, "stopped", "record check refuses it"),
+    ("", "result retyped wrongly by an agent", 5, "stopped", "digest; 6 of 84 first copies"),
+    ("Bypassed", "R9  hand-made 12/14 job, no guard", 6, "reached", "diverged after 449.5 s"),
+    ("", "R9g  same job with the guard", 4, "stopped", "gates, refused in 0.0 s"),
+    ("", "R6  unknown key, gate bypassed", 6, "solver", "SU2 refused in 0.01 s"),
+    ("", "R7  reversed element, gate bypassed", 6, "solver", "SU2 repaired it"),
+    ("", "R7b  tangled cell, gate bypassed", 6, "reached", "converged, +3.6 % heat load"),
+]
+
+
+def draw_fault_layers(path):
+    """S1c: which layer of the chain stopped each injected fault (fault ids as in the two fault matrices)."""
+    import re as _re
+    known = "".join((ROOT / m).read_text() for m in FAULT_MATRICES)
+    for _, label, *_ in FAULT_ROWS:
+        for fid in _re.findall(r"\b(?:F\d+[ab]?|R\d+[bg]?)\b", label):
+            assert f"| {fid} |" in known, f"{fid} is not in the fault matrices"
+    row_h, top, col0, col_w = 0.2, 0.85, 3.95, 0.75
+    height = top + row_h * len(FAULT_ROWS) + 0.5
+    fig, ax = plt.subplots(figsize=(12.1, height), dpi=200)
+    ax.set_xlim(0, 12.1)
+    ax.set_ylim(height, 0)
+    ax.axis("off")
+    for i, (name, zone) in enumerate(zip(LAYERS, LAYER_ZONE)):
+        cx = col0 + col_w * (i + 0.5)
+        ax.text(cx, top - 0.08, name, ha="center", va="bottom", fontsize=9, fontweight="bold", color=BLUE_H)
+        if zone:
+            zx = col0 + col_w * 2 if i == 0 else cx            # the staging-side label is centered over four columns
+            ax.text(zx, 0.12, zone, ha="center", va="center", fontsize=7.5, color=GREY_H)
+    ax.plot([col0 + 0.03, col0 + 4 * col_w - 0.03], [0.27, 0.27], color=GREY_H, lw=0.8)
+    ax.text(9.35, top - 0.08, "what happened", ha="left", va="bottom", fontsize=9, fontweight="bold", color=BLUE_H)
+    for i in range(len(LAYERS) + 1):
+        ax.plot([col0 + col_w * i] * 2, [top, top + row_h * len(FAULT_ROWS)], color="#dddddd", lw=0.6)
+    colors = {"stopped": BLUE_H, "solver": GREY_H, "reached": ACCENT_H}
+    for r, (group, label, col, kind, note) in enumerate(FAULT_ROWS):
+        y = top + row_h * (r + 0.5)
+        if group:
+            ax.plot([0, 12.1], [top + row_h * r] * 2, color="#bbbbbb", lw=0.8)
+            ax.text(0.0, y, group, ha="left", va="center", fontsize=8.5, fontweight="bold", color=BLUE_H)
+        ax.text(1.45, y, label, ha="left", va="center", fontsize=8.5, color=ACCENT_H if kind == "reached" else "black")
+        ax.scatter([col0 + col_w * (col + 0.5)], [y], s=75, color=colors[kind], zorder=3)
+        ax.text(9.35, y, note, ha="left", va="center", fontsize=8.5, color=ACCENT_H if kind == "reached" else "black",
+                fontweight="bold" if kind == "reached" else "normal")
+    ly = top + row_h * len(FAULT_ROWS) + 0.3
+    for x, kind, text in ((1.45, "stopped", "stopped or recovered by that layer"), (5.0, "solver", "SU2 handled it itself"),
+                          (7.9, "reached", "reached the solver and nothing stopped it earlier")):
+        ax.scatter([x], [ly], s=60, color=colors[kind])
+        ax.text(x + 0.15, ly, text, ha="left", va="center", fontsize=8.5)
+    fig.savefig(path, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
+
+
+def body_s1b(slide):
+    path = "docs/talk/figures/clean_exit.png"
+    draw_clean_exit(ROOT / path)
+    w, h = add_figure(slide, path, LM, CT, 6.7, 3.4)
+    caption(slide, LM, CT + h + 0.03, 6.8, f"Figure: {path}, drawn by docs/talk/build_deck.py from "
+            "runs/faults/2026-11-03/R0, R7 and R7b observed.json (wedge, coarse mesh, laminar). R1: docs/faults/README.md.", lines=3)
+    text_box(slide, LM, CT + h + 0.65, 6.8, 1.3,
+             ["Reversed node order alone (R7) is repaired by SU2 and gives the same result to every digit, so not every "
+              "bad mesh is dangerous. A tangled cell is.",
+              "Only the mesh-quality gate stops it, and the worker never runs a mesh it did not build and check itself."],
+             size=12, bullets=True, space_after=4)
+    x, bw = 7.9, 4.8
+    box(slide, x, CT + 0.05, bw, 0.7, "mesh with one tangled cell", size=13, fill=WHITE)
+    box(slide, x, CT + 1.15, bw, 0.95, "mesh-quality gate: inverted cells, minimum angle\nrefuses the job here (bypassed in R7b)",
+        size=12, line=ACCENT, bold=True)
+    box(slide, x, CT + 2.5, bw, 1.0, "SU2 re-orients 1 element and runs 1078 iterations\n(clean run: 672)\n"
+        "exit code 0, status converged, no warning", size=12, fill=WHITE)
+    box(slide, x, CT + 3.9, bw, 0.7, "body heat load 4887 W/m, 3.6 percent above the clean run", size=12, fill=WHITE,
+        line=ACCENT, color=ACCENT, bold=True)
+    for y0, y1 in ((0.75, 1.15), (2.1, 2.5), (3.5, 3.9)):
+        arrow(slide, x + bw / 2, CT + y0, x + bw / 2, CT + y1)
+
+
+def body_s1c(slide):
+    path = "docs/talk/figures/fault_layers.png"
+    draw_fault_layers(ROOT / path)
+    w, h = add_figure(slide, path, LM, CT - 0.05, CW, 4.55)
+    caption(slide, LM, CT - 0.05 + h + 0.03, CW, f"Figure: {path}, drawn by docs/talk/build_deck.py from the 'Caught by' columns of "
+            "docs/faults/fault_matrix.md (fake solver) and docs/faults/real_fault_matrix.md (SU2 v8.2.0); transfer row: "
+            "docs/faults/README.md.", lines=2)
+
+
+def body_s1d(slide):
+    bw, gap, step = 1.4, 0.37, 1.77
+    text_box(slide, LM, CT, 6.7, 0.3, "Door 1: the MCP tools", size=13, color=BLUE, bold=True, space_after=0)
+    row1 = ["Claude Code\n(MCP client)", "typed call\nschema, bounds", "physics gates\nphysics/gates.py", "mesh, config\nchecks, staged job"]
+    row2 = ["job file written\nby hand", "Drive queue,\nColab worker", "physics gates\n(same function)", "mesh and config\nrebuilt, hashes"]
+    for i, (a, b) in enumerate(zip(row1, row2)):
+        shared = i == 2
+        kw = dict(fill=BLUE, color=WHITE, bold=True) if shared else dict(fill=WHITE)
+        box(slide, LM + i * step, CT + 0.4, bw, 0.8, a, size=11, **kw)
+        box(slide, LM + i * step, CT + 2.25, bw, 0.8, b, size=11, **kw)
+        if i:
+            arrow(slide, LM + i * step - 0.37, CT + 0.8, LM + i * step, CT + 0.8)
+            arrow(slide, LM + i * step - 0.37, CT + 2.65, LM + i * step, CT + 2.65)
+    text_box(slide, LM, CT + 1.25, 6.7, 0.35, "every call is logged with its arguments: mcp_log.jsonl", size=11, color=GREY, space_after=0)
+    text_box(slide, LM, CT + 1.85, 6.7, 0.3, "Door 2: around the MCP server", size=13, color=BLUE, bold=True, space_after=0)
+    text_box(slide, LM, CT + 3.15, 6.7, 1.0,
+             ["Until 2026-11-03 door 2 had no gate: R9 reached SU2 and diverged after 449.5 s. Now the worker calls the "
+              "same gate function and refuses the job in 0.0 s."], size=12, color=ACCENT, bold=True, space_after=0)
+    caption(slide, LM, CT + 4.1, 6.7, "Blue: physics.gates.check, called from mcp_server/queue.py and worker/run_worker.py. "
+            "Drawing, no data. Records: docs/faults/real_fault_matrix.md (R9, R9g).", lines=2)
+    rows = [["What MCP adds", "What does not depend on MCP"],
+            ["One entry point to validate, create and submit", "Schema, physics gates, mesh-quality gate"],
+            ["Typed arguments, checked before any code runs", "Mesh fingerprint, config hash, result digest"],
+            ["Every call logged with its arguments", "Restart-safe worker and heartbeat"],
+            ["Any MCP client can call it, no glue code", "The sampling choice: surrogate and acquisition"]]
+    add_table(slide, 7.75, CT, [2.5, 2.5], rows, size=11, row_h=0.55)
+    text_box(slide, 7.75, CT + 2.95, 5.0, 1.9,
+             ["The schema caught the agent's own mistake: the first three live validate_config calls left out the required "
+              "tag and were refused with the field named.",
+              "Limit: the first live call listed ten rows and chose nothing, and we injected the faults. The evidence shows "
+              "the guards work, not how often a model errs."], size=12, bullets=True, space_after=5)
+
+
 SLIDES = {
+    "S1b": {"title": "A clean exit is not a correct result", "body": body_s1b,
+            "sources": ["docs/faults/README.md", "runs/faults/2026-11-03/R0/observed.json",
+                        "runs/faults/2026-11-03/R7/observed.json", "runs/faults/2026-11-03/R7b/observed.json"]},
+    "S1c": {"title": "What stopped each injected fault", "body": body_s1c,
+            "sources": ["docs/faults/fault_matrix.md", "docs/faults/real_fault_matrix.md", "docs/faults/README.md"]},
+    "S1d": {"title": "Why MCP, and what it does not add", "body": body_s1d,
+            "sources": ["docs/faults/real_fault_matrix.md", "docs/transcripts/2026-11-03_mcp_input_faults.md",
+                        "docs/transcripts/2026-11-01_first_mcp_call.md"]},
     "S1a": {"title": "The questions this study answers", "body": body_s1a,
             "sources": ["PLAN.md (Framing, Problem)", "docs/specs/00_decisions.md (section 3)"]},
     "S2": {"title": "The design question", "body": body_s2,
@@ -1376,9 +1553,10 @@ SLIDES = {
 
 # deck order: (section divider title, sub line, slide ids)
 SECTIONS = [
-    ("1. Problem and why it matters", "5 minutes", ["S1", "S1a", "S2", "S3"]),
+    ("Why a gated, automated process", "2.5 minutes", ["S1b", "S1c", "S1d"]),
+    ("1. Problem and why it matters", "4 minutes", ["S1a", "S2", "S3"]),
     ("2. Physics setup and validation", "9 minutes", ["S4", "S5", "S6", "S7", "S8"]),
-    ("3. Automation layer: MCP tools, gates, queue", "5 minutes", ["S9", "S10", "S11", "S12"]),
+    ("3. Automation layer: MCP tools, gates, queue", "3 minutes", ["S9", "S10", "S11", "S12"]),
     ("4. Surrogate, active learning, UQ", "9 minutes", ["S13", "S14", "S15", "S16"]),
     ("5. Results, Pareto front, inverse query", "4 minutes", ["S18", "S19"]),
     ("5b. Six inputs over a flight envelope", "5 minutes", ["S20a", "S20b", "S20c", "S20d"]),
