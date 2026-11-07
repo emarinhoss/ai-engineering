@@ -1,4 +1,5 @@
 """Build docs/talk/deck.pptx (47 slides: 26 talk, 12 backup, 9 section dividers) from committed files.
+Slide 1 is the title slide (S1), then the section 1 divider.
 
 Run from the repository root with either of:
     python -m docs.talk.build_deck
@@ -1393,18 +1394,21 @@ def build(out_path=DEFAULT_OUT):
     FIG_DIR.mkdir(parents=True, exist_ok=True)
     outline = read_outline()
     prs = new_deck()
+    # The title slide (S1) is the first slide of the deck, ahead of the first section divider.
+    info = outline["S1"]
+    add_title_slide(prs, 1, "Aero-thermal inlet design: surrogate and automation", info["message"],
+                    ["Friday 13 November 2026",
+                     "Mach 4 at 30 km, two-ramp inlet, two design variables; then a three-ramp inlet over a "
+                     "flight envelope, six inputs.",
+                     "Status 2026-11-04: every number comes from a record in this repository; "
+                     "the confirmation run passed (C2)."], info["notes"])
     for section_title, sub, ids in SECTIONS:
         add_divider_slide(prs, section_title, sub)
         for sid in ids:
+            if sid == "S1":
+                continue                                  # already placed as slide 1
             number = len(prs.slides) + 1
             info = outline[sid]
-            if sid == "S1":
-                add_title_slide(prs, number, "Aero-thermal inlet design: surrogate and automation", info["message"],
-                                ["Mach 4 at 30 km, two-ramp inlet, two design variables; then a three-ramp inlet over a "
-                                 "flight envelope, six inputs.",
-                                 "Status 2026-11-04: every number comes from a record in this repository; "
-                                 "the confirmation run passed (C2)."], info["notes"])
-                continue
             spec = SLIDES[sid]
             slide = start_slide(prs, number, sid, spec["title"], info["message"], spec["sources"], info["notes"])
             spec["body"](slide)
