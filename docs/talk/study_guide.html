@@ -105,7 +105,7 @@ a{color:var(--ink)}
 <tr><td>Sat 7, Sun 8</td><td>C. Surrogates and active learning</td><td>17 to 23, 23a, 23b</td><td>Explain the GP interval, the hypervolume regret and the honest replay verdict.</td></tr>
 <tr><td>Mon 9</td><td>D. Automation layer</td><td>24 to 28</td><td>Draw the pipeline from memory and name what caught each of the five failures.</td></tr>
 <tr><td>Tue 10, Wed 11</td><td>Deck run-through</td><td>all</td><td>Present the deck to the wall with a timer. Open the record behind any number you are not sure of.</td></tr>
-<tr><td>Thu 12</td><td>Question drill and rest</td><td>all</td><td>Answer the 66 interview questions below aloud. Stop early.</td></tr>
+<tr><td>Thu 12</td><td>Question drill and rest</td><td>all</td><td>Answer the 69 interview questions below aloud. Stop early.</td></tr>
 </table></div>
 
 <!-- ============================ A ============================ -->
@@ -1213,12 +1213,26 @@ q_{\mathrm{peak}} & 0.65\text{ to }0.77 & 0.81\text{ to }0.88 & 0.84\text{ to }0
 <p class="where"><b>In the talk:</b> S15, S18. <b>Record:</b> <code>surrogate/acquisition.py</code> functions <code>pareto_front</code>, <code>hypervolume_2d</code>, <code>ref_point</code>; <code>surrogate/replay.py</code> function <code>metrics_row</code>.</p>
 <span class="lbl">Definition</span>
 <p>In minimization form f1 = minus recovery and f2 = log q_peak. Point j dominates point i if f_j is no worse in both objectives and strictly better in one. The Pareto front is the set of non-dominated points. The hypervolume is the area dominated by the front and bounded by a reference point worse than every point. Hypervolume regret is one minus the hypervolume of the selected points' front over the hypervolume of the true pool front. Zero regret means the selected points contain the whole true front.</p>
+<p><strong>Why a front and not one best design.</strong> The two objectives conflict. A design with higher total pressure recovery tends to have higher peak heat flux, so no single design is best at both. The Pareto front is the honest answer to "what is the best trade-off": each point on it is the best recovery available for its heat flux, and the designer picks a point by deciding how much heating to accept. Every design off the front is beaten on both objectives by some design on it, so it can be discarded.</p>
+<p><strong>Dominance, step by step.</strong> Work in minimisation form, with f1 equal to minus recovery and f2 equal to the log of peak heat flux, so smaller is better in both. Design j dominates design i when f1 and f2 of j are both no larger, and at least one is strictly smaller. Two designs where each is better in one objective do not dominate each other, and both can stay on the front. Identical designs do not dominate each other either.</p>
+<p><strong>Two ways to find the front.</strong> The all-pairs method compares every design with every other. It builds one boolean matrix for "j is no worse than i in both" and one for "j is strictly better in at least one", and marks i dominated if any j satisfies both. It costs the square of the number of designs, which is trivial for 92 pool points and is what the replay and the acquisition use. The sort-and-sweep method sorts the designs by f1, then walks from the best f1 to the worst while remembering the lowest f2 seen. A design joins the front only if its f2 is below that running minimum, because every earlier design has a better or equal f1, so it can only survive by being better in f2. It costs one sort, so it handles a 40 000-point prediction grid. Both give the same answer on the same data.</p>
+<p><strong>Observed, predicted and uncertain fronts.</strong> The front of the simulated runs is exact for the runs that exist. To say where the true front lies between them, the study applies the same sweep to the GP posterior mean on a dense grid of angles, with the total-turning gate removing infeasible points. To show how uncertain that is, it draws joint samples of both objectives from the two GPs, takes each sample's front, and reports the spread of the best recovery at each heat-flux level. A narrow band means the models agree about the trade-off, and a wide band marks where another simulation would help.</p>
+<p><strong>From a front to a number.</strong> To compare two sets of designs, or to decide which design to simulate next, the front is reduced to its hypervolume, the area it dominates up to a fixed reference point worse than every design. A new design raises the hypervolume only if it lies outside the area already dominated, so the increase measures how much it extends or fills out the front. Expected hypervolume improvement is the average of this increase over the GP's uncertainty about the candidate.</p>
 <span class="lbl">Key relation</span>
 <div class="eq">\[
 \begin{aligned}
 \mathbf{r} &= \mathbf{f}_{\mathrm{nadir}} + \tfrac{1}{10}\left(\mathbf{f}_{\mathrm{nadir}} - \mathbf{f}_{\mathrm{ideal}}\right) \quad \text{per objective} \\
 \mathrm{HV}(S) &= \mathrm{area}\left\{\mathbf{z} : \exists\, \mathbf{s} \in S \text{ with } \mathbf{s} \le \mathbf{z} \le \mathbf{r}\right\} \quad \text{(2D: a staircase sum)} \\
 \mathrm{regret}(S) &= \frac{\mathrm{HV}(\text{true front}) - \mathrm{HV}(\text{front of } S)}{\mathrm{HV}(\text{true front})}
+\end{aligned}
+\]</div>
+<span class="lbl">More relations: dominance and the sweep</span>
+<div class="eq">\[
+\begin{aligned}
+\mathbf{f}_j \prec \mathbf{f}_i \iff f_{j,1} \le f_{i,1} \ \wedge\ f_{j,2} \le f_{i,2} \ \wedge\ \left(f_{j,1} \lt f_{i,1} \ \vee\ f_{j,2} \lt f_{i,2}\right), \qquad
+\mathrm{front}(F) = \left\{\, i : \nexists\, j,\ \mathbf{f}_j \prec \mathbf{f}_i \,\right\} \\
+\text{sweep: sort so that } f_{(1),1} \le f_{(2),1} \le \cdots; \qquad (k) \in \mathrm{front} \iff f_{(k),2} \lt \min_{m \lt k} f_{(m),2}, \qquad \text{cost } O(n \log n) \\
+\mathrm{HV}(F) = \sum_{k \in \mathrm{front}} \left(r_1 - f_{(k),1}\right)\left(\ell_{k-1} - f_{(k),2}\right), \qquad \ell_0 = r_2, \quad \ell_k = f_{(k),2} \ \text{(the running minimum)}
 \end{aligned}
 \]</div>
 <span class="lbl">More relations</span>
@@ -1250,7 +1264,7 @@ q_{\mathrm{peak}} & 0.65\text{ to }0.77 & 0.81\text{ to }0.88 & 0.84\text{ to }0
 <li>Tests: <code>tests/test_hypervolume.py</code>, <code>tests/test_acquisition.py</code>, <code>tests/test_pareto.py</code>.</li>
 </ul></div>
 <span class="lbl">Worked example (final replay)</span>
-<p>The true front of the 92-point pool has 26 points. Median regret over 10 seeds:</p>
+<p>The true front of the 92-point pool has 26 points. The prediction grid for the front plot has 39 083 feasible points of 40 401, and the sweep over their GP means gives a predicted front of 539 points, which is a smooth curve, not 539 distinct designs to build. The band uses 50 joint samples on 1500 of those grid points, the random subsample that keeps the covariance matrix small enough to factorise (<code>notes.json</code>). Median regret over 10 seeds:</p>
 \[
 \begin{array}{lcccc}
 n & \text{random} & \text{LHS} & \text{EHVI} & \text{max-variance} \\ \hline
@@ -1261,10 +1275,13 @@ n & \text{random} & \text{LHS} & \text{EHVI} & \text{max-variance} \\ \hline
 \]
 <p>At \(n = 32\) EHVI is exactly 0 in 10 of 10 seeds, and no seed of any other strategy reaches 0 by \(n = 48\).</p>
 <span class="lbl">Interview questions</span>
+<details><summary>What is a Pareto front, in one breath?</summary><p class="a">The set of designs where you cannot improve recovery without raising heat flux, or lower heat flux without losing recovery. Every other design is beaten on both objectives by one on the front, so the front is the full list of reasonable trade-offs.</p></details>
+<details><summary>How do you compute it, and why is the sweep correct?</summary><p class="a">Sort by f1 and walk left to right, keeping a design only if its f2 is below every f2 so far. Every earlier design has an equal or better f1, so a later design can only escape being dominated by having a lower f2. The all-pairs comparison does the same job and is used for the 92-point pool; the sweep is used for the 40 000-point grid.</p></details>
 <details><summary>Why hypervolume and not distance to the front?</summary><p class="a">Hypervolume rewards both closeness and spread along the front with one number, needs no knowledge of the true front during the search, and is the quantity EHVI maximizes in expectation, so the comparison is fair to the acquisition function.</p></details>
 <details><summary>Does the reference point choice change the verdict?</summary><p class="a">It changes the numbers but not the ordering here, because the reference is fixed from the whole pool for every strategy and seed. A regret of zero is independent of the reference point.</p></details>
 <span class="lbl">Self-check</span>
 <details><summary>How many points are on the true pool front?</summary><p class="a">26 of 92.</p></details>
+<details><summary>Can two designs both be on the front if one has higher recovery and the other lower heat flux?</summary><p class="a">Yes. Neither dominates the other, because each is better in one objective. That is exactly what a trade-off is.</p></details>
 <details><summary>What does regret 0 mean operationally?</summary><p class="a">Every one of the 26 true front points is among the selected runs.</p></details>
 </section>
 
@@ -1806,7 +1823,7 @@ q_{\mathrm{peak}}: &\quad \text{two-level, 12 NS runs: } 0.025, \qquad \text{NS 
 </ul>
 
 <h2 id="d6">Question drill (Thu 12)</h2>
-<p>Answer the 66 interview questions in this plan aloud, in a random order, without opening the answers. For each one, name the slide you would open. Stop after two hours. Do not change the deck on the last day; a wrong late edit costs more than a known small flaw.</p>
+<p>Answer the 69 interview questions in this plan aloud, in a random order, without opening the answers. For each one, name the slide you would open. Stop after two hours. Do not change the deck on the last day; a wrong late edit costs more than a known small flaw.</p>
 
 <h2>References</h2>
 <ul class="ref">
