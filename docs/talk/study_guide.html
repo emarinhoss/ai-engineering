@@ -105,7 +105,7 @@ a{color:var(--ink)}
 <tr><td>Sat 7, Sun 8</td><td>C. Surrogates and active learning</td><td>17 to 23, 23a, 23b</td><td>Explain the GP interval, the hypervolume regret and the honest replay verdict.</td></tr>
 <tr><td>Mon 9</td><td>D. Automation layer</td><td>24 to 28</td><td>Draw the pipeline from memory and name what caught each of the five failures.</td></tr>
 <tr><td>Tue 10, Wed 11</td><td>Deck run-through</td><td>all</td><td>Present the deck to the wall with a timer. Open the record behind any number you are not sure of.</td></tr>
-<tr><td>Thu 12</td><td>Question drill and rest</td><td>all</td><td>Answer the 62 interview questions below aloud. Stop early.</td></tr>
+<tr><td>Thu 12</td><td>Question drill and rest</td><td>all</td><td>Answer the 64 interview questions below aloud. Stop early.</td></tr>
 </table></div>
 
 <!-- ============================ A ============================ -->
@@ -721,16 +721,35 @@ U_{\mathrm{face}} &= U_{\mathrm{cell}} + \phi\,\nabla U \cdot \mathbf{r}_{\mathr
 <details><summary>Which limiter coefficient is used?</summary><p class="a">0.05.</p></details>
 </section>
 
-<section class="entry" id="c12"><header><input type="checkbox" data-id="c12" id="k12"><h3><label for="k12">12. Implicit time stepping, CFL adaptation and the linear solver</label></h3></header>
+<section class="entry" id="c12"><header><input type="checkbox" data-id="c12" id="k12"><h3><label for="k12">12. Implicit time stepping, CFL adaptation, Krylov subspaces and FGMRES</label></h3></header>
 <p class="where"><b>In the talk:</b> B4. <b>Record:</b> <code>docs/specs/00_decisions.md</code> section 6, <code>runs/dev/2026-11-01_numerics/README.md</code>.</p>
 <span class="lbl">Definition</span>
 <p>The steady solution is reached by marching in pseudo-time. An implicit Euler step solves a linear system each iteration and allows CFL numbers far above the explicit limit. The CFL number sets the pseudo-time step relative to the cell size and wave speed. CFL adaptation raises the CFL when the residual falls and lowers it when the residual rises. The linear system is solved approximately with FGMRES and an ILU preconditioner.</p>
+<p><strong>Krylov subspaces.</strong> The implicit step needs the solution of \(\mathbf{A}\,\Delta\mathbf{U} = \mathbf{b}\) with \(\mathbf{A} = (V/\Delta t)\mathbf{I} + \partial\mathbf{R}/\partial\mathbf{U}\). On the medium 8/8 mesh \(\mathbf{A}\) has four unknowns per cell (density, two momenta, energy), so about 122 000 rows, and each row has entries only for the cell and its neighbours: the matrix is sparse. A direct solve by LU factorisation would fill in the sparsity and is too expensive to repeat every pseudo-time step. A Krylov method never factorises \(\mathbf{A}\). It only multiplies \(\mathbf{A}\) by vectors. Starting from the residual \(\mathbf{r}_0 = \mathbf{b} - \mathbf{A}\mathbf{x}_0\), it builds the Krylov subspace, the span of \(\mathbf{r}_0, \mathbf{A}\mathbf{r}_0, \mathbf{A}^2\mathbf{r}_0, \ldots\), one new vector per iteration, and looks for the best correction inside that subspace.</p>
+<p><strong>GMRES and FGMRES.</strong> GMRES (generalised minimal residual) chooses, among all corrections in the \(m\)-dimensional Krylov subspace, the one that makes the residual \(\|\mathbf{b} - \mathbf{A}\mathbf{x}_m\|\) smallest. The Arnoldi process keeps the Krylov vectors orthonormal and turns the big minimisation into a small least-squares problem of size \(m\). The residual can only fall or stay as \(m\) grows, and each iteration costs one matrix-vector product plus \(m\) dot products. A preconditioner \(\mathbf{M} \approx \mathbf{A}\) that is cheap to invert is applied to every Krylov vector, so the method works on \(\mathbf{A}\mathbf{M}^{-1}\), which is closer to the identity and needs fewer iterations. ILU (incomplete LU) is such an \(\mathbf{M}\): an LU factorisation that keeps only the entries where \(\mathbf{A}\) already has them. FGMRES is the flexible variant: the preconditioner may change from one iteration to the next, which is what SU2 needs in parallel, because the ILU on each MPI rank sees only its own part of the mesh. FGMRES stores the preconditioned vectors as well, so it costs twice the memory of GMRES for the same \(m\), which is harmless at 15 vectors.</p>
 <span class="lbl">Key relation</span>
 <div class="eq">\[
 \begin{aligned}
 \left(\frac{V}{\Delta t}\,\mathbf{I} + \frac{\partial \mathbf{R}}{\partial \mathbf{U}}\right)\Delta\mathbf{U} &= -\mathbf{R}(\mathbf{U}), \qquad
 \Delta t = \mathrm{CFL}\,\frac{h}{\lvert u \rvert + a} \\
 \text{CFL adaptation } (f_{\downarrow}, f_{\uparrow}, \mathrm{CFL}_{\min}, \mathrm{CFL}_{\max}) &= \left(\tfrac{1}{2},\; \tfrac{21}{20},\; 1,\; 20\right)
+\end{aligned}
+\]</div>
+<span class="lbl">Key relations: Krylov subspace, GMRES, FGMRES</span>
+<div class="eq">\[
+\begin{aligned}
+\mathbf{A}\,\mathbf{x} &= \mathbf{b}, \qquad \mathbf{A} = \frac{V}{\Delta t}\mathbf{I} + \frac{\partial\mathbf{R}}{\partial\mathbf{U}}, \quad
+\mathbf{x} = \Delta\mathbf{U}, \quad \mathbf{b} = -\mathbf{R}(\mathbf{U}), \qquad \mathbf{r}_0 = \mathbf{b} - \mathbf{A}\mathbf{x}_0 \\
+\mathcal{K}_m(\mathbf{A}, \mathbf{r}_0) &= \mathrm{span}\left\{\mathbf{r}_0,\ \mathbf{A}\mathbf{r}_0,\ \mathbf{A}^2\mathbf{r}_0,\ \ldots,\ \mathbf{A}^{m-1}\mathbf{r}_0\right\} \quad \text{(Krylov subspace of dimension } m) \\
+\text{GMRES: } \mathbf{x}_m &= \mathbf{x}_0 + \mathbf{z}_m, \qquad \mathbf{z}_m = \arg\min_{\mathbf{z} \in \mathcal{K}_m} \lVert \mathbf{b} - \mathbf{A}(\mathbf{x}_0 + \mathbf{z}) \rVert_2 \\
+\text{Arnoldi: } \mathbf{A}\mathbf{V}_m &= \mathbf{V}_{m+1}\bar{\mathbf{H}}_m, \quad \mathbf{V}_m^{\mathsf T}\mathbf{V}_m = \mathbf{I}
+\ \Rightarrow\ \mathbf{y}_m = \arg\min_{\mathbf{y}} \lVert \beta\mathbf{e}_1 - \bar{\mathbf{H}}_m \mathbf{y} \rVert_2, \quad
+\mathbf{x}_m = \mathbf{x}_0 + \mathbf{V}_m \mathbf{y}_m, \quad \beta = \lVert\mathbf{r}_0\rVert_2 \\
+\text{right preconditioning: } & \left(\mathbf{A}\mathbf{M}^{-1}\right)\mathbf{u} = \mathbf{b}, \quad \mathbf{x} = \mathbf{M}^{-1}\mathbf{u}, \qquad
+\mathbf{M} = \tilde{\mathbf{L}}\tilde{\mathbf{U}} \approx \mathbf{A} \ \text{(ILU: no fill-in outside the pattern of } \mathbf{A}) \\
+\text{FGMRES: } \mathbf{z}_j &= \mathbf{M}_j^{-1}\mathbf{v}_j \ \text{(the preconditioner may change with } j), \qquad
+\mathbf{x}_m = \mathbf{x}_0 + \mathbf{Z}_m \mathbf{y}_m, \quad \mathbf{Z}_m = [\mathbf{z}_1 \cdots \mathbf{z}_m] \\
+\text{stop when } & \frac{\lVert \mathbf{b} - \mathbf{A}\mathbf{x}_m \rVert_2}{\lVert \mathbf{b} \rVert_2} \le 10^{-6} \quad \text{or} \quad m = 15
 \end{aligned}
 \]</div>
 <span class="lbl">Variables</span>
@@ -740,13 +759,22 @@ U_{\mathrm{face}} &= U_{\mathrm{cell}} + \phi\,\nabla U \cdot \mathbf{r}_{\mathr
 <tr><td>\(\mathbf{R}(\mathbf{U})\), \(\partial\mathbf{R}/\partial\mathbf{U}\)</td><td>residual and its (first-order) Jacobian</td><td>inside SU2</td></tr>
 <tr><td>\(\mathrm{CFL}\)</td><td>Courant number, starts at 1</td><td><code>CFL_NUMBER= 1.0</code>, <code>CFL_ADAPT= YES</code></td></tr>
 <tr><td>\((f_\downarrow, f_\uparrow, \mathrm{CFL}_{\min}, \mathrm{CFL}_{\max})\)</td><td>down factor, up factor, floor, cap</td><td><code>CFL_ADAPT_PARAM= ( 0.5, 1.05, 1.0, 20.0 )</code></td></tr>
-<tr><td>Krylov settings</td><td>FGMRES iterations and tolerance, ILU preconditioner</td><td><code>LINEAR_SOLVER_ITER= 15</code>, <code>LINEAR_SOLVER_ERROR= 1E-6</code>, <code>LINEAR_SOLVER_PREC= ILU</code></td></tr>
+<tr><td>\(\mathbf{A}\), \(\mathbf{x}\), \(\mathbf{b}\)</td><td>implicit-step matrix, the update, the negative residual</td><td>inside SU2; about \(4 N_{\mathrm{cells}}\) unknowns in 2D</td></tr>
+<tr><td>\(\mathbf{r}_0\), \(\beta\)</td><td>initial linear residual and its norm</td><td>inside SU2; \(\mathbf{x}_0 = 0\) at each pseudo-time step</td></tr>
+<tr><td>\(\mathcal{K}_m\), \(m\)</td><td>Krylov subspace and its dimension (number of iterations)</td><td>\(m \le\) <code>LINEAR_SOLVER_ITER= 15</code>; history column <code>Linear_Solver_Iterations</code></td></tr>
+<tr><td>\(\mathbf{V}_m\), \(\bar{\mathbf{H}}_m\), \(\mathbf{y}_m\)</td><td>orthonormal Krylov basis, the small Hessenberg matrix, the small least-squares solution</td><td>inside SU2 (<code>LINEAR_SOLVER= FGMRES</code>)</td></tr>
+<tr><td>\(\mathbf{M}\), \(\tilde{\mathbf{L}}\tilde{\mathbf{U}}\)</td><td>preconditioner, incomplete LU factors</td><td><code>LINEAR_SOLVER_PREC= ILU</code> (fill level 0, the SU2 default)</td></tr>
+<tr><td>\(\mathbf{Z}_m\)</td><td>the preconditioned vectors FGMRES stores</td><td>inside SU2</td></tr>
+<tr><td>relative linear residual, \(10^{-6}\)</td><td>stop tolerance of the linear solve</td><td><code>LINEAR_SOLVER_ERROR= 1E-6</code>; history column <code>LinSolRes</code> (\(\log_{10}\))</td></tr>
 <tr><td>\(N_{\mathrm{iter}}\)</td><td>iteration cap</td><td><code>ITER= $max_iter</code>; <code>params["max_iter"]</code> default 6000, schema 100 to 20000</td></tr>
 <tr><td>\(t_{\mathrm{wall}}\), timeout</td><td>wall time and the kill limit</td><td><code>result["run"]["wall_time_s"]</code>; <code>timeout_s = 2400</code> in job.json</td></tr>
 </table></div>
 <div class="impl"><span class="lbl">Implementation: the template and worker/run_case.py</span>
 <ul>
 <li>Time stepping and the linear solver are template lines (table above). They are the same for every family and every mesh level; the only per-run value is <code>max_iter</code>.</li>
+<li>Nothing in the repository implements GMRES. SU2 does, and the four template lines <code>LINEAR_SOLVER= FGMRES</code>, <code>LINEAR_SOLVER_PREC= ILU</code>, <code>LINEAR_SOLVER_ERROR= 1E-6</code>, <code>LINEAR_SOLVER_ITER= 15</code> are the whole configuration. The ILU fill level is left at SU2's default of 0. Because <code>HISTORY_OUTPUT</code> includes <code>LINSOL</code>, every history.csv has the columns <code>Linear_Solver_Iterations</code> (the \(m\) reached in that pseudo-time step) and <code>LinSolRes</code> (\(\log_{10}\) of the relative linear residual when it stopped), so the behaviour of the linear solver is in every run record.</li>
+<li>Why the solve is deliberately loose: the Jacobian \(\partial\mathbf{R}/\partial\mathbf{U}\) that SU2 assembles is the first-order one, while the residual \(\mathbf{R}\) is second order (entry 11). An exact solution of the linear system would therefore not give an exact Newton step. Fifteen Krylov iterations at \(10^{-6}\) are enough to make the pseudo-time step useful; the nonlinear residual \(\mathbf{R}\), not the linear one, is what the convergence rule of entry 13 watches.</li>
+<li>Why a Krylov method at all: the matrix changes every iteration (the CFL and the state change), so a factorisation could not be reused; memory for \(m = 15\) is 16 Krylov vectors plus the 15 preconditioned ones, each about 122 000 numbers on the medium mesh; and the only operation on \(\mathbf{A}\) is the matrix-vector product, which parallelises across MPI ranks with one halo exchange. The flexible variant is needed because the parallel ILU is a block-Jacobi preconditioner whose action is not a fixed matrix.</li>
 <li><code>worker.run_case.run(case_dir, su2_cmd, timeout_s)</code> launches <code>&lt;su2_cmd&gt; case.cfg</code> (for example <code>mpirun -n 4 SU2_CFD</code>) with <code>start_new_session=True</code>, so that a timeout can kill the whole process group, mpirun and all ranks, with <code>os.killpg</code>. Stale output files from an earlier run are deleted first so an old solution is never mistaken for the new one.</li>
 <li><code>parse_n_cores</code> reads the rank count from the command. <code>solver_version</code> runs <code>SU2_CFD --help</code> and, if that fails, reads the version from the log. The record's <code>run</code> block holds start and end time, wall time, iteration count (rows of history.csv), exit code and timeout flag; the <code>solver</code> block holds name, version, command, core count and the config hash.</li>
 <li>If SU2 exits with code 0 and no timeout, <code>run</code> calls <code>metrics.compute</code>; any exception there is stored as <code>metrics_error</code> instead of losing the run record.</li>
@@ -760,12 +788,24 @@ U_{\mathrm{face}} &= U_{\mathrm{cell}} + \phi\,\nabla U \cdot \mathbf{r}_{\mathr
 \text{final: } \left(\tfrac{1}{2}, \tfrac{21}{20}, 1, 20\right) \;\Rightarrow\; \text{wedge converged in 603 iterations}
 \]
 <p>FGMRES uses 15 Krylov iterations with tolerance \(10^{-6}\) and ILU preconditioning. On Colab a pool case takes 195 to 581 s on 4 MPI ranks (<code>docs/validation/2026-11-01_colab_records.md</code>).</p>
+<p>What the linear solver did on the 8/8 medium mesh (<code>runs/dev/2026-11-01_inlet_grid_study_ef03/8_8_medium/history.csv.gz</code>, 30 600 cells, 1230 pseudo-time steps):</p>
+\[
+\begin{aligned}
+\text{unknowns} &= 4 \times 30\,600 = 122\,400, \qquad \text{Krylov vectors stored at } m = 15: \ 16 + 15 = 31 \\
+\text{step 1: } & m = 3,\ \log_{10}\frac{\lVert\mathbf{r}_m\rVert}{\lVert\mathbf{b}\rVert} = -6.98 \quad \text{(tolerance met early)} \\
+\text{steps 100, 500: } & m = 15,\ -6.38 \ \text{and}\ -6.15; \qquad \text{over the run: } m \in [3, 15],\ \bar m = 14.6,\ \text{last } m = 15 \text{ at } -6.20
+\end{aligned}
+\]
+<p>So after the first few steps the solver uses all 15 iterations and reaches the \(10^{-6}\) tolerance just about. On the 12/14 corner that diverged, \(m\) fell to 2 to 5 late in the run with the linear residual at \(-7\): the linear system was easy to solve, and the nonlinear residual still grew. That is the signature of a steady-state problem with no steady solution, not of a linear-solver problem.</p>
 <span class="lbl">Interview questions</span>
 <details><summary>Why not run at a very large CFL since the scheme is implicit?</summary><p class="a">The linear system is solved only approximately, and the Jacobian is a first-order approximation of the second-order residual. Too large a step makes the update inconsistent and the residual stalls or diverges, as the 12/14 corner and the first CFL settings showed.</p></details>
+<details><summary>What is a Krylov subspace, in one breath?</summary><p class="a">The space spanned by the residual and its repeated products with the matrix: \(\mathbf{r}_0, \mathbf{A}\mathbf{r}_0, \mathbf{A}^2\mathbf{r}_0\) and so on. GMRES searches it for the correction with the smallest residual, adding one dimension per iteration, and only ever touches \(\mathbf{A}\) through matrix-vector products. That is why it fits a sparse matrix that changes every step and is spread over MPI ranks.</p></details>
+<details><summary>Why FGMRES rather than GMRES, and why ILU?</summary><p class="a">In parallel SU2 the ILU preconditioner acts on each rank's block of the matrix, so the preconditioner is not one fixed matrix; FGMRES allows that by storing the preconditioned vectors and building the update from them. ILU is the standard cheap approximation of the matrix for this kind of sparse system: an LU factorisation that discards fill-in, so it costs about as much as the matrix itself to store and apply. The cost of the flexibility is one extra set of 15 vectors, negligible here.</p></details>
 <details><summary>Why 4 MPI ranks on an 8-core runtime?</summary><p class="a">It was an operational choice on the 8 vCPU runtime, recorded in the solver block of every result, not an optimized one. The Task 1 timing on the small wedge showed a speed-up of only 1.12 from serial to 2 ranks (runs/task1/README.md), so the gain from more ranks on a 30 000-cell mesh is modest, and the pool wall time of 195 to 581 s per case was acceptable.</p></details>
 <span class="lbl">Self-check</span>
 <details><summary>What does the CFL number compare?</summary><p class="a">The distance a wave travels in one time step with the cell size.</p></details>
 <details><summary>Name the linear solver and the preconditioner.</summary><p class="a">FGMRES with ILU.</p></details>
+<details><summary>How many Krylov iterations per step, and what stops them?</summary><p class="a">At most 15 (<code>LINEAR_SOLVER_ITER</code>), earlier if the relative linear residual falls below \(10^{-6}\) (<code>LINEAR_SOLVER_ERROR</code>). The 8/8 medium run used 14.6 on average.</p></details>
 </section>
 
 <section class="entry" id="c13"><header><input type="checkbox" data-id="c13" id="k13"><h3><label for="k13">13. Convergence: residuals, drift and run status</label></h3></header>
@@ -1722,7 +1762,7 @@ q_{\mathrm{peak}}: &\quad \text{two-level, 12 NS runs: } 0.025, \qquad \text{NS 
 </ul>
 
 <h2 id="d6">Question drill (Thu 12)</h2>
-<p>Answer the 62 interview questions in this plan aloud, in a random order, without opening the answers. For each one, name the slide you would open. Stop after two hours. Do not change the deck on the last day; a wrong late edit costs more than a known small flaw.</p>
+<p>Answer the 64 interview questions in this plan aloud, in a random order, without opening the answers. For each one, name the slide you would open. Stop after two hours. Do not change the deck on the last day; a wrong late edit costs more than a known small flaw.</p>
 
 <h2>References</h2>
 <ul class="ref">
