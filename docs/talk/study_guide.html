@@ -105,7 +105,7 @@ a{color:var(--ink)}
 <tr><td>Sat 7, Sun 8</td><td>C. Surrogates and active learning</td><td>17 to 23, 23a, 23b</td><td>Explain the GP interval, the hypervolume regret and the honest replay verdict.</td></tr>
 <tr><td>Mon 9</td><td>D. Automation layer</td><td>24 to 28</td><td>Draw the pipeline from memory and name what caught each of the five failures.</td></tr>
 <tr><td>Tue 10, Wed 11</td><td>Deck run-through</td><td>all</td><td>Present the deck to the wall with a timer. Open the record behind any number you are not sure of.</td></tr>
-<tr><td>Thu 12</td><td>Question drill and rest</td><td>all</td><td>Answer the 64 interview questions below aloud. Stop early.</td></tr>
+<tr><td>Thu 12</td><td>Question drill and rest</td><td>all</td><td>Answer the 66 interview questions below aloud. Stop early.</td></tr>
 </table></div>
 
 <!-- ============================ A ============================ -->
@@ -1031,6 +1031,12 @@ e &= \frac{x_{\mathrm{CFD}}}{x_{\mathrm{ref}}} - 1 \quad \text{(relative deviati
 <p class="where"><b>In the talk:</b> S13, B7. <b>Record:</b> <code>surrogate/gp.py</code>, <code>runs/analysis/2026-11-02/hypers.json</code>; the neural-network comparison in <code>docs/validation/2026-11-02_replay_mlp.md</code>.</p>
 <span class="lbl">Definition</span>
 <p>A Gaussian process is a prior over functions: any finite set of function values is jointly Gaussian with a mean and a covariance given by a kernel k(x, x'). Conditioning on observed data gives a posterior with a closed-form mean and variance at any new point. One GP is fitted per objective: y1 = recovery_total and y2 = log q_peak. Inputs are scaled to the unit square. The kernel is Matern 5/2 with one lengthscale per input (automatic relevance determination).</p>
+<p><strong>A distribution over functions.</strong> Before any data, the GP says: the value of the function at any design \(\mathbf{x}\) is a Gaussian random variable with mean \(c\) and variance \(\sigma_f^2\), and the values at two designs \(\mathbf{x}\) and \(\mathbf{x}'\) are correlated by \(k(\mathbf{x}, \mathbf{x}')/\sigma_f^2\), a number between 0 and 1 that falls as the scaled distance \(r\) between them grows. A random draw from this prior is a smooth surface whose bumps are about one lengthscale \(\ell\) wide and about \(\sigma_f\) high. The kernel is the whole model: it says nothing about where the function is, only how smooth it is and how far apart two designs must be before their values become independent.</p>
+<p><strong>Conditioning on data.</strong> Take the \(n\) observed values \(\mathbf{y}\) and the unknown value \(f_*\) at a new design. Together they are one Gaussian vector with covariance built from the kernel: \(\mathbf{K}\) among the data (plus the noise on its diagonal), \(\mathbf{k}_*\) between the data and the new point, and \(k_{**}\) at the new point. A Gaussian vector conditioned on some of its components is again Gaussian, with a closed-form mean and variance. The posterior mean is a weighted sum of the observed values, with weights \(\boldsymbol\alpha = (\mathbf{K} + \sigma_n^2\mathbf{I})^{-1}(\mathbf{y} - c)\) that are computed once and reused at every new point. The posterior variance starts at the prior \(\sigma_f^2\) and is reduced by the amount the data explain; near a data point it falls almost to the noise level, far from all data it returns to the prior. No training loop is needed for the prediction itself: it is linear algebra.</p>
+<p><strong>What the hyperparameters do.</strong> The lengthscales \(\ell_1, \ell_2\) set how fast the correlation decays along \(\theta_1\) and \(\theta_2\); a different value per input is called automatic relevance determination, because an input with a very long lengthscale hardly matters. The signal variance \(\sigma_f^2\) sets the vertical scale of the prior. The noise variance \(\sigma_n^2\) is the part of each observation the smooth function is not asked to reproduce. The constant \(c\) is the level the prior returns to away from the data. The Matern 5/2 form makes the function twice differentiable: smooth, but not as rigid as the squared exponential, whose draws are infinitely differentiable and whose covariance matrices become singular on near-linear data.</p>
+<p><strong>Fitting.</strong> The hyperparameters are chosen to maximise the log marginal likelihood, the probability of the observed \(\mathbf{y}\) under the prior with the function integrated out. It has two parts that pull against each other: a data-fit term, which rewards a covariance that makes the observed values probable, and a complexity term \(-\tfrac{1}{2}\log|\mathbf{K}+\sigma_n^2\mathbf{I}|\), which penalises a covariance that could explain anything. This is why the GP does not need a validation set to choose its smoothness. The optimum is found by gradient ascent on the log of each parameter, from three starting lengthscales, and the best of the three is kept.</p>
+<p><strong>Numerics and cost.</strong> Everything goes through one Cholesky factorisation \(\mathbf{K} + \sigma_n^2\mathbf{I} = \mathbf{L}\mathbf{L}^{\mathsf T}\), which costs \(n^3/3\) operations once per fit; with \(n = 92\) that is nothing. A prediction then costs \(n\) operations for the mean and \(n^2\) for the variance per point, so a 201 by 201 grid is cheap. A tiny jitter on the diagonal keeps the factorisation stable when two designs are nearly identical. The outputs are standardised before fitting so that the three starting values and the noise floor mean the same thing for recovery and for \(\log q\).</p>
+<p><strong>Reading the fitted values here.</strong> The lengthscales are several box widths and the fitted signal standard deviation is about nine standard deviations of the data, with a mean of about minus five. Taken together, this is the kernel's way of describing a nearly linear surface: a very wide, very tall bump of which the box sees only a gently curved slice. The data then pin where that slice goes. Two designs at opposite corners of the box still have a prior correlation of 0.97 in recovery, so one point tells the model a lot about every other point, and the noise is what remains after the smooth surface is removed.</p>
 <span class="lbl">Key relations</span>
 <div class="eq">\[
 \begin{aligned}
@@ -1040,6 +1046,26 @@ r^2 = \sum_{d} \frac{(x_d - x'_d)^2}{\ell_d^2} \\
 \mu(\mathbf{x}_*) &= c + \mathbf{k}_*^{\mathsf T}\left(\mathbf{K} + \sigma_n^2 \mathbf{I}\right)^{-1}(\mathbf{y} - c) \\
 \sigma^2(\mathbf{x}_*) &= k(\mathbf{x}_*, \mathbf{x}_*) - \mathbf{k}_*^{\mathsf T}\left(\mathbf{K} + \sigma_n^2 \mathbf{I}\right)^{-1}\mathbf{k}_* \quad (+\,\sigma_n^2 \text{ for a predictive interval}) \\
 \log p(\mathbf{y}) &= -\tfrac{1}{2}(\mathbf{y}-c)^{\mathsf T}\left(\mathbf{K} + \sigma_n^2 \mathbf{I}\right)^{-1}(\mathbf{y}-c) - \tfrac{1}{2}\log\left\lvert \mathbf{K} + \sigma_n^2 \mathbf{I}\right\rvert - \tfrac{n}{2}\log 2\pi
+\end{aligned}
+\]</div>
+<span class="lbl">More relations: where the posterior comes from</span>
+<div class="eq">\[
+\begin{aligned}
+\begin{bmatrix}\mathbf{y} \\ f_*\end{bmatrix} &\sim \mathcal{N}\!\left(\begin{bmatrix} c\mathbf{1} \\ c\end{bmatrix},\
+\begin{bmatrix}\mathbf{K} + \sigma_n^2\mathbf{I} & \mathbf{k}_* \\ \mathbf{k}_*^{\mathsf T} & k_{**}\end{bmatrix}\right)
+\quad\Rightarrow\quad f_* \mid \mathbf{y} \sim \mathcal{N}\!\left(\mu(\mathbf{x}_*),\ \sigma^2(\mathbf{x}_*)\right) \\
+\mathbf{K} + \sigma_n^2\mathbf{I} &= \mathbf{L}\mathbf{L}^{\mathsf T}, \qquad
+\boldsymbol\alpha = \mathbf{L}^{-\mathsf T}\mathbf{L}^{-1}(\mathbf{y}-c), \qquad
+\mathbf{v} = \mathbf{L}^{-1}\mathbf{k}_*, \qquad
+\mu = c + \mathbf{k}_*^{\mathsf T}\boldsymbol\alpha, \qquad \sigma^2 = k_{**} - \mathbf{v}^{\mathsf T}\mathbf{v} \\
+\tfrac{1}{2}\log\lvert\mathbf{K} + \sigma_n^2\mathbf{I}\rvert &= \sum_i \log L_{ii}, \qquad
+\log p(\mathbf{y}) = \underbrace{-\tfrac{1}{2}(\mathbf{y}-c)^{\mathsf T}\boldsymbol\alpha}_{\text{data fit}}
+ \;\underbrace{-\sum_i \log L_{ii}}_{\text{complexity}} \; - \tfrac{n}{2}\log 2\pi \\
+\text{correlation of two designs: } & \rho(r) = \frac{k}{\sigma_f^2} = \left(1 + \sqrt{5}\,r + \tfrac{5}{3}r^2\right)e^{-\sqrt{5}\,r}, \qquad
+r = \sqrt{\left(\frac{\Delta\tilde\theta_1}{\ell_1}\right)^2 + \left(\frac{\Delta\tilde\theta_2}{\ell_2}\right)^2}, \quad
+\tilde\theta = \frac{\theta - \theta_{\min}}{\theta_{\max} - \theta_{\min}} \\
+\text{predictive interval: } & \mu \pm 1.645\sqrt{\sigma^2 + \sigma_n^2}, \qquad
+\text{standardised to original units: } \mu_y = \bar y + s_y\,\mu, \quad \sigma_y^2 = s_y^2\,\sigma^2
 \end{aligned}
 \]</div>
 <span class="lbl">Variables</span>
@@ -1055,6 +1081,10 @@ r^2 = \sum_{d} \frac{(x_d - x'_d)^2}{\ell_d^2} \\
 <tr><td>\(\boldsymbol\alpha\)</td><td>\((\mathbf{K}+\sigma_n^2\mathbf{I})^{-1}(\mathbf{y}-c)\)</td><td><code>self.alpha</code></td></tr>
 <tr><td>\(\mathbf{k}_*\), \(\mu\), \(\sigma^2\)</td><td>cross covariance, posterior mean and variance</td><td><code>Ks</code>, <code>predict(Xs, noise)</code></td></tr>
 <tr><td>\(\log p(\mathbf{y})\)</td><td>log marginal likelihood</td><td><code>log_marginal_likelihood(theta)</code>, key <code>lml</code></td></tr>
+<tr><td>\(k_{**}\), \(\mathbf{v}\)</td><td>prior variance at the new point, \(\mathbf{L}^{-1}\mathbf{k}_*\)</td><td><code>torch.exp(theta[d])</code>, <code>V</code> in <code>predict</code></td></tr>
+<tr><td>\(\rho(r)\)</td><td>prior correlation between two designs</td><td><code>kernel(A, B, theta) / exp(theta[d])</code></td></tr>
+<tr><td>\(\bar y\), \(s_y\)</td><td>mean and std of the training outputs</td><td><code>Standardizer.mean</code>, <code>.std</code>; <code>y_mean</code>, <code>y_std</code> in hypers.json</td></tr>
+<tr><td>\(\theta\) (vector)</td><td>all hyperparameters in log space</td><td><code>theta = [log ls_1..d, log sf2, log noise, mean]</code></td></tr>
 </table></div>
 <div class="impl"><span class="lbl">Implementation: surrogate/gp.py (about 120 lines, pure torch float64)</span>
 <ul>
@@ -1073,11 +1103,25 @@ r^2 = \sum_{d} \frac{(x_d - x'_d)^2}{\ell_d^2} \\
 \end{aligned}
 \]
 <p>Lengthscales of several box widths mean nearly linear surfaces, steeper in \(\theta_2\).</p>
+<p>The same file gives the rest of the recovery kernel: \(\sigma_f^2 = e^{4.35} = 77\) in standardised units, so \(\sigma_f = 8.8\,s_y = 8.8 \times 0.0369 = 0.32\) in recovery; \(c = -5.05\) standardised; \(s_y = 0.0369\). From these, the prior correlation \(\rho(r)\) between two designs is</p>
+\[
+\begin{aligned}
+\Delta\theta_1 = 1^\circ \ (\text{box } 7^\circ): \quad & r = \frac{1/7}{10.0} = 0.0143, \quad \rho = 0.9998 \\
+\Delta\theta_1 = 7^\circ \ (\text{the whole box}): \quad & r = 0.100, \quad \rho = 0.992; \qquad
+\Delta\theta_2 = 9^\circ: \quad r = 0.154, \quad \rho = 0.981 \\
+\text{corner to corner}: \quad & r = 0.184, \quad \rho = 0.973; \qquad
+\frac{\sigma_n^2}{\sigma_f^2} = \frac{1.1 \times 10^{-6}}{77} = 1.4 \times 10^{-8}
+\end{aligned}
+\]
+<p>Every pair of pool designs is strongly correlated under the prior, and the noise is eight orders of magnitude below the signal. That is a model of a smooth, almost planar surface with a tiny scatter, which is what 92 converged runs of a two-shock inlet look like. For \(\log q_{\mathrm{peak}}\): \(\sigma_f^2 = 113\), corner-to-corner correlation 0.972, noise-to-signal \(1.9 \times 10^{-8}\), \(s_y = 0.207\) in \(\log q\). The log marginal likelihoods, 443 and 399, are only comparable between fits of the same output.</p>
 <span class="lbl">Interview questions</span>
 <details><summary>Why a GP and not a neural network?</summary><p class="a">Because on this problem it was measured. The same replay was run with a deep ensemble of five small networks (<code>runs/replay/2026-11-02_mlp</code>, settings fixed before the run): the GP is 2 to 10 times more accurate on held-out designs at every budget, worse for the ensemble in 10 of 10 seeds on identical training sets, and about a quarter of the cost per step. With two inputs and under fifty smooth samples the GP's prior is the right inductive bias, its intervals come from the posterior, and it needs no GPU. EHVI with the ensemble still finds the whole front by 32 runs, so the active-learning conclusion does not depend on the choice (backup slide B7).</p></details>
+<details><summary>Explain in two sentences how a GP turns 92 numbers into a surface with error bars.</summary><p class="a">The kernel says how strongly the recovery at two designs is correlated as a function of their distance, so the 92 observed values and the unknown value at any new design form one big Gaussian vector. Conditioning that Gaussian on the 92 known entries gives the mean and variance at the new design in closed form: the mean is a weighted sum of the data, the variance is the prior variance minus what the data explain.</p></details>
+<details><summary>How are the lengthscales chosen, and why is that not overfitting?</summary><p class="a">By maximising the marginal likelihood, which integrates the function out and so contains a built-in penalty, the log determinant of the covariance, against kernels that could fit anything. A lengthscale too short makes the determinant large and loses; too long makes the data improbable and loses. With 92 points and 4 hyperparameters per output there is little room to overfit, and the held-out error and the coverage in the replay are the independent check.</p></details>
 <details><summary>Why Matern 5/2 and not the squared exponential?</summary><p class="a">Matern 5/2 is twice differentiable, which matches smooth but not analytic responses, and it is less prone to ill-conditioned covariance matrices than the squared exponential on near-linear data. It is the default choice in the Bayesian optimization literature.</p></details>
 <span class="lbl">Self-check</span>
 <details><summary>What does a lengthscale of 10 box widths say about the surface?</summary><p class="a">That the function barely bends across the box in that direction: it is close to linear.</p></details>
+<details><summary>What is the posterior variance at a training point?</summary><p class="a">Close to the noise variance: the data explain almost all of the prior variance there. Away from all data it returns to \(\sigma_f^2\). With lengthscales of several box widths, no point in the box is far from the data, so the latent variance stays small everywhere and the predictive interval is set mostly by \(\sigma_n^2\) (entry 18).</p></details>
 <details><summary>Why is q_peak modeled in the log?</summary><p class="a">q spans a factor of about 2 across the pool and relative errors matter, so the log makes the noise and the lengthscales uniform across the range.</p></details>
 </section>
 
@@ -1762,7 +1806,7 @@ q_{\mathrm{peak}}: &\quad \text{two-level, 12 NS runs: } 0.025, \qquad \text{NS 
 </ul>
 
 <h2 id="d6">Question drill (Thu 12)</h2>
-<p>Answer the 64 interview questions in this plan aloud, in a random order, without opening the answers. For each one, name the slide you would open. Stop after two hours. Do not change the deck on the last day; a wrong late edit costs more than a known small flaw.</p>
+<p>Answer the 66 interview questions in this plan aloud, in a random order, without opening the answers. For each one, name the slide you would open. Stop after two hours. Do not change the deck on the last day; a wrong late edit costs more than a known small flaw.</p>
 
 <h2>References</h2>
 <ul class="ref">
