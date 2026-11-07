@@ -66,6 +66,13 @@ summary:focus-visible{outline:2px solid var(--accent)}
 .bar{flex:1;height:6px;background:var(--tint);border-radius:3px;overflow:hidden;min-width:0}
 .bar span{display:block;height:100%;width:0;background:var(--accent)}
 .note{background:var(--tint);padding:.8rem 1rem;border-radius:4px;margin:1rem 0}
+.vars td:first-child{white-space:nowrap}
+.vars td:last-child{font-family:var(--mono);font-size:.86em}
+.impl{border:1px solid var(--line);border-left:4px solid var(--ink);background:var(--tint);padding:.4rem 1rem .8rem;border-radius:4px;margin:1rem 0}
+.impl .lbl{margin-top:.5rem}
+.impl ul{margin:.4rem 0 0}
+.impl li{margin:.35rem 0}
+.impl code,.vars code{background:var(--bg)}
 ul{padding-left:1.2rem}
 li{margin:.25rem 0}
 a{color:var(--ink)}
@@ -77,10 +84,10 @@ a{color:var(--ink)}
 <div class="wrap">
 <p class="eyebrow">Talk on Friday 13 November 2026</p>
 <h1>Inlet Talk Study Plan</h1>
-<p class="lead">All the concepts behind the slides, at an undergraduate level, written in short Simplified Technical English sentences. Each entry tells you what the concept is, which relation it uses, where it appears in the talk, a worked example with the repository's own numbers, two questions an interviewer can ask, and a self-check.</p>
+<p class="lead">All the concepts behind the slides, at an undergraduate level, written in short Simplified Technical English sentences. Each entry tells you what the concept is, which relation it uses, what every symbol means and how it is named in the code, how the repository implements it, where it appears in the talk, a worked example with the repository's own numbers, two questions an interviewer can ask, and a self-check.</p>
 
 <div class="note">
-<p><strong>How to use this plan.</strong> Study one block per session. Read the entry. Do the worked example by hand or with the named function. Answer the self-check before you open the answer. Tick the box when you can explain the entry without notes. Your ticks are saved in this browser only.</p>
+<p><strong>How to use this plan.</strong> Study one block per session. Read the entry. Do the worked example by hand or with the named function. Answer the self-check before you open the answer. Read the Variables table until you can name each symbol and its code name. Open the file named in the Implementation box and follow the function line by line. Tick the box when you can explain the entry, and its code, without notes. Your ticks are saved in this browser only.</p>
 <p>Every number in this plan comes from a file in the repository. The file name is given with the number. Do not quote a number in the talk that is not on a slide.</p>
 </div>
 
@@ -119,6 +126,37 @@ p_0 = p\left(1 + \tfrac{\gamma-1}{2} M^2\right)^{\gamma/(\gamma-1)} = p\left(1 +
 \frac{Re}{\mathrm{m}} = \frac{\rho U}{\mu}
 \end{aligned}
 \]</div>
+<span class="lbl">More relations</span>
+<div class="eq">\[
+\begin{aligned}
+\rho &= \frac{p}{R\,T}, \qquad c_p = \frac{\gamma R}{\gamma - 1} \\
+H &= \frac{r_0\, z}{r_0 + z}, \qquad T = T_b + L\,(H - H_b), \qquad
+p = p_b \left(\frac{T_b}{T}\right)^{g_0 M_0 / (R^{*} L)} \quad \text{(1976 formula, 20 to 47 km)}
+\end{aligned}
+\]</div>
+<span class="lbl">Variables</span>
+<div class="tablewrap"><table class="vars">
+<tr><th>Symbol</th><th>Meaning</th><th>In the code</th></tr>
+<tr><td>\(\gamma\)</td><td>ratio of specific heats, 1.4</td><td><code>GAMMA</code> (physics/constants.py)</td></tr>
+<tr><td>\(R\)</td><td>gas constant of air, 287.058 J/kg/K</td><td><code>R_AIR</code></td></tr>
+<tr><td>\(c_p\)</td><td>specific heat at constant pressure</td><td><code>CP</code></td></tr>
+<tr><td>\(z\), \(H\)</td><td>geometric altitude (km), geopotential altitude</td><td><code>altitude_km</code>, <code>H</code> in <code>ussa1976</code></td></tr>
+<tr><td>\(T\), \(p\), \(\rho\), \(a\), \(\mu\)</td><td>freestream static state</td><td>keys <code>T, p, rho, a, mu</code> of <code>atmosphere.state()</code></td></tr>
+<tr><td>\(M\), \(U\)</td><td>flight Mach number, flight speed</td><td><code>params["mach"]</code>, <code>fs["M"]</code>, <code>fs["U"]</code></td></tr>
+<tr><td>\(T_0\), \(p_0\)</td><td>total temperature and pressure</td><td><code>fs["T0"]</code>, <code>fs["p0"]</code> (postprocess/surface.py <code>freestream</code>)</td></tr>
+<tr><td>\(\mu_{\mathrm{ref}}\), \(T_{\mathrm{ref}}\), \(S\)</td><td>Sutherland constants 1.716e-5 Pa s, 273.15 K, 110.4 K</td><td><code>MU_REF</code>, <code>T_REF</code>, <code>S_SUTH</code></td></tr>
+<tr><td>\(r_0\), \(g_0 M_0 / R^{*}\)</td><td>Earth radius 6356.766 km, 34.1632 K/km</td><td><code>R0_KM</code>, <code>GMR</code> (physics/atmosphere.py)</td></tr>
+<tr><td>\(T_b\), \(L\), \(p_b\), \(H_b\)</td><td>layer base temperature, lapse rate, base pressure, base altitude</td><td>tuples in <code>LAYERS</code></td></tr>
+</table></div>
+<div class="impl"><span class="lbl">Implementation: physics/constants.py and physics/atmosphere.py</span>
+<ul>
+<li><code>physics/constants.py</code> is the single source of \(\gamma\), \(R\), \(c_p\), \(Pr = 0.72\) and the Sutherland constants. No other file may redefine them. The module asserts \(c_p = 1004.703\) at import.</li>
+<li><code>sutherland_mu(T)</code> is one line: the Sutherland law above.</li>
+<li><code>atmosphere.state(altitude_km)</code> returns a dict with T, p, rho, a, mu. For 30 km it returns the table values 226.509 K and 1197.03 Pa exactly (<code>ATMOSPHERE_TABLE</code>), so every existing run keeps its freestream. For any other altitude from 20 to 47 km it calls <code>ussa1976</code>, which uses the two constant-gradient layers of the 1976 standard (base 20 km with \(L = 1.0\) K/km, base 32 km with \(L = 2.8\) K/km).</li>
+<li><code>postprocess.surface.freestream(params)</code> adds M, U, T0 and p0 with the isentropic relations. The unit Reynolds number is not a function; it is \(\rho U / \mu\) from these values.</li>
+<li><code>cases/config.py</code> writes the same T, p, Sutherland constants and Prandtl number into the SU2 config (<code>FREESTREAM_TEMPERATURE</code>, <code>FREESTREAM_PRESSURE</code>, <code>MU_REF</code>, <code>MU_T_REF</code>, <code>SUTHERLAND_CONSTANT</code>, <code>PRANDTL_LAM</code>), so the solver and the analytic checks use one gas.</li>
+<li>Tests: <code>tests/test_atmosphere.py</code>.</li>
+</ul></div>
 <span class="lbl">Worked example (numbers from 00_decisions.md section 1)</span>
 <p>With \(T = 226.509\ \mathrm{K}\) and \(p = 1197.03\ \mathrm{Pa}\):</p>
 \[
@@ -152,6 +190,36 @@ M_2^2 &= \frac{1 + \frac{\gamma-1}{2} M_1^2}{\gamma M_1^2 - \frac{\gamma-1}{2}}
  = \left[\frac{6 M_1^2}{M_1^2 + 5}\right]^{7/2} \left[\frac{6}{7 M_1^2 - 1}\right]^{5/2}
 \end{aligned}
 \]</div>
+<span class="lbl">More relations</span>
+<div class="eq">\[
+\begin{aligned}
+\frac{\rho_2}{\rho_1} &= \frac{(\gamma+1) M_1^2}{(\gamma-1) M_1^2 + 2}, \qquad
+\frac{T_2}{T_1} = \frac{p_2/p_1}{\rho_2/\rho_1}, \qquad
+\frac{p_{02}}{p_{01}} = \left(\frac{\rho_2}{\rho_1}\right)^{\gamma/(\gamma-1)}
+   \left[\frac{\gamma+1}{2\gamma M_1^2 - (\gamma-1)}\right]^{1/(\gamma-1)} \\
+\Delta s &= -R \ln \frac{p_{02}}{p_{01}}, \qquad \pi_{NS}(M) = \frac{p_{02}}{p_{01}}(M) \ \text{for } M \gt 1, \quad 1 \ \text{for } M \le 1
+\end{aligned}
+\]</div>
+<span class="lbl">Variables</span>
+<div class="tablewrap"><table class="vars">
+<tr><th>Symbol</th><th>Meaning</th><th>In the code</th></tr>
+<tr><td>\(M_1\)</td><td>upstream Mach number (normal to the shock)</td><td><code>M</code> in <code>normal(M)</code>; <code>Mn1</code> in <code>_jump</code></td></tr>
+<tr><td>\(p_2/p_1\)</td><td>static pressure ratio</td><td><code>"p_ratio"</code></td></tr>
+<tr><td>\(\rho_2/\rho_1\)</td><td>density ratio</td><td><code>"rho_ratio"</code></td></tr>
+<tr><td>\(T_2/T_1\)</td><td>static temperature ratio</td><td><code>"T_ratio"</code></td></tr>
+<tr><td>\(M_2\)</td><td>downstream Mach number</td><td><code>"M2"</code></td></tr>
+<tr><td>\(p_{02}/p_{01}\)</td><td>total pressure ratio</td><td><code>"p0_ratio"</code></td></tr>
+<tr><td>\(\pi_{NS}(M)\)</td><td>normal-shock total pressure ratio per throat node</td><td><code>metrics.pi_normal_shock(M)</code></td></tr>
+<tr><td>\(\gamma\)</td><td>1.4</td><td><code>G</code> (alias of <code>GAMMA</code> in physics/shock.py)</td></tr>
+</table></div>
+<div class="impl"><span class="lbl">Implementation: physics/shock.py</span>
+<ul>
+<li>One private function <code>_jump(M, Mn1, sin_turn)</code> holds the Rankine-Hugoniot relations (NACA 1135 equations 93, 94, 96, 99, 100). It serves both shock types: the normal shock calls it with <code>Mn1 = M</code> and <code>sin_turn = 1</code>; the oblique shock with \(M_{n1} = M \sin\beta\) and \(\sin(\beta - \theta)\).</li>
+<li>The total pressure ratio is coded as the density ratio to the power \(\gamma/(\gamma-1)\) times the second bracket. That is the same as the first form in the key relations because the first bracket there is the density ratio.</li>
+<li><code>normal(M)</code> returns a dict with the five ratios. For \(M \le 1\) it returns all ratios equal to 1 and \(M_2 = M\): no shock. This is why a subsonic streamtube at the throat keeps its total pressure in the objective.</li>
+<li><code>postprocess.metrics.pi_normal_shock(M)</code> wraps <code>normal</code> node by node with <code>max(M, 1.0)</code>, so the same code gives \(\pi_{NS}\) for the recovery objective.</li>
+<li>Inputs and outputs are plain floats and dicts, no arrays, so each call can be checked by hand against the NACA 1135 tables. Tests: <code>tests/test_shock.py</code>.</li>
+</ul></div>
 <span class="lbl">Worked example (computed with physics.shock.normal)</span>
 <p>From <code>physics.shock.normal</code>:</p>
 \[
@@ -178,6 +246,35 @@ M_2^2 &= \frac{1 + \frac{\gamma-1}{2} M_1^2}{\gamma M_1^2 - \frac{\gamma-1}{2}}
 M_{n1} &= M_1 \sin\beta, \qquad M_2 = \frac{M_{n2}}{\sin(\beta - \theta)}
 \end{aligned}
 \]</div>
+<span class="lbl">More relations</span>
+<div class="eq">\[
+\begin{aligned}
+M_{n2}^2 &= \frac{(\gamma-1) M_{n1}^2 + 2}{2\gamma M_{n1}^2 - (\gamma-1)}, \qquad
+\frac{p_2}{p_1} = 1 + \frac{2\gamma}{\gamma+1}\left(M_{n1}^2 - 1\right), \qquad
+\frac{p_{02}}{p_{01}} = \frac{p_{02}}{p_{01}}(M_{n1}) \\
+\theta_{\max}(M) &= \max_{\mu \lt \beta \lt \pi/2} \theta(\beta; M), \qquad \mu = \arcsin\frac{1}{M} \quad \text{(Mach angle)}
+\end{aligned}
+\]</div>
+<span class="lbl">Variables</span>
+<div class="tablewrap"><table class="vars">
+<tr><th>Symbol</th><th>Meaning</th><th>In the code</th></tr>
+<tr><td>\(\theta\)</td><td>flow deflection (ramp angle)</td><td><code>theta_rad</code> argument of <code>oblique</code>; <code>theta1_deg</code> in params</td></tr>
+<tr><td>\(\beta\)</td><td>shock angle from the upstream flow direction</td><td><code>"beta"</code> (radians)</td></tr>
+<tr><td>\(M_1\)</td><td>upstream Mach number</td><td><code>M</code></td></tr>
+<tr><td>\(\mu\)</td><td>Mach angle, lower end of the search</td><td><code>math.asin(1.0 / M)</code></td></tr>
+<tr><td>\(M_{n1}\), \(M_{n2}\)</td><td>normal Mach numbers before and after the shock</td><td><code>M * math.sin(beta)</code>, <code>Mn2</code> in <code>_jump</code></td></tr>
+<tr><td>\(\theta_{\max}\)</td><td>largest deflection with an attached shock</td><td><code>theta_max(M)</code>; the peak is found by <code>_beta_at_max(M)</code></td></tr>
+<tr><td>\(\beta_{\mathrm{CFD}}\)</td><td>shock angle measured in the Euler solution</td><td><code>validation.oblique_shock_check</code>, key <code>beta_deg</code></td></tr>
+</table></div>
+<div class="impl"><span class="lbl">Implementation: physics/shock.py and the V1 check in postprocess/validation.py</span>
+<ul>
+<li><code>_theta_of_beta(M, beta)</code> is the \(\theta\)-\(\beta\)-\(M\) relation (NACA 1135 equation 138) as one line.</li>
+<li><code>_beta_at_max(M)</code> finds the \(\beta\) where \(\theta(\beta)\) peaks by golden-section search on \((\mu, \pi/2)\) to \(10^{-12}\) rad. <code>theta_max(M)</code> evaluates \(\theta\) there.</li>
+<li><code>oblique(M, theta_rad)</code>: if \(\theta \gt \theta_{\max}\) every output is NaN; callers test <code>math.isnan(s["beta"])</code>. Otherwise it bisects for \(\beta\) on \([\mu, \beta_{\max}]\), where \(\theta(\beta)\) rises monotonically, so it always returns the weak solution. Then it calls <code>_jump</code> with \(M_{n1} = M\sin\beta\) and \(M_2 = M_{n2}/\sin(\beta-\theta)\).</li>
+<li>Angles are radians inside <code>physics</code> and degrees at every interface (params, gate messages, geometry.json).</li>
+<li>The V1 check <code>oblique_shock_check(case_dir, theta_deg, stations=(0.04, 0.08))</code> reads the volume file <code>flow.dat</code>. At each station it takes the nodes within 0.6 mm of \(x_s\), finds the plateau pressure as the median between 1 mm above the wall and 3 mm below the shock, and the shock height as the \(y\) where the pressure crosses the midpoint of \(p_\infty\) and the plateau (two passes: first with the analytic \(\beta\), then with the measured one). Then \(\beta_{\mathrm{CFD}} = \operatorname{atan2}(\Delta y_{\mathrm{shock}}, \Delta x)\), \(p_2/p_1\) is the plateau at the second station over \(p_\infty\), and \(M_2\) is the median Mach in the plateau band. Pass: \(|\Delta\beta| \le 0.5^\circ\) and both ratios within 2 percent.</li>
+<li>Tests: <code>tests/test_shock.py</code>, <code>tests/test_oblique_check.py</code>.</li>
+</ul></div>
 <span class="lbl">Worked example (physics.shock.oblique and the V1 record)</span>
 <p>At \(M_1 = 4.0\) and \(\theta = 8^\circ\) the weak solution of the \(\theta\)-\(\beta\)-\(M\) relation is</p>
 \[
@@ -198,6 +295,35 @@ M_{n1} &= M_1 \sin\beta, \qquad M_2 = \frac{M_{n2}}{\sin(\beta - \theta)}
 <p class="where"><b>In the talk:</b> S2, S8, S20 (the Oswatitsch cut). <b>Record:</b> <code>runs/dev/2026-11-01_inlet_design_point/*/geometry.json</code>, <code>runs/analysis/2026-11-02/oswatitsch_cut.png</code>.</p>
 <span class="lbl">Definition</span>
 <p>Two ramps make two oblique shocks before the terminal normal shock. Each oblique shock removes less total pressure than one strong shock. Oswatitsch showed that, for a fixed number of oblique shocks, the total pressure recovery is a maximum when all oblique shocks have the same normal Mach number, M1 sin(beta1) = M2 sin(beta2).</p>
+<span class="lbl">Key relations</span>
+<div class="eq">\[
+\begin{aligned}
+M_{k+1} &= M_2\!\left(M_k, \theta_k\right), \qquad
+\frac{p_{0,\mathrm{th}}}{p_{0,\infty}} = \prod_{k=1}^{2} \frac{p_{02}}{p_{01}}\!\left(M_k \sin\beta_k\right), \qquad
+\mathrm{recovery}_{\mathrm{inviscid}} = \frac{p_{0,\mathrm{th}}}{p_{0,\infty}}\;\pi_{NS}(M_{\mathrm{th}}) \\
+\text{Oswatitsch: } & M_1 \sin\beta_1 = M_2 \sin\beta_2 \quad \text{(equal normal Mach numbers, equal shock strength)}
+\end{aligned}
+\]</div>
+<span class="lbl">Variables</span>
+<div class="tablewrap"><table class="vars">
+<tr><th>Symbol</th><th>Meaning</th><th>In the code</th></tr>
+<tr><td>\(M_\infty\)</td><td>freestream Mach number, 4.0</td><td><code>mach</code> (default 4.0 in <code>design_points</code>)</td></tr>
+<tr><td>\(\theta_1\), \(\theta_2\)</td><td>ramp angles (the two design variables)</td><td><code>theta1_deg</code>, <code>theta2_deg</code></td></tr>
+<tr><td>\(\beta_1\)</td><td>shock 1 angle from the freestream</td><td><code>g["beta1"]</code>, <code>beta1_deg</code> in geometry.json</td></tr>
+<tr><td>\(\theta_1 + \beta_2\)</td><td>shock 2 angle measured from the x axis</td><td><code>g["beta2_abs"]</code>, <code>beta2_abs_deg</code></td></tr>
+<tr><td>\(M_1\)</td><td>Mach number after shock 1 (on ramp 1)</td><td><code>g["M1"]</code></td></tr>
+<tr><td>\(M_{\mathrm{th}}\)</td><td>inviscid throat Mach number after shock 2</td><td><code>g["M2"]</code>, <code>M2_inviscid</code></td></tr>
+<tr><td>\(p_{\mathrm{th}}/p_\infty\)</td><td>inviscid static pressure ratio at the throat</td><td><code>g["p_ratio"]</code>, <code>p_th_over_p_inf_inviscid</code></td></tr>
+<tr><td>\(p_{0,\mathrm{th}}/p_{0,\infty}\)</td><td>two-shock total pressure ratio</td><td><code>g["recovery"]</code>, <code>recovery_2shock_inviscid</code></td></tr>
+</table></div>
+<div class="impl"><span class="lbl">Implementation: geometry/inlet.py design_points and analysis/design_map.py</span>
+<ul>
+<li><code>geometry.inlet.design_points(theta1_deg, theta2_deg, mach)</code> chains <code>oblique</code> twice: the \(M_2\) of shock 1 is the upstream Mach number of shock 2. It raises <code>ValueError</code> if either shock would detach. It builds no mesh, so the gates can call it.</li>
+<li>It multiplies the two <code>p0_ratio</code> values into <code>recovery</code> and the two <code>p_ratio</code> values into <code>p_ratio</code>. <code>build</code> writes these into <code>geometry.json</code> as <code>recovery_2shock_inviscid</code>, <code>M2_inviscid</code> and <code>p_th_over_p_inf_inviscid</code>, so every run record carries its own inviscid reference.</li>
+<li><code>analysis.design_map.analytic_recovery(theta1, theta2)</code> adds the terminal shock: <code>normal(M_th)["p0_ratio"]</code>. The Oswatitsch-cut figure evaluates it along \(\theta_2 = \theta_1 + 2^\circ\) and draws the GP mean recovery with its 90 percent band on the same axis.</li>
+<li>The V4e check (<code>validation.inlet_check</code>) compares the area-averaged \(p_0/p_{0,\infty}\) and Mach on the Euler throat plane with <code>recovery_2shock_inviscid</code> and <code>M2_inviscid</code>, hard tolerance 2 percent. That is the test that the mesh and the shock-on-lip geometry reproduce this table.</li>
+<li>The code never searches for the Oswatitsch optimum. The condition is stated for the talk; the surrogate works on the two objectives.</li>
+</ul></div>
 <span class="lbl">Worked example (geometry.json of the 8/8 design point, physics.shock)</span>
 <div class="tablewrap"><table>
 <tr><th>Step</th><th>Upstream M</th><th>Shock angle</th><th>p0 ratio</th><th>Downstream M</th></tr>
@@ -231,6 +357,41 @@ M_{n1} &= M_1 \sin\beta, \qquad M_2 = \frac{M_{n2}}{\sin(\beta - \theta)}
 p_{0,i} = p_i\left(1 + \tfrac{1}{5} M_i^2\right)^{7/2}, \qquad \pi_{NS}(M) = 1 \;\text{for}\; M \le 1
 \end{aligned}
 \]</div>
+<span class="lbl">More relations</span>
+<div class="eq">\[
+\begin{aligned}
+w_i &= \tfrac{1}{2}\left(s_{i} - s_{i-1}\right) + \tfrac{1}{2}\left(s_{i+1} - s_{i}\right) \quad \text{(trapezoid weights along the throat plane)}, \qquad
+\mathbf{n} = (\cos\theta_t, \sin\theta_t), \quad \theta_t = \theta_1 + \theta_2 \\
+\dot m &= \sum_i w_i \phi_i, \qquad \mathrm{capture\_ratio} = \frac{\dot m}{\rho_\infty U_\infty\, y_P}, \qquad
+\mathrm{recovery\_total\_bulk} = \mathrm{recovery\_throat}\;\pi_{NS}\!\left(\bar M_{\mathrm{th}}\right) \\
+\text{shock on lip: } & O + a\,\mathbf{d}_1 = C + b\,\mathbf{d}_2 = P, \qquad
+\mathbf{d}_1 = (\cos\beta_1, \sin\beta_1), \quad \mathbf{d}_2 = (\cos(\theta_1+\beta_2), \sin(\theta_1+\beta_2)), \quad
+h = (P - C)\cdot\mathbf{n}_2
+\end{aligned}
+\]</div>
+<span class="lbl">Variables</span>
+<div class="tablewrap"><table class="vars">
+<tr><th>Symbol</th><th>Meaning</th><th>In the code</th></tr>
+<tr><td>\(s_i\), \(w_i\)</td><td>arc length along the throat plane, trapezoid weight</td><td><code>t["s"]</code>, <code>metrics.weights(s)</code></td></tr>
+<tr><td>\(\phi_i\)</td><td>mass flux through the plane</td><td><code>phi</code> in <code>metrics.throat_profile</code></td></tr>
+<tr><td>\(\rho_i, u_i, v_i, p_i, M_i\)</td><td>state at a throat node, rebuilt from the conservative variables</td><td><code>surface.state(cols)</code></td></tr>
+<tr><td>\(\mathbf{n}\), \(\theta_t\)</td><td>unit normal of the throat plane, total turning</td><td><code>geometry["theta_t_deg"]</code></td></tr>
+<tr><td>\(p_{0,i}\)</td><td>isentropic total pressure at a node</td><td><code>surface.stagnation_pressure(p, M)</code></td></tr>
+<tr><td>\(p_{0,\infty}\)</td><td>freestream total pressure</td><td><code>fs["p0"]</code>, <code>p0_inf_Pa</code></td></tr>
+<tr><td>\(\dot m\)</td><td>mass flow per metre depth</td><td><code>flow</code></td></tr>
+<tr><td>\(\bar M_{\mathrm{th}}\)</td><td>mass-averaged throat Mach number</td><td><code>mach_throat_massavg</code></td></tr>
+<tr><td>\(y_P\), \(P\), \(C\), \(h\)</td><td>lip height, lip point, corner, duct height</td><td><code>geometry["P"]</code>, <code>["C"]</code>, <code>h_duct</code></td></tr>
+<tr><td>\(X_1\), \(L_D\)</td><td>corner x = 0.100 m, duct length 0.050 m</td><td><code>X1</code>, <code>L_D</code> (geometry/inlet.py)</td></tr>
+</table></div>
+<div class="impl"><span class="lbl">Implementation: postprocess/surface.py, postprocess/metrics.py and geometry/inlet.py</span>
+<ul>
+<li><code>surface.load(case_dir)</code> reads SU2's Tecplot surface file. It rebuilds \(p = (\gamma-1)(E - \tfrac{1}{2}\rho|V|^2)\), \(T = p/(\rho R)\) and \(M = |V|/\sqrt{\gamma p/\rho}\) from the conservative columns (<code>state</code>) and cross-checks them against SU2's own Pressure and Mach columns to \(10^{-3}\) relative. A non-finite value, \(p \gt 10^7\) Pa or \(\rho \gt 100\) kg/m\(^3\) is reported as a diverged solution. A cold wall must take heat in, so the integral of q over the body must be positive. The body marker is split at \(x = X_1\) into <code>body_ramp1</code> and <code>body_ramp2</code>, the cowl into <code>cowl_inner</code> and <code>cowl_outer</code>.</li>
+<li><code>metrics.throat_profile</code> builds s, w, \(\phi\), \(p_0\) and M on the marker <code>outlet_duct</code>. <code>_inlet_recovery</code> defines <code>mass_avg(f) = sum(w phi f) / flow</code> and computes <code>recovery_throat</code>, <code>recovery_total</code> (with <code>pi_normal_shock</code> per node), <code>recovery_total_bulk</code> and <code>capture_ratio</code>. It raises if the net mass flow is not positive.</li>
+<li>Cross-check X1: the SU2 config has <code>MARKER_ANALYZE= ( outlet_duct )</code> and <code>MARKER_ANALYZE_AVERAGE= MASSFLUX</code>; the last value of the history column containing "totalpress" is compared with <code>recovery_throat * p0_inf</code> at <code>CROSSCHECK_TOL = 0.005</code>, stored as <code>su2_crosscheck_pass</code>.</li>
+<li>Heating fields from <code>_inlet_heating</code>: <code>q_peak_W_m2</code> and <code>x_q_peak_m</code> on ramp 2 without nodes within <code>EXCLUDE_M = 2 mm</code> of the throat plane, <code>q_peak_cowl_W_m2</code> without the first 2 mm from the lip, <code>heat_load_body_W_per_m</code> as the trapezoid integral over ramp 2.</li>
+<li>Shock on lip in <code>geometry.inlet.design_points</code>: the lip P solves the 2 by 2 linear system for the crossing of the shock-1 line from O and the shock-2 line from C (<code>np.linalg.solve</code>). The cowl runs from P parallel to ramp 2 for \(L_D\); the throat plane is normal to ramp 2; <code>E_body</code> and <code>E_cowl</code> are the two ends. The outer cowl turns by <code>DELTA_EXT_DEG = 6</code>. Constants: <code>X1 = 0.100</code>, <code>L_D = 0.050</code>, <code>X_IN = -0.030</code>, <code>Y_TOP = 0.200</code> m.</li>
+<li>Tests: <code>tests/test_metrics.py</code>, <code>tests/test_inlet_geometry.py</code>.</li>
+</ul></div>
 <span class="lbl">Worked example (pool record inlet2r-fd8bbe1147, runs/pool)</span>
 <p>Design \(\theta_1 = 10.84^\circ\), \(\theta_2 = 10.20^\circ\):</p>
 \[
@@ -259,6 +420,30 @@ Re_x &= \frac{\rho_e u_e x}{\mu_e}, \qquad \delta \approx \frac{5x}{Re_x^{1/2}} 
 &\text{Transition indicator: } \frac{Re_\theta}{M_e} \quad \text{(sharp cold ramps: transition band 200 to 300)}
 \end{aligned}
 \]</div>
+<span class="lbl">More relations</span>
+<div class="eq">\[
+\begin{aligned}
+\theta_{\mathrm{mom}} &\approx \frac{0.664\,x}{Re_x^{1/2}} \ \Rightarrow\ Re_\theta = \frac{\rho_e u_e \theta_{\mathrm{mom}}}{\mu_e} \approx 0.664\,Re_x^{1/2} \quad \text{(laminar flat plate, incompressible form)} \\
+Re_w &= \frac{\rho_w a_w d_0}{\mu_w} \quad \text{(gate 5: the first cell must sit in the laminar sublayer)}
+\end{aligned}
+\]</div>
+<span class="lbl">Variables</span>
+<div class="tablewrap"><table class="vars">
+<tr><th>Symbol</th><th>Meaning</th><th>In the code</th></tr>
+<tr><td>\(Re_x\), \(Re_L\)</td><td>Reynolds number at x, at the body length L</td><td>not a function; \(\rho U/\mu\) from <code>atmosphere.state(30)</code> times x</td></tr>
+<tr><td>\(\rho_e, u_e, \mu_e\)</td><td>boundary-layer edge state (post-shock)</td><td><code>oblique(...)</code> ratios times the freestream, as in <code>validation.eckert_check</code></td></tr>
+<tr><td>\(\delta\), \(\theta_{\mathrm{mom}}\)</td><td>boundary-layer thickness, momentum thickness</td><td>not computed in the repository</td></tr>
+<tr><td>\(Re_\theta / M_e\)</td><td>transition indicator</td><td>an estimate in <code>docs/specs/00_decisions.md</code> section 1.1, not a run</td></tr>
+<tr><td>\(d_0\)</td><td>first cell height, 20 micrometres (medium)</td><td><code>MEDIUM["d0"]</code> in geometry/inlet.py</td></tr>
+</table></div>
+<div class="impl"><span class="lbl">Implementation: where the laminar choice lives in the code</span>
+<ul>
+<li>There is no function for this entry. The laminar model is a modelling choice, and it enters the code in three places.</li>
+<li><code>cases/templates/navier_stokes.cfg</code>: <code>SOLVER= NAVIER_STOKES</code>, <code>KIND_TURB_MODEL= NONE</code>, <code>CONDUCTIVITY_MODEL= CONSTANT_PRANDTL</code>, <code>PRANDTL_LAM= 0.72</code>. The schema (<code>mcp_server/schemas.py</code>) allows <code>solver</code> to be <code>NAVIER_STOKES</code>, <code>EULER</code> or <code>RANS_SA</code>, default laminar.</li>
+<li><code>geometry/inlet.py</code> sizes the first wall cell (<code>d0 = 20e-6</code> m) for a laminar layer, and gate 5 in <code>physics/gates.py</code> checks \(Re_w \le 50\) with that \(d_0\).</li>
+<li><code>physics/heating.py</code> holds laminar correlations only (Eckert with \(St \propto Re^{-1/2}\), Fay-Riddell). A turbulent run has no validation reference in the repository, which is why entry 9 calls the SA result a bound.</li>
+<li>The Reynolds numbers in the worked example are hand arithmetic from <code>atmosphere.state(30)</code>. The \(Re_\theta/M_e \approx 100\) figure is an estimate written in the decisions document; say so if asked.</li>
+</ul></div>
 <span class="lbl">Worked example (00_decisions.md section 1.1)</span>
 \[
 Re_L = \frac{Re}{\mathrm{m}} \times L = 1.506 \times 10^{6} \times (0.25 \text{ to } 0.33) \le 5 \times 10^{5}
@@ -286,6 +471,37 @@ St^{*} &= 0.332\, (Re^{*}_x)^{-1/2}\, Pr^{-2/3} \quad \text{(properties at } T^{
 q_w &= St^{*}\,\rho^{*} u_e\, c_p\left(T_{aw} - T_w\right)
 \end{aligned}
 \]</div>
+<span class="lbl">More relations</span>
+<div class="eq">\[
+\begin{aligned}
+u_e &= M_e\sqrt{\gamma R T_e}, \qquad \rho^{*} = \frac{p_e}{R\,T^{*}}, \qquad \mu^{*} = \mu_{\mathrm{Sutherland}}(T^{*}), \qquad
+Re^{*}_x = \frac{\rho^{*} u_e x}{\mu^{*}} \\
+r &= \sqrt{Pr} = \sqrt{0.72} = 0.849, \qquad
+e(x) = \frac{q_{\mathrm{CFD}}(x)}{q_{\mathrm{Eckert}}(x)} - 1, \qquad
+\text{pass: } \overline{|e|} \le 0.10 \ \text{and} \ \max|e| \le 0.15 \ \text{on } 0.3 \le s/X_w \le 0.9
+\end{aligned}
+\]</div>
+<span class="lbl">Variables</span>
+<div class="tablewrap"><table class="vars">
+<tr><th>Symbol</th><th>Meaning</th><th>In the code</th></tr>
+<tr><td>\(M_e\), \(T_e\), \(p_e\)</td><td>edge Mach number, temperature, pressure (post-shock)</td><td><code>Me, Te, pe</code> arguments of <code>eckert_flat_plate</code></td></tr>
+<tr><td>\(T_w\)</td><td>wall temperature, 300 K</td><td><code>Tw</code>; <code>params["T_wall_K"]</code></td></tr>
+<tr><td>\(x\)</td><td>distance from the leading edge along the surface</td><td><code>x</code> (numpy array); <code>body["s"]</code> in the check</td></tr>
+<tr><td>\(r\), \(T_{aw}\)</td><td>recovery factor, adiabatic wall temperature</td><td><code>r</code>, <code>Taw</code></td></tr>
+<tr><td>\(T^{*}\), \(\rho^{*}\), \(\mu^{*}\)</td><td>reference temperature and the properties at it</td><td><code>Tstar</code>, <code>rho</code>, <code>mu</code></td></tr>
+<tr><td>\(u_e\), \(Re^{*}_x\), \(St^{*}\)</td><td>edge speed, reference Reynolds number, Stanton number</td><td><code>ue</code>, <code>Re</code>, <code>St</code></td></tr>
+<tr><td>\(Pr\), \(c_p\)</td><td>0.72, 1004.7 J/kg/K</td><td><code>PR</code>, <code>CP</code></td></tr>
+<tr><td>\(q_w\)</td><td>heat flux into the wall</td><td>return value; CFD: <code>body["q"]</code> from SU2's <code>Heat_Flux</code> column</td></tr>
+<tr><td>\(X_w\)</td><td>wedge length, 0.15 m</td><td><code>geometry["X_w"]</code>, <code>X_W</code> in geometry/wedge.py</td></tr>
+</table></div>
+<div class="impl"><span class="lbl">Implementation: physics/heating.py eckert_flat_plate and validation.eckert_check</span>
+<ul>
+<li><code>eckert_flat_plate(Me, Te, pe, Tw, x)</code> is nine lines in the order of the formulas: \(r\), \(T_{aw}\), \(T^{*}\) (with the coefficients 0.5 and 0.22), \(\rho^{*}\), \(\mu^{*}\), \(u_e\), \(Re^{*}_x\), \(St\), \(q\). It is vectorised over x, so one call gives the whole profile.</li>
+<li><code>validation.eckert_check(case_dir, theta_deg, window=(0.3, 0.9), tol_mean=0.10, tol_max=0.15)</code> takes the edge state from <code>oblique(M_inf, theta)</code>: \(T_e = T_\infty \cdot\) <code>T_ratio</code>, \(p_e = p_\infty \cdot\) <code>p_ratio</code>, \(M_e =\) <code>M2</code>. It selects body nodes with \(0.3 \le s/X_w \le 0.9\), computes <code>rel = q_cfd / q_ref - 1</code>, and passes when the mean and the maximum of \(|rel|\) are inside the tolerances. It returns the per-node profile for the plot.</li>
+<li>The heating objective uses the same wall data: <code>metrics.ramp2_window</code> keeps body nodes with \(x \ge X_1\) and drops nodes within 2 mm of the throat plane; <code>q_peak_W_m2</code> is the maximum there. The leading-edge singularity is on ramp 1 and never enters the objective.</li>
+<li>Task 9 reuses the function as the low-fidelity heating model: <code>metrics.eckert_window</code> evaluates it at every node of the heating window with the Euler wall state (M, T, p) as the edge state and the arc length from the leading edge as x.</li>
+<li>Tests: <code>tests/test_heating.py</code>.</li>
+</ul></div>
 <span class="lbl">Worked example (report row V2b, development run)</span>
 <p>On the laminar wedge, over \(0.3 \le x / X_w \le 0.9\):</p>
 \[
@@ -313,6 +529,39 @@ q_{FR} &= 0.57\, Pr^{-3/5}\,(\rho_e \mu_e)^{2/5}\,(\rho_w \mu_w)^{1/10}\,\left(\
 \text{Billig stand-off: } \frac{\delta}{R} &= 0.386\,\exp\!\left(\frac{4.67}{M^2}\right)
 \end{aligned}
 \]</div>
+<span class="lbl">More relations</span>
+<div class="eq">\[
+\begin{aligned}
+\frac{p_{02}}{p_\infty} &= \left[\frac{(\gamma+1) M^2}{2}\right]^{\gamma/(\gamma-1)}
+   \left[\frac{2\gamma M^2}{\gamma+1} - \frac{\gamma-1}{\gamma+1}\right]^{-1/(\gamma-1)} \quad \text{(Rayleigh pitot formula)} \\
+T_0 &= T_\infty\left(1 + \tfrac{\gamma-1}{2}M^2\right), \qquad
+\rho_e = \frac{p_{02}}{R\,T_0}, \quad \mu_e = \mu(T_0), \qquad
+\rho_w = \frac{p_{02}}{R\,T_w}, \quad \mu_w = \mu(T_w), \qquad
+h_0 - h_w = c_p\,(T_0 - T_w)
+\end{aligned}
+\]</div>
+<span class="lbl">Variables</span>
+<div class="tablewrap"><table class="vars">
+<tr><th>Symbol</th><th>Meaning</th><th>In the code</th></tr>
+<tr><td>\(M\), \(T_\infty\), \(p_\infty\)</td><td>freestream state</td><td><code>M_inf, T_inf, p_inf</code> arguments</td></tr>
+<tr><td>\(T_w\)</td><td>wall temperature</td><td><code>Tw</code></td></tr>
+<tr><td>\(R\) (radius)</td><td>cylinder radius, 10 mm</td><td><code>R</code>; <code>params["radius_m"]</code> (default 0.010, schema bounds 2 to 50 mm)</td></tr>
+<tr><td>\(p_{02}\)</td><td>pitot pressure behind the bow shock</td><td><code>"p02"</code></td></tr>
+<tr><td>\(T_0\)</td><td>total temperature (the edge state at the stagnation point)</td><td><code>"T0"</code></td></tr>
+<tr><td>\(\rho_e, \mu_e\), \(\rho_w, \mu_w\)</td><td>edge and wall density and viscosity</td><td><code>"rho_e", "mu_e", "rho_w", "mu_w"</code></td></tr>
+<tr><td>\(du_e/dx\)</td><td>edge velocity gradient at the stagnation point</td><td><code>"dudx"</code> (Newtonian); <code>dudx_cfd</code> in the check</td></tr>
+<tr><td>\(h_0 - h_w\)</td><td>enthalpy difference</td><td><code>"h0_minus_hw"</code></td></tr>
+<tr><td>\(q_{FR}\), \(q_{\mathrm{stag}}\)</td><td>Fay-Riddell and CFD stagnation heat flux</td><td><code>"q"</code>; <code>metrics["q_stag_W_m2"]</code></td></tr>
+<tr><td>\(\delta/R\)</td><td>shock stand-off over radius</td><td><code>billig_standoff(M)</code>; <code>metrics["standoff_over_R"]</code></td></tr>
+</table></div>
+<div class="impl"><span class="lbl">Implementation: physics/heating.py fay_riddell_cylinder, metrics._cylinder, validation.fay_riddell_check</span>
+<ul>
+<li><code>fay_riddell_cylinder(M_inf, T_inf, p_inf, Tw, R)</code> computes \(p_{02}\) by the Rayleigh pitot formula, the stagnation state, the wall state, the modified Newtonian gradient and \(q\) with the two-dimensional constant 0.57 (a sphere would use 0.763). The Lewis-number factor is dropped, which is exact for a perfect gas. It returns every intermediate value in a dict so the report can print them.</li>
+<li><code>metrics._cylinder</code> takes \(q_{\mathrm{stag}}\) at the wall node nearest \((-R, 0)\). <code>standoff_over_R</code> scans the stagnation line (\(y = 0\), \(x \lt -R\)) in <code>flow.dat</code> from upstream for the first node whose pressure reaches the midpoint of \(p_\infty\) and the maximum on the line, interpolates linearly, and returns \((-R - x_{\mathrm{shock}})/R\). Without a volume file it records a note instead of a value.</li>
+<li><code>validation.fay_riddell_check(case_dir, tol=0.15, tol_standoff=0.15)</code>: pass depends on \(q_{\mathrm{stag}}/q_{FR} - 1\) only. It also reports the stand-off against Billig and, when <code>flow.dat</code> exists, \(q_{FR}\) recomputed with the CFD velocity gradient: \(q \propto \sqrt{du_e/dx}\), so <code>q_FR_cfd_gradient = q_FR * sqrt(dudx_cfd / dudx_newtonian)</code>.</li>
+<li><code>edge_velocity_gradient</code>: for each wall node within 5 degrees of the stagnation point, take the radial line of volume nodes out to 10 percent of the stand-off, call the boundary-layer edge the first node within 1 percent of the largest Mach on that line, and fit \(u_e = (du_e/dx)\,R\phi\) through the origin by least squares.</li>
+<li>Mesh: <code>geometry/cylinder.py</code> is one polar block, \(\phi\) from 0 to 100 degrees, outer radius \(R(2 + 1.5\sin^2\phi)\), first cell 8, 4 or 2 micrometres with 57, 81 or 113 nodes per direction (<code>LEVELS</code>). Tests: <code>tests/test_heating.py</code>, <code>tests/test_cylinder.py</code>.</li>
+</ul></div>
 <span class="lbl">Worked example (00_decisions.md and the report)</span>
 <p>Cylinder \(R = 10\ \mathrm{mm}\):</p>
 \[
@@ -339,6 +588,31 @@ h_0 - h_w &= c_p\,(951.3 - 300)\ \mathrm{J/kg}, \qquad q_{FR} = 2.443 \times 10^
 <p class="where"><b>In the talk:</b> S22, B1. <b>Record:</b> <code>runs/sensitivity/</code> (Colab), <code>docs/validation/2026-11-02_sa_sensitivity.md</code>; the development runs in <code>runs/dev/2026-11-01_turbulence_sensitivity_SA/README.md</code> give the same values.</p>
 <span class="lbl">Definition</span>
 <p>A Reynolds-averaged (RANS) model such as Spalart-Allmaras adds an eddy viscosity from one transport equation. Without a transition model it is turbulent from the leading edge. The study runs it only to show how large the effect of the turbulence assumption could be. It is a bound, not a prediction.</p>
+<span class="lbl">Key relations</span>
+<div class="eq">\[
+\begin{aligned}
+\mu_t &= \rho\,\tilde\nu\, f_{v1}, \qquad f_{v1} = \frac{\chi^3}{\chi^3 + c_{v1}^3}, \qquad \chi = \frac{\tilde\nu}{\nu} \quad \text{(Spalart-Allmaras)} \\
+\frac{D\tilde\nu}{Dt} &= \underbrace{c_{b1}\tilde S\tilde\nu}_{\text{production}} - \underbrace{c_{w1} f_w \left(\frac{\tilde\nu}{d}\right)^2}_{\text{destruction}}
+ + \frac{1}{\sigma}\left[\nabla\cdot\left((\nu+\tilde\nu)\nabla\tilde\nu\right) + c_{b2}|\nabla\tilde\nu|^2\right] \\
+y^{+} &= \frac{\rho_w u_\tau d_0}{\mu_w}, \qquad \frac{q_{\mathrm{peak,SA}}}{q_{\mathrm{peak,lam}}}, \quad \Delta\,\mathrm{recovery\_total} = \mathrm{SA} - \mathrm{laminar}
+\end{aligned}
+\]</div>
+<span class="lbl">Variables</span>
+<div class="tablewrap"><table class="vars">
+<tr><th>Symbol</th><th>Meaning</th><th>In the code</th></tr>
+<tr><td>\(\tilde\nu\)</td><td>SA working variable (transported)</td><td>solved inside SU2; freestream set by <code>FREESTREAM_NU_FACTOR</code> (SU2 default 3)</td></tr>
+<tr><td>\(\mu_t\), \(\nu\)</td><td>eddy viscosity, laminar kinematic viscosity</td><td>inside SU2</td></tr>
+<tr><td>\(d\)</td><td>distance to the nearest wall</td><td>inside SU2</td></tr>
+<tr><td>\(y^{+}\)</td><td>wall-cell Reynolds number in wall units</td><td>from the SA README; not computed by repository code</td></tr>
+<tr><td>\(q_{\mathrm{peak}}\), recovery</td><td>the two objectives, same definitions as laminar</td><td><code>metrics.compute</code>, unchanged</td></tr>
+</table></div>
+<div class="impl"><span class="lbl">Implementation: cases/templates/rans_sa.cfg</span>
+<ul>
+<li>The repository does not implement a turbulence model. It selects SU2's by configuration: <code>cases/config.py</code> maps <code>solver = "RANS_SA"</code> to the template <code>rans_sa.cfg</code>.</li>
+<li>That template differs from the laminar one in exactly seven lines: <code>SOLVER= RANS</code>, <code>KIND_TURB_MODEL= SA</code>, <code>FREESTREAM_TURBULENCEINTENSITY= 0.01</code>, <code>CONV_NUM_METHOD_TURB= SCALAR_UPWIND</code>, <code>MUSCL_TURB= NO</code>, <code>TIME_DISCRE_TURB= EULER_IMPLICIT</code>, <code>CFL_REDUCTION_TURB= 0.5</code>. The turbulence equation is first order in space and marched implicitly at half the flow CFL. No transition model is set, so the layer is turbulent from the leading edge.</li>
+<li>Everything downstream is identical: the same mesh, the same <code>surface.load</code>, the same <code>metrics.compute</code>. So the SA and laminar rows of the table are the same code applied to two solutions, and the ratio is a fair comparison of the models, not of the post-processing.</li>
+<li>The schema accepts <code>RANS_SA</code> (<code>Literal["NAVIER_STOKES", "EULER", "RANS_SA"]</code>), so the case id of an SA run differs from the laminar one by the solver field. The five runs are in <code>runs/sensitivity/</code>.</li>
+</ul></div>
 <span class="lbl">Worked example (the development SA README)</span>
 <div class="tablewrap"><table>
 <tr><th>Case</th><th>Model</th><th>recovery_total</th><th>recovery_throat</th><th>q_peak kW/m2</th></tr>
@@ -376,6 +650,22 @@ h_0 - h_w &= c_p\,(951.3 - 300)\ \mathrm{J/kg}, \qquad q_{FR} = 2.443 \times 10^
 \lvert\lambda\rvert &\;\to\; \frac{\lambda^2 + \varepsilon^2}{2\varepsilon} \quad \text{when } \lvert\lambda\rvert \lt \varepsilon \quad \text{(Harten-type entropy fix)}
 \end{aligned}
 \]</div>
+<span class="lbl">Variables</span>
+<div class="tablewrap"><table class="vars">
+<tr><th>Symbol</th><th>Meaning</th><th>In the code</th></tr>
+<tr><td>\(\mathbf{U}\)</td><td>conservative variables (density, momentum, energy)</td><td>SU2 columns <code>Density, Momentum_x, Momentum_y, Energy</code>; read by <code>surface.state</code></td></tr>
+<tr><td>\(\mathbf{F}_L\), \(\mathbf{F}_R\)</td><td>fluxes from the left and right reconstructed states</td><td>inside SU2</td></tr>
+<tr><td>\(\mathbf{A}_{\mathrm{Roe}}\), \(\lambda\)</td><td>Roe-averaged Jacobian and its eigenvalues</td><td>inside SU2</td></tr>
+<tr><td>\(\varepsilon\)</td><td>entropy-fix coefficient, fraction of the spectral radius</td><td><code>ENTROPY_FIX_COEFF= 0.3</code> in the templates</td></tr>
+<tr><td>scheme</td><td>convective flux</td><td><code>CONV_NUM_METHOD_FLOW= ROE</code></td></tr>
+</table></div>
+<div class="impl"><span class="lbl">Implementation: cases/templates/*.cfg and cases/config.py</span>
+<ul>
+<li>SU2 does the numerics. The repository controls them through three template files in <code>cases/templates/</code> (<code>euler.cfg</code>, <code>navier_stokes.cfg</code>, <code>rans_sa.cfg</code>), rendered by <code>cases.config.render(params, geometry, markers)</code> with <code>string.Template</code>. Only the header comment, the freestream values, the markers, the iteration limit and the output list are substituted; the numerics lines are fixed text.</li>
+<li><code>render</code> refuses a config whose markers do not match the mesh in both directions: a marker named in the config but absent from the mesh, or a mesh marker the config does not use. The pipeline then checks that every key in the rendered file exists in the template (<code>unknown_keys</code>, stage <code>config_keys</code>), so a typo in a numerics key cannot pass silently.</li>
+<li>The config hash (entry 26) covers the numerics lines. A job staged with one entropy fix and run by a worker whose code renders another is refused as <code>config_mismatch</code>; the numerics of every run are in its record.</li>
+<li>The evidence for the choice is in run folders, not code: <code>runs/dev/2026-11-01_numerics</code> (wedge, six settings) and <code>runs/dev/2026-11-01_cylinder_v3_attempt2</code> and <code>attempt3</code> (six schemes, split test).</li>
+</ul></div>
 <span class="lbl">Worked example (numerics and cylinder records)</span>
 <p>Euler wedge, \(\log_{10}\) of the RMS density residual:</p>
 \[
@@ -405,6 +695,22 @@ U_{\mathrm{face}} &= U_{\mathrm{cell}} + \phi\,\nabla U \cdot \mathbf{r}_{\mathr
 &\text{Venkatakrishnan: } \phi \to 1 \text{ in smooth flow, } \phi \to 0 \text{ at a jump; } K = 0.05
 \end{aligned}
 \]</div>
+<span class="lbl">Variables</span>
+<div class="tablewrap"><table class="vars">
+<tr><th>Symbol</th><th>Meaning</th><th>In the code</th></tr>
+<tr><td>\(U_{\mathrm{cell}}\), \(U_{\mathrm{face}}\)</td><td>cell mean, reconstructed face value</td><td>inside SU2 (<code>MUSCL_FLOW= YES</code>)</td></tr>
+<tr><td>\(\nabla U\)</td><td>cell gradient</td><td><code>NUM_METHOD_GRAD= WEIGHTED_LEAST_SQUARES</code></td></tr>
+<tr><td>\(\phi\)</td><td>limiter, 0 to 1</td><td><code>SLOPE_LIMITER_FLOW= VENKATAKRISHNAN_WANG</code></td></tr>
+<tr><td>\(K\)</td><td>limiter threshold coefficient</td><td><code>VENKAT_LIMITER_COEFF= 0.05</code></td></tr>
+<tr><td>\(\mathbf{r}_{\mathrm{face}}\)</td><td>vector from the cell centre to the face</td><td>inside SU2</td></tr>
+</table></div>
+<div class="impl"><span class="lbl">Implementation: three lines of the template</span>
+<ul>
+<li>The whole entry is three lines of <code>cases/templates/navier_stokes.cfg</code> (and the same in the Euler and SA templates): <code>MUSCL_FLOW= YES</code>, <code>SLOPE_LIMITER_FLOW= VENKATAKRISHNAN_WANG</code>, <code>VENKAT_LIMITER_COEFF= 0.05</code>. Gradients are weighted least squares. The viscous fluxes need no setting: SU2 uses a second-order central discretisation.</li>
+<li>The SA template sets <code>MUSCL_TURB= NO</code>: the turbulence equation stays first order, which is the robust default.</li>
+<li>No Python code touches the reconstruction. The observed effect of the limiter is measured, not derived: the grid study (<code>validation.grid_study</code>, entry 15) is the only place where the order of accuracy is examined, and it reports "order undefined" when the changes between levels are not monotone.</li>
+<li>A limiter change alters the config hash, so it cannot enter a run unnoticed (entry 26).</li>
+</ul></div>
 <span class="lbl">Worked example (the config template)</span>
 <p>Every production run uses <code>MUSCL_FLOW= YES</code>, <code>SLOPE_LIMITER_FLOW= VENKATAKRISHNAN_WANG</code>, <code>VENKAT_LIMITER_COEFF= 0.05</code>, gradients by weighted least squares. The plain Venkatakrishnan limiter stalled the AUSM wedge run at minus 2.4 (numerics README). The viscous fluxes are central and second order.</p>
 <span class="lbl">Interview questions</span>
@@ -427,6 +733,25 @@ U_{\mathrm{face}} &= U_{\mathrm{cell}} + \phi\,\nabla U \cdot \mathbf{r}_{\mathr
 \text{CFL adaptation } (f_{\downarrow}, f_{\uparrow}, \mathrm{CFL}_{\min}, \mathrm{CFL}_{\max}) &= \left(\tfrac{1}{2},\; \tfrac{21}{20},\; 1,\; 20\right)
 \end{aligned}
 \]</div>
+<span class="lbl">Variables</span>
+<div class="tablewrap"><table class="vars">
+<tr><th>Symbol</th><th>Meaning</th><th>In the code</th></tr>
+<tr><td>\(V\), \(\Delta t\)</td><td>cell volume, local pseudo-time step</td><td>inside SU2 (<code>TIME_DISCRE_FLOW= EULER_IMPLICIT</code>)</td></tr>
+<tr><td>\(\mathbf{R}(\mathbf{U})\), \(\partial\mathbf{R}/\partial\mathbf{U}\)</td><td>residual and its (first-order) Jacobian</td><td>inside SU2</td></tr>
+<tr><td>\(\mathrm{CFL}\)</td><td>Courant number, starts at 1</td><td><code>CFL_NUMBER= 1.0</code>, <code>CFL_ADAPT= YES</code></td></tr>
+<tr><td>\((f_\downarrow, f_\uparrow, \mathrm{CFL}_{\min}, \mathrm{CFL}_{\max})\)</td><td>down factor, up factor, floor, cap</td><td><code>CFL_ADAPT_PARAM= ( 0.5, 1.05, 1.0, 20.0 )</code></td></tr>
+<tr><td>Krylov settings</td><td>FGMRES iterations and tolerance, ILU preconditioner</td><td><code>LINEAR_SOLVER_ITER= 15</code>, <code>LINEAR_SOLVER_ERROR= 1E-6</code>, <code>LINEAR_SOLVER_PREC= ILU</code></td></tr>
+<tr><td>\(N_{\mathrm{iter}}\)</td><td>iteration cap</td><td><code>ITER= $max_iter</code>; <code>params["max_iter"]</code> default 6000, schema 100 to 20000</td></tr>
+<tr><td>\(t_{\mathrm{wall}}\), timeout</td><td>wall time and the kill limit</td><td><code>result["run"]["wall_time_s"]</code>; <code>timeout_s = 2400</code> in job.json</td></tr>
+</table></div>
+<div class="impl"><span class="lbl">Implementation: the template and worker/run_case.py</span>
+<ul>
+<li>Time stepping and the linear solver are template lines (table above). They are the same for every family and every mesh level; the only per-run value is <code>max_iter</code>.</li>
+<li><code>worker.run_case.run(case_dir, su2_cmd, timeout_s)</code> launches <code>&lt;su2_cmd&gt; case.cfg</code> (for example <code>mpirun -n 4 SU2_CFD</code>) with <code>start_new_session=True</code>, so that a timeout can kill the whole process group, mpirun and all ranks, with <code>os.killpg</code>. Stale output files from an earlier run are deleted first so an old solution is never mistaken for the new one.</li>
+<li><code>parse_n_cores</code> reads the rank count from the command. <code>solver_version</code> runs <code>SU2_CFD --help</code> and, if that fails, reads the version from the log. The record's <code>run</code> block holds start and end time, wall time, iteration count (rows of history.csv), exit code and timeout flag; the <code>solver</code> block holds name, version, command, core count and the config hash.</li>
+<li>If SU2 exits with code 0 and no timeout, <code>run</code> calls <code>metrics.compute</code>; any exception there is stored as <code>metrics_error</code> instead of losing the run record.</li>
+<li>Tests: <code>tests/test_run_case.py</code> with <code>tests/fake_su2.py</code>, a stand-in solver that writes the files SU2 would write.</li>
+</ul></div>
 <span class="lbl">Worked example (numerics README and 00_decisions section 6)</span>
 \[
 \text{Task 0: } (f_\downarrow, f_\uparrow, \mathrm{CFL}_{\min}, \mathrm{CFL}_{\max}) = \left(\tfrac{1}{2}, \tfrac{6}{5}, 1, 100\right) \;\Rightarrow\; \mathrm{CFL} \in [0.5, 47],\ \log_{10}\mathrm{rms}(\rho) \approx -3 \text{ (hunting)}
@@ -447,6 +772,37 @@ U_{\mathrm{face}} &= U_{\mathrm{cell}} + \phi\,\nabla U \cdot \mathbf{r}_{\mathr
 <p class="where"><b>In the talk:</b> S10, S17, S21 row 3. <b>Record:</b> <code>docs/specs/00_decisions.md</code> section 6, <code>postprocess/history.py</code>, any <code>runs/pool/*/result.json</code> block <code>convergence</code>.</p>
 <span class="lbl">Definition</span>
 <p>The residual is the norm of the discrete equations' imbalance; it goes to zero at a converged steady state. SU2 stops when the log10 of the RMS density residual reaches minus 10. The post-processing classifies each run independently: converged (residual drop of at least 5 orders and both objectives drift less than 0.2 percent over the last 20 percent of iterations), stationary (objectives settled, residual stalled), not converged, diverged (NaN), timeout, error. Only converged and stationary runs train the surrogate.</p>
+<span class="lbl">Key relations</span>
+<div class="eq">\[
+\begin{aligned}
+\mathrm{drop} &= \max_{i \le 50}\log_{10}\mathrm{rms}(\rho)_i - \log_{10}\mathrm{rms}(\rho)_{\mathrm{last}}, \qquad
+\mathrm{drift}[\%] = 100\,\frac{\max(f_{\mathrm{tail}}) - \min(f_{\mathrm{tail}})}{|f_{\mathrm{last}}|}, \quad f_{\mathrm{tail}} = \text{last } 20\ \% \text{ of iterations} \\
+\mathrm{status} &= \begin{cases}
+\text{diverged} & \text{a non-finite residual} \\
+\text{converged} & \mathrm{drop} \ge 5 \ \text{and every available drift} \lt 0.2 \\
+\text{stationary} & \text{drifts} \lt 0.2, \ \mathrm{drop} \lt 5 \\
+\text{not\_converged} & \text{otherwise}
+\end{cases}
+\end{aligned}
+\]</div>
+<span class="lbl">Variables</span>
+<div class="tablewrap"><table class="vars">
+<tr><th>Symbol</th><th>Meaning</th><th>In the code</th></tr>
+<tr><td>\(\log_{10}\mathrm{rms}(\rho)\)</td><td>SU2's RMS density residual column</td><td><code>find_column(cols, "rms[rho]")</code></td></tr>
+<tr><td>start, end, drop</td><td>first-50-iteration maximum, last value, their difference</td><td><code>rms_rho_log10_start</code>, <code>rms_rho_log10_end</code>, <code>drop_orders</code></td></tr>
+<tr><td>\(f\) for recovery</td><td>SU2's mass-flux averaged total pressure on the throat</td><td>history column containing <code>totalpress</code></td></tr>
+<tr><td>\(f\) for \(q_{\mathrm{peak}}\)</td><td>SU2's maximum heat flux</td><td>column <code>maxHF</code> or <code>maximum_heatflux</code></td></tr>
+<tr><td>limits</td><td>5 orders, 0.2 percent, 20 percent tail</td><td><code>DROP_MIN</code>, <code>DRIFT_MAX</code>, <code>drift_pct(values, tail=0.2)</code></td></tr>
+<tr><td>stop criterion in SU2</td><td>residual target and start of the check</td><td><code>CONV_FIELD= RMS_DENSITY</code>, <code>CONV_RESIDUAL_MINVAL= -10</code>, <code>CONV_STARTITER= 200</code></td></tr>
+</table></div>
+<div class="impl"><span class="lbl">Implementation: postprocess/history.py and the worker's failure map</span>
+<ul>
+<li><code>history.load(path)</code> parses SU2's <code>history.csv</code> into <code>{column: array}</code>, stripping quotes and spaces from the header. <code>HISTORY_WRT_FREQ_INNER= 1</code> in the template makes every iteration a row.</li>
+<li><code>summarize(history_csv)</code> builds the <code>convergence</code> block of result.json: start, end, drop, the two drifts (None when the column is absent, for example on an Euler run with no heat flux), the status by the rule above, and the iteration count. The classification is independent of SU2's own stop flag.</li>
+<li>Timeout and error are not decided here. <code>worker.run_case.run</code> overwrites the status with <code>timeout</code> when the process was killed and with <code>error</code> when the exit code is not zero and the history was finite. <code>run_worker.failure_of</code> maps these to the fixed failure reasons: <code>timeout</code>, <code>nonzero_exit</code>, <code>nan</code> (diverged), <code>postprocess_error</code>.</li>
+<li>Consumers filter on status: <code>surrogate.replay.load_pool</code> and <code>analysis.pareto.usable</code> keep only <code>CONVERGED = ("converged", "stationary")</code>; <code>queue.ingest_result</code> refuses a result whose status is a failure and sends it to <code>ingest_error</code>.</li>
+<li>Tests: <code>tests/test_history.py</code>.</li>
+</ul></div>
 <span class="lbl">Worked example (pool record inlet2r-0c0990b14f)</span>
 \[
 \log_{10}\mathrm{rms}(\rho): -3.12 \to -10.00 \ \text{in 1006 iterations} \quad (\text{drop } 6.88 \text{ orders} \ge 5)
@@ -474,6 +830,38 @@ U_{\mathrm{face}} &= U_{\mathrm{cell}} + \phi\,\nabla U \cdot \mathbf{r}_{\mathr
 \qquad \rho_w \text{ at the inviscid throat pressure and } T_w = 300\ \mathrm{K},\; d_0 = 20\ \mu\mathrm{m}
 \quad (\approx 20 \text{ on the medium mesh})
 \]</div>
+<span class="lbl">More relations</span>
+<div class="eq">\[
+\begin{aligned}
+d_k &= d_0\, r^{k}, \quad \sum_{k=0}^{N-2} d_k = L \ \Rightarrow\ r \ \text{by bisection} \qquad \text{(one-sided stretch)} \\
+d_k &= \min\!\left(d_0 r^{k},\, d_{\max}\right) \ \text{(capped)}, \qquad
+d_k = \min\!\left(d_0 r^{k},\, d_1 r^{\,n-1-k}\right) \ \text{(two-sided, one ratio)} \\
+d_{0,\mathrm{vertical}} &= \frac{d_0}{\cos\alpha_{\mathrm{wall}}} \ \text{(vertical grid lines on a sloped wall)}, \qquad
+h_1 = \left|(\mathbf{p}_1 - \mathbf{p}_0)\times \mathbf{t}\right| \ \text{(measured wall-normal first cell)} \\
+\mathrm{AR} &= \frac{\text{longest edge}}{\text{shortest edge}}, \qquad
+\mathrm{growth} = \max_k \max\!\left(\frac{h_{k+1}}{h_k}, \frac{h_k}{h_{k+1}}\right)
+\end{aligned}
+\]</div>
+<span class="lbl">Variables</span>
+<div class="tablewrap"><table class="vars">
+<tr><th>Symbol</th><th>Meaning</th><th>In the code</th></tr>
+<tr><td>\(d_0\)</td><td>requested first cell height, 20 micrometres at medium</td><td><code>MEDIUM["d0"]</code>, <code>sizes(level)["d0"]</code> (geometry/inlet.py)</td></tr>
+<tr><td>\(r\), \(N\), \(L\), \(d_{\max}\)</td><td>growth ratio, node count, edge length, spacing cap</td><td>arguments of <code>stretch_one_sided</code>, <code>stretch_capped</code>, <code>stretch_two_sided_smooth</code></td></tr>
+<tr><td>\(\alpha_{\mathrm{wall}}\)</td><td>wall slope: \(\theta_1\) on ramp 1, \(\theta_t\) on ramp 2</td><td><code>d0 / math.cos(angle)</code> in <code>build</code></td></tr>
+<tr><td>\(N_{\mathrm{cells}}\), \(\alpha_{\min}\), \(\mathrm{AR}_{\max}\), growth, \(N_{\mathrm{inverted}}\)</td><td>the quality numbers</td><td>keys <code>cells, min_angle_deg, max_aspect_ratio, max_growth, n_inverted, first_cell_height</code> of <code>Mesh.quality()</code></td></tr>
+<tr><td>limits</td><td>40 degrees, 10 percent, 1.25, 5000</td><td><code>MIN_ANGLE_DEG, FIRST_CELL_TOL, MAX_GROWTH, MAX_ASPECT</code> (worker/make_case.py)</td></tr>
+<tr><td>\(Re_w\), limit 50</td><td>wall-cell Reynolds number (gate 5)</td><td><code>re_w</code>, <code>MAX_WALL_RE</code> (physics/gates.py)</td></tr>
+<tr><td>level factor</td><td>1/1.4 coarse, 1 medium, 1.4 fine</td><td><code>FACTOR</code> (geometry/wedge.py); <code>_odd</code> keeps counts odd</td></tr>
+</table></div>
+<div class="impl"><span class="lbl">Implementation: geometry/structured.py, geometry/inlet.py build, worker/make_case.py</span>
+<ul>
+<li><code>geometry/structured.py</code> has the three stretching functions above (each solves for \(r\) by bisection on the monotone sum), a <code>Block</code> built as a Coons patch from its four edge curves, <code>Mesh.from_blocks</code> which merges the nodes of shared edges, <code>add_marker</code>, <code>quality()</code> and <code>write_su2</code>.</li>
+<li><code>inlet.build(params)</code> makes eight blocks: four in the lower row from the body to the lip line \(y = y_P\) (L0 upstream, L1 ramp 1, L2 ramp 2, L3 duct) and four above it (U0 to U3, the last one outside the cowl). Because grid lines are vertical, the vertical spacing at a sloped wall is \(d_0/\cos\alpha\) so that the wall-normal height is \(d_0\). <code>_n_low</code> and <code>_n_up</code> raise the node counts until the growth is at most 1.2; <code>_hand_over</code> picks the spacing where the wall-clustered part meets the upper row so the two rows join without a jump.</li>
+<li><code>sizes(level)</code> scales lengths by the level factor and node counts by its inverse, so coarse, medium and fine have the fixed refinement ratio 1.4 that the grid study assumes.</li>
+<li><code>Mesh.quality()</code> measures angles from the edge vectors at each vertex, the aspect ratio per cell, inverted cells by the sign of the area, the first cell height wall-normal as \(|(\mathbf{p}_1-\mathbf{p}_0)\times\mathbf{t}|\) with \(\mathbf{t}\) the local wall tangent, and the growth along the index direction normal to each wall inside that wall's block.</li>
+<li><code>make_case.quality_failures(quality, requested)</code> returns one string per violated limit, written so that a NaN fails. <code>make</code> raises <code>StageError("mesh_quality", ...)</code> and writes nothing. The same <code>make</code> runs in the MCP pipeline and again in the worker, which is why the check happens twice.</li>
+<li>Gate 5 in <code>physics.gates</code> uses the inviscid throat pressure \(p_\infty \cdot\) <code>g["p_ratio"]</code> and \(T_w\): \(\rho_w = p_{\mathrm{th}}/(R T_w)\), \(a_w = \sqrt{\gamma R T_w}\), \(d_0\) from <code>sizes(mesh_level)</code>. Tests: <code>tests/test_structured.py</code>, <code>tests/test_inlet_geometry.py</code>, <code>tests/test_make_case.py</code>.</li>
+</ul></div>
 <span class="lbl">Worked example (mesh_quality.json of inlet2r-374dad241f, the confirmation case)</span>
 \[
 \begin{aligned}
@@ -502,6 +890,25 @@ f_{\mathrm{exact}} \approx f_{\mathrm{fine}} + \frac{f_{\mathrm{fine}} - f_{\mat
 \mathrm{GCI} &= F_s\,\frac{\lvert f_{\mathrm{fine}} - f_{\mathrm{medium}}\rvert}{\lvert f_{\mathrm{fine}}\rvert\,(r^{p} - 1)}, \qquad F_s = \tfrac{5}{4} \quad \text{(Roache)}
 \end{aligned}
 \]</div>
+<span class="lbl">Variables</span>
+<div class="tablewrap"><table class="vars">
+<tr><th>Symbol</th><th>Meaning</th><th>In the code</th></tr>
+<tr><td>\(f_{\mathrm{coarse}}, f_{\mathrm{medium}}, f_{\mathrm{fine}}\)</td><td>the metric on the three levels</td><td><code>row["values"]</code>, from result.json or <code>metrics.compute</code></td></tr>
+<tr><td>\(r\)</td><td>refinement ratio, 1.4</td><td><code>ratio=1.4</code></td></tr>
+<tr><td>\(p\)</td><td>observed order</td><td><code>row["order"]</code> (None when undefined)</td></tr>
+<tr><td>\(f_{\mathrm{exact}}\)</td><td>Richardson extrapolated value</td><td><code>row["extrapolated"]</code></td></tr>
+<tr><td>\(f_i/f_{i-1} - 1\)</td><td>relative change from the previous level</td><td><code>row["rel_change"]</code></td></tr>
+<tr><td>tolerances</td><td>2 percent on recovery_total, 5 percent on q_peak (V4m)</td><td><code>GRID_TOL</code>; <code>row["within_tol"]</code></td></tr>
+<tr><td>\(\mathrm{GCI}\), \(F_s\)</td><td>grid convergence index and safety factor</td><td>not computed in the repository (textbook form only)</td></tr>
+</table></div>
+<div class="impl"><span class="lbl">Implementation: postprocess/validation.py grid_study</span>
+<ul>
+<li><code>grid_study(case_dirs, keys=("recovery_total", "q_peak_W_m2"), ratio=1.4)</code> takes the case directories ordered coarse to fine. For each key it lists the values, the relative change of each level from the previous one, and the medium-to-fine change against the tolerance.</li>
+<li>With three or more levels it uses the last three: \(d_{12} = f_2 - f_1\), \(d_{23} = f_3 - f_2\). Only if \(d_{12} d_{23} \gt 0\) and \(|d_{12}| \gt |d_{23}|\) does it compute \(p\) and the extrapolated value. Otherwise it writes the note "order undefined (changes not monotone and decreasing)" and leaves both None. This is what happened for both objectives of the 8/8 study.</li>
+<li><code>pass</code> is True when every key that has a tolerance changed by less than it from medium to fine. The GCI is not computed; the error bar on the Pareto plot (<code>analysis/plot_pareto.py</code>, arguments <code>--disc-rec-pct</code> and <code>--disc-q-pct</code>) is the raw medium-to-fine relative change applied to the observed point with the median q.</li>
+<li>The three meshes come from <code>mesh_level</code> in the params: <code>sizes(level)</code> divides lengths by 1.4 and multiplies node counts by 1.4 (entry 14), so the ratio in the formula is the ratio the mesher used.</li>
+<li>Tests: <code>tests/test_report.py</code> covers the grid-study table.</li>
+</ul></div>
 <span class="lbl">Worked example (report grid study, inlet 8/8)</span>
 <div class="tablewrap"><table>
 <tr><th>Quantity</th><th>Coarse</th><th>Medium</th><th>Fine</th><th>Medium to fine</th></tr>
@@ -525,6 +932,34 @@ f_{\mathrm{exact}} \approx f_{\mathrm{fine}} + \frac{f_{\mathrm{fine}} - f_{\mat
 <p class="where"><b>In the talk:</b> S5, S23, B6. <b>Record:</b> <code>docs/specs/00_decisions.md</code> section 5, <code>docs/validation/2026-11-01_report.md</code>.</p>
 <span class="lbl">Definition</span>
 <p>Verification asks whether the equations are solved correctly (grid studies, analytic solutions). Validation asks whether the right equations are solved (comparison with experiment or trusted correlations). The study uses analytic and correlation references because no experiment exists for this geometry. A <strong>hard</strong> tolerance must pass, and a failure means a bug to fix, never a tolerance to widen. A <strong>soft</strong> tolerance is reported with an explanation. A <strong>report</strong> item is a number shown without a gate.</p>
+<span class="lbl">Key relations</span>
+<div class="eq">\[
+\begin{aligned}
+e &= \frac{x_{\mathrm{CFD}}}{x_{\mathrm{ref}}} - 1 \quad \text{(relative deviation)}, \qquad \text{pass} \iff |e| \le \mathrm{tol} \\
+\text{hard:} &\ \text{fail} \Rightarrow \text{fix the cause}; \qquad \text{soft:}\ \text{fail} \Rightarrow \text{report and explain}; \qquad \text{report:}\ \text{no gate, the number is shown}
+\end{aligned}
+\]</div>
+<span class="lbl">Variables</span>
+<div class="tablewrap"><table class="vars">
+<tr><th>Symbol</th><th>Meaning</th><th>In the code</th></tr>
+<tr><td>\(x_{\mathrm{ref}}\)</td><td>analytic or correlation reference</td><td><code>physics.shock.oblique</code>, <code>physics.heating.*</code>, <code>geometry.json</code> inviscid values</td></tr>
+<tr><td>\(x_{\mathrm{CFD}}\)</td><td>the measured quantity from the SU2 files</td><td><code>postprocess.surface</code>, <code>postprocess.metrics</code></td></tr>
+<tr><td>V1 tolerances</td><td>0.5 degrees, 2 percent, 2 percent</td><td><code>oblique_shock_check(tol_beta_deg=0.5, tol_ratio=0.02)</code></td></tr>
+<tr><td>V2b tolerances</td><td>mean 10, max 15 percent</td><td><code>eckert_check(tol_mean=0.10, tol_max=0.15)</code></td></tr>
+<tr><td>V3 tolerances</td><td>15 percent; stand-off 15 percent (report)</td><td><code>fay_riddell_check(tol=0.15, tol_standoff=0.15)</code></td></tr>
+<tr><td>V4e, V4v</td><td>2 percent hard (Euler), 5 percent soft (laminar core)</td><td><code>inlet_check</code>: <code>tol = 0.02 if euler else 0.05</code></td></tr>
+<tr><td>V4m</td><td>2 and 5 percent medium to fine</td><td><code>GRID_TOL</code></td></tr>
+<tr><td>X1</td><td>0.5 percent</td><td><code>metrics.CROSSCHECK_TOL = 0.005</code></td></tr>
+<tr><td>C1, C2</td><td>coverage band 80 to 97 percent; confirmation inside</td><td>report text; <code>analysis.confirm</code> key <code>c2_pass</code></td></tr>
+</table></div>
+<div class="impl"><span class="lbl">Implementation: postprocess/validation.py and postprocess/report.py</span>
+<ul>
+<li>Every check is one function in <code>postprocess/validation.py</code> that returns a dict with <code>pass</code> set to True, False or None. The decorator <code>_never_raises</code> turns a missing or unreadable input into <code>pass: None</code> with an error string, so a report is never blocked by one broken case and never shows a false pass.</li>
+<li>The tolerance values live only in the function defaults listed above. Changing one is a visible code change in the history; there is no configuration file for tolerances.</li>
+<li><code>inlet_check</code> uses plain length-weighted averages over the throat (whole plane for V4e; the middle 50 percent of the height for V4v) against the inviscid numbers in geometry.json. It prints the mass-weighted objective next to them so the reader sees both.</li>
+<li><code>postprocess/report.py</code> collects the dicts from the development and Colab run folders into <code>docs/validation/2026-11-01_report.md</code> with the table shown on S5. The two failed V3 rows stay in the table by the repository rule; <code>tests/test_report.py</code> checks the table builder.</li>
+<li>C1 is computed by the replay (entry 19) and C2 by <code>analysis/confirm.py</code> (entry 23). Both are reports: nothing in the code changes a model when they are outside their band.</li>
+</ul></div>
 <span class="lbl">Worked example (the report, as shown on S5)</span>
 <div class="tablewrap"><table>
 <tr><th>Check</th><th>Tolerance</th><th>Type</th><th>Verdict</th></tr>
@@ -567,6 +1002,29 @@ r^2 = \sum_{d} \frac{(x_d - x'_d)^2}{\ell_d^2} \\
 \log p(\mathbf{y}) &= -\tfrac{1}{2}(\mathbf{y}-c)^{\mathsf T}\left(\mathbf{K} + \sigma_n^2 \mathbf{I}\right)^{-1}(\mathbf{y}-c) - \tfrac{1}{2}\log\left\lvert \mathbf{K} + \sigma_n^2 \mathbf{I}\right\rvert - \tfrac{n}{2}\log 2\pi
 \end{aligned}
 \]</div>
+<span class="lbl">Variables</span>
+<div class="tablewrap"><table class="vars">
+<tr><th>Symbol</th><th>Meaning</th><th>In the code</th></tr>
+<tr><td>\(\mathbf{x}\)</td><td>design (theta1, theta2) scaled to the unit square</td><td><code>scale_inputs(X, BOUNDS)</code>, <code>BOUNDS = [(5, 12), (5, 14)]</code></td></tr>
+<tr><td>\(y\)</td><td>an output, standardised to mean 0 and std 1</td><td><code>Standardizer.transform(y)</code>; y1 = recovery_total, y2 = log q_peak</td></tr>
+<tr><td>\(c\)</td><td>constant mean</td><td><code>theta[-1]</code>, key <code>mean</code></td></tr>
+<tr><td>\(\ell_d\)</td><td>lengthscale per input (ARD)</td><td><code>exp(theta[:d])</code>, keys <code>log_ls1</code>, <code>log_ls2</code></td></tr>
+<tr><td>\(\sigma_f^2\)</td><td>signal variance</td><td><code>exp(theta[d])</code>, key <code>log_sf2</code></td></tr>
+<tr><td>\(\sigma_n^2\)</td><td>noise variance (plus a floor of 1e-6)</td><td><code>noise_var()</code> = <code>NOISE_FLOOR + exp(theta[-2])</code></td></tr>
+<tr><td>\(\mathbf{K}\), \(\mathbf{L}\)</td><td>training covariance and its Cholesky factor</td><td><code>kernel(X, X, theta)</code>, <code>self.L</code> (<code>K + (s2 + 1e-8) I = L L^T</code>)</td></tr>
+<tr><td>\(\boldsymbol\alpha\)</td><td>\((\mathbf{K}+\sigma_n^2\mathbf{I})^{-1}(\mathbf{y}-c)\)</td><td><code>self.alpha</code></td></tr>
+<tr><td>\(\mathbf{k}_*\), \(\mu\), \(\sigma^2\)</td><td>cross covariance, posterior mean and variance</td><td><code>Ks</code>, <code>predict(Xs, noise)</code></td></tr>
+<tr><td>\(\log p(\mathbf{y})\)</td><td>log marginal likelihood</td><td><code>log_marginal_likelihood(theta)</code>, key <code>lml</code></td></tr>
+</table></div>
+<div class="impl"><span class="lbl">Implementation: surrogate/gp.py (about 120 lines, pure torch float64)</span>
+<ul>
+<li><code>kernel(A, B, theta)</code>: ARD-scaled distance \(r\), then the Matern 5/2 formula. The squared distance is clamped at \(10^{-12}\) before the square root because the gradient of \(\sqrt{\cdot}\) is undefined at 0.</li>
+<li><code>fit(X, y)</code>: three restarts with log lengthscale \(-1, 0, 1\) in every input, signal variance 1, noise \(10^{-3}\), mean 0. All three run as one batched theta of shape (3, d+3), Adam with learning rate 0.05 for 300 steps on the negative log marginal likelihood; the restart with the best likelihood wins. Hyperparameters are in log space so positivity needs no constraint. Then it stores \(\mathbf{L}\) and \(\boldsymbol\alpha\).</li>
+<li><code>predict(Xs, noise=False)</code>: mean \(c + \mathbf{k}_*^{\mathsf T}\boldsymbol\alpha\); variance \(\sigma_f^2 - |\mathbf{L}^{-1}\mathbf{k}_*|^2\) by one triangular solve, clamped at \(10^{-12}\); <code>noise=True</code> adds \(\sigma_n^2\) for a predictive interval. <code>hypers()</code> returns the fitted values as floats for the replay CSV and <code>hypers.json</code>.</li>
+<li>Inputs are scaled to \([0,1]^2\) first, which is why the lengthscales read as "box widths". Outputs are standardised by <code>Standardizer</code>, with <code>inverse</code> for means and <code>inverse_var</code> for variances. <code>torch.set_num_threads(1)</code>: with four threads the tiny matrices were 30 times slower.</li>
+<li>The comparison model <code>surrogate/mlp.py MLPEnsemble</code> has the same <code>fit</code>, <code>predict(noise)</code> and <code>hypers</code> interface: five networks 2 to 64 to 64 to 1 with tanh, AdamW learning rate 0.01 for 2000 steps, weight decay \(10^{-4}\), ensemble mean as prediction, variance between members as uncertainty, mean training MSE plus the floor as noise.</li>
+<li>Tests: <code>tests/test_gp.py</code>, <code>tests/test_mlp.py</code>.</li>
+</ul></div>
 <span class="lbl">Worked example (hypers.json on the 92-point pool)</span>
 \[
 \begin{aligned}
@@ -587,6 +1045,30 @@ r^2 = \sum_{d} \frac{(x_d - x'_d)^2}{\ell_d^2} \\
 <p class="where"><b>In the talk:</b> S13, S16. <b>Record:</b> <code>runs/analysis/2026-11-02/hypers.json</code>, <code>docs/validation/2026-11-02_pareto_inverse.md</code> section 1.</p>
 <span class="lbl">Definition</span>
 <p>The noise variance absorbs any part of the data the smooth function cannot explain. CFD outputs are deterministic, so one could expect zero noise. The mesh is regenerated for each design, so the discretization error differs from point to point. The GP sees that difference as noise. The fitted noise standard deviation of about 4e-5 in recovery is therefore a measurement of design-to-design mesh scatter, and it is smaller than the medium-to-fine grid change of 3e-4.</p>
+<span class="lbl">Key relations</span>
+<div class="eq">\[
+\begin{aligned}
+\sigma_n^2 &= 10^{-6} + e^{\theta_{\mathrm{noise}}} \quad \text{(standardised units)}, \qquad
+\sigma_{n,\mathrm{orig}}^2 = \sigma_n^2\, s_y^2, \qquad s_y = \mathrm{std}(y_{\mathrm{train}}) \\
+\sigma^2_{\mathrm{pred}}(\mathbf{x}_*) &= \sigma^2_{\mathrm{latent}}(\mathbf{x}_*) + \sigma_n^2 \quad \text{(what the intervals use)}
+\end{aligned}
+\]</div>
+<span class="lbl">Variables</span>
+<div class="tablewrap"><table class="vars">
+<tr><th>Symbol</th><th>Meaning</th><th>In the code</th></tr>
+<tr><td>\(\sigma_n^2\)</td><td>fitted noise variance in standardised units</td><td><code>GP.noise_var()</code>, <code>hyp_recovery_noise_var</code> in replay.csv</td></tr>
+<tr><td>\(s_y\)</td><td>standard deviation of the training outputs</td><td><code>Standardizer.std</code>, <code>y_std</code> in hypers.json</td></tr>
+<tr><td>\(\sigma_{\mathrm{latent}}\), \(\sigma_{\mathrm{pred}}\)</td><td>posterior std of f, and of a new run</td><td><code>predict(Xs)</code> and <code>predict(Xs, noise=True)</code></td></tr>
+<tr><td>\(\mathrm{RMSE}_{\mathrm{held}}\)</td><td>held-out error of the mean</td><td><code>rmse_recovery</code> in <code>replay.metrics_row</code></td></tr>
+<tr><td>mesh scatter</td><td>design-to-design discretisation error</td><td>a new mesh per design: <code>make_case.make</code>, <code>mesh_fingerprint</code></td></tr>
+</table></div>
+<div class="impl"><span class="lbl">Implementation: how the noise term is set and used</span>
+<ul>
+<li>The noise is one of the hyperparameters that <code>GP.fit</code> optimises by marginal likelihood; nothing fixes or caps it except the floor \(10^{-6}\) in standardised units. So "\(\sigma_n^2 = 0\) (floor)" in the replay means the optimiser drove \(e^{\theta_{\mathrm{noise}}}\) to about zero at that budget.</li>
+<li>Two kinds of variance leave the model. <code>analysis.pareto.run</code> writes the latent std to <code>grid.csv</code> and draws the band from the latent covariance. <code>analysis.inverse</code>, <code>analysis.confirm</code> and <code>replay.metrics_row</code> call <code>predict(noise=True)</code> because they talk about a new simulation. The docstrings of each say which.</li>
+<li>Why the noise is mesh scatter: <code>worker.make_case.make</code> regenerates the structured mesh from the two angles for every design, so the node layout, cell counts (25 800 to 37 400 in the pool) and the discretisation error differ from design to design. The GP cannot represent that as a smooth function and puts it into \(\sigma_n^2\).</li>
+<li>The medium-to-fine grid change of \(3 \times 10^{-4}\) (entry 15) is a systematic offset of the whole medium-mesh surface, not a point-to-point scatter, so it is drawn as a separate error bar and never added to the GP variance.</li>
+</ul></div>
 <span class="lbl">Worked example (replay at n = 48 against the full fit)</span>
 \[
 n = 48: \ \sigma_n^2 = 0 \ (\text{floor } 10^{-6}), \quad \mathrm{RMSE}_{\mathrm{held}} = 1.4 \times 10^{-5} \text{ to } 3 \times 10^{-5};
@@ -609,6 +1091,23 @@ n = 48: \ \sigma_n^2 = 0 \ (\text{floor } 10^{-6}), \quad \mathrm{RMSE}_{\mathrm
 <div class="eq">\[
 \mathrm{coverage}(\alpha) = \frac{1}{n_{\mathrm{held}}}\sum_{i}\mathbf{1}\!\left[\,\lvert y_i - \mu_i\rvert \le z_{\alpha}\,\sigma_i\,\right], \qquad z_{0.90} = 1.645
 \]</div>
+<span class="lbl">Variables</span>
+<div class="tablewrap"><table class="vars">
+<tr><th>Symbol</th><th>Meaning</th><th>In the code</th></tr>
+<tr><td>\(\alpha\)</td><td>nominal coverage level</td><td><code>LEVELS = (0.5, 0.8, 0.9, 0.95)</code> in surrogate/replay.py</td></tr>
+<tr><td>\(z_\alpha\)</td><td>central-interval half width in standard deviations</td><td><code>NormalDist().inv_cdf(0.5 + level / 2)</code>; <code>Z90</code> = 1.645 elsewhere</td></tr>
+<tr><td>\(y_i\), \(\mu_i\), \(\sigma_i\)</td><td>held-out truth, predictive mean and std</td><td><code>y1, m1, sqrt(v1)</code> (recovery), <code>y2, m2, sqrt(v2)</code> (log q)</td></tr>
+<tr><td>\(n_{\mathrm{held}}\)</td><td>number of held-out pool points</td><td><code>held = setdiff1d(arange(P.N), sel)</code></td></tr>
+<tr><td>coverage columns</td><td>one per level and output</td><td><code>cov50_recovery ... cov95_q</code> in replay.csv</td></tr>
+<tr><td>flag band</td><td>80 to 97 percent at the 90 percent level</td><td>stated in the replay report; not a code constant</td></tr>
+</table></div>
+<div class="impl"><span class="lbl">Implementation: surrogate/replay.py metrics_row and postprocess/plot_replay.py</span>
+<ul>
+<li><code>metrics_row</code> predicts at every held-out pool point with <code>noise=True</code> and counts the fraction with \(|y_i - \mu_i| \le z_\alpha \sigma_i\) at the four levels, separately for recovery (recovery units) and for q (log units). One row of the long-format CSV per (strategy, seed, n, metric).</li>
+<li><code>postprocess/plot_replay.py</code> reads those rows and draws the calibration plot: nominal level on the x axis, observed coverage with the interquartile band over seeds on the y axis, the diagonal as the target.</li>
+<li>The 80 to 97 percent band is a reporting rule written in <code>docs/validation/2026-11-02_replay.md</code>. The code reports the numbers; a person compares them with the band. Nothing is refitted when a number is outside it.</li>
+<li>The same \(z_{0.90}\) appears as <code>Z90 = NormalDist().inv_cdf(0.95)</code> in <code>analysis/inverse.py</code>, <code>analysis/inverse3r.py</code> and <code>analysis/mf3r.py</code>, and as the literal 1.6448536269514722 in <code>analysis/operator_compare.py</code>.</li>
+</ul></div>
 <span class="lbl">Worked example (final replay, n = 48, 44 held-out points)</span>
 \[
 \begin{array}{lcccc}
@@ -638,6 +1137,34 @@ q_{\mathrm{peak}} & 0.65\text{ to }0.77 & 0.81\text{ to }0.88 & 0.84\text{ to }0
 \mathrm{regret}(S) &= \frac{\mathrm{HV}(\text{true front}) - \mathrm{HV}(\text{front of } S)}{\mathrm{HV}(\text{true front})}
 \end{aligned}
 \]</div>
+<span class="lbl">More relations</span>
+<div class="eq">\[
+\begin{aligned}
+\mathrm{HVI}\big((a,b)\big) &= \sum_{k}\ \big|\,[a, r_1] \cap [x_k, x_{k+1}]\,\big|\ \max(h_k - b,\ 0)
+\quad \text{(2D: the staircase of the front has height } h_k \text{ on segment } k\text{)} \\
+\text{front}(S) &= \{\,i : \nexists\, j \ \text{with}\ \mathbf{f}_j \le \mathbf{f}_i \ \text{and}\ \mathbf{f}_j \ne \mathbf{f}_i\,\}
+\end{aligned}
+\]</div>
+<span class="lbl">Variables</span>
+<div class="tablewrap"><table class="vars">
+<tr><th>Symbol</th><th>Meaning</th><th>In the code</th></tr>
+<tr><td>\(f_1\), \(f_2\)</td><td>\(-\)recovery_total, \(\log q_{\mathrm{peak}}\)</td><td><code>replay.to_objectives(pool)</code> gives F (n, 2); <code>from_objectives</code> inverts</td></tr>
+<tr><td>\(\mathbf{f}_{\mathrm{nadir}}\), \(\mathbf{f}_{\mathrm{ideal}}\)</td><td>componentwise worst and best over all rows</td><td><code>worst, best = F.max(0), F.min(0)</code> in <code>ref_point</code></td></tr>
+<tr><td>\(\mathbf{r}\)</td><td>reference point</td><td><code>ref_point(F, margin=0.1)</code>; <code>P.ref</code> from the whole pool</td></tr>
+<tr><td>\(\mathrm{HV}\)</td><td>dominated area</td><td><code>hypervolume_2d(F, ref)</code></td></tr>
+<tr><td>front indices</td><td>non-dominated rows</td><td><code>pareto_front(F)</code> (n by n); <code>analysis.pareto.front_2d</code> (sort and sweep, for the 40 000-point grid)</td></tr>
+<tr><td>\(h_k\), \(x_k\)</td><td>staircase heights and breakpoints</td><td><code>height, left, right</code> in <code>hvi_2d</code></td></tr>
+<tr><td>regret</td><td>\(1 - \mathrm{HV}(S)/\mathrm{HV}_{\mathrm{true}}\)</td><td><code>hv_regret</code>; <code>P.hv_true</code></td></tr>
+</table></div>
+<div class="impl"><span class="lbl">Implementation: surrogate/acquisition.py and analysis/pareto.py</span>
+<ul>
+<li><code>pareto_front(F)</code>: build the boolean matrices <code>le[j, i]</code> (j no worse than i in both) and <code>lt[j, i]</code> (j strictly better somewhere); a row is dominated if any j has both. Clear and \(O(n^2)\), fine for a pool of 92.</li>
+<li><code>hypervolume_2d(F, ref)</code>: drop rows outside the reference box, sort by \(f_1\), sweep left to right keeping the lowest \(f_2\) seen; a point that lowers the level adds the strip \((r_1 - f_1)(\text{level} - f_2)\). Exact, no sampling.</li>
+<li><code>hvi_2d(points, front, ref)</code> is the vectorised improvement of many points at once: <code>_staircase</code> sorts the non-dominated front, and the improvement of a point is the sum over segments of the overlap width times the height gain. It runs in torch so <code>ehvi_mc</code> can score 128 draws for every candidate in one call.</li>
+<li><code>replay.metrics_row</code> computes the regret as \((\mathrm{HV}_{\mathrm{true}} - \mathrm{HV}(\text{front of the selected points}))/\mathrm{HV}_{\mathrm{true}}\) with the reference fixed from the whole pool, the same for every strategy and seed.</li>
+<li><code>analysis/pareto.py run</code> draws the front with uncertainty: fit the two GPs, evaluate on a 201 by 201 grid with the gate-4 mask, write <code>grid.csv</code>; then <code>pareto.csv</code> with the observed front (true values), the predicted front (posterior mean on the grid) and a band: 50 joint posterior samples from the Cholesky of the posterior covariance on at most 1500 feasible points, each sample's front gives the best recovery at 25 log-spaced q levels, and the 5th, 50th and 95th percentiles over samples form the band. <code>analysis/plot_pareto.py</code> draws it with the discretisation error bar and the inverse-query star.</li>
+<li>Tests: <code>tests/test_hypervolume.py</code>, <code>tests/test_acquisition.py</code>, <code>tests/test_pareto.py</code>.</li>
+</ul></div>
 <span class="lbl">Worked example (final replay)</span>
 <p>The true front of the 92-point pool has 26 points. Median regret over 10 seeds:</p>
 \[
@@ -669,6 +1196,32 @@ f_j(\mathbf{x}) \sim \mathcal{N}\!\left(\mu_j(\mathbf{x}), \sigma_j^2(\mathbf{x}
 \mathrm{EHVI}(\mathbf{x}) &\approx \frac{1}{128}\sum_{k=1}^{128} \mathrm{HVI}\!\left(\mathbf{f}^{(k)}\right)
 \end{aligned}
 \]</div>
+<span class="lbl">More relations</span>
+<div class="eq">\[
+\begin{aligned}
+\mathbf{f}^{(k)} &= \boldsymbol\mu + \boldsymbol\sigma \odot \mathbf{z}^{(k)}, \quad \mathbf{z}^{(k)} \sim \mathcal{N}(0, \mathbf{I}_2), \quad k = 1..128 \quad \text{(seeded generator)} \\
+\mathrm{score}_{\mathrm{maxvar}}(\mathbf{x}) &= \tilde\sigma_1^2(\mathbf{x}) + \tilde\sigma_2^2(\mathbf{x}) \quad \text{(standardised units, so both outputs count equally)} \\
+\mathbf{x}_{\mathrm{next}} &= \arg\max \mathrm{score}, \quad \text{ties within } 10^{-12} \text{ broken by the larger variance sum}
+\end{aligned}
+\]</div>
+<span class="lbl">Variables</span>
+<div class="tablewrap"><table class="vars">
+<tr><th>Symbol</th><th>Meaning</th><th>In the code</th></tr>
+<tr><td>\(\mu_1, \sigma_1^2\)</td><td>posterior mean and variance of \(f_1 = -\)recovery at the candidates</td><td><code>-m1, v1</code> (the sign flip happens in the call)</td></tr>
+<tr><td>\(\mu_2, \sigma_2^2\)</td><td>posterior mean and variance of \(\log q\)</td><td><code>m2, v2</code></td></tr>
+<tr><td>\(\tilde\sigma_j^2\)</td><td>variances in standardised units</td><td><code>s1, s2</code> from <code>predict</code>; <code>max_variance(s1, s2)</code></td></tr>
+<tr><td>front, ref</td><td>observed objectives of the selected points, their reference point</td><td><code>F_sel = P.F[sel]</code>, <code>ref_point(F_sel)</code></td></tr>
+<tr><td>\(\mathbf{z}^{(k)}\)</td><td>standard normal draws</td><td><code>torch.randn(..., generator=gen)</code>, seed <code>seed * 1000 + len(sel)</code></td></tr>
+<tr><td>n_samples</td><td>128</td><td><code>ehvi_mc(..., n_samples=128)</code></td></tr>
+<tr><td>candidates</td><td>unselected pool points</td><td><code>cand = setdiff1d(arange(P.N), sel)</code></td></tr>
+</table></div>
+<div class="impl"><span class="lbl">Implementation: surrogate/acquisition.py ehvi_mc, max_variance, argmax_ties and replay.select_next</span>
+<ul>
+<li><code>ehvi_mc(mean1, var1, mean2, var2, front, ref, n_samples=128, seed=0)</code>: stack means and stds into (candidates, 2); draw z of shape (candidates, 128, 2) from a generator seeded with the step; samples = mean + std \(\odot\) z; reshape to (candidates times 128, 2); one call of <code>hvi_2d</code>; reshape back and average over the 128 draws. The two outputs are treated as independent Gaussians, which they are, because the two GPs are fitted separately.</li>
+<li><code>max_variance(var1, var2)</code> is the sum of the two standardised variances. <code>argmax_ties(score, tiebreak)</code> returns the index of the largest score, and among scores within \(10^{-12}\) of it the one with the largest variance sum. Ties are common early, when the EHVI of many far points is zero.</li>
+<li><code>replay.select_next(name, P, sel, models, rng, seed)</code>: random picks with the seeded <code>rng</code>; the other strategies predict at all candidates (latent, <code>noise=False</code>); <code>al_maxvar</code> takes the argmax of the variance sum; <code>al_ehvi</code> scores with the front of the selected points and its own reference point, then <code>argmax_ties</code>. The GP is refitted after every added point (<code>fit_models</code> in the loop) and the time per step is recorded as <code>step_seconds</code>.</li>
+<li>The language model is nowhere in this path. The only inputs are the pool arrays, the seed and the selected indices; <code>tests/test_replay.py</code> runs it on the synthetic pool.</li>
+</ul></div>
 <span class="lbl">Worked example (final replay)</span>
 <p>Median held-out \(\mathrm{RMSE}_{\mathrm{recovery}}\):</p>
 \[
@@ -699,6 +1252,34 @@ n & \text{random} & \text{LHS} & \text{EHVI} & \text{max-variance} \\ \hline
 \mathrm{RMSE}_{q,\mathrm{rel}} &= \left(\frac{1}{n_{\mathrm{held}}}\sum_i \left(e^{\,\mu_{\log,i} - y_{\log,i}} - 1\right)^2\right)^{1/2}
 \end{aligned}
 \]</div>
+<span class="lbl">More relations</span>
+<div class="eq">\[
+\begin{aligned}
+\text{LHS at budget } n:\quad & D_n \in [0,1]^{2\times n} \ \text{(maximin, seed } 1000\,s + n), \qquad
+\text{assignment } \pi = \arg\min_{\pi}\sum_{i} \lVert D_{n,i} - \mathbf{x}_{\pi(i)}\rVert_2 \ \text{(one pool point per sample)} \\
+\text{initial set: } & 8 \text{ pool indices drawn by } \mathrm{rng}(s), \ \text{shared by all four strategies for seed } s
+\end{aligned}
+\]</div>
+<span class="lbl">Variables</span>
+<div class="tablewrap"><table class="vars">
+<tr><th>Symbol</th><th>Meaning</th><th>In the code</th></tr>
+<tr><td>\(s\)</td><td>seed</td><td><code>seeds=range(10)</code>; <code>--seeds</code>, <code>--first-seed</code></td></tr>
+<tr><td>\(n\)</td><td>number of pool points used (budget)</td><td><code>REPORT_AT = (8, 12, 16, 20, 24, 32, 40, 48)</code>; <code>--n-max 48</code></td></tr>
+<tr><td>strategies</td><td>the four sampling rules</td><td><code>STRATEGIES = ("random", "lhs", "al_ehvi", "al_maxvar")</code></td></tr>
+<tr><td>\(D_n\)</td><td>Latin hypercube design</td><td><code>qmc.LatinHypercube(d=2, optimization="random-cd", seed=seed*1000+n).random(n)</code></td></tr>
+<tr><td>\(\pi\)</td><td>sample-to-pool assignment</td><td><code>linear_sum_assignment(cdist(design, P.X))</code></td></tr>
+<tr><td>\(\mu_i\), \(y_i\)</td><td>predictive mean and truth at held-out points</td><td><code>m1, y1</code> (recovery), <code>m2, y2</code> (log q)</td></tr>
+<tr><td>RMSE columns</td><td>recovery units; relative in q</td><td><code>rmse_recovery</code>, <code>rmse_q_rel</code></td></tr>
+<tr><td>pool</td><td>converged and stationary runs matched to the design table</td><td><code>load_pool(pool_csv, results_csv)</code>, tolerance 1e-5 degrees</td></tr>
+</table></div>
+<div class="impl"><span class="lbl">Implementation: surrogate/replay.py run, run_strategy and lhs_select</span>
+<ul>
+<li><code>Pool(pool)</code> prepares the arrays once: unit-square inputs, objectives F, the reference point and the true-front hypervolume. <code>run</code> loops over seeds; for each seed it draws the 8 initial indices with <code>default_rng(seed)</code> and runs every strategy from that same set, so the strategies differ only by what they add.</li>
+<li><code>run_strategy</code>: for <code>lhs</code>, each budget gets a fresh design mapped to the nearest distinct pool points by the Hungarian assignment (no pool point twice), and the models are fitted on that set; it is not sequential. For the other three, one point is added per step; models are fitted at every step for the active strategies and only at the report budgets for random.</li>
+<li>At each report budget <code>metrics_row</code> writes the error, regret, coverage, step time and the fitted hyperparameters as rows (strategy, seed, n, metric, value). <code>n_max = min(n_max, P.N - 1)</code> keeps at least one held-out point.</li>
+<li><code>load_pool</code> reads the committed Sobol design (<code>designs/pool_sobol96.csv</code>) and the results table, matches by the two angles within \(10^{-5}\) degrees and keeps only converged or stationary rows. The 4 gate-4 exclusions and any failed run simply never enter the pool.</li>
+<li><code>--model mlp</code> replaces <code>GP</code> by <code>MLPEnsemble</code> in <code>fit_models</code>; everything else is the same code path, which makes the B7 comparison fair. The CLI refuses to write synthetic output under <code>runs/</code>.</li>
+</ul></div>
 <span class="lbl">Worked example (final against interim)</span>
 <p>The interim replay on 67 points and the final on 92 gave the same verdicts. Two numbers moved: the budget at which EHVI overtakes random and LHS on error went from 32 to 40, and the true front grew from 22 to 26 points. The report keeps both runs and says which numbers changed.</p>
 <span class="lbl">Interview questions</span>
@@ -720,6 +1301,37 @@ P(q \le q_{\mathrm{cap}}) &= \Phi\!\left(\frac{\ln q_{\mathrm{cap}} - \mu_{\log}
 \text{answer} &= \arg\max_{\mathbf{x}\,\in\,\text{feasible grid}} \mu_{\mathrm{recovery}}(\mathbf{x})
 \end{aligned}
 \]</div>
+<span class="lbl">More relations</span>
+<div class="eq">\[
+\begin{aligned}
+q_{\mathrm{cap}} &= Q_{0.40}\!\left(\{q_{\mathrm{peak}}\}_{\text{converged pool}}\right), \qquad
+\text{feasible grid: } \theta_1 + \theta_2 \le 24^\circ, \quad 201 \times 201 \\
+[\mu - z_{0.90}\sigma,\ \mu + z_{0.90}\sigma] &\ \text{for recovery}, \qquad
+[e^{\mu_{\log} - z_{0.90}\sigma_{\log}},\ e^{\mu_{\log} + z_{0.90}\sigma_{\log}}] \ \text{for } q, \qquad z_{0.90} = 1.645 \\
+z &= \frac{y_{\mathrm{sim}} - \mu}{\sigma}, \qquad z_{\log} = \frac{\ln q_{\mathrm{sim}} - \mu_{\log}}{\sigma_{\log}}, \qquad
+\text{C2 pass} \iff \text{both simulated values inside their intervals}
+\end{aligned}
+\]</div>
+<span class="lbl">Variables</span>
+<div class="tablewrap"><table class="vars">
+<tr><th>Symbol</th><th>Meaning</th><th>In the code</th></tr>
+<tr><td>\(q_{\mathrm{cap}}\)</td><td>the heat-flux cap</td><td><code>q_cap</code>; CLI <code>--q-cap-quantile 0.4</code> gives <code>np.quantile(q_obs, 0.4)</code></td></tr>
+<tr><td>prob</td><td>required probability, 0.9</td><td><code>prob=0.9</code></td></tr>
+<tr><td>\(\mu_{\log}, \sigma_{\log}\)</td><td>predictive mean and std of \(\log q\) (with noise)</td><td><code>lq_m, lq_s</code> from <code>pareto.predict(models, pts, noise=True)</code></td></tr>
+<tr><td>\(\Phi\)</td><td>standard normal CDF</td><td><code>scipy.special.ndtr</code></td></tr>
+<tr><td>\(P(q \le q_{\mathrm{cap}})\)</td><td>feasibility probability per grid point</td><td><code>p_ok</code>; <code>p_q_le_cap</code> in result.json</td></tr>
+<tr><td>\(\mathbf{x}^{*}\)</td><td>the answer, rounded to 4 decimals</td><td><code>theta1_deg, theta2_deg</code>; <code>confirm_params</code></td></tr>
+<tr><td>\(z_{0.90}\)</td><td>1.645</td><td><code>Z90 = NormalDist().inv_cdf(0.95)</code></td></tr>
+<tr><td>intervals</td><td>90 percent, recovery and q</td><td><code>interval(mean, std, log)</code>; keys <code>lo90, hi90</code></td></tr>
+<tr><td>\(z\), \(z_{\log}\)</td><td>standardised miss of the confirmation run</td><td><code>result["recovery_total"]["z"]</code>, <code>["q_peak_W_m2"]["z_log"]</code> in confirm.json</td></tr>
+</table></div>
+<div class="impl"><span class="lbl">Implementation: analysis/inverse.py run and analysis/confirm.py run</span>
+<ul>
+<li><code>inverse.run(results_rows, q_cap, out_dir, prob=0.9, grid=201)</code>: fit the two GPs with <code>pareto.fit_gps</code>; make the grid and the gate-4 mask with <code>make_grid</code>; predict with <code>noise=True</code>; <code>p_ok = ndtr((log q_cap - lq_m) / lq_s)</code>; <code>ok = flatnonzero(p_ok >= prob)</code>. If <code>ok</code> is empty it writes <code>feasible: false</code> with the best probability reached and exits with code 0.</li>
+<li>Otherwise it walks the feasible points in order of decreasing predicted recovery and keeps the first one that passes <code>physics.gates.check</code> on the rounded params (at most 200 tries, the skipped ones are listed). It re-predicts at the rounded design, builds the intervals, validates the params through the schema, computes <code>case_id</code> with <code>worker.make_case.case_id(to_params(model))</code> and writes <code>result.json</code> and <code>params.json</code> (family inlet2r, medium mesh, tag <code>confirm</code>). That params file is what was queued for the confirmation run.</li>
+<li><code>confirm.run(results_rows, prediction, confirmed_rows, out_dir)</code> finds the confirmed row by case id (or by angles within \(10^{-3}\) degrees), places each simulated value inside, below or above its interval with <code>where</code>, computes the z-scores, sets <code>c2_pass</code>, and records whether q is below the cap. Then it refits the GPs with the new row added and reports the predictive std at the design before and after, with the ratio. It changes nothing in the model; the docstring says "pure reporting".</li>
+<li>Tests: <code>tests/test_inverse.py</code> (including the infeasible branch and the gate skip).</li>
+</ul></div>
 <span class="lbl">Worked example (result.json)</span>
 \[
 \begin{aligned}
@@ -755,6 +1367,40 @@ v_{l+1}(s) &= \sigma\!\left( W_l\, v_l(s) + \mathcal{F}^{-1}\!\left[ R_l(k)\, \m
 \varepsilon_{L2} &= \frac{\lVert \hat{q} - q \rVert_2}{\lVert q \rVert_2}
 \end{aligned}
 \]</div>
+<span class="lbl">More relations</span>
+<div class="eq">\[
+\begin{aligned}
+a(s) &= \big(s,\ \tilde\theta_1,\ \tilde\theta_2\big) \ \text{on } s_i = \tfrac{i}{127},\ i = 0..127, \qquad
+v_0 = \mathrm{lift}(a) \in \mathbb{R}^{32} \ \text{per point, zero-padded by 32 points} \\
+\hat y(s) &= \mathrm{project}(v_4(s)), \qquad y(s) = \frac{\log q(s) - \mu_{\mathrm{train}}(s)}{s_{\mathrm{train}}} \\
+\text{per design: } & \varepsilon_{L2} = \frac{\lVert \hat q - q\rVert_2}{\lVert q\rVert_2}, \quad
+\text{peak error} = \left|\frac{\max\hat q}{\max q} - 1\right|, \quad
+\mathrm{cov}_{90} = \frac{1}{128}\sum_i \mathbf{1}\!\left[\,|\log q_i - \hat\mu_i| \le 1.645\,\hat\sigma_i\,\right]
+\end{aligned}
+\]</div>
+<span class="lbl">Variables</span>
+<div class="tablewrap"><table class="vars">
+<tr><th>Symbol</th><th>Meaning</th><th>In the code</th></tr>
+<tr><td>\(s\), \(n = 128\)</td><td>window coordinate and grid size</td><td><code>N_POINTS = 128</code> (analysis/profiles.py); <code>grid_input(X, n)</code></td></tr>
+<tr><td>\(\tilde\theta_1, \tilde\theta_2\)</td><td>the angles scaled to [0, 1], as constant channels</td><td><code>X</code> from <code>scale_inputs</code>; channels 2 and 3 of <code>grid_input</code></td></tr>
+<tr><td>\(v_l\), width 32</td><td>the hidden field after layer l</td><td><code>h</code> in <code>FNO1d.forward</code>; <code>WIDTH = 32</code></td></tr>
+<tr><td>\(W_l\)</td><td>pointwise linear map</td><td><code>nn.Conv1d(width, width, 1)</code> in <code>pointwise</code></td></tr>
+<tr><td>\(R_l(k)\), 16 modes</td><td>complex weights per Fourier mode</td><td><code>SpectralConv1d</code>: <code>w_re, w_im</code> of shape (32, 32, 16); <code>MODES = 16</code></td></tr>
+<tr><td>\(\sigma\)</td><td>activation</td><td>GELU between layers</td></tr>
+<tr><td>padding</td><td>zeros after the last point (profile not periodic)</td><td><code>PAD = 32</code>; cropped after the Fourier layers</td></tr>
+<tr><td>training</td><td>5 members, 3000 steps, AdamW lr 3e-3, weight decay 1e-4</td><td><code>MEMBERS, STEPS, LR, WEIGHT_DECAY</code> in surrogate/fno.py</td></tr>
+<tr><td>\(K\), \(v_j(s)\), \(c_j\)</td><td>number of components, components, coefficients</td><td><code>PCAGP.k</code> (99.9 percent, at most 8), <code>self.V</code>, <code>C = Y @ V.T</code></td></tr>
+<tr><td>\(\mu_{\mathrm{train}}(s)\), \(s_{\mathrm{train}}\)</td><td>mean training profile and one scalar scale</td><td><code>mu, sd</code> in <code>operator_compare.run_split</code></td></tr>
+<tr><td>metrics</td><td>per held-out design</td><td><code>rel_l2, max_rel, peak_rel, peak_x_mm, cov90</code> from <code>profile_metrics</code></td></tr>
+</table></div>
+<div class="impl"><span class="lbl">Implementation: analysis/profiles.py, surrogate/fno.py, surrogate/pca_gp.py, analysis/operator_compare.py</span>
+<ul>
+<li><code>profiles.extract(params, surface_gz, expected_fingerprint)</code> rebuilds the mesh with <code>make_case.make</code>, refuses it if the fingerprint differs from the record, loads the surface file, takes the ramp-2 window of the objective (<code>metrics.ramp2_window</code>) and interpolates q linearly onto 128 points of \(s\). The profile maximum must equal the recorded <code>q_peak_W_m2</code> within 0.5 percent or the case is rejected.</li>
+<li><code>FNO1d.forward</code>: lift (Linear 3 to 32), transpose to (batch, 32, n), pad 32 zeros, four times [spectral convolution + pointwise convolution, GELU between layers], crop, project (Linear 32 to 64, GELU, Linear 64 to 1). <code>SpectralConv1d</code> takes the real FFT, multiplies the lowest 16 modes by a complex 32 by 32 matrix each (<code>einsum("bim,iom->bom")</code>), zeroes the rest and inverts. <code>FNOEnsemble</code> trains five copies from seeds 0 to 4 by full-batch MSE; mean is the prediction, variance between members the uncertainty.</li>
+<li><code>PCAGP.fit(X, Y)</code>: SVD of the centred, scaled training profiles; keep the fewest components reaching 99.9 percent of the variance (at most 8); fit one <code>GP</code> per standardised coefficient; predict the profile as \(\mathbf{M}\mathbf{V}\) with variance \(\sum_j \mathrm{var}_j v_j(s)^2\). The dropped components are not in the variance, which is why its band under-covers.</li>
+<li><code>operator_compare.run_split</code>: targets are \((\log q - \mu_{\mathrm{train}})/s_{\mathrm{train}}\) with both statistics from the training fold; the scalar GP on \(\log q_{\mathrm{peak}}\) is fitted on the same fold as the third model. Regime A is 5-fold cross-validation with the fold permutation from seed 0; regime B draws 24 training designs for each of seeds 0 to 4. Each split runs in its own process. <code>analysis/pca_floor.py</code> projects the held-out profiles onto K training components to give the truncation floor.</li>
+<li>Tests: <code>tests/test_operator.py</code>.</li>
+</ul></div>
 <span class="lbl">Worked example (operator_compare.csv, pca_floor.csv)</span>
 <p>Data: 92 pool cases re-run on the container; all 92 match their Colab records (largest difference \(3.3 \times 10^{-16}\)). The window is 110 to 218 mm long, so the grid step is</p>
 \[
@@ -794,6 +1440,39 @@ p(\mathbf{x}) &= \frac{1}{1 + e^{-(\mathbf{w}^{\top} \mathbf{f}(\mathbf{x}) + b)
 \max_{\theta_1, \theta_2, \theta_3} &\ \mu_{\eta}(\boldsymbol{\theta}, \mathbf{e}_{\mathrm{nom}}) \quad \text{subject to} \quad \min_{\mathbf{e} \in E} \Phi\!\left( \frac{\ln Q - \mu_{\ln q}(\boldsymbol{\theta}, \mathbf{e})}{\sigma_{\ln q}(\boldsymbol{\theta}, \mathbf{e})} \right) \ge 0.9
 \end{aligned}
 \]</div>
+<span class="lbl">More relations</span>
+<div class="eq">\[
+\begin{aligned}
+\text{step 1 (OLS): } & [\rho, c] = \arg\min \lVert y_H - \rho\, y_L - c\rVert^2, \quad \delta = y_H - \rho\, y_L \to \mathcal{GP}; \qquad
+\text{step 2 (GLS): } [\rho, c] = (\mathbf{A}^{\mathsf T}\mathbf{K}^{-1}\mathbf{A})^{-1}\mathbf{A}^{\mathsf T}\mathbf{K}^{-1} y_H, \ \mathbf{A} = [y_L, \mathbf{1}] \\
+\mu_H(\mathbf{x}) &= \rho\,\mu_L(\mathbf{x}) + \mu_\delta(\mathbf{x}), \qquad \sigma_H^2(\mathbf{x}) = \rho^2\sigma_L^2(\mathbf{x}) + \sigma_\delta^2(\mathbf{x}) \ (+\sigma_{n,\delta}^2) \\
+\mathbf{f}(\mathbf{x}) &= \left(\tilde{\mathbf{x}}_{1..6},\ \frac{\theta_1+\theta_2+\theta_3 - 9}{21}\right), \qquad
+\mathcal{L} = -\frac{1}{n}\sum_i \left[y_i \log p_i + (1-y_i)\log(1-p_i)\right] + \frac{\lambda}{2}\lVert\mathbf{w}\rVert^2, \quad \lambda = 10^{-3} \\
+\mathrm{AUC} &= P\!\left(p_{\mathrm{converged}} \gt p_{\mathrm{failed}}\right) \ \text{(Mann-Whitney, ties count one half)}
+\end{aligned}
+\]</div>
+<span class="lbl">Variables</span>
+<div class="tablewrap"><table class="vars">
+<tr><th>Symbol</th><th>Meaning</th><th>In the code</th></tr>
+<tr><td>\(\mathbf{x}\)</td><td>six inputs scaled to [0, 1]</td><td><code>INPUTS</code> = theta1, theta2, theta3, mach, altitude_km, T_wall_K; <code>LOW = (3, 3, 3, 3.5, 28, 300)</code>, <code>HIGH = (10, 10, 10, 4.5, 35, 600)</code></td></tr>
+<tr><td>\(y_L\)</td><td>low fidelity: Euler recovery, Eckert peak on the Euler wall</td><td><code>lf_recovery_total</code>, <code>lf_q_peak_W_m2</code> (from <code>metrics.eckert_window</code>, key <code>q_peak_lf_W_m2</code>)</td></tr>
+<tr><td>\(y_H\)</td><td>high fidelity: laminar NS</td><td><code>ns_recovery_total</code>, <code>ns_q_peak_W_m2</code></td></tr>
+<tr><td>\(\rho\), \(\delta\)</td><td>scale factor, discrepancy GP</td><td><code>TwoLevelGP.rho</code>, <code>TwoLevelGP.d</code>; <code>self.low</code> is the Euler GP</td></tr>
+<tr><td>\(\mathbf{K}\)</td><td>covariance of the discrepancy GP, noise included</td><td><code>self.d.L</code> (Cholesky)</td></tr>
+<tr><td>\(p(\mathbf{x})\), \(\mathbf{w}\), \(b\)</td><td>convergence probability, logistic weights</td><td><code>Feasibility.predict</code>, <code>self.w, self.b</code>; 5000 SGD steps at lr 0.5</td></tr>
+<tr><td>\(\alpha(\mathbf{x})\)</td><td>EHVI times feasibility</td><td>strategy <code>al_ehvi_feas</code> in analysis/replay3r.py</td></tr>
+<tr><td>\(Q\), \(E\)</td><td>cap (40th percentile of NS q_peak), the 5 by 5 by 5 envelope</td><td><code>cap</code>, <code>ENVELOPE</code> in analysis/inverse3r.py</td></tr>
+<tr><td>candidates</td><td>4096 scrambled Sobol points in [3, 10]^3 with sum at most 27</td><td><code>qmc.Sobol(d=3, scramble=True, seed=0)</code>, <code>N_CAND</code></td></tr>
+<tr><td>nominal point</td><td>Mach 4.0, 30 km, 300 K</td><td><code>NOMINAL</code></td></tr>
+</table></div>
+<div class="impl"><span class="lbl">Implementation: surrogate/mf_gp.py, surrogate/feasibility.py and the four analysis/*3r.py scripts</span>
+<ul>
+<li><code>TwoLevelGP.fit(XL, yL, XH, yH, yL_at_H)</code>: one <code>Standardizer</code> from the low-fidelity data scales both levels, so \(\rho \approx 1\) means agreement; fit the low GP on all Euler runs (or reuse one passed in); OLS for \(\rho\), fit the discrepancy GP, GLS with that GP's covariance, refit the discrepancy. The design is nested: every NS point has its own Euler run, so \(y_L\) at the high-fidelity points is observed. <code>predict</code> combines the levels as independent.</li>
+<li><code>Feasibility.fit(F, y)</code>: centre the features, logistic regression by plain gradient descent on the binary cross-entropy with an L2 penalty. <code>predict</code> is a sigmoid. The classifier never picks a point; <code>replay3r.select_next</code> multiplies the EHVI score by it, and only once a failure has been chosen (before that there is nothing to learn).</li>
+<li><code>analysis/mf3r.py</code>: for budgets 8 to 96 and 10 seeds, draw n converged NS points, fit a single GP and a two-level model on the same points, and report held-out RMSE, 90 percent coverage (with noise) and \(\rho\); also the error of the raw low-fidelity value as a prediction. <code>analysis/feas3r.py</code>: stratified 5-fold cross-validation, accuracy against the always-converges rule, rank AUC, and the failed points with their out-of-fold probability.</li>
+<li><code>analysis/replay3r.py</code> is the Task 4 replay with 12 initial points, budgets 12 to 96, candidates including the 7 failed runs (a failed pick costs a run and adds no value), and the fifth strategy. <code>analysis/inverse3r.py</code> fits one GP per output on the converged NS pool, predicts \(P(q \le Q)\) at every (candidate, envelope point) pair, takes the minimum over the envelope, and reports <code>feasible: false</code> with the per-point best probability and lowest predicted median when no candidate meets 0.9 everywhere.</li>
+<li>Geometry and gates: <code>geometry/inlet3r.py</code> builds shock-on-lip at the design Mach 4 only (ten blocks) with the first cell at \(0.6\,d_0\) (<code>D0_FACTOR</code>) so gate 5 holds over the envelope; <code>physics.gates._check_inlet3r</code> runs gate 1 at both the design and the flight Mach, gate 4 at 27 degrees, and gate 5 at the flight pressure. <code>cases.config.duct_back_pressure</code> gives the NS duct outlet a static back pressure (<code>MARKER_OUTLET</code>) after the nominal run diverged with a supersonic outlet. <code>atmosphere.ussa1976</code> supplies the off-30 km freestream. Tests: <code>tests/test_mf_feasibility.py</code>, <code>tests/test_inlet3r.py</code>.</li>
+</ul></div>
 <span class="lbl">Worked example (task9_tables.md, feasibility.json, inverse/result.json)</span>
 <p>Pools: 159 NS points, 152 converged and 7 failed; 316 Euler points, all converged. Two-level model against NS alone, median held-out error over 10 seeds:</p>
 \[
@@ -825,6 +1504,32 @@ q_{\mathrm{peak}}: &\quad \text{two-level, 12 NS runs: } 0.025, \qquad \text{NS 
 <p class="where"><b>In the talk:</b> S9, S12. <b>Record:</b> <code>mcp_server/server.py</code>, <code>mcp_server/schemas.py</code>, <code>docs/transcripts/2026-11-01_first_mcp_call.md</code>.</p>
 <span class="lbl">Definition</span>
 <p>The Model Context Protocol lets a language model call functions that a server exposes with typed inputs and outputs. The server here exposes eleven tools: validate_config, create_case, submit, status, list_results, queue_batch, export_batch, record_transfer, ingest_result, ingest_error, postprocess. Each input passes a pydantic schema with types, bounds and allowed values before any code runs. Unknown fields are refused.</p>
+<span class="lbl">Key relations</span>
+<div class="eq">\[
+\begin{aligned}
+\mathrm{case\_id} &= \mathrm{family}\text{-}\mathrm{sha256}\big(\mathrm{JSON}(\mathrm{params}_{\text{complete}}, \text{sorted keys, no spaces})\big)[0{:}10] \\
+\text{pipeline: } & \text{schema} \to \text{gates} \to \text{geometry} \to \text{mesh\_quality} \to \text{config} \to \text{config\_keys} \to \text{done}
+\end{aligned}
+\]</div>
+<span class="lbl">Variables</span>
+<div class="tablewrap"><table class="vars">
+<tr><th>Symbol</th><th>Meaning</th><th>In the code</th></tr>
+<tr><td>params</td><td>the case parameter dict</td><td><code>CaseParams</code> (pydantic, <code>extra="forbid"</code>, <code>strict=True</code>)</td></tr>
+<tr><td>bounds</td><td>per-family angle, altitude, Mach and wall-temperature boxes</td><td><code>THETA1_BOUNDS, THETA2_BOUNDS, THETA3_BOUNDS, ALTITUDE_BOUNDS, MACH_BOUNDS, T_WALL_BOUNDS</code></td></tr>
+<tr><td>defaults</td><td>mach 4.0, altitude 30, T_wall 300, laminar, medium, max_iter 6000</td><td>fields of <code>CaseParams</code>; filled by <code>to_params(model)</code></td></tr>
+<tr><td>stage</td><td>where a bad input stops</td><td><code>res["stage"]</code> from <code>queue._pipeline</code></td></tr>
+<tr><td>case id</td><td>family plus 10 hex digits</td><td><code>worker.make_case.case_id(params)</code>, <code>canonical_json</code></td></tr>
+<tr><td>tools</td><td>the eleven MCP tools</td><td><code>@mcp.tool()</code> functions in mcp_server/server.py</td></tr>
+<tr><td>audit log</td><td>one line per call</td><td><code>mcp_log.jsonl</code> written by the <code>audited</code> decorator in mcp_server/queue.py</td></tr>
+</table></div>
+<div class="impl"><span class="lbl">Implementation: mcp_server/schemas.py, mcp_server/queue.py, mcp_server/server.py</span>
+<ul>
+<li><code>server.py</code> is a thin layer: <code>MCPServer("su2")</code> and eleven functions decorated with <code>@mcp.tool()</code>, each one line that calls <code>queue.*</code> and returns JSON text. Run with <code>python -m mcp_server</code> over stdio.</li>
+<li><code>schemas.validate(params)</code> never raises: it returns (model or None, errors, warnings). The model forbids unknown fields and strict types; <code>_family_rules</code> adds the family-dependent checks: a required field missing, a field not allowed for the family, a value outside its box. Error strings read "theta2_deg: 20 outside [5, 14] for family inlet2r". <code>altitude_km</code> is <code>int | float</code> so that 30 stays the integer 30 in the hash.</li>
+<li><code>queue._pipeline(raw, out_dir)</code> runs the stages in the order above and stops at the first failure with its stage name. <code>validate_only</code> runs the pipeline in a temporary directory and stages nothing; <code>create</code> stages a job directory under <code>$SU2_QUEUE_DIR/jobs/&lt;case_id&gt;</code> with status flag files; <code>submit</code> sets the flag <code>pending</code>. Flags are written by atomic rename (<code>_set_flag</code>).</li>
+<li><code>case_id</code> hashes the complete params after defaults are filled, so adding a default later would change every id; the docstring says so. The same function runs on the worker (entry 26) to check that a job file's id matches its params.</li>
+<li><code>queue_batch</code> reads a committed CSV in file order and creates one job per row; rows that fail the schema or a gate are listed as skipped. It is the only bulk entry point, and it chooses nothing. Tests: <code>tests/test_schemas.py</code>, <code>tests/test_mcp_tools.py</code>, <code>tests/test_pipeline_order.py</code>.</li>
+</ul></div>
 <span class="lbl">Worked example (schemas.py and the fault matrix)</span>
 <p>Fault F1: theta2 = 20 degrees, bound 14. Refused at stage "schema" with the message "theta2_deg: 20 outside [5, 14] for family inlet2r". Nothing is written. The first live call (S12) returned ten rows from list_results, all pending at that time, and chose nothing.</p>
 <span class="lbl">Interview questions</span>
@@ -846,6 +1551,35 @@ q_{\mathrm{peak}}: &\quad \text{two-level, 12 NS runs: } 0.025, \qquad \text{NS 
 <li>Gate 4, total turning theta1 plus theta2 at most 24 degrees (26 at Task 0, trimmed on the 12/14 evidence).</li>
 <li>Gate 5, wall-cell Reynolds number on ramp 2 at most 50.</li>
 </ul>
+<span class="lbl">Key relations</span>
+<div class="eq">\[
+\begin{aligned}
+\text{gate 1: } & \theta_1 \le \theta_{\max}(M_\infty) - 2^\circ, \qquad \theta_2 \le \theta_{\max}(M_1) - 2^\circ, \quad M_1 = M_2(M_\infty, \theta_1) \\
+\text{gate 2: } & x_P - X_1 \ge 0.02\ \mathrm{m}, \qquad y_P \le 0.6\, y_{\mathrm{top}} = 0.12\ \mathrm{m} \\
+\text{gate 3: } & h \ge 0.008\ \mathrm{m} \qquad\qquad \text{gate 4: } \theta_1 + \theta_2 \le 24^\circ \\
+\text{gate 5: } & Re_w = \frac{\rho_w a_w d_0}{\mu_w} \le 50, \quad \rho_w = \frac{p_\infty\,(p_{\mathrm{th}}/p_\infty)_{\mathrm{inviscid}}}{R\,T_w}, \quad a_w = \sqrt{\gamma R T_w}
+\end{aligned}
+\]</div>
+<span class="lbl">Variables</span>
+<div class="tablewrap"><table class="vars">
+<tr><th>Symbol</th><th>Meaning</th><th>In the code</th></tr>
+<tr><td>\(\theta_{\max}\), margin</td><td>detachment limit and the 2 degree margin</td><td><code>physics.shock.theta_max(M)</code>, <code>MARGIN_DEG = 2.0</code></td></tr>
+<tr><td>\(M_1\)</td><td>Mach number on ramp 1</td><td><code>oblique(M, radians(th1))["M2"]</code></td></tr>
+<tr><td>\(x_P, y_P\)</td><td>lip position</td><td><code>g["P"]</code> from <code>geometry.inlet.design_points</code></td></tr>
+<tr><td>\(X_1\), 0.02 m, 0.6, \(y_{\mathrm{top}}\)</td><td>corner x, minimum ramp-2 length, lip height fraction, domain top</td><td><code>X1, MIN_RAMP2_LEN, MAX_YP_FRACTION, Y_TOP</code> (geometry/inlet.py)</td></tr>
+<tr><td>\(h\), 0.008 m</td><td>duct height and its minimum</td><td><code>g["h"]</code>, <code>MIN_H</code></td></tr>
+<tr><td>\(24^\circ\)</td><td>total turning limit</td><td><code>MAX_TURN_DEG = 24.0</code> (27 for inlet3r: <code>MAX_TURN_3R_DEG</code>)</td></tr>
+<tr><td>\(Re_w\), 50</td><td>wall-cell Reynolds number and limit</td><td><code>re_w</code>, <code>MAX_WALL_RE = 50.0</code></td></tr>
+<tr><td>messages</td><td>one string per failed gate</td><td><code>gates.check(params)</code> returns a sorted list; empty means pass</td></tr>
+</table></div>
+<div class="impl"><span class="lbl">Implementation: physics/gates.py check</span>
+<ul>
+<li><code>check(params)</code> is a pure function: it reads the params, calls <code>design_points</code> (analytic, no mesh) and returns the sorted list of messages. Each message names the gate, the value and the limit in the same sentence, for example "gate 4 (total turning): theta1+theta2 = 26 deg exceeds 24 deg".</li>
+<li>Order inside <code>_check</code>: gate 1 on \(\theta_1\) at \(M_\infty\); gate 4; if shock 1 is detached, return now (\(M_1\) and the lip are meaningless); gate 1 on \(\theta_2\) at \(M_1\); if either shock is detached, return; then the lip from <code>design_points</code> for gates 2 and 3; then gate 5 with \(d_0\) from <code>sizes(mesh_level)</code>.</li>
+<li>The wedge family runs gate 1 only. The three-ramp family runs <code>_check_inlet3r</code>: gate 1 along the three shocks at the design Mach 4 (the geometry) and again at the flight Mach (the run), gate 4 at 27 degrees, ramp-length and lip checks, and gate 5 at the flight pressure.</li>
+<li>Where it runs: in <code>queue._pipeline</code> after the schema and before any mesh; in <code>analysis.inverse</code> and <code>analysis.inverse3r</code> to skip a candidate the gates would refuse; and in <code>worker.run_worker.check_regenerated</code> before the worker builds anything, which closed the hand-written-job hole (R9). The geometry constants are imported from <code>geometry.inlet</code>, so the gate and the mesher cannot disagree.</li>
+<li>Tests: <code>tests/test_gates.py</code>, and <code>tests/test_faults.py</code> for the fault matrix.</li>
+</ul></div>
 <span class="lbl">Worked example (box diagnostics)</span>
 <p>12/12, 8/14 and 5/14 converged. 12/14 diverged on both meshes and with both CFL caps. The gate was set at 24 degrees, which excluded 4 of the 96 Sobol points (indices 0, 40, 72, 80 in <code>designs/pool_sobol96.csv</code>). The 25 degree band was not tested and the slide says so.</p>
 <span class="lbl">Interview questions</span>
@@ -861,6 +1595,34 @@ q_{\mathrm{peak}}: &\quad \text{two-level, 12 NS runs: } 0.025, \qquad \text{NS 
 <p class="where"><b>In the talk:</b> S11, S21 rows 4 and 5. <b>Record:</b> <code>worker/make_case.py</code> function <code>config_sha256</code>, <code>docs/faults/README.md</code> last section, <code>docs/transcripts/2026-11-02_worker_restart_and_retry.md</code>.</p>
 <span class="lbl">Definition</span>
 <p>Three checksums protect the chain. The <strong>mesh fingerprint</strong> is a hash of the mesh the staging side built; the worker rebuilds the mesh from the parameters and must get the same fingerprint. The <strong>config hash</strong> covers the lines of case.cfg that SU2 reads, not the comment lines. The <strong>result digest</strong> is a sha256 the worker writes next to every result and error file; ingest refuses a text that does not match it.</p>
+<span class="lbl">Key relations</span>
+<div class="eq">\[
+\begin{aligned}
+\mathrm{fingerprint} &= \mathrm{sha256}\big(\mathrm{round}(10^{9}\,\mathbf{X}) \,\|\, \mathrm{cells} \,\|\, \mathrm{markers}\big) \quad \text{(coordinates in whole nanometres, int64 little-endian)} \\
+\mathrm{config\_sha256} &= \mathrm{sha256}\big(\text{lines of case.cfg that are not blank and do not start with \%}\big) \\
+\mathrm{digest} &= \mathrm{sha256}\big(\text{bytes of result.json}\big), \qquad
+\mathrm{case\_id} = \mathrm{family}\text{-}\mathrm{sha256}(\mathrm{canonical\ params})[0{:}10]
+\end{aligned}
+\]</div>
+<span class="lbl">Variables</span>
+<div class="tablewrap"><table class="vars">
+<tr><th>Symbol</th><th>Meaning</th><th>In the code</th></tr>
+<tr><td>\(\mathbf{X}\)</td><td>node coordinates of mesh.su2</td><td><code>coords</code> in <code>geometry.structured.mesh_fingerprint</code></td></tr>
+<tr><td>cells, markers</td><td>connectivity and marker node lists (sorted by name)</td><td>same function</td></tr>
+<tr><td>fingerprint</td><td>mesh identity across machines</td><td><code>job["mesh_fingerprint"]</code>; <code>mesh_bbox</code> as a debugging aid</td></tr>
+<tr><td>config hash</td><td>the lines SU2 reads</td><td><code>worker.make_case.config_sha256(path)</code>; <code>job["config_sha256"]</code></td></tr>
+<tr><td>whole-file hash</td><td>the old form, still accepted for old jobs</td><td><code>sha256_file(path)</code></td></tr>
+<tr><td>digest</td><td>integrity of the transferred text</td><td><code>runs/&lt;id&gt;.result.sha256</code>, <code>runs/&lt;id&gt;.error.sha256</code>; <code>run_worker.write_digest</code></td></tr>
+<tr><td>mismatch reasons</td><td>what the worker writes to error.json</td><td><code>bad_job, gates, make_error, mesh_mismatch, config_mismatch</code></td></tr>
+</table></div>
+<div class="impl"><span class="lbl">Implementation: geometry/structured.py, worker/make_case.py, worker/run_worker.py, mcp_server/queue.py</span>
+<ul>
+<li><code>mesh_fingerprint(path)</code> reads the SU2 file back, rounds coordinates to 1 nm, and hashes them with the cells and the marker node ids. The bytes of mesh.su2 are not hashed because the last digit of a coordinate differs between numpy builds; the coordinates agree to far better than 1 nm.</li>
+<li><code>config_sha256(path)</code> strips trailing spaces, drops blank lines and lines starting with <code>%</code>, joins the rest and hashes. The header comments carry the params and geometry at full precision, which is where the \(3 \times 10^{-18}\) difference lived.</li>
+<li>Worker side, <code>check_regenerated(job, run_dir)</code>: recompute <code>case_id</code> from the job's params and compare (<code>bad_job</code>); run the gates (<code>gates</code>); rebuild mesh and config with <code>make</code> (<code>make_error</code>); compare fingerprints, and on a mismatch report both bounding boxes and their largest difference (<code>mesh_mismatch</code>); compare the config hash, accepting either the new hash or the old whole-file hash (<code>config_mismatch</code>). Only then is SU2 started.</li>
+<li>After a run, <code>write_digest</code> stores the sha256 of <code>runs/&lt;id&gt;.result.json</code> next to it. Staging side, <code>queue.ingest_result(case_id, text, sha256)</code>: <code>_digest_mismatch</code> refuses text whose hash differs; then <code>check_record</code> checks the case id, the presence of every block, that the record's <code>job</code> block echoes the staged fingerprint and config hash, that the params equal the staged params.json, that <code>solver.config_sha256</code> is one of the accepted hashes, and that the status is not a failure. Nothing is stored or flagged if any check fails.</li>
+<li><code>mcp_server/verify_digests.py</code> re-checks the digests of everything in the queue. Tests: <code>tests/test_ingest.py</code>, <code>tests/test_ingest_files.py</code>, <code>tests/test_make_case.py</code>.</li>
+</ul></div>
 <span class="lbl">Worked example (the two tooling failures)</span>
 <p>Failure 5: the first config hash covered the whole file. One geometry number in a comment line differed in its last digit between the container and Colab (\(h_{\mathrm{duct}}\), \(3 \times 10^{-18}\)), so the worker refused pool job db92dcf68d, and later 63 jobs, as config mismatches. Fix: hash only the lines SU2 reads; all 92 pool points then converged. Transfer failure: an agent retyping base64 altered 2 of 4 result files. Fix: the worker's digest. With the gate on, 6 of 84 later transcriptions were wrong at the first attempt and every one was caught; 0 bad records entered the repository.</p>
 <span class="lbl">Interview questions</span>
@@ -875,6 +1637,37 @@ q_{\mathrm{peak}}: &\quad \text{two-level, 12 NS runs: } 0.025, \qquad \text{NS 
 <p class="where"><b>In the talk:</b> S11, B9. <b>Record:</b> <code>worker/run_worker.py</code>, <code>docs/specs/01_interfaces.md</code>, <code>docs/transcripts/2026-11-02_worker_restart_and_retry.md</code>, fault matrix row F8, <code>docs/faults/real_fault_matrix.md</code>.</p>
 <span class="lbl">Definition</span>
 <p>Colab cannot accept inbound connections, so jobs travel through a shared Drive folder. A job is one JSON file in <code>jobs/</code> with the parameters, the code commit, the config hash and the mesh fingerprint. The worker polls the folder every 20 seconds, writes flag files in <code>runs/&lt;id&gt;/status/</code> (0-seen, 1-running, 2-done, 2-failed), rebuilds the mesh, checks the fingerprint and hash, runs SU2 with mpirun, and writes result.json with its digest. A heartbeat file is updated while a case runs. After a restart, a 1-running job whose heartbeat is older than 10 minutes is re-run once; finished jobs are never repeated.</p>
+<span class="lbl">Key relations</span>
+<div class="eq">\[
+\begin{aligned}
+\mathrm{state} &= \begin{cases}
+\text{finished} & \text{2-done or 2-failed present} \\
+\text{new} & \text{no 1-running flag} \\
+\text{crashed} & \text{1-running and } t_{\mathrm{now}} - t_{\mathrm{last\_seen}} \ge 600\ \mathrm{s} \\
+\text{running} & \text{otherwise}
+\end{cases} \\
+\text{timeout} &= \min\!\left(\text{--timeout},\ \mathrm{job.timeout\_s}\right) = 2400\ \mathrm{s}
+\end{aligned}
+\]</div>
+<span class="lbl">Variables</span>
+<div class="tablewrap"><table class="vars">
+<tr><th>Symbol</th><th>Meaning</th><th>In the code</th></tr>
+<tr><td>poll</td><td>seconds between scans of jobs/</td><td><code>--poll 20</code></td></tr>
+<tr><td>\(t_{\mathrm{last\_seen}}\)</td><td>time stamp in the heartbeat file</td><td><code>heartbeat.json["last_seen"]</code>; written every <code>--heartbeat 30</code> s</td></tr>
+<tr><td>stale</td><td>age after which a running job counts as crashed</td><td><code>--stale-minutes 10</code>; <code>job_state(run_dir, stale_s)</code></td></tr>
+<tr><td>flags</td><td>0-seen, 1-running, 2-done, 2-failed</td><td>files in <code>runs/&lt;id&gt;/status/</code>; <code>set_flag</code>, <code>flags</code></td></tr>
+<tr><td>job file</td><td>parameters, commit, hashes</td><td><code>jobs/&lt;case_id&gt;.json</code> or entries of <code>*.batch.json</code>; <code>JOB_KEYS</code></td></tr>
+<tr><td>failure reasons</td><td>fixed list</td><td><code>timeout, nonzero_exit, nan, postprocess_error, mesh_mismatch, config_mismatch</code> (+ <code>bad_job, gates, make_error</code>)</td></tr>
+<tr><td>record</td><td>result.json blocks</td><td><code>run, solver, case_id, params, geometry, mesh, convergence, metrics, code, files, job</code> from <code>run_record</code></td></tr>
+</table></div>
+<div class="impl"><span class="lbl">Implementation: worker/run_worker.py</span>
+<ul>
+<li><code>main</code>: parse arguments, <code>backfill_digests</code> for files written before digests existed, optionally <code>retry_failed</code> for the reasons given with <code>--retry-reason</code> (their error.json becomes error.retried.json), then loop: <code>jobs_in_state(queue, ("new", "crashed"), stale_s)</code>, oldest first, process each, sleep <code>--poll</code> seconds. A job file still being synced by Drive fails to parse and is simply tried at the next poll.</li>
+<li><code>process(job)</code>: flag 0-seen; <code>check_regenerated</code> (entry 26), on a problem <code>fail</code> writes error.json with its digest and the 2-failed flag; <code>stop_leftover_solvers</code> kills any solver still running in that folder (R5g, one solver at a time); flag 1-running; <code>run_with_heartbeat</code>; build the record; <code>failure_of</code>; on success write <code>runs/&lt;id&gt;.result.json</code>, its digest, the 2-done flag, and <code>os.sync()</code>.</li>
+<li><code>run_with_heartbeat</code> runs <code>run_case.run</code> in a daemon thread while the main thread writes <code>heartbeat.json</code> (worker id, start time, last seen, current case, iteration count from history.csv) every 30 s until the thread ends. An exception in the thread becomes a <code>postprocess_error</code> failure, not a dead worker.</li>
+<li>Restart safety follows from the state rule: a 2-done job is never touched; a 1-running job with a fresh heartbeat is left alone (another worker owns it); a stale one is re-run once, from scratch, because <code>run_case.run</code> deletes the old output files first. SU2 runs in its own session, so a timeout kills mpirun and all ranks.</li>
+<li>Tests: <code>tests/test_faults.py</code> (fault matrix with the fake solver) and <code>analysis/real_faults.py</code> for the real-SU2 matrix in <code>docs/faults/real_fault_matrix.md</code>.</li>
+</ul></div>
 <span class="lbl">Worked example (the transcript of 2 November)</span>
 <p>The worker restarted at 01:46 UTC with <code>--retry-reason config_mismatch</code>, cleared 63 failed flags, and failed them again within four minutes because their job files still carried the old hash. The 63 jobs were re-staged as single files; the same worker picked them up from 04:01 without a second restart and finished them by 10:46. Failure reasons come from a fixed list: timeout, nonzero_exit, nan, postprocess_error, mesh_mismatch, config_mismatch.</p>
 <span class="lbl">Interview questions</span>
@@ -890,6 +1683,24 @@ q_{\mathrm{peak}}: &\quad \text{two-level, 12 NS runs: } 0.025, \qquad \text{NS 
 <p class="where"><b>In the talk:</b> S1, S9, S14, S21, S24. <b>Record:</b> <code>CLAUDE.md</code> rules, <code>docs/faults/README.md</code>, <code>PLAN.md</code> status log.</p>
 <span class="lbl">Definition</span>
 <p>The repository has standing rules: open data and solvers only; never invent a result; every number from a recorded run; validation before machine learning; a failed validation is reported, not tuned away; active learning is reported honestly even when it does not win; the language model never chooses a sampling point; bad inputs are gated before submission; every run records inputs, solver version, seed and logs. The agent layer is tools plus gates plus logs.</p>
+<span class="lbl">Rules</span>
+<div class="tablewrap"><table class="vars">
+<tr><th>Rule</th><th>Where it is written</th><th>Where the code enforces it</th></tr>
+<tr><td>the LLM never chooses a point</td><td>CLAUDE.md, tool docstrings</td><td><code>queue_batch</code> reads a committed CSV; <code>replay.select_next</code> and <code>analysis.inverse</code> choose by acquisition or argmax; <code>designs/make_pool.py</code> draws Sobol points from a seed</td></tr>
+<tr><td>every number from a recorded run</td><td>CLAUDE.md</td><td>each record carries <code>params, geometry, mesh, solver, convergence, metrics, code.git_commit, code.dirty, job</code> (<code>run_record</code>)</td></tr>
+<tr><td>gate before submit</td><td>CLAUDE.md, 01_interfaces.md</td><td><code>queue._pipeline</code> stage order; the worker repeats gates and mesh (entries 25, 26)</td></tr>
+<tr><td>reproducible</td><td>CLAUDE.md</td><td>seeds in <code>replay.run</code>, <code>pareto.run</code>, <code>inverse.run</code>; deterministic mesh from params; <code>code_commit</code> in every job</td></tr>
+<tr><td>failed validation is reported</td><td>CLAUDE.md</td><td>the V3 fail rows stay in <code>postprocess/report.py</code>; tolerances are function defaults (entry 16)</td></tr>
+<tr><td>every tool call is logged</td><td>01_interfaces.md</td><td><code>audited</code> decorator writes <code>mcp_log.jsonl</code></td></tr>
+</table></div>
+<div class="impl"><span class="lbl">Implementation: what to point at when asked "how do you know"</span>
+<ul>
+<li>The audit trail is three files per run: <code>job.json</code> (what was asked, by which commit, with which hashes), <code>result.json</code> (what came back, with the solver version and the commit the worker ran) and the digest file. <code>runs/</code> holds the committed subset for every pool, confirmation and sensitivity run.</li>
+<li>The analysis scripts are deterministic from the pool CSV and a seed: <code>surrogate.replay.run</code>, <code>analysis.pareto.run</code>, <code>analysis.inverse.run</code>, <code>analysis.confirm.run</code>, <code>analysis.operator_compare</code>, and the four Task 9 scripts. Re-running them and diffing the CSV and JSON outputs is the check an auditor would do.</li>
+<li>The test suite (<code>tests/</code>, about 40 files) covers every module named in this guide, with a fake SU2 (<code>tests/fake_su2.py</code>) for the worker and the fault matrix. The physics tests compare <code>physics.shock</code> and <code>physics.heating</code> with tabulated values.</li>
+<li>What the language model did: wrote and ran code, read records, drafted documents, called the MCP tools with parameters taken from committed design tables, and transcribed files between Drive and the container (which is where the digest caught it). The transcripts in <code>docs/transcripts/</code> show the calls.</li>
+<li>What stays with a person: the gate limits, the tolerances, the turbulence choice and the mesh levels. Each of these is a constant in one named file (entries 14, 16, 25), so a reviewer can see when and why it changed in the git history.</li>
+</ul></div>
 <span class="lbl">Worked example (what the records show)</span>
 <p>Five failures on the way, each recorded: the carbuncle, the AUSM wedge, the 12/14 corner, the wrong "check the units" message, and the over-strict config hash. The two tooling failures were surfaced by the layer, not hidden by it, and both are closed with a test. The replay slide carries the result that active learning lost on global error until 40 runs.</p>
 <span class="lbl">Interview questions</span>
