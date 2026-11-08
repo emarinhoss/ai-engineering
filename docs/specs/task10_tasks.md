@@ -373,6 +373,30 @@ acquisition (the inlet study has one, `surrogate/feasibility.py`): a fifth strat
 the acquisition by P(feasible) is the next experiment, run beside these four and not instead of
 them, so the comparison stays on the record.
 
+### T10.10b, third half recorded (Fable, 2026-11-08 18:55 UTC): with a feasibility model, active learning wins
+
+`runs/replay_drone_online/2026-11-08_feas/` (commit edd6c84, 851 s): the two weighted strategies
+on the same seeds, budgets, candidate sets and initial designs as the first online run, so the
+rows are directly comparable (identical regret 0.409 at n = 8). Mean regret and gated picks:
+
+| n | random | lhs | al_ehvi | al_ehvi_feas | al_maxvar | al_maxvar_feas |
+|---|---|---|---|---|---|---|
+| 8 | 0.409 | 0.409 | 0.409 | 0.409 | 0.409 | 0.409 |
+| 16 | 0.344 | 0.365 | 0.347 | **0.246** | 0.382 | 0.365 |
+| 24 | 0.321 | 0.312 | 0.323 | **0.158** | 0.368 | 0.326 |
+| 40 | 0.294 | 0.271 | 0.317 | **0.092** | 0.353 | 0.268 |
+| gated picks of 32 | 1.9 | 4.0 | 29.7 | **7.5** | 25.4 | 7.6 |
+
+The feasibility model (logistic regression on the scaled inputs, fitted on every evaluated point
+of that run, rejected initial draws included, factor 1 until both labels exist) takes EHVI's gated
+picks from 29.7 to 7.5 and its regret at 40 from 0.317 to **0.092, a third of LHS's 0.271**; the
+same weighting lifts max-variance only to parity with LHS, because variance is still largest in
+the unexplored gated corner. The mean p(feasible) the model assigned to its own picks falls from
+0.95 to 0.85 as the search presses on the gated edge where the front lies. **The two tables
+together are the method's answer on this problem: active learning beats space-filling sampling
+only when the acquisition knows where the design is buildable, and loses to it otherwise.** Both
+runs are published; neither replaces the other.
+
 ## Questions for Éder (answered above; kept as the record)
 
 1. **Airfoil family.** The spec varies the NACA four-digit section per design, which is what makes

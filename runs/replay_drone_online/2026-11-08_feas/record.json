@@ -1,0 +1,39 @@
+{
+  "args": {
+    "front": "runs/drone_grid/2026-11-08/front.csv",
+    "out": "runs/replay_drone_online/2026-11-08_feas/online.csv",
+    "seeds": 10,
+    "n_init": 8,
+    "n_max": 40,
+    "candidates": 4096,
+    "strategies": [
+      "al_ehvi_feas",
+      "al_maxvar_feas"
+    ]
+  },
+  "report_at": [
+    8,
+    12,
+    16,
+    20,
+    24,
+    32,
+    40
+  ],
+  "commit": "edd6c846ee7234860215e41bdd51a540c2c316eb",
+  "started_utc": "2026-11-08T18:35:00.473347+00:00",
+  "ended_utc": "2026-11-08T18:49:11.138720+00:00",
+  "wall_seconds": 850.6632709503174,
+  "rows_reproducible": 3360,
+  "sha256": {
+    "front": "98c1a9cc8bf43b4b8abeafc13ec55612f53a940f53226795995c55385bd53842",
+    "online.csv": "b7b6f27be641f270d0ea62d9e9a56a8e6e921dbe8ae14c535523db555280d4cb"
+  },
+  "ledger_sha256": {
+    "air.yaml": "28d6df40109e060e088d3e1be3d26e1b2ba10111d376b9882cd0065210cb00e7",
+    "battery.yaml": "1ee0bbfe8aa029fe1496145fd5d6677c24d20ead7b99dedc4eb8efdc7b3b4a0c",
+    "propulsion.yaml": "495d0f5a001eab88d8d64f80d20aa571b13f77925167a24a14b55c670b30adb9",
+    "rules.yaml": "a23d325a6e2e52d8fd9c9f6de37f47b1b8c17d41f82065ef204a1adf23269a09",
+    "structure.yaml": "49a077b62fa9d831704d5226693207caf0aad12da40d12c204685d6f91ace941"
+  }
+}
