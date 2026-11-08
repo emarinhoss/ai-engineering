@@ -184,6 +184,8 @@ measurement of active learning that the cheap low level allows. No code yet; not
 talk of 2026-11-13. Work breakdown with model allocation, interfaces and the acceptance tests Fable wrote
 before the code: `docs/specs/task10_tasks.md`, `tests/task10/` (skipped until the `drone` package exists),
 notebooks `notebooks/10_drone_lowfi_grid_colab.ipynb` and `notebooks/11_drone_surrogate_colab.ipynb`.
+- Status 2026-11-08: Éder took the defaults for the four open questions and started the work before the
+  talk; first wave T10.1 (Haiku), T10.2 (Sonnet), T10.3 (Opus), T10.7a/b (Opus), Fable reviewing.
 
 ### Task 8 (Day 12): rehearsal and buffer
 

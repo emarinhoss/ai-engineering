@@ -244,7 +244,17 @@ dataclass Sonnet writes first). T10.7 can run in parallel with T10.4 to T10.6.
   grid and the online replay's candidate scoring; the notebook measures both and prints whether the
   GPU helped, so the claim is recorded rather than assumed.
 
-## Questions for Éder (defaults assumed until answered)
+## Decisions (Éder, 2026-11-08)
+
+Questions 1 to 4 below: the defaults stand (NACA four-digit per design; 0.5 kg payload and the 4.0 kg
+cap; measure the first SU2 design and cut the pool to 64 if it costs more than 15 minutes; a separate
+deck decided after the results). Question 5: work starts on 2026-11-08, before the talk, with T10.1,
+T10.2, T10.3 and T10.7a/7b in parallel. The sandbox cannot reach the UIUC airfoil data site or MIT
+(the AVL source): the E387 transcription (T10.1c) and the Warren-12 moment reference are recorded as
+`retrieval: pending` until the files are fetched from a machine with open internet (Colab or Éder's),
+and their tests skip with that reason rather than fail. Nothing is typed from memory into the ledger.
+
+## Questions for Éder (answered above; kept as the record)
 
 1. **Airfoil family.** The spec varies the NACA four-digit section per design, which is what makes
    the SU2 polar a per-design cost and gives active learning something to save. The alternative is
