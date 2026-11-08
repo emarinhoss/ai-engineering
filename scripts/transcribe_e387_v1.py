@@ -15,9 +15,9 @@ else raises, so a different page or a mis-cut column cannot write a wrong table 
 import argparse
 import hashlib
 import re
-from itertools import pairwise
 import subprocess
 import sys
+from itertools import pairwise
 from pathlib import Path
 
 import yaml
