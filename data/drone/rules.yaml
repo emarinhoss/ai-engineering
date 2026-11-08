@@ -169,3 +169,13 @@ quantities:
     confidence: assumed
     band: [0.0005, 0.005]
     source: "Freestream turbulence intensity for the airfoil RANS cases, 0.1 percent, chosen to match the UIUC low-turbulence subsonic wind tunnel in which the E387 polars of V6e were measured (Selig et al., Summary of Low-Speed Airfoil Data, Volume 1, describe the tunnel's turbulence level as below 0.1 percent). The BCM transition model is sensitive to it; the band is for the bias sweep. Fable's choice 2026-11-08."
+  - name: structure_fraction_min
+    value: 0.15
+    units: "-"
+    confidence: derived
+    source: "Defined by this study: docs/specs/task10_drone_sizing.md section 4 gate 3, the lower limit on the structure plus propulsion fraction 1 - f_b - m_payload/m_TO."
+  - name: lattice_panel_aspect_max
+    value: 20.0
+    units: "-"
+    confidence: derived
+    source: "Defined by this study: docs/specs/task10_drone_sizing.md section 4 gate 5, the upper limit on the vortex-lattice panel aspect ratio at the tip strip."

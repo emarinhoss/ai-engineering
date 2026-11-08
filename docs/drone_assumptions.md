@@ -43,6 +43,7 @@ File: `data/drone/structure.yaml`
 | spar_allowable_stress_Pa | 600000000.0 | Pa | assumed | [300000000.0, 1000000000.0] | Design allowable tensile stress of a unidirectional carbon-fibre pultruded spar, a knockdown from the tensile strength quoted on public pultrusion datasheets (not retrieved); the knockdown practice follows the Composite Materials Handbook, MIL-HDBK-17. Rationale, so assumed. |
 | limit_load_factor | 3.8 | - | published | - | 14 CFR 23.337(b), limit maneuvering load factor of 3.8, the positive limit for the normal category of FAR Part 23. Cited from the regulation; not retrieved in the sandbox. |
 | factor_of_safety | 1.5 | - | published | - | 14 CFR 23.303, factor of safety of 1.5 applied to limit loads to give ultimate loads under FAR Part 23. Cited from the regulation; not retrieved in the sandbox. |
+| spar_material_density_kg_m3 | 1600.0 | kg/m^3 | published | - | Unidirectional carbon-fibre/epoxy pultrusion, nominal density 1.6 g/cm^3 (e.g. Hexcel HexTow/HexPly product data; Raymer, Aircraft Design, composite material table). Not retrieved; a widely tabulated material constant. |
 
 ## Rules, fixed design choices and fidelity constants
 
@@ -81,3 +82,5 @@ File: `data/drone/rules.yaml`
 | tail_aspect_ratio_vertical | 1.5 | - | assumed | [1.0, 2.5] | Aspect ratio of the vertical tail, used only to estimate its mean chord for the Reynolds number of its skin friction. Typical small-UAV value, design rationale, so assumed. |
 | tail_thickness_ratio | 0.1 | - | assumed | [0.08, 0.12] | Thickness-to-chord ratio of the flat-plate-like tail surfaces, the same 0.10 that geometry.build uses for their wetted area. Design rationale, so assumed. |
 | freestream_turbulence_intensity | 0.001 | - | assumed | [0.0005, 0.005] | Freestream turbulence intensity for the airfoil RANS cases, 0.1 percent, chosen to match the UIUC low-turbulence subsonic wind tunnel in which the E387 polars of V6e were measured (Selig et al., Summary of Low-Speed Airfoil Data, Volume 1, describe the tunnel's turbulence level as below 0.1 percent). The BCM transition model is sensitive to it; the band is for the bias sweep. Fable's choice 2026-11-08. |
+| structure_fraction_min | 0.15 | - | derived | - | Defined by this study: docs/specs/task10_drone_sizing.md section 4 gate 3, the lower limit on the structure plus propulsion fraction 1 - f_b - m_payload/m_TO. |
+| lattice_panel_aspect_max | 20.0 | - | derived | - | Defined by this study: docs/specs/task10_drone_sizing.md section 4 gate 5, the upper limit on the vortex-lattice panel aspect ratio at the tip strip. |

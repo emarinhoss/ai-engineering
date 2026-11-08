@@ -269,3 +269,18 @@ a formal verdict.
   of 1.0, the solver gives CL_alpha 2.771 and Cm_alpha -3.137 per radian, within 1.0 and 1.2 percent
   of the benchmark. The reference point is not set from this agreement; it stays pending until the
   cited document is read (notebook 12).
+
+## Addendum 3 (2026-11-08): evaluation loop as built (T10.5)
+
+- The cruise Reynolds number uses the mean aerodynamic chord, not the mean chord of section 3; the
+  two differ by a few percent for the tapers of the box and the code's choice stands.
+- The aerodynamics of the vortex lattice depend only on aspect ratio, taper and camber (the linear
+  method is scale invariant), so they are computed once per such key and cached; the mass closure
+  then runs on arithmetic. A warm evaluation costs about 0.10 s, a cold one about 0.6 s.
+- The wing's maximum lift coefficient is the wing CL at which the lattice's own strip loading
+  first reaches the section's maximum lift; no extra constant.
+- At the nominal design the cruise speed is set by the stall margin (1.3 V_stall) and not by the
+  minimum-power speed, because the wing loading is low (37 N/m^2); this is a property of the box,
+  recorded here so that the grid's result is read correctly.
+- The gate-5 lattice check measures the tip strip's panel aspect ratio; the "four chordwise panels
+  on the tip chord" clause is satisfied by every lattice level by construction (8 or more).
