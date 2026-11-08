@@ -62,10 +62,15 @@ def test_validation_data_files_exist_with_sources():
     assert e["set"] == "validation/e387_uiuc" and "source" in e
     if e.get("retrieval") == "pending":
         pytest.skip("E387 polars not yet transcribed (retrieval pending; notebooks/12_drone_validation_data_colab.ipynb)")
-    res = {p["reynolds"] for p in e["polars"]}
-    assert {1e5, 2e5, 3e5} <= {float(r) for r in res}
+    # the tunnel runs sit near, not at, the nominal Reynolds numbers (Volume 1 gives 101,800,
+    # 203,800 and 305,200 for 1e5, 2e5 and 3e5); the actual value is what the comparison uses
+    nominal = {float(p["nominal_reynolds"]) for p in e["polars"]}
+    assert {1e5, 2e5, 3e5} <= nominal
     for p in e["polars"]:
+        assert abs(p["reynolds"] - p["nominal_reynolds"]) <= 0.05 * p["nominal_reynolds"]
         assert len(p["alpha_deg"]) == len(p["cl"]) == len(p["cd"]) >= 8
+        assert all(a < b for a, b in zip(p["alpha_deg"], p["alpha_deg"][1:]))
+    assert len(e["page_pdf_sha256"]) == 64
 
 
 def test_assumptions_document_is_not_stale():
