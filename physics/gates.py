@@ -34,6 +34,8 @@ def check(params):
 
 def _check(params):
     family = params.get("family")
+    if family == "drone":
+        return _check_drone(params)
     M = float(params.get("mach", 4.0))
     if family == "wedge":
         return _attached(float(params["theta1_deg"]), M, "theta1_deg")
@@ -127,3 +129,15 @@ def _check_inlet3r(params):
                       f"{d0 * 1e6:.1f} um exceeds {MAX_WALL_RE:g}")
     return errors
 
+
+
+def _check_drone(params):
+    """Gates of the drone sizing study: the closure and the gate list of drone.evaluate."""
+    # imported here so that the inlet families never import drone or torch
+    from drone.evaluate import evaluate
+    from drone.ledger import load_all
+
+    try:
+        return list(evaluate(params, load_all())["gates"])
+    except ValueError as exc:
+        return [f"gate 3 (mass closure): {exc}"]

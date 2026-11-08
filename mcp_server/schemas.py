@@ -21,6 +21,9 @@ RADIUS_BOUNDS = (0.002, 0.05)
 AIRFOIL_BOUNDS = {"camber_pct": (0.0, 6.0), "thickness_pct": (8.0, 15.0),
                   "reynolds": (8.0e4, 5.0e5), "alpha_deg": (-4.0, 16.0)}
 AIRFOIL_FIELDS = (*AIRFOIL_BOUNDS, "transition")
+# drone (Task 10): the sizing study's low-level family; camber_pct and thickness_pct are shared with airfoil2d.
+DRONE_BOUNDS = {"span_m": (1.2, 3.0), "aspect_ratio": (6.0, 16.0), "taper_ratio": (0.3, 1.0),
+                "battery_fraction": (0.20, 0.45), "camber_pct": (0.0, 6.0), "thickness_pct": (8.0, 15.0)}
 # Fields of the supersonic families, not allowed for airfoil2d; filled with these defaults otherwise.
 SUPERSONIC_DEFAULTS = {"mach": 4.0, "altitude_km": 30, "T_wall_K": 300.0, "solver": "NAVIER_STOKES"}
 MAX_ITER_DEFAULT = {"airfoil2d": 3000}            # other families: 6000
@@ -29,7 +32,7 @@ MAX_ITER_DEFAULT = {"airfoil2d": 3000}            # other families: 6000
 class CaseParams(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
 
-    family: Literal["inlet2r", "inlet3r", "wedge", "cylinder", "airfoil2d"]
+    family: Literal["inlet2r", "inlet3r", "wedge", "cylinder", "airfoil2d", "drone"]
     theta1_deg: float | None = Field(None, allow_inf_nan=False)    # inlet2r, wedge
     theta2_deg: float | None = Field(None, allow_inf_nan=False)    # inlet2r, inlet3r
     theta3_deg: float | None = Field(None, allow_inf_nan=False)    # inlet3r only
@@ -46,7 +49,12 @@ class CaseParams(BaseModel):
     reynolds: float | None = Field(None, allow_inf_nan=False)         # airfoil2d only
     alpha_deg: float | None = Field(None, allow_inf_nan=False)        # airfoil2d only
     transition: Literal["BCM", "LM", "NONE"] | None = None           # airfoil2d only, default BCM
-    mesh_level: Literal["coarse", "medium", "fine"] = "medium"
+    span_m: float | None = Field(None, allow_inf_nan=False)           # drone only
+    aspect_ratio: float | None = Field(None, allow_inf_nan=False)     # drone only
+    taper_ratio: float | None = Field(None, allow_inf_nan=False)      # drone only
+    battery_fraction: float | None = Field(None, allow_inf_nan=False) # drone only
+    fidelity: Literal["low", "high"] | None = None                    # drone only, default low
+    mesh_level: Literal["coarse", "medium", "fine"] | None = None     # default medium; not for drone
     save_volume: bool = False
     tag: str = Field(pattern=r"^[a-z0-9_-]{1,32}$")
     max_iter: int | None = Field(None, ge=100, le=20000)
@@ -67,6 +75,22 @@ class CaseParams(BaseModel):
             if getattr(self, name) is not None:
                 errs.append(f"{name}: not allowed for family {fam}")
 
+        if fam == "drone":
+            for name in ("theta1_deg", "theta2_deg", "theta3_deg", "radius_m", "mesh_level", "max_iter",
+                         *SUPERSONIC_DEFAULTS, "reynolds", "alpha_deg", "transition"):
+                forbid(name)
+            for name, bounds in DRONE_BOUNDS.items():
+                need(name, bounds)
+            if self.fidelity is None:
+                self.fidelity = "low"
+            if errs:
+                raise ValueError("\n".join(errs))
+            return self
+        forbid("fidelity")
+        for name in ("span_m", "aspect_ratio", "taper_ratio", "battery_fraction"):
+            forbid(name)
+        if self.mesh_level is None:
+            self.mesh_level = "medium"
         if self.max_iter is None:
             self.max_iter = MAX_ITER_DEFAULT.get(fam, 6000)
         if fam == "airfoil2d":
