@@ -49,6 +49,7 @@ import math
 import numpy as np
 
 from drone.naca import coordinates
+from geometry import airfoils
 from geometry.structured import Block, Mesh, stretch_one_sided, stretch_two_sided_smooth
 
 CHORD = 1.0
@@ -112,11 +113,11 @@ def _resample(pts, s_new):
     return np.column_stack((np.interp(s_new, s, pts[:, 0]), np.interp(s_new, s, pts[:, 1])))
 
 
-def _wall(camber_pct, thickness_pct, s):
-    """Wall nodes, lower trailing edge -> leading edge -> upper trailing edge, as (N, 2)."""
-    x, y = coordinates(camber_pct, thickness_pct, n=N_GEOMETRY)
-    loop = np.column_stack((x, y))                    # TE, upper to LE, lower back to TE
-    k = N_GEOMETRY - 1                                # index of the leading edge (0, 0)
+def _wall(x, y, s):
+    """Wall nodes, lower trailing edge -> leading edge -> upper trailing edge, as (N, 2), cut from
+    the dense loop (x, y): TE, upper to LE, lower back to TE, the leading edge in the middle."""
+    loop = np.column_stack((x, y))
+    k = (len(x) - 1) // 2                             # index of the leading edge (0, 0)
     upper = loop[k::-1]                               # LE -> TE
     lower = loop[k:]                                  # LE -> TE
     out = []
@@ -168,9 +169,21 @@ def _column(P, n0, Q, n1, n_nodes, d0, samples=2001):
 
 
 def build(params):
-    """params: camber_pct, thickness_pct, reynolds, alpha_deg (recorded only), mesh_level (default
-    medium). Returns (geometry, Mesh)."""
-    camber, thick = float(params["camber_pct"]), float(params["thickness_pct"])
+    """params: camber_pct and thickness_pct (NACA four-digit) or airfoil (a coordinate file name,
+    geometry/airfoils.py), reynolds, alpha_deg (recorded only), mesh_level (default medium).
+    Returns (geometry, Mesh)."""
+    extra = {}
+    if "airfoil" in params:
+        name = params["airfoil"]
+        fx, fy, digest = airfoils.load(name)
+        x, y = airfoils.dense_loop(fx, fy, N_GEOMETRY)
+        camber = thick = None
+        extra = {"airfoil": name, "section_sha256": digest,
+                 "trailing_edge_gap": airfoils.trailing_edge_gap(fx, fy)}
+    else:
+        camber, thick = float(params["camber_pct"]), float(params["thickness_pct"])
+        x, y = coordinates(camber, thick, n=N_GEOMETRY)
+        extra = {"airfoil": "naca4"}
     reynolds = float(params["reynolds"])
     level = params.get("mesh_level", "medium")
     s = sizes(level)
@@ -178,7 +191,7 @@ def build(params):
     nj = s["n_normal"]
 
     # ---- wall blocks: one array of columns, lower TE -> LE -> upper TE ----
-    wall = _wall(camber, thick, s)
+    wall = _wall(x, y, s)
     nw = len(wall)
     tang = np.gradient(wall, axis=0)                         # one-sided at the two TE nodes
     tang /= np.hypot(tang[:, 0], tang[:, 1])[:, None]
@@ -231,5 +244,5 @@ def build(params):
                 "alpha_deg": float(params.get("alpha_deg", 0.0)), "chord_m": CHORD,
                 "farfield_chords": FARFIELD_CHORDS, "trailing_edge_closed": True,
                 "level": level, "first_cell_m": d0, "y_plus": Y_PLUS,
-                "nodes": len(mesh.coords), "cells": len(mesh.cells)}
+                "nodes": len(mesh.coords), "cells": len(mesh.cells), **extra}
     return geometry, mesh

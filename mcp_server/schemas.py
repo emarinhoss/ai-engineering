@@ -46,6 +46,7 @@ class CaseParams(BaseModel):
     solver: Literal["NAVIER_STOKES", "EULER", "RANS_SA"] | None = None
     camber_pct: float | None = Field(None, allow_inf_nan=False)       # airfoil2d only
     thickness_pct: float | None = Field(None, allow_inf_nan=False)    # airfoil2d only
+    airfoil: str | None = Field(None, pattern=r"^[a-z0-9_-]{1,32}$")  # airfoil2d only: file name
     reynolds: float | None = Field(None, allow_inf_nan=False)         # airfoil2d only
     alpha_deg: float | None = Field(None, allow_inf_nan=False)        # airfoil2d only
     transition: Literal["BCM", "LM", "NONE"] | None = None           # airfoil2d only, default BCM
@@ -77,7 +78,7 @@ class CaseParams(BaseModel):
 
         if fam == "drone":
             for name in ("theta1_deg", "theta2_deg", "theta3_deg", "radius_m", "mesh_level", "max_iter",
-                         *SUPERSONIC_DEFAULTS, "reynolds", "alpha_deg", "transition"):
+                         *SUPERSONIC_DEFAULTS, "reynolds", "alpha_deg", "transition", "airfoil"):
                 forbid(name)
             for name, bounds in DRONE_BOUNDS.items():
                 need(name, bounds)
@@ -96,14 +97,21 @@ class CaseParams(BaseModel):
         if fam == "airfoil2d":
             for name in ("theta1_deg", "theta2_deg", "theta3_deg", "radius_m", *SUPERSONIC_DEFAULTS):
                 forbid(name)
-            for name, bounds in AIRFOIL_BOUNDS.items():
+            if self.airfoil is not None:
+                if self.camber_pct is not None or self.thickness_pct is not None:
+                    errs.append("airfoil: give either airfoil or camber_pct and thickness_pct, not both")
+                bounds_now = {k: v for k, v in AIRFOIL_BOUNDS.items()
+                              if k not in ("camber_pct", "thickness_pct")}
+            else:
+                bounds_now = AIRFOIL_BOUNDS
+            for name, bounds in bounds_now.items():
                 need(name, bounds)
             if self.transition is None:
                 self.transition = "BCM"
             if errs:
                 raise ValueError("\n".join(errs))
             return self
-        for name in AIRFOIL_FIELDS:
+        for name in (*AIRFOIL_FIELDS, "airfoil"):
             forbid(name)
         for name, value in SUPERSONIC_DEFAULTS.items():
             if getattr(self, name) is None:

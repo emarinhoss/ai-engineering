@@ -132,7 +132,7 @@ def make(params, out_dir):
                                   f"(available: {sorted(BUILDERS)})")
     try:
         geometry, mesh = BUILDERS[family](params)
-    except (ValueError, NotImplementedError) as exc:
+    except (ValueError, NotImplementedError, FileNotFoundError) as exc:
         raise StageError("geometry", [str(exc)]) from exc
 
     quality = mesh.quality()
