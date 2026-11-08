@@ -4,6 +4,7 @@ import math
 from pathlib import Path
 from string import Template
 
+from drone.ledger import load
 from physics import atmosphere
 from physics.shock import oblique
 
@@ -31,13 +32,12 @@ ROLES = {
 # SA_OPTIONS= NONE (plain SA, the SU2 default), "LM" the recorded second attempt of V6e.
 AIRFOIL_TEMPLATE = {"BCM": "inc_rans_airfoil.cfg", "NONE": "inc_rans_airfoil.cfg",
                     "LM": "inc_sst_lm_airfoil.cfg"}
-# Air at ISA sea level, values of data/drone/air.yaml (density_kg_m3, dynamic_viscosity_Pa_s).
-# Hard-coded here because the ledger reader (drone/ledger.py) belongs to another task; keep equal.
-AIR_DENSITY = 1.225
-AIR_VISCOSITY = 1.789e-5
-# Freestream turbulence intensity for the transition models (0.1 percent, a low-turbulence
-# wind tunnel). Not in the ledger: a modelling choice, to be reviewed.
-AIRFOIL_TURB_INTENSITY = 0.001
+# Air at ISA sea level and the freestream turbulence intensity of the transition models, read once
+# at import from the drone ledger (data/drone/air.yaml, data/drone/rules.yaml). The rendered
+# case.cfg, and so its config hash, follows the ledger: changing a ledger value changes the case.
+AIR_DENSITY = load("air")["density_kg_m3"]
+AIR_VISCOSITY = load("air")["dynamic_viscosity_Pa_s"]
+AIRFOIL_TURB_INTENSITY = load("rules")["freestream_turbulence_intensity"]
 
 
 def _lst(names):
