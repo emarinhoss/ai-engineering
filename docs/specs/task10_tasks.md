@@ -434,6 +434,21 @@ validation cases and a 6-design coarse/medium pair on **medium** as the recorded
 take **48 designs × 3 angles (2, 6, 10 deg)** so the pool finishes in a day on one worker. Nothing
 is staged until the ruling; the ten E387 medium cases are already in the queue.
 
+### Decision 7 (Éder, 2026-11-08 20:45 UTC, "Colab is running now"): the SU2 pool is staged
+
+Taken as approval of Fable's recommendation with one change Fable made for a measured reason:
+**32 designs, not 48, at the spec's five angles (−2, 2, 6, 10, 14 deg), coarse mesh**, because the
+nominal polar showed the budget running out at 0 and 10 deg, and a three-angle polar that loses
+one angle cannot form (the aggregator needs three); five angles keep the section's cl_max in reach
+and the cost the same as 48 × 3. Each design's section is its own NACA four-digit at its cruise
+Reynolds number from the low model (87,400 to 269,000 across the 32; all inside the airfoil2d
+bounds, none gated). `designs/make_pool_af.py` is the staging script and
+`designs/pool_af_cases.csv` the case table: 160 cases, tag `pool_af`, plus the recorded bias
+check, the first 4 designs at 2, 6, 10 deg on the medium mesh, 12 cases, tag `pool_af_bias`
+(172 cases, batches at commit 9d0289a, ~29 + 5 worker-hours on one 4-rank worker). Queued behind
+the eight remaining E387 cases. The acceptance rule for budget-exhausted runs is still open and
+applies to this pool when it is ruled.
+
 ## Questions for Éder (answered above; kept as the record)
 
 1. **Airfoil family.** The spec varies the NACA four-digit section per design, which is what makes
