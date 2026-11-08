@@ -68,10 +68,15 @@ def summarize(history_csv, params=None):
     the surface data) and drift of q_peak from the maximum heat flux column; absent columns
     give None. Status: diverged (non-finite residual), converged (drop >= 5 and every available
     drift < 0.2), stationary (at least one drift available, all < 0.2, drop < 5), else
-    not_converged. Timeout and error are decided by the worker, not here.
+    not_converged. The residual is rms[rho] when present, else rms[P]; the key "residual_column"
+    names the one used (the "rms_rho_*" keys keep their names for either). Timeout and error are decided by the worker, not here.
     """
     cols = load(history_csv)
-    res = cols[find_column(cols, "rms[rho]")]
+    # compressible families write rms[Rho]; the incompressible solver writes rms[P] instead
+    residual_column = _try_find(cols, "rms[rho]", "rms[p]")
+    if residual_column is None:
+        raise KeyError(f"no rms[rho] or rms[P] column; available: {list(cols)}")
+    res = cols[residual_column]
     if len(res) == 0:
         raise ValueError(f"{history_csv} has no rows")
 
@@ -104,4 +109,5 @@ def summarize(history_csv, params=None):
         status = "not_converged"
 
     return {"rms_rho_log10_start": start, "rms_rho_log10_end": end, "drop_orders": drop,
-            "drift_pct": drifts, "status": status, "iterations": len(res)}
+            "drift_pct": drifts, "status": status, "iterations": len(res),
+            "residual_column": residual_column}
