@@ -185,6 +185,8 @@ Effort: 3 sessions.
 | 8c | V6f: the low-fidelity closed forms against the same data; V6g if the Ultra Stick data are retrievable | rows |
 | 8d | **Fable: the verdict per row and the go/no-go.** A hard failure of V6a to V6d stops the task until fixed; a V6e failure cuts the high level | the verdict block in the validation document |
 
+**Verdict 2026-11-08 (Fable), from `runs/drone/validation/2026-11-08/v6.json` at commit faaf7f3:** V6a pass (elliptic AR 8 e within 0.26 percent of 1, CL_alpha 1.95 percent below Helmbold, AR 100 limit within 0.1 percent); V6b CL_alpha pass (+1.0 percent), Cm_alpha pending on the source of the reference point (+1.2 percent about the root leading edge); V6c pass (medium to fine: 0.18 percent in CL_alpha, 0.26 percent in e, 0.13 percent in endurance); V6d pass (closure residual 5.6e-10, energy balance and masses closed to machine precision). **Go for the low-fidelity grid and pools (T10.9a, 9b).** V6e to V6g not run: V6e needs the SU2 cases, V6f the E387 polars, V6g the Ultra Stick data.
+
 Effort: 2 sessions plus solver time.
 
 ### T10.9 Pools (Sonnet, Colab)

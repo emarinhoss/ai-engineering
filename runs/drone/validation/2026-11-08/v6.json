@@ -1,0 +1,248 @@
+{
+  "date": "2026-11-08",
+  "commit": "faaf7f3eb3a8a004c8e9cd603cf8915d828df5ff",
+  "lattice_levels": {
+    "coarse": [
+      8,
+      20
+    ],
+    "medium": [
+      12,
+      30
+    ],
+    "fine": [
+      16,
+      40
+    ]
+  },
+  "nominal_params": {
+    "family": "drone",
+    "span_m": 2.0,
+    "aspect_ratio": 10.0,
+    "taper_ratio": 0.6,
+    "battery_fraction": 0.3,
+    "camber_pct": 4.0,
+    "thickness_pct": 12.0,
+    "fidelity": "low",
+    "tag": "v6"
+  },
+  "ledger_hashes": {
+    "data/drone/air.yaml": "28d6df40109e060e088d3e1be3d26e1b2ba10111d376b9882cd0065210cb00e7",
+    "data/drone/battery.yaml": "1ee0bbfe8aa029fe1496145fd5d6677c24d20ead7b99dedc4eb8efdc7b3b4a0c",
+    "data/drone/propulsion.yaml": "495d0f5a001eab88d8d64f80d20aa571b13f77925167a24a14b55c670b30adb9",
+    "data/drone/rules.yaml": "a23d325a6e2e52d8fd9c9f6de37f47b1b8c17d41f82065ef204a1adf23269a09",
+    "data/drone/structure.yaml": "49a077b62fa9d831704d5226693207caf0aad12da40d12c204685d6f91ace941",
+    "data/validation/warren12.yaml": "514d991feb3b2b25ec4215e3a2bb95710feac6c4882a626a62c2cf0b6108b6dc"
+  },
+  "checks": [
+    {
+      "name": "V6a elliptic AR 8 fine: e at 4 deg vs 1",
+      "measured": 0.9973715009767127,
+      "reference": 1.0,
+      "deviation": -0.002628499023287323,
+      "tolerance": 0.01,
+      "verdict": "pass",
+      "note": ""
+    },
+    {
+      "name": "V6a elliptic AR 8 fine: CL_alpha vs Helmbold",
+      "measured": 4.810010669945385,
+      "reference": 4.905762844912698,
+      "deviation": -0.019518304898617167,
+      "tolerance": 0.03,
+      "verdict": "pass",
+      "note": ""
+    },
+    {
+      "name": "V6a elliptic AR 8 fine: CDi vs CL^2/(pi AR_planform e)",
+      "measured": 0.004480233391987623,
+      "reference": 0.004480233391987623,
+      "deviation": 0.0,
+      "tolerance": 1e-09,
+      "verdict": "pass",
+      "note": "absolute difference"
+    },
+    {
+      "name": "V6a elliptic AR 100 fine: CL_alpha vs 2 pi AR/(AR+2)",
+      "measured": 6.154209900362259,
+      "reference": 6.1599855952741045,
+      "deviation": -0.0009376150029111185,
+      "tolerance": 0.01,
+      "verdict": "pass",
+      "note": ""
+    },
+    {
+      "name": "V6a (report) rectangular AR 100 fine: CL_alpha vs 2 pi AR/(AR+2)",
+      "measured": 6.071524360921105,
+      "reference": 6.1599855952741045,
+      "deviation": -0.01436062357367629,
+      "tolerance": null,
+      "verdict": "report",
+      "note": ""
+    },
+    {
+      "name": "V6a (report) elliptic AR 8 coarse: CL_alpha vs Helmbold",
+      "measured": 4.829034369455911,
+      "reference": 4.905762844912698,
+      "deviation": -0.015640477920035423,
+      "tolerance": null,
+      "verdict": "report",
+      "note": ""
+    },
+    {
+      "name": "V6a (report) elliptic AR 8 coarse: e vs 1",
+      "measured": 0.9993705037052918,
+      "reference": 1.0,
+      "deviation": -0.0006294962947082094,
+      "tolerance": null,
+      "verdict": "report",
+      "note": ""
+    },
+    {
+      "name": "V6a (report) elliptic AR 8 medium: CL_alpha vs Helmbold",
+      "measured": 4.816549293934541,
+      "reference": 4.905762844912698,
+      "deviation": -0.018185459386947822,
+      "tolerance": null,
+      "verdict": "report",
+      "note": ""
+    },
+    {
+      "name": "V6a (report) elliptic AR 8 medium: e vs 1",
+      "measured": 0.9980727477625485,
+      "reference": 1.0,
+      "deviation": -0.0019272522374514933,
+      "tolerance": null,
+      "verdict": "report",
+      "note": ""
+    },
+    {
+      "name": "V6b Warren-12 fine: CL_alpha vs benchmark",
+      "measured": 2.7707678865856105,
+      "reference": 2.743,
+      "deviation": 0.010123181401972436,
+      "tolerance": 0.02,
+      "verdict": "pass",
+      "note": ""
+    },
+    {
+      "name": "V6b Warren-12 fine: Cm_alpha (about root LE, reference chord 1.0) vs benchmark",
+      "measured": -3.1368204577036742,
+      "reference": -3.1,
+      "deviation": 0.011877567001185252,
+      "tolerance": 0.02,
+      "verdict": "pending (reference point not yet sourced)",
+      "note": "not counted as pass or fail"
+    },
+    {
+      "name": "V6c nominal: CL_alpha, medium vs fine",
+      "measured": 4.991360906368031,
+      "reference": 4.982660164767528,
+      "deviation": 0.0017462040983702298,
+      "tolerance": 0.01,
+      "verdict": "pass",
+      "note": ""
+    },
+    {
+      "name": "V6c nominal: e at 4 deg, medium vs fine",
+      "measured": 0.9775441101626141,
+      "reference": 0.9801100481995879,
+      "deviation": -0.00261801013231866,
+      "tolerance": 0.01,
+      "verdict": "pass",
+      "note": ""
+    },
+    {
+      "name": "V6c nominal: endurance_h, medium vs fine",
+      "measured": 6.748446154602705,
+      "reference": 6.757425829183767,
+      "deviation": -0.0013288602506417169,
+      "tolerance": 0.02,
+      "verdict": "pass",
+      "note": ""
+    },
+    {
+      "name": "V6c (report) nominal: CL_alpha, coarse vs medium",
+      "measured": 5.008306802621928,
+      "reference": 4.991360906368031,
+      "deviation": 0.003395045273580255,
+      "tolerance": null,
+      "verdict": "report",
+      "note": ""
+    },
+    {
+      "name": "V6c (report) nominal: e at 4 deg, coarse vs medium",
+      "measured": 0.9728004769295792,
+      "reference": 0.9775441101626141,
+      "deviation": -0.004852602745717416,
+      "tolerance": null,
+      "verdict": "report",
+      "note": ""
+    },
+    {
+      "name": "V6c (report) nominal: endurance_h, coarse vs medium",
+      "measured": 6.733530403817563,
+      "reference": 6.748446154602705,
+      "deviation": -0.002210249655021479,
+      "tolerance": null,
+      "verdict": "report",
+      "note": ""
+    },
+    {
+      "name": "V6d closure_residual below 1e-9",
+      "measured": 5.605905516643828e-10,
+      "reference": 0.0,
+      "deviation": 5.605905516643828e-10,
+      "tolerance": 1e-09,
+      "verdict": "pass",
+      "note": "absolute; the residual is relative by construction"
+    },
+    {
+      "name": "V6d energy balance: spent vs usable battery energy",
+      "measured": 235044.7106261589,
+      "reference": 235044.71062615886,
+      "deviation": 2.220446049250313e-16,
+      "tolerance": 1e-09,
+      "verdict": "pass",
+      "note": ""
+    },
+    {
+      "name": "V6d endurance_h vs closed form",
+      "measured": 6.748446154602705,
+      "reference": 6.748446154602705,
+      "deviation": 0.0,
+      "tolerance": 1e-06,
+      "verdict": "pass",
+      "note": ""
+    },
+    {
+      "name": "V6d sum of masses vs mtow",
+      "measured": 1.5113471627952848,
+      "reference": 1.5113471627952848,
+      "deviation": 0.0,
+      "tolerance": 1e-09,
+      "verdict": "pass",
+      "note": ""
+    }
+  ],
+  "not_run": [
+    {
+      "id": "V6e",
+      "what": "SU2 on the E387 at Re 2e5 and 3e5 against UIUC polars",
+      "reason": "needs the SU2 airfoil cases (T10.8b), not yet run"
+    },
+    {
+      "id": "V6f",
+      "what": "low-fidelity closed forms against the E387 data",
+      "reason": "needs the E387 polars; retrieval pending"
+    },
+    {
+      "id": "V6g",
+      "what": "Ultra Stick 25e CL_alpha and CD0",
+      "reason": "Ultra Stick data not retrieved"
+    }
+  ],
+  "overall": "PASS",
+  "failed": [],
+  "wall_time_s": 16.5
+}
