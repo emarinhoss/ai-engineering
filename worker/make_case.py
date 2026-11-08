@@ -17,7 +17,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from cases.config import render
-from geometry import cylinder, inlet, inlet3r, wedge
+from geometry import airfoil2d, cylinder, inlet, inlet3r, wedge
 from geometry.structured import mesh_bbox, mesh_fingerprint
 
 REPO = Path(__file__).resolve().parent.parent
@@ -28,7 +28,8 @@ FIRST_CELL_TOL = 0.10
 MAX_GROWTH = 1.25
 MAX_ASPECT = 5000.0
 
-BUILDERS = {"wedge": wedge.build, "inlet2r": inlet.build, "inlet3r": inlet3r.build, "cylinder": cylinder.build}
+BUILDERS = {"wedge": wedge.build, "inlet2r": inlet.build, "inlet3r": inlet3r.build, "cylinder": cylinder.build,
+            "airfoil2d": airfoil2d.build}
 
 
 class StageError(ValueError):
@@ -62,6 +63,9 @@ def requested_first_cell(params):
         return {"body": d0, "cowl": d0}
     if family == "cylinder":
         return {"wall": cylinder.LEVELS[level][0]}
+    if family == "airfoil2d":
+        # y+ = 0.5 at the chord Reynolds number (task10_drone_sizing.md, gate 5)
+        return {"airfoil": airfoil2d.first_cell(params["reynolds"], level)}
     raise NotImplementedError(f"geometry family {family!r}")
 
 

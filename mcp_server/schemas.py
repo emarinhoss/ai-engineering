@@ -17,25 +17,39 @@ ALTITUDE_BOUNDS = {"inlet3r": (28.0, 35.0)}       # other families: 30 km only
 MACH_BOUNDS = {"inlet3r": (3.5, 4.5)}
 T_WALL_BOUNDS = {"inlet3r": (300.0, 600.0)}
 RADIUS_BOUNDS = (0.002, 0.05)
+# airfoil2d (Task 10, task10_tasks.md): the SU2 section family of the drone study's high level.
+AIRFOIL_BOUNDS = {"camber_pct": (0.0, 6.0), "thickness_pct": (8.0, 15.0),
+                  "reynolds": (8.0e4, 5.0e5), "alpha_deg": (-4.0, 16.0)}
+AIRFOIL_FIELDS = (*AIRFOIL_BOUNDS, "transition")
+# Fields of the supersonic families, not allowed for airfoil2d; filled with these defaults otherwise.
+SUPERSONIC_DEFAULTS = {"mach": 4.0, "altitude_km": 30, "T_wall_K": 300.0, "solver": "NAVIER_STOKES"}
+MAX_ITER_DEFAULT = {"airfoil2d": 3000}            # other families: 6000
 
 
 class CaseParams(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
 
-    family: Literal["inlet2r", "inlet3r", "wedge", "cylinder"]
+    family: Literal["inlet2r", "inlet3r", "wedge", "cylinder", "airfoil2d"]
     theta1_deg: float | None = Field(None, allow_inf_nan=False)    # inlet2r, wedge
     theta2_deg: float | None = Field(None, allow_inf_nan=False)    # inlet2r, inlet3r
     theta3_deg: float | None = Field(None, allow_inf_nan=False)    # inlet3r only
     radius_m: float | None = Field(None, allow_inf_nan=False)      # cylinder only, default 0.010
-    mach: float = Field(4.0, ge=3.0, le=5.0, allow_inf_nan=False)
+    # mach, altitude_km, T_wall_K, solver and max_iter default to None and are filled in by
+    # _family_rules (SUPERSONIC_DEFAULTS, MAX_ITER_DEFAULT), so airfoil2d can forbid the first four.
+    mach: float | None = Field(None, ge=3.0, le=5.0, allow_inf_nan=False)
     # int | float so that 30 stays the integer 30 in the params (case_id is a hash of them).
-    altitude_km: int | float = Field(30, allow_inf_nan=False)
-    T_wall_K: float = Field(300.0, ge=250.0, le=1200.0, allow_inf_nan=False)
-    solver: Literal["NAVIER_STOKES", "EULER", "RANS_SA"] = "NAVIER_STOKES"
+    altitude_km: int | float | None = Field(None, allow_inf_nan=False)
+    T_wall_K: float | None = Field(None, ge=250.0, le=1200.0, allow_inf_nan=False)
+    solver: Literal["NAVIER_STOKES", "EULER", "RANS_SA"] | None = None
+    camber_pct: float | None = Field(None, allow_inf_nan=False)       # airfoil2d only
+    thickness_pct: float | None = Field(None, allow_inf_nan=False)    # airfoil2d only
+    reynolds: float | None = Field(None, allow_inf_nan=False)         # airfoil2d only
+    alpha_deg: float | None = Field(None, allow_inf_nan=False)        # airfoil2d only
+    transition: Literal["BCM", "LM", "NONE"] | None = None           # airfoil2d only, default BCM
     mesh_level: Literal["coarse", "medium", "fine"] = "medium"
     save_volume: bool = False
     tag: str = Field(pattern=r"^[a-z0-9_-]{1,32}$")
-    max_iter: int = Field(6000, ge=100, le=20000)
+    max_iter: int | None = Field(None, ge=100, le=20000)
 
     @model_validator(mode="after")
     def _family_rules(self):
@@ -53,6 +67,23 @@ class CaseParams(BaseModel):
             if getattr(self, name) is not None:
                 errs.append(f"{name}: not allowed for family {fam}")
 
+        if self.max_iter is None:
+            self.max_iter = MAX_ITER_DEFAULT.get(fam, 6000)
+        if fam == "airfoil2d":
+            for name in ("theta1_deg", "theta2_deg", "theta3_deg", "radius_m", *SUPERSONIC_DEFAULTS):
+                forbid(name)
+            for name, bounds in AIRFOIL_BOUNDS.items():
+                need(name, bounds)
+            if self.transition is None:
+                self.transition = "BCM"
+            if errs:
+                raise ValueError("\n".join(errs))
+            return self
+        for name in AIRFOIL_FIELDS:
+            forbid(name)
+        for name, value in SUPERSONIC_DEFAULTS.items():
+            if getattr(self, name) is None:
+                setattr(self, name, value)
         if fam == "cylinder":
             forbid("theta1_deg")
             if self.radius_m is None:
@@ -95,7 +126,7 @@ def validate(params):
     except Exception as exc:  # noqa: BLE001  (validate must never raise)
         return None, [f"unexpected error while validating: {exc!r}"], []
     warnings = []
-    if model.mach != 4.0 and model.family != "inlet3r":
+    if model.mach is not None and model.mach != 4.0 and model.family != "inlet3r":
         warnings.append(f"mach = {model.mach:g}: the design table and validation are for Mach 4.0")
     return model, [], warnings
 

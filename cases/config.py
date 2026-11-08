@@ -24,7 +24,20 @@ ROLES = {
                 "outlet": ["outlet_duct", "outlet_ext"], "analyze": ["outlet_duct"]},
     "cylinder": {"walls": ["wall"], "sym": ["symmetry"], "far": ["farfield"],
                  "outlet": ["outlet"], "analyze": []},
+    "airfoil2d": {"walls": ["airfoil"], "sym": [], "far": ["farfield"], "outlet": [], "analyze": []},
 }
+
+# airfoil2d (Task 10.7b): template by params["transition"]. "NONE" is the SA template with
+# SA_OPTIONS= NONE (plain SA, the SU2 default), "LM" the recorded second attempt of V6e.
+AIRFOIL_TEMPLATE = {"BCM": "inc_rans_airfoil.cfg", "NONE": "inc_rans_airfoil.cfg",
+                    "LM": "inc_sst_lm_airfoil.cfg"}
+# Air at ISA sea level, values of data/drone/air.yaml (density_kg_m3, dynamic_viscosity_Pa_s).
+# Hard-coded here because the ledger reader (drone/ledger.py) belongs to another task; keep equal.
+AIR_DENSITY = 1.225
+AIR_VISCOSITY = 1.789e-5
+# Freestream turbulence intensity for the transition models (0.1 percent, a low-turbulence
+# wind tunnel). Not in the ledger: a modelling choice, to be reviewed.
+AIRFOIL_TURB_INTENSITY = 0.001
 
 
 def _lst(names):
@@ -58,7 +71,7 @@ def render(params, geometry, markers):
     solver = params.get("solver", "NAVIER_STOKES")
     if family not in ROLES:
         raise ValueError(f"unknown family {family!r}")
-    if solver not in SOLVER_TEMPLATE:
+    if solver not in SOLVER_TEMPLATE and family != "airfoil2d":
         raise ValueError(f"unknown solver {solver!r}")
     roles = ROLES[family]
 
@@ -69,6 +82,9 @@ def render(params, geometry, markers):
         raise ValueError(f"marker {m!r} is used by the config but missing from the mesh")
     for m in sorted(in_mesh - named):
         raise ValueError(f"mesh marker {m!r} is not used by the config")
+
+    if family == "airfoil2d":
+        return _render_airfoil(params, geometry, roles)
 
     walls, analyze = roles["walls"], roles["analyze"]
     fs = atmosphere.state(params.get("altitude_km", 30))
@@ -103,4 +119,48 @@ def render(params, geometry, markers):
                          else "( SURFACE_TECPLOT_ASCII )"),
     }
     text = (TEMPLATES / SOLVER_TEMPLATE[solver]).read_text()
+    return Template(text).substitute(values)
+
+
+def _output_files(params):
+    """SU2's CSV writers keep only conservative variables, so the output is Tecplot ASCII."""
+    return ("( SURFACE_TECPLOT_ASCII, TECPLOT_ASCII )" if params.get("save_volume")
+            else "( SURFACE_TECPLOT_ASCII )")
+
+
+def _render_airfoil(params, geometry, roles):
+    """case.cfg text for family airfoil2d: incompressible RANS at the chord Reynolds number.
+
+    Velocity V = Re mu / (rho c) with c = 1 m; its direction is the angle of attack, which is also
+    AOA (SU2 projects the forces on the AOA axes), so the mesh is never rotated."""
+    transition = params.get("transition", "BCM")
+    if transition not in AIRFOIL_TEMPLATE:
+        raise ValueError(f"unknown transition {transition!r}")
+    chord = float(geometry.get("chord_m", 1.0))
+    alpha = float(params["alpha_deg"])
+    speed = float(params["reynolds"]) * AIR_VISCOSITY / (AIR_DENSITY * chord)
+    a = math.radians(alpha)
+    walls = roles["walls"]
+    header = "\n".join([
+        "% family: airfoil2d",
+        "% params: " + json.dumps(params, sort_keys=True),
+        "% geometry: " + json.dumps(geometry, sort_keys=True),
+        f"% velocity: V = Re mu / (rho c) = {speed!r} m/s",
+    ])
+    values = {
+        "header": header,
+        "sa_options": "BCM" if transition == "BCM" else "NONE",
+        "turb_intensity": repr(AIRFOIL_TURB_INTENSITY),
+        "aoa": repr(alpha),
+        "density": repr(AIR_DENSITY),
+        "viscosity": repr(AIR_VISCOSITY),
+        "velocity_init": f"( {speed * math.cos(a)!r}, {speed * math.sin(a)!r}, 0.0 )",
+        "max_iter": int(params.get("max_iter", 3000)),
+        "heatflux": "( " + ", ".join(f"{w}, 0.0" for w in walls) + " )",
+        "far": _lst(roles["far"]),
+        "plotting": _lst(walls),
+        "monitoring": _lst(walls),
+        "output_files": _output_files(params),
+    }
+    text = (TEMPLATES / AIRFOIL_TEMPLATE[transition]).read_text()
     return Template(text).substitute(values)
