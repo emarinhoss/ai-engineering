@@ -177,11 +177,41 @@ def standoff_over_R(case, R, p_inf):
     return float((-R - x_shock) / R)
 
 
+def _airfoil2d(case, params):
+    """cl, cd, cm as the mean over the last 10 percent of the iterations, with their drift."""
+    path = Path(case) / "history.csv"
+    if not path.exists():
+        raise ValueError(f"airfoil2d needs {path}")
+    cols = history.load(path)
+    names = {}
+    for key, wanted in (("cl", ("cl", "cl")), ("cd", ("cd", "cd")), ("cm", ("cmz", "cm"))):
+        hits = [c for c in cols if c.lower() == wanted[0]]
+        if not hits:
+            hits = [c for c in cols if wanted[1] in c.lower() and "rms" not in c.lower()
+                    and c.lower() not in ("cl", "cd", "cfl")] if key == "cm" else []
+        if len(hits) != 1:
+            raise ValueError(f"no unique {key.upper()} column in history.csv; "
+                             f"available: {list(cols)}")
+        names[key] = hits[0]
+    out = {}
+    for key, col in names.items():
+        v = cols[col]
+        tail = v[-max(1, math.ceil(0.1 * len(v))):]
+        out[key] = float(np.mean(tail))
+        if key != "cm":
+            out[f"{key}_drift_pct"] = history.drift_pct(v)
+    for k in ("alpha_deg", "reynolds", "transition"):
+        out[k] = params.get(k)
+    return out
+
+
 def compute(case_dir):
     """The "metrics" block for one case directory (see the module docstring)."""
     case = Path(case_dir)
     params, geometry, fs = surface.inputs(case)
     family = params.get("family", "inlet2r" if "X1" in geometry else None)
+    if family == "airfoil2d":
+        return {**_airfoil2d(case, params), "notes": []}
     euler = params.get("solver", "NAVIER_STOKES") == "EULER"
     surf = surface.load(case)
     notes = []

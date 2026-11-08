@@ -44,6 +44,13 @@ def _try_find(cols, *alternatives):
     return None
 
 
+def coefficient_column(cols, name):
+    """Column of an aerodynamic coefficient ("cl", "cd", "cmz"...) by exact case-insensitive
+    name, else None."""
+    hits = [c for c in cols if c.lower() == name.lower()]
+    return hits[0] if len(hits) == 1 else None
+
+
 def drift_pct(values, tail=0.2):
     """(max - min) over the last `tail` of the series, divided by the final |value|, in percent."""
     n = len(values)
@@ -80,6 +87,10 @@ def summarize(history_csv, params=None):
     col = _try_find(cols, "maxhf", "maximum_heatflux")
     if col:
         drifts["q_peak"] = drift_pct(cols[col])
+    cl_col, cd_col = coefficient_column(cols, "CL"), coefficient_column(cols, "CD")
+    if cl_col and cd_col:                    # airfoil2d: lift and drag coefficients are the objective
+        drifts["cl"] = drift_pct(cols[cl_col])
+        drifts["cd"] = drift_pct(cols[cd_col])
     available = [d for d in drifts.values() if d is not None]
     steady = all(d < DRIFT_MAX for d in available)
 
