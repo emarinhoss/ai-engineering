@@ -28,7 +28,7 @@ from physics import gates
 from postprocess.metrics import compute
 from worker.make_case import StageError, config_sha256, git_commit, make, sha256_file
 
-CASE_ID_RE = re.compile(r"^(inlet2r|inlet3r|wedge|cylinder)-[0-9a-f]{10}$")
+CASE_ID_RE = re.compile(r"^(inlet2r|inlet3r|wedge|cylinder|airfoil2d|drone)-[0-9a-f]{10}$")
 TAG_RE = re.compile(r"^[a-z0-9_-]{1,32}$")
 REPO = Path(__file__).resolve().parent.parent           # runs/<tag>/<case_id>/ is written here
 RUN_BLOCKS = ("params", "mesh", "solver", "run", "convergence", "metrics")
