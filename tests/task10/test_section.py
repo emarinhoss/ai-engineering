@@ -1,6 +1,7 @@
 """T10.4a: section data at low fidelity and from a polar."""
 import numpy as np
 import pytest
+
 from drone import section
 
 

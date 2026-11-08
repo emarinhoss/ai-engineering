@@ -25,6 +25,7 @@ def test_nominal_design_is_a_plausible_small_drone(nominal, fixed):
 
 def test_high_fidelity_section_is_used_when_given(nominal, fixed):
     import numpy as np
+
     from drone import section
     alpha = np.array([-2.0, 2.0, 6.0, 10.0, 14.0])
     s = section.from_polar(alpha, np.array([0.1, 0.55, 0.95, 1.25, 1.15]),

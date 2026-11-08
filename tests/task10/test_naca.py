@@ -3,6 +3,7 @@ import math
 
 import numpy as np
 import pytest
+
 from drone import naca
 
 # Half thickness of a 12 percent section at x/c = 0.3 with the closed-trailing-edge coefficient
