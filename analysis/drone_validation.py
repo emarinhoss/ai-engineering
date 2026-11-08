@@ -5,7 +5,7 @@
 
 Every check is computed with the committed drone package; the tolerances are the spec's (with
 addenda 1 to 3) and are constants below. Exit code 1 if any hard row fails, else 0.
-Rows V6e to V6g are listed as "not run" with the reason.
+Rows not run are listed with the reason; V6f always runs, V6e when SU2 results exist.
 """
 import argparse
 import hashlib
@@ -15,12 +15,16 @@ import sys
 import time
 from pathlib import Path
 
+import numpy as np
 import yaml
 
-from drone import evaluate, geometry, ledger, vlm
+from analysis import drone_polar
+from drone import evaluate, geometry, ledger, naca, section, vlm
+from geometry import airfoils
 
 ROOT = Path(__file__).resolve().parents[1]
 WARREN = ROOT / "data/validation/warren12.yaml"
+E387 = ROOT / "data/validation/e387_uiuc.yaml"
 NOMINAL = {"family": "drone", "span_m": 2.0, "aspect_ratio": 10.0, "taper_ratio": 0.6,
            "battery_fraction": 0.30, "camber_pct": 4.0, "thickness_pct": 12.0, "fidelity": "low",
            "tag": "v6"}
@@ -37,15 +41,15 @@ TOL_CLOSURE = 1e-9
 TOL_ENERGY = 1e-9
 TOL_ENDURANCE_FORM = 1e-6
 TOL_MASS_SUM = 1e-9
+TOL_V6E_CLA = 0.05
+TOL_V6E_CD = 0.20
+TOL_V6E_CLMAX = 0.10
+TOL_V6E_MESH = 0.05
+CL_BAND = (0.3, 0.9)
 
-NOT_RUN = [
-    ("V6e", "SU2 on the E387 at Re 2e5 and 3e5 against UIUC polars",
-     "needs the SU2 airfoil cases (T10.8b), not yet run"),
-    ("V6f", "low-fidelity closed forms against the E387 data",
-     "needs the E387 polars; retrieval pending"),
-    ("V6g", "Ultra Stick 25e CL_alpha and CD0",
-     "Ultra Stick data not retrieved"),
-]
+NOT_RUN_V6E = ("V6e", "SU2 on the E387 at Re 2e5 and 3e5 against UIUC polars",
+               "no SU2 E387 result.json files found")
+NOT_RUN_V6G = ("V6g", "Ultra Stick 25e CL_alpha and CD0", "Ultra Stick data not retrieved")
 
 
 def helmbold(ar):
@@ -142,6 +146,94 @@ def v6d(rows):
     row(rows, "V6d sum of masses vs mtow", sum(out["masses"].values()), out["mtow_kg"], TOL_MASS_SUM)
 
 
+def _tunnel_run(polars, reynolds):
+    for p in polars:
+        if float(p["reynolds"]) == float(reynolds):
+            return p
+    raise ValueError(f"no tunnel run at Reynolds number {reynolds}")
+
+
+def _usable(records):
+    """The records drone_polar.polar keeps, as (alpha, cl, cd) sorted by alpha."""
+    kept = [r for r in records if r["convergence"]["status"] in drone_polar.GOOD
+            or drone_polar._cauchy_stopped(r)]
+    kept.sort(key=lambda r: r["params"]["alpha_deg"])
+    return ([r["params"]["alpha_deg"] for r in kept], [r["metrics"]["cl"] for r in kept],
+            [r["metrics"]["cd"] for r in kept])
+
+
+def _cd_ratio(cl_ref, cd_model, cd_ref):
+    """(mean |cd_model / cd_ref - 1| over points with cl_ref in CL_BAND, points used)."""
+    ok = (cl_ref >= CL_BAND[0]) & (cl_ref <= CL_BAND[1])
+    return float(np.mean(np.abs(cd_model[ok] / cd_ref[ok] - 1.0))), int(ok.sum())
+
+
+def v6e(rows, polars, su2):
+    """SU2 against the tunnel at the tunnel's own angles; no interpolation in alpha."""
+    for re in sorted(su2):
+        run = _tunnel_run(polars, re)
+        records = su2[re]
+        t_alpha = np.asarray(run["alpha_deg"], dtype=float)
+        for r in records:
+            if not np.any(np.abs(t_alpha - r["params"]["alpha_deg"]) < 1e-6):
+                raise ValueError(f"Re {re:.0f}: SU2 angle {r['params']['alpha_deg']} deg is not a "
+                                 "tunnel angle; no interpolation")
+        s = drone_polar.polar(records)
+        alpha, cl, cd = (np.asarray(v, dtype=float) for v in _usable(records))
+        idx = [int(np.argmin(np.abs(t_alpha - a))) for a in alpha]
+        t_cl, t_cd = np.asarray(run["cl"], dtype=float)[idx], np.asarray(run["cd"], dtype=float)[idx]
+        tag = f"{round(re)}"
+        row(rows, f"V6e cl_alpha Re {tag}", float(np.polyfit(alpha, cl, 1)[0]),
+            float(np.polyfit(alpha, t_cl, 1)[0]), TOL_V6E_CLA,
+            note=f"slope over {len(alpha)} matched angles, SU2 and tunnel at the same angles; "
+                 f"flags {s.flags}")
+        m, n = _cd_ratio(t_cl, cd, t_cd)
+        row(rows, f"V6e cd ratio Re {tag}", m, 0.0, TOL_V6E_CD, kind="abs",
+            note=f"{n} points with tunnel cl in [0.3, 0.9] of {len(alpha)} matched")
+        t_clmax = float(np.max(run["cl"]))
+        if "not_peaked" in s.flags:
+            row(rows, f"V6e cl_max Re {tag}", float(np.max(cl)), t_clmax, None, verdict="report",
+                note="SU2 angles stop below stall, so its cl_max is the largest computed cl, "
+                     "not a maximum")
+        else:
+            row(rows, f"V6e cl_max Re {tag}", s.cl_max, t_clmax, TOL_V6E_CLMAX)
+
+
+def v6e_mesh(rows, medium_records, fine_records):
+    cds = [float(drone_polar.polar(r).cd_of_cl(0.6)) for r in (medium_records, fine_records)]
+    row(rows, "V6e mesh medium vs fine, cd at cl 0.6", cds[1], cds[0], TOL_V6E_MESH,
+        note="measured = fine, reference = medium")
+
+
+def v6f(rows, polars, fixed):
+    """Low-fidelity closed forms against the tunnel, reported and not gated."""
+    x, y, _ = airfoils.load("e387")
+    c = airfoils.camber_thickness(*airfoils.dense_loop(x, y, 801))
+    camber_pct, thick_pct = 100.0 * c["max_camber"], 100.0 * c["max_thickness"]
+    alpha_l0_model = naca.zero_lift_angle(camber_pct, 100.0 * c["camber_position"])
+    base = (f"E387 measured camber {camber_pct:.1f} % at {100.0 * c['camber_position']:.0f} %, "
+            f"thickness {thick_pct:.1f} %")
+    for run in polars:
+        if run["nominal_reynolds"] not in (1e5, 2e5, 3e5):
+            continue
+        re = float(run["reynolds"])
+        tag = f"{round(re)}"
+        model = section.low_fidelity(camber_pct, thick_pct, re, fixed)
+        tun = section.from_polar(run["alpha_deg"], run["cl"], run["cd"], f"e387 run {run['run']}")
+        row(rows, f"V6f cl_alpha Re {tag}", model.cl_alpha_per_deg, tun.cl_alpha_per_deg, None,
+            note=f"per degree; {base}")
+        row(rows, f"V6f alpha_L0 Re {tag}", math.degrees(alpha_l0_model), math.degrees(tun.alpha_L0),
+            None, kind="abs",
+            note=f"degrees; model alpha_L0 uses the measured camber position, whereas low_fidelity "
+                 f"hard-codes 40 % inside naca.zero_lift_angle; {base}")
+        t_cl = np.asarray(run["cl"], dtype=float)
+        t_cd = np.asarray(run["cd"], dtype=float)
+        m, n = _cd_ratio(t_cl, np.asarray(model.cd_of_cl(t_cl), dtype=float), t_cd)
+        row(rows, f"V6f cd ratio Re {tag}", m, 0.0, None, kind="abs",
+            note=f"{n} tunnel points with cl in [0.3, 0.9]; model cd is a constant; {base}")
+        row(rows, f"V6f cl_max Re {tag}", model.cl_max, tun.cl_max, None, note=base)
+
+
 def sha(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
@@ -182,7 +274,7 @@ def write_doc(path, rec):
     for r in rec["checks"]:
         L.append(f"| {r['name']} | {fmt(r['measured'])} | {fmt(r['reference'])} | "
                  f"{fmt(r['deviation'])} | {fmt(r['tolerance'])} | {r['verdict']} |")
-    for rid, what, why in NOT_RUN:
+    for rid, what, why in rec["not_run_rows"]:
         L.append(f"| {rid} {what} | not run: {why} | - | - | - | not run |")
     L.append("")
     Path(path).parent.mkdir(parents=True, exist_ok=True)
@@ -194,22 +286,45 @@ def main(argv=None):
     ap.add_argument("--out", required=True)
     ap.add_argument("--doc", required=True)
     ap.add_argument("--date", default="2026-11-08")
+    ap.add_argument("--su2-dir", default="runs/e387")
     a = ap.parse_args(argv)
     t0 = time.time()
     rows = []
     for f in (v6a, v6b, v6c, v6d):
         f(rows)
+    polars = yaml.safe_load(E387.read_text())["polars"]
+    v6f(rows, polars, ledger.load_all())
+    groups = {}
+    for fpath in sorted(Path(a.su2_dir).glob("**/result.json")):
+        rec_ = json.loads(fpath.read_text())
+        if rec_["params"].get("airfoil") == "e387":
+            groups.setdefault(rec_["params"]["reynolds"], []).append(rec_)
+    not_run = []
+    if groups:
+        v6e(rows, polars, groups)
+        by_mesh = {m: [r for r in groups.get(203800.0, []) if r["params"].get("mesh_level") == m]
+                   for m in ("medium", "fine")}
+        if by_mesh["medium"] and by_mesh["fine"]:
+            v6e_mesh(rows, by_mesh["medium"], by_mesh["fine"])
+        else:
+            not_run.append(("V6e mesh", "medium vs fine mesh at Re 203800",
+                            "no medium and fine pair of records at Re 203800"))
+    else:
+        not_run.append(NOT_RUN_V6E)
+    not_run.append(NOT_RUN_V6G)
     failed = [r["name"] for r in rows if r["verdict"] == "fail"]
     hashes = {str(p.relative_to(ROOT)): sha(p) for p in sorted((ROOT / "data/drone").glob("*.yaml"))}
     hashes[str(WARREN.relative_to(ROOT))] = sha(WARREN)
+    hashes[str(E387.relative_to(ROOT))] = sha(E387)
     rec = {"date": a.date, "commit": commit(), "lattice_levels": {k: list(v) for k, v in vlm.LEVELS.items()},
            "nominal_params": NOMINAL, "ledger_hashes": hashes, "checks": rows,
-           "not_run": [{"id": i, "what": w, "reason": r} for i, w, r in NOT_RUN],
+           "not_run": [{"id": i, "what": w, "reason": r} for i, w, r in not_run],
            "overall": "FAIL" if failed else "PASS", "failed": failed,
            "wall_time_s": round(time.time() - t0, 2)}
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
     (out / "v6.json").write_text(json.dumps(rec, indent=2) + "\n")
+    rec["not_run_rows"] = not_run
     rec["lattice_levels"] = [f"{k} {v[0]}x{v[1]}" for k, v in vlm.LEVELS.items()]
     write_doc(a.doc, rec)
     for r in rows:

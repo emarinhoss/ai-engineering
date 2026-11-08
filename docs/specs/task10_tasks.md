@@ -310,6 +310,21 @@ cap to rise to 7,200 s (worker restart). No verdict on which level the pool runs
 half is in: a 3.8 % drag shift coarse-to-medium is the size of the effect the pool is meant to
 resolve, and the medium-to-fine shift says whether medium itself is converged.
 
+### V6f recorded (Fable, 2026-11-08 17:00 UTC): the low-fidelity section against the E387 tunnel data
+
+`runs/drone/validation/2026-11-08/v6.json` now carries twelve V6f rows (report only, by the spec),
+the closed forms of `drone/section.py::low_fidelity` at the E387's measured camber 3.8 % at 40 %
+chord and thickness 9.1 % against Volume 1 runs 211, 213 and 215. Three findings, all the size of
+what the two-level model has to learn and none tuned away: (1) the lift slope is **19 to 23 % low**
+(0.0822 per degree against 0.1017 to 0.1063), which says the tunnel's lift effectiveness is 0.93 to
+0.97 where `rules:section_lift_effectiveness` is `assumed` 0.75 with band [0.6, 0.9] — the band does
+not contain the measured value, which is a ledger finding to rule on, not a number to move here;
+(2) the constant profile drag misses the tunnel polar by a mean of **43 to 52 %** over cl 0.3 to 0.9
+(the Reynolds trend is right: the miss falls with Re); (3) cl_max is 12 to 13 % high and alpha_L0
+0.8 to 0.9 deg too negative. V6a to V6d reproduce their recorded values. V6e waits for the ten E387
+SU2 cases in the queue; its rules are fixed in `tests/task10/test_validation_e387.py` before any
+result exists (point-to-point at the tunnel's own angles, no interpolation).
+
 ## Questions for Éder (answered above; kept as the record)
 
 1. **Airfoil family.** The spec varies the NACA four-digit section per design, which is what makes

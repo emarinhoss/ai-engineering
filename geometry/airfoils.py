@@ -127,3 +127,20 @@ def dense_loop(x, y, n):
     upper[0] = lower[0] = (upper[0, 0], 0.0)          # the exact leading-edge point, on the chord
     loop = np.concatenate((upper[::-1], lower[1:]))
     return loop[:, 0], loop[:, 1]
+
+
+def camber_thickness(x, y):
+    """Maximum camber, its position, maximum thickness and its position, as fractions of the chord,
+    from a loop laid out like drone.naca.coordinates (trailing edge -> upper -> leading edge ->
+    lower -> trailing edge). Upper and lower y are interpolated on a common cosine-spaced x grid."""
+    x, y = np.asarray(x, dtype=float), np.asarray(y, dtype=float)
+    k = int(np.argmin(x))
+    xu, yu = x[: k + 1][::-1], y[: k + 1][::-1]          # leading edge -> trailing edge
+    xl, yl = x[k:], y[k:]
+    x0 = float(x[k])
+    g = x0 + (1.0 - x0) * 0.5 * (1.0 - np.cos(np.pi * np.linspace(0.0, 1.0, 2001)))
+    up, lo = np.interp(g, xu, yu), np.interp(g, xl, yl)
+    camber, thick = 0.5 * (up + lo), up - lo
+    ic, it = int(np.argmax(np.abs(camber))), int(np.argmax(thick))
+    return {"max_camber": float(camber[ic]), "camber_position": float(g[ic]),
+            "max_thickness": float(thick[it]), "thickness_position": float(g[it])}
