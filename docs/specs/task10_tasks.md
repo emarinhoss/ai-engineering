@@ -325,6 +325,28 @@ not contain the measured value, which is a ledger finding to rule on, not a numb
 SU2 cases in the queue; its rules are fixed in `tests/task10/test_validation_e387.py` before any
 result exists (point-to-point at the tunnel's own angles, no interpolation).
 
+### T10.9b and T10.10b, first half recorded (Fable, 2026-11-08 17:55 UTC): the low pool and its replay
+
+`runs/drone_pool_lf/2026-11-08/` is the 192-point low pool (`designs/pool_drone_lf192.csv`, two
+Sobol seeds, gate-checked at creation) through the real low model: 192 clean, 0 gated, 0 failed,
+exact pool front of 15 designs, 669 s on two sandbox workers. `runs/replay_drone_pool/2026-11-08/`
+is `surrogate.replay --family drone` on it, 10 seeds, 8 initial points, 40 evaluations. Mean
+hypervolume regret against the pool's own front (same 8 initial points for every strategy of a
+seed, hence equal at n = 8):
+
+| n | random | lhs | al_ehvi | al_maxvar |
+|---|---|---|---|---|
+| 8 | 0.285 | 0.285 | 0.285 | 0.285 |
+| 16 | 0.210 | 0.210 | 0.034 | 0.171 |
+| 24 | 0.170 | 0.152 | 0.012 | 0.114 |
+| 32 | 0.133 | 0.148 | 0.000 | 0.085 |
+| 40 | 0.118 | 0.107 | 0.000 | 0.062 |
+
+On the low pool EHVI recovers the whole 15-point front by 32 evaluations where random and LHS are
+still at 0.11 to 0.13 after 40; max-variance sits between. This is the cheap, smooth, gate-free
+level, so it is the easy case for a GP; the online replay (unrestricted candidates, gates live)
+and the two-level model are where the claim is tested, and the online run is in progress.
+
 ## Questions for Éder (answered above; kept as the record)
 
 1. **Airfoil family.** The spec varies the NACA four-digit section per design, which is what makes
