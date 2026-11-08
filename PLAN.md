@@ -172,6 +172,17 @@ ML; pools of 159 NS and 316 Euler runs; four questions answered from records, in
 active learning in 6-D, two-level model against NS alone, learned feasibility, robust inverse query.
 Report `docs/validation/2026-11-04_task9_report.md`; talk section 5b.
 
+### Task 10 (spec 2026-11-08, no date): sizing a small electric drone with the same pipeline (Fable 5.1 spec)
+
+Spec `docs/specs/task10_drone_sizing.md`, written after reading `emarinhoss/tanker_comparison` at Éder's
+request, as a candidate alternative presentation. Six design inputs (span, aspect ratio, taper, battery
+fraction, NACA camber and thickness), two objectives (endurance against take-off mass at a fixed 0.5 kg
+payload), gates before any solver, a pure-Python low level (vortex lattice, drag build-up, mass closure,
+mission) and an SU2 airfoil-polar high level through the existing queue, validation V6 (analytic, Warren-12,
+UIUC E387 wind-tunnel data) before any ML, then the Task 4 and Task 9 analyses plus an exact-front
+measurement of active learning that the cheap low level allows. No code yet; nothing starts before the
+talk of 2026-11-13.
+
 ### Task 8 (Day 12): rehearsal and buffer
 
 - Time the talk; rehearse answers to likely questions from the aerodynamics and thermal
