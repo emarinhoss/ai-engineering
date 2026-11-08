@@ -134,3 +134,32 @@ quantities:
     confidence: assumed
     band: [0.05, 0.15]
     source: "Target static margin as a fraction of the mean chord, a typical value for a stable small UAV. Design rationale, not retrieved, so assumed."
+  - name: section_lift_effectiveness
+    value: 0.75
+    units: "-"
+    confidence: assumed
+    band: [0.6, 0.9]
+    source: "Fraction of the thin-airfoil lift slope 2 pi that a thin section sustains up to its stall angle at Reynolds numbers of 1e5 to 5e5: the viscous lift slope is about 0.9 x 2 pi and the lift curve rounds off before the stall angle (Abbott and von Doenhoff, Theory of Wing Sections, chapter 7 on maximum lift; low-Reynolds data of Selig et al., Summary of Low-Speed Airfoil Data). A rationale with a band, to be measured against the E387 polars in V6f; Fable's choice 2026-11-08."
+  - name: body_form_factor_k2
+    value: 400.0
+    units: "-"
+    confidence: published
+    source: "Raymer, Aircraft Design: A Conceptual Approach, 5th ed., body form factor FF = 1 + 60/f^3 + f/400, the second constant"
+  - name: tail_aspect_ratio_horizontal
+    value: 4.0
+    units: "-"
+    confidence: assumed
+    band: [3.0, 6.0]
+    source: "Aspect ratio of the horizontal tail, used only to estimate its mean chord for the Reynolds number of its skin friction. Typical small-UAV value, design rationale, so assumed."
+  - name: tail_aspect_ratio_vertical
+    value: 1.5
+    units: "-"
+    confidence: assumed
+    band: [1.0, 2.5]
+    source: "Aspect ratio of the vertical tail, used only to estimate its mean chord for the Reynolds number of its skin friction. Typical small-UAV value, design rationale, so assumed."
+  - name: tail_thickness_ratio
+    value: 0.10
+    units: "-"
+    confidence: assumed
+    band: [0.08, 0.12]
+    source: "Thickness-to-chord ratio of the flat-plate-like tail surfaces, the same 0.10 that geometry.build uses for their wetted area. Design rationale, so assumed."
