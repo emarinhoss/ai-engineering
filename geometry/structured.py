@@ -379,7 +379,7 @@ def read_su2_counts(path):
 # -- mesh identity -------------------------------------------------------------------------
 # The bytes of mesh.su2 are not comparable between machines: the last digit of a coordinate
 # (written with 16 decimals) can differ with the numpy build and platform. The fingerprint hashes
-# what defines the mesh instead: coordinates rounded to 1 nm, cells and marker node ids.
+# what defines the mesh instead: coordinates rounded to 1 um (1 nm before 2026-11-08), cells and marker node ids.
 
 def _read_su2(path):
     """(coords (N, 2) float by node id, cells (M, 6) int64 rows "type n0 n1 n2 n3 index",
@@ -410,18 +410,35 @@ def _read_su2(path):
     return coords, np.array(cells, dtype="<i8").reshape(len(cells), -1), markers
 
 
-def mesh_fingerprint(mesh_su2_path):
-    """sha256 hex of: node coordinates in nanometres (rounded integers, node order), the cell
-    connectivity array, and the marker node-id lists (markers sorted by name); all as
-    little-endian int64 bytes. Equal for two machines whose coordinates agree to 1 nm, except when
-    a coordinate lies within floating-point noise of a rounding boundary (about 1e-7 of nodes)."""
+def _fingerprint(mesh_su2_path, scale):
     coords, cells, markers = _read_su2(mesh_su2_path)
     digest = hashlib.sha256()
-    digest.update(np.rint(coords * 1e9).astype("<i8").tobytes())
+    digest.update(np.rint(coords * scale).astype("<i8").tobytes())
     digest.update(cells.tobytes())
     for name in sorted(markers):
         digest.update(name.encode() + b"\0" + np.array(markers[name], dtype="<i8").tobytes())
     return digest.hexdigest()
+
+
+def mesh_fingerprint(mesh_su2_path):
+    """sha256 hex of: node coordinates in micrometres (rounded integers, node order), the cell
+    connectivity array, and the marker node-id lists (markers sorted by name); all as
+    little-endian int64 bytes.
+
+    Why 1 um and not 1 nm (measured 2026-11-08): on the fine airfoil2d mesh (84,152 cells) the
+    Colab worker and the staging machine agreed on every mesh-quality figure to 16 significant
+    digits, yet their 1 nm digests differed. libm-level noise (about 1e-14 m on coordinates up to
+    31 m) puts a coordinate within noise of a rounding boundary with probability about 1e-5 per
+    coordinate; over 1.7e5 coordinates that is about a coin toss per mesh. At 1 um it is about
+    2e-3 per mesh, and 1 um is 3 percent of the smallest first-cell height this study meshes, so
+    a real geometry change still changes the digest."""
+    return _fingerprint(mesh_su2_path, 1e6)
+
+
+def mesh_fingerprint_nm(mesh_su2_path):
+    """The previous rule (coordinates rounded to 1 nm), kept so the worker can still accept job
+    files staged before 2026-11-08 evening. Same digest layout as mesh_fingerprint."""
+    return _fingerprint(mesh_su2_path, 1e9)
 
 
 def mesh_bbox(mesh_su2_path):

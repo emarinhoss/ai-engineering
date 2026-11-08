@@ -121,3 +121,57 @@ def test_case_id_distinguishes_the_section_and_a_missing_file_fails_the_geometry
     assert any("nosuch" in e for e in res["errors"])
     ok = queue.validate_only(FILE)
     assert ok["ok"] is True and ok["geometry"]["airfoil"] == "naca4412-test"
+
+
+# ---- the E387 file itself (data/validation/airfoils/e387.dat, supplied by Éder 2026-11-08) ----
+
+E387_SHA256 = "24b45a2df162f282b523dc4dbf3d767890a77ca42b92fad82a6a8e41f469a784"
+E387 = {"family": "airfoil2d", "airfoil": "e387", "reynolds": 2e5, "alpha_deg": 4.0,
+        "transition": "BCM", "mesh_level": "medium", "tag": "test", "max_iter": 6000}
+
+
+def turning_deg(x, y):
+    """Angle between consecutive segments of the loop, in degrees, one per interior point."""
+    t = np.diff(np.column_stack((x, y)), axis=0)
+    ang = np.unwrap(np.arctan2(t[:, 1], t[:, 0]))
+    return np.degrees(np.abs(np.diff(ang)))
+
+
+def test_e387_file_is_the_one_supplied_and_has_a_closed_trailing_edge():
+    x, y, digest = airfoils.load("e387")
+    assert digest == E387_SHA256
+    assert len(x) == 61 and x[0] == x[-1] == 1.0 and y[0] == y[-1] == 0.0
+    assert airfoils.trailing_edge_gap(x, y) == 0.0
+
+
+def test_e387_dense_loop_has_no_kink_at_the_leading_edge():
+    """The file has no point on the chord line at the nose; the dense loop must still turn smoothly
+    there. Two half-splines meeting at an inserted point gave a 29 degree kink (found 2026-11-08).
+    The bound is set from the NACA loop at the same resolution and plain cosine spacing, which
+    turns 1.3 degrees per segment at its nose and meshes cleanly; the E387's nose is tighter
+    (radius 0.0047) and sits off the chord line, so it turns about 2.7."""
+    x, y, _ = airfoils.load("e387")
+    xd, yd = airfoils.dense_loop(x, y, 801)
+    assert len(xd) == 1601 and xd[800] < 0.002 and abs(yd[800]) < 1e-9
+    assert turning_deg(xd, yd).max() < 3.0
+    xn, yn = naca.coordinates(4.0, 12.0, n=801)
+    assert turning_deg(xn, yn).max() < 3.0
+
+
+@pytest.mark.parametrize("level", ["coarse", "medium"])
+def test_e387_mesh_passes_the_quality_gate(level):
+    g, m = airfoil2d.build({**E387, "mesh_level": level})
+    q = m.quality()
+    assert quality_failures(q, requested_first_cell({**E387, "mesh_level": level})) == [], q
+    assert g["airfoil"] == "e387" and g["section_sha256"] == E387_SHA256
+
+
+@pytest.mark.xfail(strict=True, reason="recorded negative 2026-11-08: the E387's lower surface is "
+                   "concave over its last few percent (tangent 2.2 deg at x = 0.97 to 3.7 deg at the "
+                   "trailing edge), so neighbouring wall-normal columns converge about 0.9 chord out "
+                   "and at the fine spacing 8 cells invert in the lower wall block near x = 0.95, "
+                   "aspect ratio 8763. A mesher change (smoothing the wall normals) is deferred until "
+                   "the nominal batch is done, because it moves every staged mesh fingerprint.")
+def test_e387_fine_mesh_passes_the_quality_gate():
+    _, m = airfoil2d.build({**E387, "mesh_level": "fine"})
+    assert quality_failures(m.quality(), requested_first_cell({**E387, "mesh_level": "fine"})) == []

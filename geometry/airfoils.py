@@ -9,9 +9,21 @@ and their sha256 is recorded in each run.
 
 dense_loop turns the file points into the loop the mesher cuts its wall from, in the same layout as
 drone.naca.coordinates (2n - 1 points, index n - 1 the leading edge, first and last the trailing
-edge). The loop is split at the leading edge; each surface is fitted with a parametric cubic
-spline (x(s), y(s)) in normalised arc length s and resampled with cosine spacing in s, so points
-cluster at both the leading and the trailing edge.
+edge). ONE parametric cubic spline (x(s), y(s)) in normalised arc length s is fitted over the whole
+open loop, trailing edge round the nose to trailing edge, and evaluated on a fine grid. The leading
+edge is then located on that dense curve (the chord-line crossing y = 0 at the nose), inserted as
+an exact point, and each half is resampled with cosine spacing in arc length, so points cluster at
+both the leading and the trailing edge.
+Measured on the E387 at n = 801, the largest turning between consecutive segments is about 2.7
+degrees, at the curvature peak 0.005 of arc length down the lower side of the nose (radius 0.0047
+at x = 0.0009), against 1.3 degrees for the NACA loop at the same n. That is the file's own
+curvature at cosine spacing, not a kink; the kink this design removes was 29 degrees.
+
+Why one spline: a real file such as the E387 has no point on the chord line at the nose. Splitting
+the loop at an inserted point and fitting each surface separately gives each spline its own
+not-a-knot end tangent there, and the two surfaces met at a 29 degree kink (98 to 230 inverted mesh
+cells). The NACA test file hides this because (0, 0) is a real file point with near-vertical
+tangents on both sides.
 
 Closure rule: a trailing-edge gap |y_first - y_last| up to MAX_GAP (0.005 of the chord) is closed
 by moving both ends to (1, 0), with the shift blended linearly to zero over the last 10 percent of
@@ -22,11 +34,13 @@ from pathlib import Path
 
 import numpy as np
 from scipy.interpolate import CubicSpline
+from scipy.optimize import brentq
 
 AIRFOIL_DIR = Path("data/validation/airfoils")
 MAX_GAP = 0.005
 BLEND = 0.10                  # fraction of the chord over which the closure shift is blended
 CHORD_TOL = 1e-3
+DENSE = 20001                 # points of the single fitted spline the nose is located on
 
 
 def read_selig(path):
@@ -60,30 +74,6 @@ def _check(x, y):
         raise ValueError(f"trailing edge gap {gap:.4f} of the chord is larger than {MAX_GAP}")
 
 
-def _leading_edge(x, y):
-    """(x, y, k): the loop with the leading edge at index k. The leading edge is where the loop
-    crosses the chord line y = 0 at the nose (smallest such x below mid-chord), inserted as a point
-    if the file has none there. For a cambered section the nose is rotated, so the minimum-x point
-    lies above the chord line and is not the leading edge the NACA formula puts at (0, 0). Falls
-    back to the minimum-x point if the loop never crosses y = 0 in the front half."""
-    best = None
-    for i in range(len(x) - 1):
-        if y[i] == 0.0:
-            cand = (x[i], i, False)
-        elif y[i] * y[i + 1] < 0.0:
-            cand = (x[i] + (x[i + 1] - x[i]) * y[i] / (y[i] - y[i + 1]), i, True)
-        else:
-            continue
-        if cand[0] < 0.5 and (best is None or cand[0] < best[0]):
-            best = cand
-    if best is None:
-        return x, y, int(np.argmin(x))
-    xc, i, insert = best
-    if not insert:
-        return x, y, i
-    return np.insert(x, i + 1, xc), np.insert(y, i + 1, 0.0), i + 1
-
-
 def _close(x, y, k):
     """Move both trailing-edge ends to (1, 0), blended linearly over the last BLEND of the chord."""
     x, y = x.copy(), y.copy()
@@ -96,15 +86,28 @@ def _close(x, y, k):
     return x, y
 
 
-def _surface(pts, n):
-    """n points from the leading edge to the trailing edge: spline in arc length, cosine spacing."""
-    s = np.concatenate(([0.0], np.cumsum(np.hypot(*np.diff(pts, axis=0).T))))
-    s /= s[-1]
-    spline = CubicSpline(s, pts, bc_type="not-a-knot")
+def _half(spline, u0, u1, n):
+    """n points of the fitted spline between parameters u0 and u1 (leading edge first): cosine
+    spacing in arc length. Arc length is measured on a fine grid, then inverted to the parameter and
+    the SPLINE is evaluated there, so the points are smooth and not a polyline's corners."""
+    u = np.linspace(u0, u1, DENSE)
+    pts = spline(u)
+    arc = np.concatenate(([0.0], np.cumsum(np.hypot(*np.diff(pts, axis=0).T))))
     t = 0.5 * (1.0 - np.cos(np.pi * np.linspace(0.0, 1.0, n)))
-    out = spline(t)
-    out[0], out[-1] = pts[0], pts[-1]
+    out = spline(np.interp(t * arc[-1], arc, u))
+    out[0], out[-1] = spline(u0), spline(u1)
     return out
+
+
+def _nose(spline, u):
+    """Parameter of the leading edge: the chord-line crossing y = 0 with the smallest x below
+    mid-chord, refined on the spline; the minimum-x point of the dense curve if there is none."""
+    x, y = spline(u).T
+    cross = np.nonzero((y[:-1] * y[1:] <= 0.0) & (y[:-1] != y[1:]) & (x[:-1] < 0.5))[0]
+    if len(cross) == 0:
+        return float(u[int(np.argmin(x))])
+    i = cross[np.argmin(x[cross])]
+    return float(brentq(lambda v: spline(v)[1], u[i], u[i + 1], xtol=1e-14))
 
 
 def dense_loop(x, y, n):
@@ -113,10 +116,14 @@ def dense_loop(x, y, n):
     edge gap above MAX_GAP."""
     x, y = np.asarray(x, dtype=float), np.asarray(y, dtype=float)
     _check(x, y)
-    x, y, k = _leading_edge(x, y)
-    x, y = _close(x, y, k)
+    x, y = _close(x, y, int(np.argmin(x)))
     pts = np.column_stack((x, y))
-    upper = _surface(pts[k::-1], n)                   # leading edge -> trailing edge
-    lower = _surface(pts[k:], n)
+    s = np.concatenate(([0.0], np.cumsum(np.hypot(*np.diff(pts, axis=0).T))))
+    s /= s[-1]
+    spline = CubicSpline(s, pts, bc_type="not-a-knot")
+    u_le = _nose(spline, np.linspace(0.0, 1.0, DENSE))
+    upper = _half(spline, u_le, 0.0, n)               # leading edge -> trailing edge
+    lower = _half(spline, u_le, 1.0, n)
+    upper[0] = lower[0] = (upper[0, 0], 0.0)          # the exact leading-edge point, on the chord
     loop = np.concatenate((upper[::-1], lower[1:]))
     return loop[:, 0], loop[:, 1]

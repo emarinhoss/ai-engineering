@@ -7,6 +7,8 @@ jobs/<batch_id>.batch.json (many jobs in one file, each entry handled like a job
 runs/<case_id>/ (written here). Layout and flags: docs/specs/01_interfaces.md, "Job directory".
 Pending = a job file with no status/2-done and no status/2-failed flag in its run directory. A job
 flagged 1-running whose heartbeat is older than --stale-minutes is a crash victim and is re-run.
+The regenerated mesh is compared by fingerprint (1 um rounding); a job file staged before
+2026-11-08 evening carries the old 1 nm digest, which the worker also accepts.
 Before a job runs, the worker checks the physics gates again (a job file not made by create_case
 has not been checked) and stops any process still running in its run folder (an SU2 left behind
 by a worker that died alone).
@@ -30,7 +32,7 @@ import traceback
 from datetime import datetime, timezone
 from pathlib import Path
 
-from geometry.structured import mesh_bbox, mesh_fingerprint
+from geometry.structured import mesh_bbox, mesh_fingerprint, mesh_fingerprint_nm
 from physics import gates
 from worker.make_case import REPO, StageError, case_id, config_sha256, git_commit, make, sha256_file
 from worker.run_case import run
@@ -224,8 +226,10 @@ def check_regenerated(job, run_dir):
         return "make_error", str(err)
     write_json(run_dir / "job.json", job)             # make() wrote a new job.json; keep the uploaded one
     ours = mesh_fingerprint(run_dir / "mesh.su2")
-    if ours != job["mesh_fingerprint"]:
+    ours_nm = mesh_fingerprint_nm(run_dir / "mesh.su2")   # job files staged before 2026-11-08 evening
+    if job["mesh_fingerprint"] not in (ours, ours_nm):
         detail = {"job_mesh_fingerprint": job["mesh_fingerprint"], "our_mesh_fingerprint": ours,
+                  "our_mesh_fingerprint_nm": ours_nm,
                   "job_code_commit": job["code_commit"], "our_code_commit": git_commit()}
         if "mesh_bbox" in job:                        # how far apart are the two meshes?
             mine = mesh_bbox(run_dir / "mesh.su2")
