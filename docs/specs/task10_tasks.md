@@ -325,6 +325,31 @@ not contain the measured value, which is a ledger finding to rule on, not a numb
 SU2 cases in the queue; its rules are fixed in `tests/task10/test_validation_e387.py` before any
 result exists (point-to-point at the tunnel's own angles, no interpolation).
 
+### V6e at Re 203,800 recorded (Fable, 2026-11-08 22:00 UTC): SU2 against the E387 tunnel — FAIL on the lift slope, by 0.5 points
+
+`runs/e387/` holds the five Re 203,800 cases (alpha 1.27, 2.67, 4.23, 5.59, 7.23 deg; medium mesh,
+SA-BCM, Cauchy-stopped at 4,146 to 5,020 iterations, cl drift 1.1 to 2.0 %, cd drift 4.1 to 6.9 %,
+all status `not_converged` by the drift rule and all kept by the aggregator's Cauchy rule). Against
+Volume 1 run 213 at the same five angles, no interpolation:
+
+| row | SU2 | tunnel | deviation | tolerance | verdict |
+|---|---|---|---|---|---|
+| cl_alpha (per deg, fit over the five angles) | 0.10445 | 0.09901 | +5.49 % | 5 % | **fail** |
+| cd ratio (mean SU2/tunnel − 1, tunnel cl in [0.3, 0.9], 5 points) | — | — | −8.0 % | 20 % | pass |
+| cl_max (highest matched angle) | 1.129 | 1.164 | −3.0 % | report | report |
+
+Point by point SU2 lifts 8 to 11 % high at every angle (0.507/0.454 at 1.27 deg to 1.129/1.025 at
+7.23 deg) and drags 3 to 10 % low, so the lift-slope miss is a uniform offset plus a slightly steeper
+slope, not a stall-onset effect. **Not tuned.** The miss is 0.49 points over a 5 % tolerance fixed
+before any case ran, and it is reported as a fail; the spec's consequence (8d) is that a V6e failure
+cuts the high level, so the ruling for the user is whether the medium-mesh SA-BCM polar is accepted
+as the high level WITH this 8 to 11 % lift bias recorded beside every number it produces, or whether
+the Re 305,200 set (queued) and a fine-mesh pair must land first. The tunnel slope here (0.0990) is
+the five-angle fit; V6f's 0.1017 is the fit over the whole run-213 polar, which is why the two rows
+quote different tunnel slopes for the same data. The medium-versus-fine row is `not run` until a fine
+E387 case exists at this Re; the fine E387 mesh currently fails the inversion gate (8 cells, strict
+xfail in `tests/task10/test_airfoil_file.py`), so that row is blocked on the mesher.
+
 ### T10.9b and T10.10b, first half recorded (Fable, 2026-11-08 17:55 UTC): the low pool and its replay
 
 `runs/drone_pool_lf/2026-11-08/` is the 192-point low pool (`designs/pool_drone_lf192.csv`, two

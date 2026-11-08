@@ -1,6 +1,6 @@
 {
   "date": "2026-11-08",
-  "commit": "172496ca67d835ce172960284bf59ffeb40516df",
+  "commit": "b4cde52009dd2d7647dc741ea40745cb3f7184b6",
   "lattice_levels": {
     "coarse": [
       8,
@@ -332,13 +332,40 @@
       "tolerance": null,
       "verdict": "report",
       "note": "E387 measured camber 3.8 % at 40 %, thickness 9.1 %"
+    },
+    {
+      "name": "V6e cl_alpha Re 203800",
+      "measured": 0.10444932562601722,
+      "reference": 0.09901087493103347,
+      "deviation": 0.05492781170524874,
+      "tolerance": 0.05,
+      "verdict": "fail",
+      "note": "slope over 5 matched angles, SU2 and tunnel at the same angles; flags ['not_peaked', 'cauchy_stopped', 'cl_drift_max_pct=2.0', 'cd_drift_max_pct=6.9']"
+    },
+    {
+      "name": "V6e cd ratio Re 203800",
+      "measured": 0.07992225958465743,
+      "reference": 0.0,
+      "deviation": 0.07992225958465743,
+      "tolerance": 0.2,
+      "verdict": "pass",
+      "note": "4 points with tunnel cl in [0.3, 0.9] of 5 matched"
+    },
+    {
+      "name": "V6e cl_max Re 203800",
+      "measured": 1.1290296520776892,
+      "reference": 1.164,
+      "deviation": -0.030043254228789285,
+      "tolerance": null,
+      "verdict": "report",
+      "note": "SU2 angles stop below stall, so its cl_max is the largest computed cl, not a maximum"
     }
   ],
   "not_run": [
     {
-      "id": "V6e",
-      "what": "SU2 on the E387 at Re 2e5 and 3e5 against UIUC polars",
-      "reason": "no SU2 E387 result.json files found"
+      "id": "V6e mesh",
+      "what": "medium vs fine mesh at Re 203800",
+      "reason": "no medium and fine pair of records at Re 203800"
     },
     {
       "id": "V6g",
@@ -346,7 +373,9 @@
       "reason": "Ultra Stick data not retrieved"
     }
   ],
-  "overall": "PASS",
-  "failed": [],
-  "wall_time_s": 6.42
+  "overall": "FAIL",
+  "failed": [
+    "V6e cl_alpha Re 203800"
+  ],
+  "wall_time_s": 6.97
 }
