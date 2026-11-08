@@ -297,6 +297,19 @@ V6e asks for anyway: the same case at `coarse` and at `fine`, staged as `airfoil
 medium and fine kept for the validation rows. Until that pair is in, no pool is staged. The
 pool size is Éder's call once the pair gives the cost of each level.
 
+### The mesh pair, first half: coarse against medium (Fable, 2026-11-08 15:45 UTC)
+
+`runs/mesh/airfoil2d-59cd4287e9/` (coarse, 21,760 cells, same case and budget): SU2 stopped at
+**3,595 iterations after 498 s** on 4 ranks, pressure residual down 4.89 orders, drifts 1.46 % in cl
+and 3.95 % in cd over the last fifth (`not_converged` by the classifier's rule, as the medium run).
+Against the medium run (`runs/smoke2/airfoil2d-51d551f2cc`): **cl −0.47 %, cd +3.82 %, cm −0.93 %**.
+Cost per iteration per cell is the same on both meshes (6.37e-6 against 6.62e-6 s), so the coarse
+run is 2.8× cheaper by cells and iterations together: **8.3 min per angle against 23**. The fine
+half (`airfoil2d-e161fb7e6b`, 84,152 cells, timeout 5,013 s) is staged and waits for the worker's
+cap to rise to 7,200 s (worker restart). No verdict on which level the pool runs at until the fine
+half is in: a 3.8 % drag shift coarse-to-medium is the size of the effect the pool is meant to
+resolve, and the medium-to-fine shift says whether medium itself is converged.
+
 ## Questions for Éder (answered above; kept as the record)
 
 1. **Airfoil family.** The spec varies the NACA four-digit section per design, which is what makes
