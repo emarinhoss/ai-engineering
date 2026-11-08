@@ -4,3 +4,10 @@ retrieval: pending
 # The alpha, cl and cd columns at Re 1e5, 2e5 and 3e5 are to be transcribed from the downloaded
 # files. They must not be typed from memory.
 polars: []
+# Section coordinates: the file as supplied, kept byte for byte under data/validation/airfoils/.
+coordinates:
+  file: data/validation/airfoils/e387.dat
+  sha256: 24b45a2df162f282b523dc4dbf3d767890a77ca42b92fad82a6a8e41f469a784
+  points: 61
+  format: Selig (name line, then x y from the trailing edge over the upper surface to the nose and back)
+  source: "UIUC Airfoil Coordinates Database, e387.dat (Eppler E387), m-selig.ae.illinois.edu/ads. Pasted into the Claude Code session by Eder on 2026-11-08; the session did not retrieve the file itself, so the digest above is of the text as supplied and committed, to be compared with the downloaded file."
