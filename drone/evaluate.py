@@ -130,9 +130,15 @@ def _closure(params, fixed, section, aero):
         cl_max_wing = _wing_cl_max(aero, sec.cl_max)
 
         def polar(CL, geom=geom, sec=sec, W=W):
-            """CD at a wing CL from drag.total, flying at V = sqrt(2 W / (rho S CL))."""
-            V = math.sqrt(2.0 * W / (rho * geom["wing"]["S"] * CL))
-            strips = {"e": aero["e"], "eta": aero["eta"], "cl": _strip_cl(aero, CL)}
+            """CD at a wing CL (float or array) from drag.total, flying at V = sqrt(2 W / (rho S CL))."""
+            if np.ndim(CL) == 0:
+                V = math.sqrt(2.0 * W / (rho * geom["wing"]["S"] * CL))
+                strips = {"e": aero["e"], "eta": aero["eta"], "cl": _strip_cl(aero, CL)}
+            else:                                  # an array of CL: strip loading is (n, strips)
+                CL = np.asarray(CL, dtype=float)
+                V = np.sqrt(2.0 * W / (rho * geom["wing"]["S"] * CL))
+                strips = {"e": aero["e"], "eta": aero["eta"],
+                          "cl": aero["cl0"] + aero["dcl"] * _alpha_of(aero, CL)[:, None]}
             return drag.total(geom, sec, strips, CL, V, fixed)["CD"]
 
         cruise = mission.cruise_point(polar, W, wing["S"], rho, cl_max_wing, fixed)

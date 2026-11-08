@@ -23,7 +23,11 @@ def cf_turbulent(re):
 
 def cf(re):
     """Laminar below the transition Reynolds number, turbulent above."""
-    return cf_laminar(re) if re < _RULES["cf_transition_reynolds"] else cf_turbulent(re)
+    if np.ndim(re) == 0:
+        return cf_laminar(re) if re < _RULES["cf_transition_reynolds"] else cf_turbulent(re)
+    re = np.asarray(re, dtype=float)       # an array of Reynolds numbers: same rule elementwise
+    return np.where(re < _RULES["cf_transition_reynolds"],
+                    _RULES["cf_laminar_coeff"] / np.sqrt(re), _RULES["cf_turbulent_coeff"] * re ** -0.2)
 
 
 def parasite(geometry, V, fixed):
@@ -53,7 +57,11 @@ def parasite(geometry, V, fixed):
 
 
 def total(geometry, section, vlm_result, CL, V, fixed):
-    """CD = induced + profile (strip integral of the section drag) + parasite."""
+    """CD = induced + profile (strip integral of the section drag) + parasite.
+
+    CL and V may be floats or arrays of one shape (n,); vlm_result["cl"] is then (n, strips).
+    The parasite drag depends on CL through V (Reynolds number), so it broadcasts too.
+    """
     wing = geometry["wing"]
     s = wing["S"]
     cd_i = CL**2 / (math.pi * wing["AR"] * vlm_result["e"])
@@ -62,7 +70,9 @@ def total(geometry, section, vlm_result, CL, V, fixed):
     edges = np.concatenate(([0.0], 0.5 * (eta[:-1] + eta[1:]), [1.0]))
     dy = np.diff(edges) * geometry["planform"].span / 2.0
     chord = geometry["planform"].chord_at(eta)
-    cd_p = 2.0 * float(np.sum(section.cd_of_cl(cl_strip) * chord * dy)) / s
+    cd_p = 2.0 * np.sum(section.cd_of_cl(cl_strip) * chord * dy, axis=-1) / s
+    if np.ndim(cd_p) == 0:
+        cd_p = float(cd_p)
     cd_par = parasite(geometry, V, fixed)["total"]
     return {"CD": cd_i + cd_p + cd_par, "CD_induced": cd_i, "CD_profile": cd_p,
             "CD_parasite": cd_par}

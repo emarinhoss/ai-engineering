@@ -52,7 +52,7 @@ def cruise_point(polar, W, S, rho, cl_max_wing, fixed):
                  rules["cruise_cl_fraction_of_clmax"] * cl_max_wing)
     cls = np.linspace(_CL_SCAN_MIN, cl_top, _N_CL)
     v = np.sqrt(2.0 * W / (rho * S * cls))
-    cd = np.array([polar(float(c)) for c in cls])
+    cd = np.asarray(polar(cls), dtype=float)       # the polar takes the whole CL array
     d = 0.5 * rho * v**2 * S * cd
     p = power_required(d, v, eta_p)
     i = int(np.argmin(p))
