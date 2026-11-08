@@ -233,3 +233,13 @@ the class C2 mass cap. Biases that travel with every figure: no trim drag; fully
 friction on the non-wing parts above Re 5e5; the fixed propulsive efficiency; the closed-form
 structure; the section polar at one Reynolds number per design (the cruise one) while the wing's
 chord varies along the span.
+
+## Addendum 1 (2026-11-08): two corrections found while writing the acceptance tests
+
+- V6a, the AR 100 rectangular wing: "CL_alpha within 1 percent of 2 pi" cannot hold, because the
+  lifting-line slope at AR 100 is 2 pi AR / (AR + 2) = 6.160 per radian, 2 percent below 2 pi. The
+  row now reads: within 1 percent of the lifting-line value 2 pi AR / (AR + 2) at AR 100. The
+  Helmbold row at AR 8 is unchanged.
+- The vortex-lattice method must take a swept planform, because the Warren-12 benchmark (V6b) has a
+  leading-edge sweep of 53.54 degrees. The drone's own wing stays unswept; sweep enters only through
+  the `Planform` leading-edge coordinates, so the solver has one code path for both.

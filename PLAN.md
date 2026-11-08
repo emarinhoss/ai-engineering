@@ -181,7 +181,9 @@ payload), gates before any solver, a pure-Python low level (vortex lattice, drag
 mission) and an SU2 airfoil-polar high level through the existing queue, validation V6 (analytic, Warren-12,
 UIUC E387 wind-tunnel data) before any ML, then the Task 4 and Task 9 analyses plus an exact-front
 measurement of active learning that the cheap low level allows. No code yet; nothing starts before the
-talk of 2026-11-13.
+talk of 2026-11-13. Work breakdown with model allocation, interfaces and the acceptance tests Fable wrote
+before the code: `docs/specs/task10_tasks.md`, `tests/task10/` (skipped until the `drone` package exists),
+notebooks `notebooks/10_drone_lowfi_grid_colab.ipynb` and `notebooks/11_drone_surrogate_colab.ipynb`.
 
 ### Task 8 (Day 12): rehearsal and buffer
 
