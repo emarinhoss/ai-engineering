@@ -479,6 +479,27 @@ check, the first 4 designs at 2, 6, 10 deg on the medium mesh, 12 cases, tag `po
 the eight remaining E387 cases. The acceptance rule for budget-exhausted runs is still open and
 applies to this pool when it is ruled.
 
+### V6e at Re 305,200 recorded (Fable, 2026-11-08 23:45 UTC): the same miss, slightly larger
+
+`runs/e387/` now holds the five Re 305,200 cases too (alpha 1.04, 2.53, 4.07, 5.93, 6.93 deg; medium
+mesh, SA-BCM, Cauchy-stopped at 4,238 to 5,034 iterations, cl drift 0.5 to 1.3 %, cd drift 4.6 to
+7.9 %). Against Volume 1 run 215 at the same five angles (`runs/drone/validation/2026-11-08/v6.json`):
+
+| row | SU2 | tunnel | deviation | tolerance | verdict |
+|---|---|---|---|---|---|
+| cl_alpha (per deg, fit over the five angles) | 0.10621 | 0.09979 | +6.44 % | 5 % | **fail** |
+| cd ratio (mean of \|SU2/tunnel − 1\|, tunnel cl in [0.3, 0.9]) | — | — | 5.7 % | 20 % | pass |
+| cl_max (highest matched angle) | 1.111 | 1.156 | −3.9 % | report | report |
+
+Point by point: cl +12.7, +10.4, +8.9, +8.0, +9.6 % from 1.04 to 6.93 deg; cd −7.5, −3.8, −5.9, +2.3,
+−0.6 %. So the lift offset is the same 8 to 13 % at both Reynolds numbers and the slope miss is
+1 point larger here, while the drag agreement is better (mean 5.7 % against 8.0 %) and again changes
+sign at the top of the range. The bias flags of decision 8 now carry both Reynolds numbers
+automatically (`v6e:cl_alpha:Re305200=+6.4%:fail`, `v6e:cd_ratio:Re305200=+5.7%:pass`), because they
+are read from the record and not typed. Decision 8 stands as ruled: the high level is accepted WITH
+the bias, and nothing here changes a tolerance or a model parameter. The ten E387 cases are the whole
+V6e set the spec asked for except the medium-against-fine row, which stays blocked on the mesher.
+
 ### Decision 8 (Éder, 2026-11-08 22:35 UTC): "accept the medium mesh as the high level with the bias recorded"
 
 The medium-mesh SA-BCM SU2 polar is the high level of the two-level study, accepted WITH the V6e
