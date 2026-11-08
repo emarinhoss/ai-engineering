@@ -11,16 +11,22 @@ WARREN = "data/validation/warren12.yaml"
 
 
 def test_elliptic_wing_has_unit_span_efficiency_and_helmbold_slope():
+    """Helmbold is itself within 1 to 2 percent of lifting-surface theory, so 3 percent tests the
+    solver and not the correlation (spec addendum 2); e within 1 percent of 1; the drag identity holds
+    for the planform's own aspect ratio (its piecewise-linear chord has slightly less area than b^2/AR)."""
     p = geometry.elliptic(span=4.0, aspect_ratio=8.0, n_nodes=41)
     d = vlm.derivatives(p, level="fine")
-    assert abs(d["CL_alpha"] / helmbold(8.0) - 1.0) < 0.02
+    assert abs(d["CL_alpha"] / helmbold(8.0) - 1.0) < 0.03
     r = vlm.solve(p, math.radians(4.0), level="fine")
     assert abs(r["e"] - 1.0) < 0.01
-    assert abs(r["CDi"] - r["CL"] ** 2 / (math.pi * 8.0 * r["e"])) < 1e-9
+    ar = geometry.wing_dict(p)["AR"]
+    assert abs(r["CDi"] - r["CL"] ** 2 / (math.pi * ar * r["e"])) < 1e-9
 
 
-def test_high_aspect_ratio_rectangular_wing_tends_to_lifting_line():
-    p = geometry.tapered(span=100.0, aspect_ratio=100.0, taper_ratio=1.0)
+def test_high_aspect_ratio_elliptic_wing_tends_to_lifting_line():
+    """2 pi AR / (AR + 2) is the lifting-line slope of an ELLIPTIC wing (a rectangular one sits
+    below it), so the limit is tested on an elliptic planform (spec addendum 2)."""
+    p = geometry.elliptic(span=100.0, aspect_ratio=100.0, n_nodes=41)
     d = vlm.derivatives(p, level="fine")
     assert abs(d["CL_alpha"] / lifting_line(100.0) - 1.0) < 0.01
 

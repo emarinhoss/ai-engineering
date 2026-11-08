@@ -243,3 +243,29 @@ chord varies along the span.
 - The vortex-lattice method must take a swept planform, because the Warren-12 benchmark (V6b) has a
   leading-edge sweep of 53.54 degrees. The drone's own wing stays unswept; sweep enters only through
   the `Planform` leading-edge coordinates, so the solver has one code path for both.
+
+## Addendum 2 (2026-11-08): V6a criteria corrected on the first vortex-lattice run
+
+Measured on `drone/vlm.py` (T10.3) before V6 is run formally; no test or tolerance was changed after
+a formal verdict.
+
+- The AR 100 row of addendum 1 was still wrong: 2 pi AR / (AR + 2) is the lifting-line slope of an
+  elliptic wing, and a rectangular wing sits below it (Glauert's series gives about 6.08 per radian at
+  AR 100 against 6.16). The row now tests an elliptic planform at AR 100 against that formula, within
+  1 percent. Measured: the rectangular AR 100 wing was 1.44 percent below the elliptic value and tends
+  to 2 pi at AR 10^4 (6.279 against 6.283), so the solver was right and the reference was not.
+- The Helmbold row at AR 8 moves from 2 to 3 percent. The fine lattice gives 0.9805 of Helmbold and
+  finer lattices converge to about 0.978, so the converged answer is about 2.2 percent below Helmbold.
+  Helmbold's formula is itself accurate to 1 to 2 percent against lifting-surface theory, so a 2
+  percent tolerance tests the correlation and not the solver, the same argument as the 15 percent of
+  the Fay-Riddell row. The lattice study (V6c) is what checks the solver's own convergence.
+- The drag identity CDi = CL^2 / (pi AR e) is checked with the planform's own aspect ratio, because
+  the piecewise-linear chord of the 41-node elliptic planform has 0.15 percent less area than b^2 / AR.
+- Induced drag is the exact Trefftz-plane drag of the strip circulations fitted to Glauert's sine
+  series (CDi = pi AR sum n A_n^2), not the midpoint point-vortex sum, which under-counts by about
+  1/N with cosine spacing (e = 1.013 at the fine level against 0.997 with the series). Documented in
+  the module.
+- Warren-12: with the moment reference at the root leading edge and the benchmark's reference chord
+  of 1.0, the solver gives CL_alpha 2.771 and Cm_alpha -3.137 per radian, within 1.0 and 1.2 percent
+  of the benchmark. The reference point is not set from this agreement; it stays pending until the
+  cited document is read (notebook 12).
