@@ -342,9 +342,9 @@ Point by point SU2 lifts 8 to 11 % high at every angle (0.507/0.454 at 1.27 deg 
 7.23 deg) and drags 3 to 10 % low, so the lift-slope miss is a uniform offset plus a slightly steeper
 slope, not a stall-onset effect. **Not tuned.** The miss is 0.49 points over a 5 % tolerance fixed
 before any case ran, and it is reported as a fail; the spec's consequence (8d) is that a V6e failure
-cuts the high level, so the ruling for the user is whether the medium-mesh SA-BCM polar is accepted
+cuts the high level, so the ruling put to Éder was whether the medium-mesh SA-BCM polar is accepted
 as the high level WITH this 8 to 11 % lift bias recorded beside every number it produces, or whether
-the Re 305,200 set (queued) and a fine-mesh pair must land first. The tunnel slope here (0.0990) is
+the Re 305,200 set (queued) and a fine-mesh pair must land first. **Ruled: decision 8 below.** The tunnel slope here (0.0990) is
 the five-angle fit; V6f's 0.1017 is the fit over the whole run-213 polar, which is why the two rows
 quote different tunnel slopes for the same data. The medium-versus-fine row is `not run` until a fine
 E387 case exists at this Re; the fine E387 mesh currently fails the inversion gate (8 cells, strict
@@ -473,6 +473,26 @@ check, the first 4 designs at 2, 6, 10 deg on the medium mesh, 12 cases, tag `po
 (172 cases, batches at commit 9d0289a, ~29 + 5 worker-hours on one 4-rank worker). Queued behind
 the eight remaining E387 cases. The acceptance rule for budget-exhausted runs is still open and
 applies to this pool when it is ruled.
+
+### Decision 8 (Éder, 2026-11-08 22:35 UTC): "accept the medium mesh as the high level with the bias recorded"
+
+The medium-mesh SA-BCM SU2 polar is the high level of the two-level study, accepted WITH the V6e
+miss and not instead of it. The V6e row stays a **fail** in `runs/drone/validation/2026-11-08/v6.json`
+and in the validation document; nothing is re-tolerated and no model parameter moves. What changes
+is how the bias travels: `analysis/high_level_bias.py` reads the toleranced V6e rows out of the
+recorded validation run (never a typed literal) and `analysis/drone_polar.polar` appends them to
+the flags of EVERY SU2 section polar it returns, as `v6e:cl_alpha:Re203800=+5.5%:fail`,
+`v6e:cd_ratio:Re203800=+8.0%:pass` and `v6e_ruling=decision8_accepted_with_bias`, so every design
+evaluated through `analysis/drone_design.py` carries the miss in its own record. When the Re 305,200
+rows land (queued) they join the same flags automatically. Two tests pin it
+(`tests/task10/test_validation_e387.py`, decision-8 block): the flag text must equal the record's own
+deviation and verdict, and a record with no toleranced V6e row is refused rather than silently
+flagged clean. The consequence for the deliverable: every high-level number in the report and the
+deck is quoted with "SU2 lifts 8 to 11 % high and drags 3 to 10 % low against the E387 tunnel at
+Re 203,800", and the two-level model's correction term absorbs a KNOWN bias rather than an unknown
+one — which is the measurable thing the multi-fidelity analysis (T10.10c) now has to show. Also
+recorded: the fine-mesh row of V6e stays `not run` and is blocked on the mesher (8 inverted cells),
+not on Colab time.
 
 ## Questions for Éder (answered above; kept as the record)
 

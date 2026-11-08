@@ -1,5 +1,6 @@
 """T10.7c and 7d: five case records become one section polar."""
 import pytest
+
 from analysis.drone_polar import polar
 
 
@@ -21,7 +22,9 @@ def test_polar_from_five_converged_records():
     # the linear fit uses the angles with cl below 0.85 cl_max = 1.105: -2, 2, 6 deg
     slope = (1.02 - 0.20) / 8.0
     assert abs(s.cl_alpha_per_deg - slope) < 0.01
-    assert s.flags == []
+    # decision 8: a converged polar carries NO drift flags, but every SU2 polar carries the
+    # recorded V6e bias and the ruling that accepted the high level with it
+    assert all(f.startswith("v6e") for f in s.flags) and "v6e_ruling=decision8_accepted_with_bias" in s.flags
     assert s.source.startswith("airfoil2d")
 
 

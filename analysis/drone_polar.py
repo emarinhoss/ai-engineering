@@ -7,7 +7,11 @@ criterion is classified not_converged by the 20-percent-window drift rule, so di
 discard every run. Their drift is carried as a flag (cauchy_stopped, cl_drift_max_pct,
 cd_drift_max_pct) and not used to drop the run. A run that merely exhausted its iteration budget, or
 timed out, is NOT kept.
+
+Decision 8 (2026-11-08): every polar this module returns carries the recorded V6e bias as flags
+(`analysis/high_level_bias.py`), because the high level was accepted WITH that bias.
 """
+from analysis.high_level_bias import v6e_flags
 from drone.section import from_polar
 
 DESIGN_KEYS = ("camber_pct", "thickness_pct", "reynolds", "transition", "airfoil")
@@ -22,8 +26,11 @@ def _cauchy_stopped(r):
             and conv["iterations"] < r["params"]["max_iter"])
 
 
-def polar(records):
-    """SectionData from the result.json records of one design at several angles of attack."""
+def polar(records, bias=v6e_flags):
+    """SectionData from the result.json records of one design at several angles of attack.
+
+    `bias` is a callable returning the flags that record the high level's validated miss; it is a
+    parameter only so a test can hand in a record of its own."""
     if not records:
         raise ValueError("no records")
     first = records[0]["params"]
@@ -50,4 +57,5 @@ def polar(records):
         s.flags.append("cauchy_stopped")
         s.flags.append(f"cl_drift_max_pct={max(r['convergence']['drift_pct']['cl'] for r in stopped):.1f}")
         s.flags.append(f"cd_drift_max_pct={max(r['convergence']['drift_pct']['cd'] for r in stopped):.1f}")
+    s.flags.extend(bias())
     return s

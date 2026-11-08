@@ -11,6 +11,7 @@ Rules fixed here, before any SU2 E387 result exists:
 - cl_max is reported only when the SU2 polar actually peaks (its angles stop at 7.23 deg).
 """
 import copy
+import json
 
 import numpy as np
 import pytest
@@ -176,3 +177,27 @@ def test_v6f_and_v6e_are_pure_in_their_inputs():
     polars = copy.deepcopy(E387_POLARS)
     drone_validation.v6f([], polars, drone_validation.ledger.load_all())
     assert polars == E387_POLARS
+
+
+# ---- decision 8: the recorded V6e bias travels with every SU2 polar ----
+
+def test_every_su2_polar_carries_the_recorded_v6e_bias_and_the_ruling():
+    from analysis import high_level_bias
+    s = drone_polar.polar(synthetic_su2(RUN_213, 203800.0, 1.0, 1.0))
+    v6e = [f for f in s.flags if f.startswith("v6e:")]
+    assert v6e, s.flags
+    assert high_level_bias.RULING in s.flags
+    # the flags are read from the record, not typed: the cl_alpha row's verdict and sign match it
+    rec = json.loads(high_level_bias.RECORD.read_text())["checks"]
+    row = next(c for c in rec if c["name"] == "V6e cl_alpha Re 203800")
+    assert f"v6e:cl_alpha:Re203800={100 * row['deviation']:+.1f}%:{row['verdict']}" in v6e
+    assert row["verdict"] == "fail" and row["deviation"] > row["tolerance"]   # accepted WITH a fail
+
+
+def test_v6e_flags_refuse_a_record_without_a_toleranced_row(tmp_path):
+    from analysis import high_level_bias
+    bad = tmp_path / "v6.json"
+    bad.write_text(json.dumps({"checks": [{"name": "V6e cl_max Re 203800", "tolerance": None,
+                                           "deviation": -0.03, "verdict": "report"}]}))
+    with pytest.raises(ValueError):
+        high_level_bias.v6e_flags(bad)
