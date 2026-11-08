@@ -256,6 +256,23 @@ T10.2, T10.3 and T10.7a/7b in parallel. The sandbox cannot reach the UIUC airfoi
 `retrieval: pending` until the files are fetched from a machine with open internet (Colab or Éder's),
 and their tests skip with that reason rather than fail. Nothing is typed from memory into the ledger.
 
+### Decision 6 (Éder, 2026-11-08 06:50 UTC): the SU2 rerun after the first smoke case
+
+The first airfoil2d case, `runs/smoke/airfoil2d-96a9dd0f51/` (NACA 4412-type, Re 2e5, alpha 6 deg,
+SA-BCM, medium mesh of 43 008 cells), ran its full 3000 iterations in 785.7 s on 4 Colab ranks and
+had not converged: over the last tenth of the iterations cl drifted 5.6 percent and cd 17.4 percent
+(cl 0.918, cd 0.0208, cm 0.071 as the tail means). At that cost one five-angle design is about 65
+minutes, far over question 3's 15-minute line, so the 96-design pool is cut before it is submitted.
+Éder chose the recommendation: rerun the same case once with `max_iter` 6000 and a Cauchy stopping
+criterion on the lift and drag coefficients (both templates: `CONV_FIELD= ( LIFT, DRAG )`,
+`CONV_CAUCHY_ELEMS= 200`, `CONV_CAUCHY_EPS= 1E-5`, `CONV_STARTITER= 500`), read the drift and the
+iteration at which it stopped, and only then fix the iteration budget and cut the pool to 64 designs
+at 3 angles. The rerun is the case staged from this commit with tag `smoke2`; nothing else in the
+template changed, and `postprocess/history.summarize` still classifies the run from the pressure
+residual drop and the coefficient drifts (it reads `rms[P]` since the same day's fix, the first
+case having failed at postprocess on the compressible column name). The worker notebook pulls the
+repository only when its kernel starts, so the rerun needs the worker restarted on `main`.
+
 ## Questions for Éder (answered above; kept as the record)
 
 1. **Airfoil family.** The spec varies the NACA four-digit section per design, which is what makes
