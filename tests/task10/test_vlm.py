@@ -55,7 +55,10 @@ def test_warren_12_lift_and_moment_slopes():
                           x_ref=w["moment_reference_x"])
     d = vlm.derivatives(p, level="fine")
     assert abs(d["CL_alpha"] / w["CL_alpha_per_rad"] - 1.0) < 0.02
-    assert abs(d["Cm_alpha"] / w["Cm_alpha_per_rad"] - 1.0) < 0.02
+    # the benchmark normalises the moment by its reference chord (1.0), the solver by the MAC
+    c_mac = geometry.wing_dict(p)["c_mac"]
+    cm_alpha = d["Cm_alpha"] * c_mac / w["reference_chord"]
+    assert abs(cm_alpha / w["Cm_alpha_per_rad"] - 1.0) < 0.02
 
 
 def test_lattice_convergence_medium_to_fine(nominal):
