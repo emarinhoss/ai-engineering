@@ -273,6 +273,30 @@ residual drop and the coefficient drifts (it reads `rms[P]` since the same day's
 case having failed at postprocess on the compressible column name). The worker notebook pulls the
 repository only when its kernel starts, so the rerun needs the worker restarted on `main`.
 
+### Decision 6, the rerun's result and what it fixes (Fable, 2026-11-08 07:30 UTC)
+
+`runs/smoke2/airfoil2d-51d551f2cc/` (same case, `max_iter` 6000, Cauchy stop on CL and CD): SU2
+stopped itself at **4,867 iterations after 1,385 s** on 4 ranks (0.285 s per iteration), exit 0,
+digest verified. Tail means cl 1.0260, cd 0.016710, cm 0.08358, against the 3,000-iteration run's
+0.9178 / 0.020830 / 0.07126, so the first run was far from its own solution: cl was still 10.5 %
+low and cd 24.7 % high when its budget ran out. The pressure residual fell 4.78 orders (−3.94 to
+−8.72). The classifier still says `not_converged`: its drift is (max − min) over the LAST 20 % of
+iterations (973 here) divided by the final value, 2.15 % in cl and 5.34 % in cd, while SU2's Cauchy
+rule averages the per-iteration relative change over the last 200. The two measure different
+things and both are kept; a 973-iteration window on a slowly settling case reports its approach,
+not its scatter. The record carries both numbers and no rule is loosened.
+
+What this fixes. (1) The airfoil2d iteration budget is **6,000 with the Cauchy stop** (schema
+default `MAX_ITER_DEFAULT` 3000 → 6000; the stop fires first on this case). (2) The cost is
+**23 min per angle on 4 Colab ranks at the medium mesh**, so a design at the spec's 5 angles is
+about 115 min and at 3 angles about 70 min: question 3's 15-minute line is exceeded by a factor
+of 4.6 even at 3 angles, and the default answer, **64 designs at 3 angles, is about 74 worker
+hours** — more than a Colab session. (3) The next measurement is therefore the mesh pair the spec's
+V6e asks for anyway: the same case at `coarse` and at `fine`, staged as `airfoil2d` jobs with tag
+`smoke2`, to put a number on what the medium mesh buys and whether the pool can run coarse with
+medium and fine kept for the validation rows. Until that pair is in, no pool is staged. The
+pool size is Éder's call once the pair gives the cost of each level.
+
 ## Questions for Éder (answered above; kept as the record)
 
 1. **Airfoil family.** The spec varies the NACA four-digit section per design, which is what makes

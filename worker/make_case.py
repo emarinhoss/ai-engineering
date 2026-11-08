@@ -12,6 +12,7 @@ hash of the text of case.cfg, which is platform independent.
 """
 import hashlib
 import json
+import math
 import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
@@ -50,6 +51,23 @@ def case_id(params):
     """family-<first 10 hex digits of sha256 of the canonical params>."""
     digest = hashlib.sha256(canonical_json(params).encode()).hexdigest()
     return f"{params['family']}-{digest[:10]}"
+
+
+# SU2 wall time per iteration per cell on 4 Colab ranks, measured on runs/smoke2/airfoil2d-51d551f2cc
+# (medium mesh, 43 008 cells, 4,867 iterations in 1,385 s); the margin covers a slower runtime.
+AIRFOIL_S_PER_ITER_PER_CELL = 1385.4 / 4867 / 43008
+TIMEOUT_MARGIN = 1.5
+TIMEOUT_MIN_S = 2400
+
+
+def timeout_s(params, geometry):
+    """Seconds the worker may give SU2: the floor of 2400 s for every family, raised for airfoil2d
+    to the measured cost of the full iteration budget on this mesh times a margin, because a
+    budget that the clock cuts short is a killed run, not a result."""
+    if params.get("family") != "airfoil2d":
+        return TIMEOUT_MIN_S
+    cost = AIRFOIL_S_PER_ITER_PER_CELL * int(params.get("max_iter", 6000)) * int(geometry["cells"])
+    return max(TIMEOUT_MIN_S, math.ceil(TIMEOUT_MARGIN * cost))
 
 
 def requested_first_cell(params):
@@ -166,7 +184,7 @@ def make(params, out_dir):
         "mesh_bbox": mesh_bbox(out / "mesh.su2"),
         "config_sha256": config_sha256(out / "case.cfg"),
         "code_commit": git_commit(),
-        "timeout_s": 2400,
+        "timeout_s": timeout_s(params, geometry),
         "max_cores": 2,
     }
     _dump(out / "job.json", job)

@@ -26,7 +26,7 @@ DRONE_BOUNDS = {"span_m": (1.2, 3.0), "aspect_ratio": (6.0, 16.0), "taper_ratio"
                 "battery_fraction": (0.20, 0.45), "camber_pct": (0.0, 6.0), "thickness_pct": (8.0, 15.0)}
 # Fields of the supersonic families, not allowed for airfoil2d; filled with these defaults otherwise.
 SUPERSONIC_DEFAULTS = {"mach": 4.0, "altitude_km": 30, "T_wall_K": 300.0, "solver": "NAVIER_STOKES"}
-MAX_ITER_DEFAULT = {"airfoil2d": 3000}            # other families: 6000
+MAX_ITER_DEFAULT = {"airfoil2d": 6000}            # all families 6000; airfoil2d was 3000 until decision 6 (2026-11-08)
 
 
 class CaseParams(BaseModel):

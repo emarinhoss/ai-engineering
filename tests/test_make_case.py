@@ -26,7 +26,7 @@ def test_all_files_exist_and_job_fields(case):
     assert on_disk == job
     assert set(job) == {"case_id", "params", "created_at", "mesh_fingerprint", "mesh_bbox",
                         "config_sha256", "code_commit", "timeout_s", "max_cores"}
-    assert job["timeout_s"] == 2400 and job["max_cores"] == 2
+    assert job["timeout_s"] == 2400 and job["max_cores"] == 2      # supersonic families: the floor
     assert job["created_at"].endswith("+00:00")
 
 

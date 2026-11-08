@@ -63,3 +63,15 @@ def test_config_renders_with_only_pinned_keys_and_the_reynolds_number():
     assert unknown_keys(text, template) == []
     lm = render({**BASE, "transition": "LM"}, geometry, markers)
     assert "SST" in lm and "LM" in lm
+
+
+def test_airfoil_timeout_scales_with_the_iteration_budget_and_the_mesh():
+    """The fine mesh at the full budget costs more than the 2400 s floor (runs/smoke2 measured
+    0.285 s per iteration at 43 008 cells on 4 Colab ranks); the floor still holds for a cheap case."""
+    from worker.make_case import TIMEOUT_MIN_S, timeout_s
+    assert timeout_s({"family": "inlet3r"}, {"cells": 10**6}) == TIMEOUT_MIN_S
+    assert timeout_s({**BASE, "max_iter": 1000}, {"cells": 21760}) == TIMEOUT_MIN_S
+    medium = timeout_s({**BASE, "max_iter": 6000}, {"cells": 43008})
+    fine = timeout_s({**BASE, "max_iter": 6000}, {"cells": 84152})
+    assert 2500 < medium < 2700 and 4900 < fine < 5200
+    assert fine == pytest.approx(medium * 84152 / 43008, rel=1e-3)
