@@ -4,6 +4,9 @@ Decision 8 (Éder, 2026-11-08): the medium-mesh SA-BCM polar is the high level, 
 recorded beside every number it produces. This module reads the miss from the recorded validation
 run rather than from a literal, so the flag cannot drift from the record: each "V6e <quantity>
 Re <re>" row with a tolerance becomes one flag, `v6e:<quantity>:Re<re>=<deviation %>:<verdict>`.
+The deviation is copied as the record holds it: for cl_alpha it is signed (model slope over tunnel
+slope minus one); for cd_ratio it is the MEAN ABSOLUTE deviation over the cl band and so is never
+negative — read "+8.0%" there as "8.0 % mean |cd/cd_tunnel - 1|", not as "SU2 drag 8 % high".
 """
 import json
 from pathlib import Path

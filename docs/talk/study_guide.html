@@ -91,7 +91,7 @@ a{color:var(--ink)}
 <p>Every number in this plan comes from a file in the repository. The file name is given with the number. Do not quote a number in the talk that is not on a slide.</p>
 </div>
 
-<div class="progress"><span id="pcount">0 of 30 ticked</span><div class="bar"><span id="pbar"></span></div></div>
+<div class="progress"><span id="pcount">0 of 34 ticked</span><div class="bar"><span id="pbar"></span></div></div>
 
 <nav class="days" aria-label="Study days">
 <a href="#d1">Tue 3</a><a href="#d1">Wed 4</a><a href="#d2">Thu 5</a><a href="#d2">Fri 6</a><a href="#d3">Sat 7</a><a href="#d3">Sun 8</a><a href="#d4">Mon 9</a><a href="#d5">Tue 10</a><a href="#d5">Wed 11</a><a href="#d6">Thu 12</a>
@@ -104,6 +104,7 @@ a{color:var(--ink)}
 <tr><td>Thu 5, Fri 6</td><td>B. CFD numerics and validation</td><td>10 to 16</td><td>Explain every line of the tolerance table and why the carbuncle failure was kept.</td></tr>
 <tr><td>Sat 7, Sun 8</td><td>C. Surrogates and active learning</td><td>17 to 23, 23a, 23b</td><td>Explain the GP interval, the hypervolume regret and the honest replay verdict.</td></tr>
 <tr><td>Mon 9</td><td>D. Automation layer</td><td>24 to 28</td><td>Draw the pipeline from memory and name what caught each of the five failures.</td></tr>
+<tr><td>Only if presenting the drone deck</td><td>E. Low-speed aircraft sizing</td><td>29 to 32</td><td>Explain the lattice, the mass closure, the endurance balance and the E387 comparison with its recorded fail.</td></tr>
 <tr><td>Tue 10, Wed 11</td><td>Deck run-through</td><td>all</td><td>Present the deck to the wall with a timer. Open the record behind any number you are not sure of.</td></tr>
 <tr><td>Thu 12</td><td>Question drill and rest</td><td>all</td><td>Answer the 69 interview questions below aloud. Stop early.</td></tr>
 </table></div>
@@ -1810,6 +1811,205 @@ q_{\mathrm{peak}}: &\quad \text{two-level, 12 NS runs: } 0.025, \qquad \text{NS 
 <span class="lbl">Self-check</span>
 <details><summary>State the rule about sampling points in one sentence.</summary><p class="a">The surrogate and the acquisition function choose the sampling points; the language model never does.</p></details>
 <details><summary>What must a slide do with a check that was not run?</summary><p class="a">Say "not run" or "pending" with the name of the record that will hold it.</p></details>
+</section>
+
+<!-- ============================ E ============================ -->
+<h2 id="d7">E. Low-speed aircraft sizing (Task 10, drone deck)</h2>
+<p>These four entries are for the separate drone deck <code>docs/talk/deck_drone.pptx</code> and not for the inlet talk. Their numbers come from <code>runs/drone/validation/2026-11-08/v6.json</code>, <code>runs/drone_grid/2026-11-08/front.csv</code>, <code>runs/e387/</code> and the code in <code>drone/</code>. The numbering continues from entry 28 because entry numbers 24 to 28 are already used by block D.</p>
+
+<section class="entry" id="c31"><header><input type="checkbox" data-id="c31" id="k31"><h3><label for="k31">29. The vortex-lattice method</label></h3></header>
+<p class="where"><b>In the talk:</b> drone deck D3, D5. <b>Record:</b> <code>drone/vlm.py</code>, <code>runs/drone/validation/2026-11-08/v6.json</code> (rows V6a to V6c), <code>data/validation/warren12.yaml</code>, spec <code>docs/specs/task10_drone_sizing.md</code> addendum 2.</p>
+<span class="lbl">Definition</span>
+<p>A vortex-lattice method (VLM) replaces a thin wing by a grid of panels. Each panel carries one horseshoe vortex: a bound leg at the quarter chord of the panel and two trailing legs that run to infinity downstream. Each horseshoe has an unknown strength \(\Gamma_j\). The velocity that every horseshoe induces at a point comes from the Biot-Savart law for a straight vortex segment. The flow must not cross the surface, so at the three-quarter-chord control point of each panel the total velocity has no component along the panel normal. This gives one linear equation per panel. The solver in the repository solves the dense system with <code>numpy.linalg.solve</code>. The left wing is the mirror image of the right one, so only the right half is solved.</p>
+<span class="lbl">Key relations</span>
+<div class="eq">\[
+\begin{aligned}
+\mathbf{v}_{\mathrm{seg}} &= \frac{\Gamma}{4\pi}\,\frac{\mathbf{r}_1 \times \mathbf{r}_2}{\lvert \mathbf{r}_1 \times \mathbf{r}_2 \rvert^2}\; \mathbf{r}_0 \cdot \left( \frac{\mathbf{r}_1}{\lvert \mathbf{r}_1 \rvert} - \frac{\mathbf{r}_2}{\lvert \mathbf{r}_2 \rvert} \right) \\
+\left( \mathbf{V}_\infty + \sum_j \mathbf{A}_{ij}\,\Gamma_j \right) \cdot \mathbf{n}_i &= 0 \qquad \text{at every control point } i \\
+\mathbf{F}_j &= \Gamma_j\, (\mathbf{V}_\infty + \mathbf{v}_j) \times \mathbf{l}_j \qquad \text{(Kutta-Joukowski, near field)}
+\end{aligned}
+\]</div>
+<span class="lbl">More relations</span>
+<div class="eq">\[
+\begin{aligned}
+C_{D_i} &= \pi\, AR \sum_{n\ \mathrm{odd}} n\, A_n^2, \qquad e = \frac{C_L^2}{\pi\, AR\, C_{D_i}} \\
+a_{\mathrm{Helmbold}} &= \frac{2\pi\, AR}{2 + \sqrt{AR^2 + 4}} \qquad \text{(the check on } C_{L_\alpha}\text{)}
+\end{aligned}
+\]</div>
+<span class="lbl">Variables</span>
+<div class="tablewrap"><table class="vars">
+<tr><th>Symbol</th><th>Meaning</th><th>In the code</th></tr>
+<tr><td>\(\mathbf{r}_1, \mathbf{r}_2\)</td><td>vectors from the segment ends to the field point</td><td><code>r1, r2</code> in <code>_segment</code></td></tr>
+<tr><td>\(\mathbf{A}_{ij}\)</td><td>velocity at control point i of a unit horseshoe j, with its mirror image</td><td><code>_influence(cp, a, b)</code>, then <code>matrix</code> in <code>_lattice</code></td></tr>
+<tr><td>\(\Gamma_j\)</td><td>horseshoe strengths</td><td><code>gamma</code> in <code>_forces</code></td></tr>
+<tr><td>\(\mathbf{n}_i\)</td><td>panel normal; camber enters here only, as \((-dz/dx, 0, 1)\)</td><td><code>normal</code>, <code>slope</code> in <code>_lattice</code></td></tr>
+<tr><td>\(A_n\)</td><td>Glauert sine-series coefficients fitted to the strip circulations</td><td><code>coef</code>, <code>odd</code> in <code>_forces</code></td></tr>
+<tr><td>lattice level</td><td>chordwise by semispan panels: 8 x 20, 12 x 30, 16 x 40</td><td><code>LEVELS</code></td></tr>
+<tr><td>\(AR\), \(e\)</td><td>aspect ratio and span efficiency</td><td><code>reference(planform)</code>, key <code>"e"</code></td></tr>
+</table></div>
+<div class="impl"><span class="lbl">Implementation: drone/vlm.py</span>
+<ul>
+<li><code>_segment</code> and <code>_trailing</code> are the Biot-Savart law for a finite segment and for a semi-infinite line along x. <code>_horseshoe</code> adds them: infinity to a, a to b, b to infinity. A point on a vortex line gets zero velocity (the guard <code>_GUARD</code>), not a division by zero.</li>
+<li><code>_lattice</code> cuts the semispan into strips at cosine-spaced stations and each strip into chordwise panels. The bound leg sits at the quarter chord and the control point at the three-quarter chord of each panel. It builds the influence matrix once.</li>
+<li><code>_forces</code> solves for \(\Gamma\), gets \(C_L\) and \(C_m\) from Kutta-Joukowski on each bound leg, and gets \(C_{D_i}\) in the Trefftz plane from the strip circulations fitted to Glauert's sine series. The span efficiency is defined afterwards as \(e = C_L^2/(\pi AR\, C_{D_i})\), so the identity holds by construction.</li>
+<li>The module docstring records why the Trefftz series replaces the point-vortex sum: with cosine spacing the point-vortex sum under-counts the induced drag by about 1/N.</li>
+<li>Tests: <code>tests/task10/test_vlm.py</code>.</li>
+</ul></div>
+<span class="lbl">Worked example (v6.json)</span>
+<p>Elliptic wing, AR 8, fine lattice (640 unknowns on the half wing):</p>
+\[
+C_{L_\alpha} = 4.8100, \qquad a_{\mathrm{Helmbold}} = \frac{2\pi \cdot 8}{2 + \sqrt{68}} = 4.9058, \qquad \frac{4.8100}{4.9058} - 1 = -1.95\ \%
+\]
+<p>The span efficiency at 4 degrees is 0.9974, which is 0.26 percent below the exact value of 1 for an elliptic wing. The AR 100 elliptic wing is 0.09 percent below the lifting-line slope \(2\pi AR/(AR+2)\). The Warren-12 benchmark gives \(C_{L_\alpha} = 2.771\) against 2.743, which is +1.01 percent. The V6b moment row stays pending, because the reference point of the benchmark is not yet sourced. Addendum 2 of the spec explains why the Helmbold tolerance is 3 percent and not 2: the converged lattice is about 2.2 percent below Helmbold, and Helmbold's own formula is only accurate to 1 to 2 percent. The lattice study V6c is the check on the solver itself.</p>
+<span class="lbl">Interview questions</span>
+<details><summary>How do you know the vortex lattice is right?</summary><p class="a">Three kinds of check, in <code>v6.json</code>. An elliptic wing must give \(e\) close to 1 and the Helmbold and lifting-line slopes (V6a: -0.26 and -1.95 percent). A published benchmark, Warren 12, gives the slope to +1.01 percent (V6b). Coarse, medium and fine lattices must agree (V6c: 0.17 percent in the slope). I did not tune anything to make a row pass.</p></details>
+<details><summary>Why is the induced drag taken from the Trefftz plane and not from the forces on the panels?</summary><p class="a">The near-field force on the bound legs is a small difference of large terms. The Trefftz-plane drag depends only on the strip circulations. The point-vortex version of the far-field sum was tried first and under-counts by about 1/N, so the code fits a Glauert sine series to the strip circulations, whose drag is exact.</p></details>
+<span class="lbl">Self-check</span>
+<details><summary>Where does camber enter the lattice?</summary><p class="a">Only through the panel normals: \(\mathbf{n} \propto (-dz/dx, 0, 1)\). The panels stay in the plane z = 0.</p></details>
+<details><summary>Why is a flat wing at zero angle of attack exactly zero lift in this solver?</summary><p class="a">The right-hand side of the linear system is zero, so \(\Gamma = 0\) and \(C_L = C_{D_i} = 0\) exactly.</p></details>
+</section>
+
+<section class="entry" id="c32"><header><input type="checkbox" data-id="c32" id="k32"><h3><label for="k32">30. Mass closure as a fixed point</label></h3></header>
+<p class="where"><b>In the talk:</b> drone deck D3, D5. <b>Record:</b> <code>drone/evaluate.py</code> (<code>_closure</code>, <code>_spar_mass</code>), <code>runs/drone_grid/2026-11-08/front.csv</code>, <code>runs/drone/validation/2026-11-08/v6.json</code> (rows V6d).</p>
+<span class="lbl">Definition</span>
+<p>The take-off mass \(m\) appears on both sides of its own equation. The weight sets the cruise power. The power sets the propulsion mass and, through the spar, the structure. The battery is a fixed fraction of \(m\). The sum of the component masses must equal \(m\). The code solves this by fixed-point iteration: guess \(m\), compute every component, add them to get a new \(m\), and repeat until the relative change is below \(10^{-9}\). It stops with an error after 100 iterations. Each iteration also rebuilds the geometry and the section data at the new mass.</p>
+<span class="lbl">Key relations</span>
+<div class="eq">\[
+\begin{aligned}
+m_{\mathrm{new}} &= m_{\mathrm{payload}} + f_b\, m + m_{\mathrm{skin}} + m_{\mathrm{spar}} + m_{\mathrm{tail}} + m_{\mathrm{fus}} + \frac{P_{\mathrm{inst}}}{p_{\mathrm{spec}}} \\
+P_{\mathrm{inst}} &= \max\!\left( 2\,P_{\mathrm{cruise}},\ \frac{W\, v_{\mathrm{climb}}}{\eta_p} + P_{\mathrm{cruise}} \right) \\
+M_{\mathrm{root}} &= n_{\mathrm{lim}}\, \mathrm{FoS}\, \frac{W}{2}\, \frac{4}{3\pi}\, \frac{b}{2}, \qquad
+A_{\mathrm{cap}} = \frac{M_{\mathrm{root}}}{\sigma_{\mathrm{allow}}\, h}, \qquad m_{\mathrm{spar}} = 2\, A_{\mathrm{cap}}\, b\, \rho_{\mathrm{spar}}
+\end{aligned}
+\]</div>
+<span class="lbl">Variables</span>
+<div class="tablewrap"><table class="vars">
+<tr><th>Symbol</th><th>Meaning</th><th>In the code</th></tr>
+<tr><td>\(m\), \(W = m g\)</td><td>take-off mass and weight</td><td><code>m</code>, <code>W</code> in <code>_closure</code></td></tr>
+<tr><td>\(f_b\)</td><td>battery mass fraction, a design input</td><td><code>params["battery_fraction"]</code></td></tr>
+<tr><td>\(P_{\mathrm{inst}}\), \(p_{\mathrm{spec}}\)</td><td>installed power and the motor's specific power</td><td><code>p_installed</code>; <code>specific_power_W_per_kg</code> in <code>data/drone/propulsion.yaml</code></td></tr>
+<tr><td>\(n_{\mathrm{lim}}\), FoS, \(\sigma_{\mathrm{allow}}\), \(\rho_{\mathrm{spar}}\)</td><td>limit load factor, factor of safety, allowable stress, spar density</td><td><code>data/drone/structure.yaml</code>, read in <code>_spar_mass</code></td></tr>
+<tr><td>\(h\)</td><td>cap depth, equal to the root section thickness</td><td><code>depth</code> in <code>_spar_mass</code></td></tr>
+<tr><td>tolerance, cap</td><td>\(10^{-9}\) relative, 100 iterations</td><td><code>_TOL</code>, <code>_MAX_ITER</code></td></tr>
+</table></div>
+<div class="impl"><span class="lbl">Implementation: drone/evaluate.py</span>
+<ul>
+<li><code>_closure</code> starts from \(m_0 = m_{\mathrm{payload}}/(1 - f_b - 0.3)\), a guess only. The loop calls <code>geometry.build</code>, builds the section at the Reynolds number of the previous cruise speed, finds the cruise point, sizes the installed power and adds up the seven component masses.</li>
+<li>Any non-positive component mass raises an error at once, so a bad design cannot return a negative mass.</li>
+<li>The vortex-lattice results are cached per aspect ratio, taper and camber (<code>_aero</code>), because the lattice does not depend on the span, thickness or battery fraction. This keeps one evaluation under a second.</li>
+<li>Gate 3 (<code>_gates</code>) rejects a design whose structure plus propulsion fraction is below the ledger's minimum. This is the guard against a battery fraction that leaves no mass for the aircraft.</li>
+<li>The repository does not prove that the iteration contracts. The evidence is the 100-iteration cap, the 10^-9 stop and the recorded counts: 14 to 27 iterations over the 249 front designs.</li>
+<li>Tests: <code>tests/task10/test_mass_mission.py</code>, <code>tests/task10/test_evaluate_nominal.py</code>.</li>
+</ul></div>
+<span class="lbl">Worked example (front.csv, design 468024)</span>
+<p>Span 1.2 m, aspect ratio 14.75, taper 1.0, battery fraction 0.2. The closure takes 14 iterations and stops at a relative change of \(5.4 \times 10^{-10}\). The masses add up to the take-off mass:</p>
+\[
+0.5 + 0.16752 + 0.09077 + 0.00354 + 0.03927 + 0.02202 + 0.01449 = 0.83761\ \mathrm{kg}
+\]
+<p>The spar rule can be done by hand. The wing area is \(S = b^2/AR = 1.44/14.75 = 0.09763\ \mathrm{m^2}\), so the root chord is 0.08136 m and the cap depth is \(h = 0.1325 \times 0.08136 = 0.01078\) m. The weight is \(W = 0.8376 \times 9.80665 = 8.214\) N.</p>
+\[
+M_{\mathrm{root}} = 3.8 \cdot 1.5 \cdot 4.107 \cdot 0.4244 \cdot 0.6 = 5.961\ \mathrm{N\,m}, \quad
+A_{\mathrm{cap}} = \frac{5.961}{6 \times 10^{8} \cdot 0.01078} = 9.22 \times 10^{-7}\ \mathrm{m^2}, \quad
+m_{\mathrm{spar}} = 2 \cdot 9.22\times10^{-7} \cdot 1.2 \cdot 1600 = 3.54 \times 10^{-3}\ \mathrm{kg}
+\]
+<p>This agrees with the recorded spar mass of 0.003539 kg. The V6d rows in <code>v6.json</code> check the closure residual (5.6e-10 against a limit of 1e-9) and that the masses sum to the take-off mass.</p>
+<span class="lbl">Interview questions</span>
+<details><summary>Why iterate, and why does it converge?</summary><p class="a">The mass is the unknown on both sides, so there is no direct formula. The map from one mass to the next is nearly flat, because the battery term has slope \(f_b\) (below 1) and the other terms grow more slowly than \(m\). I do not prove this in the code. I check it with the iteration cap, the stop at \(10^{-9}\) and the recorded counts of 14 to 27 iterations over the 249 front designs, and a design that does not converge raises an error and is not used.</p></details>
+<details><summary>Is the spar rule a structural analysis?</summary><p class="a">No. The spec lists it as a closed-form structure and says structural analysis beyond the spar rule is out of scope. It is a stated bias that travels with every figure: it sizes two caps for the root bending moment of an elliptic lift distribution and ignores torsion, buckling and the weight of the skin on the bending.</p></details>
+<span class="lbl">Self-check</span>
+<details><summary>What stops the loop, and what happens if it does not stop?</summary><p class="a">A relative change in the mass below \(10^{-9}\). After 100 iterations the function raises a ValueError with the last change and mass.</p></details>
+<details><summary>Why can the lattice solve be cached across designs?</summary><p class="a">The linear lattice results depend only on the planform shape (aspect ratio and taper) and the camber line. They do not depend on the span, the thickness or the battery fraction.</p></details>
+</section>
+
+<section class="entry" id="c33"><header><input type="checkbox" data-id="c33" id="k33"><h3><label for="k33">31. Electric endurance</label></h3></header>
+<p class="where"><b>In the talk:</b> drone deck D3, D5, D8. <b>Record:</b> <code>drone/mission.py</code>, <code>drone/evaluate.py</code>, <code>runs/drone_grid/2026-11-08/front.csv</code>, <code>runs/drone/validation/2026-11-08/v6.json</code> (rows V6d).</p>
+<span class="lbl">Definition</span>
+<p>An electric aircraft flies level until the usable battery energy is spent. The battery stores \(e_{\mathrm{spec}}\) watt-hours per kilogram of pack, but only the fraction DoD (depth of discharge) is usable. The take-off and climb allowance is spent first, at installed power. What remains is spent at cruise power. The endurance is that energy divided by the cruise power. To make the endurance long, the aircraft flies at the minimum-power point of its drag polar, which is not the point of best lift-to-drag ratio. Power is drag times speed over the propulsive efficiency, and for a parabolic polar the minimum power is at a higher lift coefficient than the best L/D.</p>
+<span class="lbl">Key relations</span>
+<div class="eq">\[
+\begin{aligned}
+E_{\mathrm{use}} &= \mathrm{DoD}\ e_{\mathrm{spec}}\ 3600\ m_b - P_{\mathrm{inst}}\, t_{\mathrm{climb}}, \qquad t_{\mathrm{end}} = \frac{E_{\mathrm{use}}}{P_{\mathrm{cruise}}} \\
+P &= \frac{D\, V}{\eta_p}, \qquad V = \sqrt{\frac{2 W}{\rho\, S\, C_L}}, \qquad C_D = C_{D0} + \frac{C_L^2}{\pi\, AR\, e}
+\end{aligned}
+\]</div>
+<span class="lbl">More relations</span>
+<div class="eq">\[
+C_{L,\mathrm{minP}} = \sqrt{3\pi\, AR\, e\, C_{D0}}, \qquad C_{L,\mathrm{bestLD}} = \sqrt{\pi\, AR\, e\, C_{D0}}, \qquad V \ge 1.3\, V_{\mathrm{stall}}
+\]</div>
+<span class="lbl">Variables</span>
+<div class="tablewrap"><table class="vars">
+<tr><th>Symbol</th><th>Meaning</th><th>In the code</th></tr>
+<tr><td>\(e_{\mathrm{spec}}\), DoD</td><td>pack specific energy (180 Wh/kg) and depth of discharge (0.8)</td><td><code>data/drone/battery.yaml</code>; <code>endurance_h</code> arguments</td></tr>
+<tr><td>\(m_b = f_b\, m\)</td><td>battery mass</td><td><code>masses["battery"]</code></td></tr>
+<tr><td>\(P_{\mathrm{inst}}\), \(t_{\mathrm{climb}}\)</td><td>installed power and the 60 s allowance</td><td><code>p_installed</code>; <code>climb_allowance_s</code> in <code>data/drone/rules.yaml</code></td></tr>
+<tr><td>\(\eta_p\)</td><td>propulsive efficiency (0.6), fixed</td><td><code>propulsive_efficiency</code> in <code>data/drone/propulsion.yaml</code></td></tr>
+<tr><td>\(P_{\mathrm{cruise}}\)</td><td>power at the minimum-power point</td><td><code>cruise["min_power"]["P"]</code></td></tr>
+<tr><td>stall margin</td><td>cruise at least 1.3 times the stall speed</td><td><code>stall_margin</code>; upper bound of the CL scan in <code>cruise_point</code></td></tr>
+</table></div>
+<div class="impl"><span class="lbl">Implementation: drone/mission.py</span>
+<ul>
+<li><code>power_required(D, V, eta_p)</code> is \(DV/\eta_p\). <code>v_stall</code> is the usual \(\sqrt{2mg/(\rho S C_{L,\max})}\).</li>
+<li><code>cruise_point</code> scans 400 values of \(C_L\) from 0.05 to the smaller of the stall-margin bound and 0.7 of the wing's \(C_{L,\max}\). It takes the one with the least power as the cruise and the one with the best \(C_L/C_D\) as the best-L/D point. The scan, and not the closed form, handles a polar that is not parabolic and the stall-margin clamp.</li>
+<li><code>endurance_h</code> does the energy balance. The efficiency is not applied again, because \(P_{\mathrm{cruise}}\) and \(P_{\mathrm{inst}}\) are already battery-side powers.</li>
+<li>Tests: <code>tests/task10/test_mass_mission.py</code>. V6d checks that the energy spent equals the usable energy and that the endurance equals the closed form.</li>
+</ul></div>
+<span class="lbl">Worked example (front.csv, design 468024; ledger values)</span>
+<p>The recorded cruise power is 8.835 W and the installed power is 36.215 W. The battery mass is 0.16752 kg.</p>
+\[
+E_{\mathrm{use}} = 0.8 \cdot 180 \cdot 3600 \cdot 0.16752 - 36.215 \cdot 60 = 86\,844 - 2\,173 = 84\,671\ \mathrm{J}, \qquad
+t_{\mathrm{end}} = \frac{84\,671}{8.835\ \mathrm{W}} = 9\,584\ \mathrm{s} = 2.662\ \mathrm{h}
+\]
+<p>The recorded endurance is 2.6621 h. The cruise power also follows from the lift-to-drag ratio: with \(L/D = 22.81\) and \(V = 14.72\) m/s, \(P = W V/((L/D)\,\eta_p) = 8.214 \cdot 14.72/(22.81 \cdot 0.6) = 8.83\) W. For this design the cruise coefficient is 0.634, which is the stall-margin bound (\(C_{L,\max}/1.3^2\) with the wing's \(C_{L,\max}\) of 1.0715). So the aircraft flies at the stall-margin limit and not at the unconstrained minimum-power point, and the cruise and the best-L/D point coincide in this record. V6d records the energy balance closed to \(2.2 \times 10^{-16}\) and the endurance equal to the closed form.</p>
+<span class="lbl">Interview questions</span>
+<details><summary>Why fly at minimum power and not at best L/D?</summary><p class="a">Endurance is time, and time is energy over power. Range is distance, which needs the least energy per distance, so best L/D. For endurance the least power matters. The code records the range at the best-L/D speed but optimizes nothing: the cruise is the minimum-power point or the stall-margin limit, whichever is faster.</p></details>
+<details><summary>What does the 60 second climb allowance do to the answer?</summary><p class="a">It takes installed power times 60 s out of the usable energy before the cruise. In design 468024 that is 2,173 J of 86,844 J, about 2.5 percent. It is a rule in the ledger and not a modeled climb.</p></details>
+<span class="lbl">Self-check</span>
+<details><summary>Why is the propulsive efficiency not applied again in <code>endurance_h</code>?</summary><p class="a">Because both powers passed in already include it: \(P = DV/\eta_p\) is the battery-side power.</p></details>
+<details><summary>Which two stated biases bear most on this entry?</summary><p class="a">The fixed propulsive efficiency, and no trim drag. Both are in section 13 of the spec and travel with every figure.</p></details>
+</section>
+
+<section class="entry" id="c34"><header><input type="checkbox" data-id="c34" id="k34"><h3><label for="k34">32. Airfoil RANS at low Reynolds number</label></h3></header>
+<p class="where"><b>In the talk:</b> drone deck D4, D6, D7, D14. <b>Record:</b> <code>runs/e387/</code>, <code>data/validation/e387_uiuc.yaml</code>, <code>runs/drone/validation/2026-11-08/v6.json</code> (rows V6e, V6f), <code>runs/smoke2/airfoil2d-51d551f2cc/result.json</code>, <code>cases/templates/inc_rans_airfoil.cfg</code>, <code>docs/specs/task10_tasks.md</code> (decisions 6 and 8, V6e block).</p>
+<span class="lbl">Definition</span>
+<p>At a chord Reynolds number of \(10^5\) to \(3 \times 10^5\) the boundary layer on a thin airfoil starts laminar. It can separate under the adverse pressure gradient behind the suction peak, turn turbulent in the separated shear layer and reattach. This is a laminar separation bubble. It changes the lift and the drag, and it can move as the angle of attack changes. A turbulence model that is turbulent from the leading edge (plain Spalart-Allmaras, <code>SA_OPTIONS= NONE</code>) has no bubble. So the case template switches on the Bas-Cakmakcioglu algebraic transition option inside Spalart-Allmaras (SA-BCM), with the freestream turbulence intensity from the ledger. The flow is steady incompressible RANS in SU2 on a structured C-mesh. A moving bubble means the steady solution may not settle, which is a property of the flow and not only of the iteration budget.</p>
+<span class="lbl">Key relations</span>
+<div class="eq">\[
+\begin{aligned}
+\text{Cauchy stop: } & \frac{1}{200} \sum_{k=1}^{200} \frac{\lvert C_k - C_{k-1} \rvert}{\lvert C_k \rvert} \lt 10^{-5} \quad \text{for } C = C_L \text{ and } C_D, \text{ after iteration 500} \\
+\text{drift: } & \frac{\max C - \min C}{C_{\mathrm{final}}} \ \text{over the last 20 \% of the iterations} \\
+\text{deviation: } & \frac{x_{\mathrm{SU2}}}{x_{\mathrm{tunnel}}} - 1 \quad \text{at the tunnel's own angle, no interpolation}
+\end{aligned}
+\]</div>
+<span class="lbl">Variables</span>
+<div class="tablewrap"><table class="vars">
+<tr><th>Symbol</th><th>Meaning</th><th>In the code</th></tr>
+<tr><td>Re</td><td>chord Reynolds number; 203,800 is the nominal 200,000 run of the tunnel</td><td><code>params["reynolds"]</code> in <code>runs/e387/*/result.json</code></td></tr>
+<tr><td>BCM</td><td>transition option of the Spalart-Allmaras model</td><td><code>transition</code> in the params; <code>SA_OPTIONS= $sa_options</code> in the template</td></tr>
+<tr><td>Cauchy settings</td><td>field, window, tolerance, start iteration</td><td><code>CONV_FIELD</code>, <code>CONV_CAUCHY_ELEMS</code>, <code>CONV_CAUCHY_EPS</code>, <code>CONV_STARTITER</code></td></tr>
+<tr><td>budget</td><td>maximum iterations, 6000 for family airfoil2d</td><td><code>MAX_ITER_DEFAULT</code>; <code>max_iter</code> in the params</td></tr>
+<tr><td>drift</td><td>the repository's own convergence classifier</td><td><code>cl_drift_pct</code>, <code>cd_drift_pct</code> from <code>postprocess/history.py</code></td></tr>
+</table></div>
+<div class="impl"><span class="lbl">Implementation: geometry/airfoil2d.py, cases/templates/inc_rans_airfoil.cfg, postprocess/metrics.py</span>
+<ul>
+<li>The mesh is built from <code>naca.coordinates</code> or an airfoil file, with a wake cut, the farfield at 30 chords and the first cell from the y+ rule, and it must pass the mesh-quality gate before it is submitted.</li>
+<li>The template sets <code>CONV_FIELD= ( LIFT, DRAG )</code>, a window of 200 iterations, a tolerance of 1e-5 and a start at iteration 500. The classifier still reads <code>rms[P]</code> and the two drifts, and keeps both numbers in the record. Neither rule was loosened (decision 6).</li>
+<li>The polar aggregator keeps a case that SU2 stopped on its own Cauchy criterion even when the drift rule says <code>not_converged</code>, and it keeps the drift in the record (<code>tests/task10/test_validation_e387.py</code>).</li>
+<li>Decision 8 attaches the V6e miss to every SU2 section polar as flags, read from <code>v6.json</code> by <code>analysis/high_level_bias.py</code>.</li>
+</ul></div>
+<span class="lbl">Worked example (records)</span>
+<p><b>Why the Cauchy stop.</b> The first smoke case ran 3000 iterations and had cl and cd drifts of 5.62 and 17.38 percent. The rerun with a budget of 6000 and the Cauchy stop stopped itself at 4,867 iterations. Its drifts are 2.15 and 5.34 percent, so the classifier still says <code>not_converged</code>: the drift looks at the last 20 percent of the run and the Cauchy rule at the change per iteration over the last 200. The record carries both.</p>
+<p><b>E387 at Re 203,800.</b> Five SU2 cases at the tunnel's own angles, against run 213 of the UIUC data:</p>
+\[
+\frac{c_{l,\mathrm{SU2}}}{c_{l,\mathrm{tunnel}}} - 1 = +11.6,\ +10.0,\ +8.1,\ +8.0,\ +8.4\ \%, \qquad
+\frac{c_{d,\mathrm{SU2}}}{c_{d,\mathrm{tunnel}}} - 1 = -9.8,\ -10.3,\ -8.3,\ -3.5,\ +1.6\ \%
+\]
+<p>So SU2 lifts 8.0 to 11.6 percent high at every angle. The drag is low by 3.5 to 10.3 percent at the first four angles and 1.6 percent high at the last (7.23 degrees). V6e has two toleranced rows. The lift slope, fitted over the five angles, is +5.49 percent against a 5 percent tolerance: <b>fail</b>, by 0.49 points. The mean drag ratio over lift coefficients 0.3 to 0.9 is +7.99 percent in <code>v6.json</code> against a 20 percent tolerance: pass. Decision 8 accepts the medium-mesh polar as the high level with the miss recorded, and does not change the tolerance. The mesh pair at Re \(2 \times 10^5\) shows medium to fine drag differs by 2.6 percent, which is smaller than the 10.3 percent drift of the fine run, so it resolves the drift band and not the mesh. The Re 305,200 set has one case in <code>runs/e387/</code> so far, and the fine-mesh row of V6e is not run, because the fine E387 mesh has inverted cells.</p>
+<span class="lbl">Interview questions</span>
+<details><summary>The SU2 lift slope failed its tolerance by 0.49 points. Why use it?</summary><p class="a">Because the ruling accepts the polar with the miss recorded and not instead of it. The row stays a fail in <code>v6.json</code>. Every SU2 section polar carries the flags <code>v6e:cl_alpha:Re203800=+5.5%:fail</code> and the ruling, so a reader of any design record sees it. The two-level model then has to show that its correction term absorbs a known bias.</p></details>
+<details><summary>Why not simply run until the drift is below 1 percent?</summary><p class="a">At this Reynolds number the steady solution does not settle: the drift rises with angle of attack, and the fine mesh drifted more (10.3 percent in drag) than the medium one. More iterations cost 23 minutes per angle at the medium mesh on four Colab ranks and may not reduce the drift. So the record keeps both the Cauchy stop and the drift, and the report states what the table can resolve.</p></details>
+<span class="lbl">Self-check</span>
+<details><summary>Why is plain Spalart-Allmaras not used for the airfoil?</summary><p class="a">It is turbulent from the leading edge, so it has no laminar region and no separation bubble. That is the wrong physics at this Reynolds number.</p></details>
+<details><summary>What does "at the tunnel's own angles, no interpolation" protect against?</summary><p class="a">A comparison that moves the data onto the model's grid and hides a difference in slope. The rule was fixed in <code>tests/task10/test_validation_e387.py</code> before any SU2 result existed.</p></details>
 </section>
 
 <h2 id="d5">Deck run-through (Tue 10, Wed 11)</h2>
