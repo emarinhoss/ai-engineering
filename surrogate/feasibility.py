@@ -17,6 +17,10 @@ LAM, STEPS, LR = 1e-3, 5000, 0.5
 
 
 class Feasibility:
+    def __init__(self, steps=STEPS):
+        """steps: gradient-descent iterations (default STEPS); fewer gives a cheaper fit."""
+        self.steps = steps
+
     def fit(self, F, y):
         """F (n, k) features already scaled to about [0, 1]; y (n,) of 0 and 1."""
         F, y = torch.as_tensor(F, dtype=DT), torch.as_tensor(y, dtype=DT)
@@ -25,7 +29,7 @@ class Feasibility:
         w = torch.zeros(Z.shape[1], dtype=DT, requires_grad=True)
         b = torch.zeros((), dtype=DT, requires_grad=True)
         opt = torch.optim.SGD([w, b], lr=LR)
-        for _ in range(STEPS):
+        for _ in range(self.steps):
             opt.zero_grad()
             logit = Z @ w + b
             loss = torch.nn.functional.binary_cross_entropy_with_logits(logit, y) + LAM * (w @ w) / 2

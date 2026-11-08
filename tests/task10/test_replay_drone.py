@@ -185,3 +185,44 @@ def test_hypervolume_helpers_agree_with_the_acquisition_module():
     F = np.array([[0.0, 1.0], [1.0, 0.0], [0.5, 0.5], [2.0, 2.0]])
     ref = np.array([3.0, 3.0])
     assert hypervolume_2d(F[pareto_front(F)], ref) == pytest.approx(hypervolume_2d(F[:3], ref))
+
+
+# ---- feasibility-weighted acquisition, added after the first online run (2026-11-08) ----
+# The online run showed EHVI spending 29.7 of 32 picks on gated candidates. The inlet study's
+# answer (analysis/replay3r.py) is a logistic feasibility model on the scaled inputs, fitted on
+# every evaluated point (clean = 1, gated = 0, the rejected initial draws included), and the
+# acquisition multiplied by p(feasible). It is a FIFTH and SIXTH strategy beside the four, never a
+# replacement, so the comparison that lost stays on the record. The classifier never picks a point.
+
+def test_feasibility_weighted_strategies_exist_and_run(fixed):
+    from analysis import replay_drone_online as online
+    assert {"al_ehvi_feas", "al_maxvar_feas"} <= set(online.STRATEGIES)
+    assert tuple(online.STRATEGIES[:4]) == tuple(replay.STRATEGIES)
+    rows = online.run(front_csv=FRONT, fixed=fixed, strategies=("al_ehvi_feas",), seeds=(0,),
+                      n_init=6, n_max=9, report_at=(6, 9), candidates=64)
+    metrics = {r["metric"] for r in rows}
+    assert {"hv_regret", "n_gated", "n_clean", "p_feasible_of_pick"} <= metrics
+    p = [r["value"] for r in rows if r["metric"] == "p_feasible_of_pick" and r["n"] == 9]
+    assert len(p) == 1 and 0.0 <= p[0] <= 1.0
+
+
+def test_feasibility_weighting_avoids_a_synthetic_gate_that_plain_ehvi_walks_into(fixed, monkeypatch):
+    """Gate everything with span above 2.1 m (half the box). Plain EHVI, chasing the long-span
+    front, keeps picking gated candidates; the weighted one learns the boundary from its own
+    rejections and picks fewer, measured over two seeds."""
+    from analysis import replay_drone_online as online
+    real = evaluate.evaluate
+
+    def gate_long_spans(params, fx, **kw):
+        out = real(params, fx, **kw)
+        if params["span_m"] > 2.1:
+            out = {**out, "gates": ["gate 9 (synthetic): span above 2.1 m"]}
+        return out
+
+    monkeypatch.setattr(online.evaluate, "evaluate", gate_long_spans)
+    gated = {}
+    for name in ("al_ehvi", "al_ehvi_feas"):
+        rows = online.run(front_csv=FRONT, fixed=fixed, strategies=(name,), seeds=range(2), n_init=6,
+                          n_max=22, report_at=(6, 22), candidates=256)
+        gated[name] = sum(r["value"] for r in rows if r["metric"] == "n_gated" and r["n"] == 22)
+    assert gated["al_ehvi_feas"] < gated["al_ehvi"], gated
