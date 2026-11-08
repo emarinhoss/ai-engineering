@@ -397,6 +397,43 @@ together are the method's answer on this problem: active learning beats space-fi
 only when the acquisition knows where the design is buildable, and loses to it otherwise.** Both
 runs are published; neither replaces the other.
 
+### The mesh pair completed, and the pool options (Fable, 2026-11-08 20:00 UTC)
+
+`runs/mesh/airfoil2d-e161fb7e6b/` (fine, 84,152 cells; its first attempt, refused on the 1 nm
+fingerprint, is kept beside it as `.first_attempt`): **budget exhausted at 6,000 iterations after
+3,162 s** on 4 ranks, pressure residual down 4.38 orders, drifts 4.4 % in cl and **10.3 % in cd**
+over the last fifth. The three levels of the same case (NACA 4412, Re 2e5, alpha 6 deg, SA-BCM):
+
+| level | cells | iterations | wall | cl | cd | cm | cd drift |
+|---|---|---|---|---|---|---|---|
+| coarse | 21,760 | 3,595 (Cauchy) | 498 s | 1.02115 | 0.017348 | 0.08280 | 3.9 % |
+| medium | 43,008 | 4,867 (Cauchy) | 1,385 s | 1.02599 | 0.016710 | 0.08358 | 5.3 % |
+| fine | 84,152 | 6,000 (budget) | 3,162 s | 1.01381 | 0.017157 | 0.08230 | 10.3 % |
+
+Against fine: medium cl +1.2 %, cd −2.6 %, cm +1.6 %; coarse cl +0.7 %, cd +1.1 %, cm +0.6 %.
+**The medium-to-fine drag shift (2.6 %) is inside the spec's 5 % mesh criterion, but it is also
+smaller than the fine run's own drift (10 %), and the three drags are not monotone in cell count,
+so what the table resolves is the drift band and not the mesh.** The steady solution at this
+Reynolds number does not settle (the nominal polar shows the same: drift rising from 0.6 % at
+0 deg to 16 % at 12 deg), which is a property of the flow (a moving laminar separation bubble
+under the BCM transition model) and not of the budget. The cost per iteration per cell is the
+same at all three levels (6.3 to 6.6 µs on 4 Colab ranks).
+
+**Pool options, from measured costs (one worker, 4 ranks; two workers halve the wall time):**
+
+| designs × angles | coarse (~10 min/angle, budget-limited at 14) | medium (~23 min/angle) |
+|---|---|---|
+| 64 × 3 (question 3's default) | 32 h | 74 h |
+| 48 × 3 | 24 h | 55 h |
+| 32 × 3 | 16 h | 37 h |
+| 24 × 3 | 12 h | 28 h |
+
+Fable's recommendation, for Éder to rule on: run the pool on the **coarse** mesh (its drag is
+within 1.1 % of fine on this case, inside every drift band, at 2.8× less cost), keep the E387
+validation cases and a 6-design coarse/medium pair on **medium** as the recorded bias check, and
+take **48 designs × 3 angles (2, 6, 10 deg)** so the pool finishes in a day on one worker. Nothing
+is staged until the ruling; the ten E387 medium cases are already in the queue.
+
 ## Questions for Éder (answered above; kept as the record)
 
 1. **Airfoil family.** The spec varies the NACA four-digit section per design, which is what makes
