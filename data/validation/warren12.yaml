@@ -1,0 +1,19 @@
+# Warren-12 swept wing: the vortex-lattice benchmark of V6b.
+# Not retrieved in the sandbox. The numbers below are transcribed from the brief that set T10.1
+# and must be checked against the cited document before any test relies on them.
+# Open point: reference_chord 1.0 is as stated, but the trapezoid with the root and tip chords
+# above has a mean aerodynamic chord of (2/3) c_r (1 + l + l^2) / (1 + l) = 1.083 (l = 1/3).
+# Not resolved here; recorded so the discrepancy is visible.
+warren12:
+  root_chord: 1.5            # m
+  tip_chord: 0.5             # m
+  semispan: 1.4142136        # m
+  sweep_le_deg: 53.54        # deg, leading edge
+  reference_area: 2.83       # m^2
+  reference_chord: 1.0       # m, as stated
+  CL_alpha_per_rad: 2.743    # /rad
+  Cm_alpha_per_rad: -3.10    # /rad
+  moment_reference_x: "pending"   # m, from the root leading edge; not established from a citable source
+  retrieval: pending
+  source: "Warren-12 wing planform and derivatives as stated in T. Melin, Tornado: a Vortex-Lattice MATLAB implementation for linear aerodynamic wing applications (MSc thesis, KTH, 2000), and/or the OpenVSP VSPAERO validation case, whichever states these numbers. Not retrieved; the citation is what the study intends to check."
+  retrieved: no

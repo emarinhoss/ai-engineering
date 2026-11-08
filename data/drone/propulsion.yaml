@@ -1,0 +1,14 @@
+set: drone/propulsion
+quantities:
+  - name: propulsive_efficiency
+    value: 0.60
+    units: "-"
+    confidence: assumed
+    band: [0.50, 0.70]
+    source: "Motor, ESC and propeller combined efficiency at cruise for a small electric UAV; the propeller efficiency discussion in Gudmundsson, General Aviation Aircraft Design: Applied Methods and Procedures (Butterworth-Heinemann, 2013). Rationale, not retrieved, so assumed."
+  - name: specific_power_W_per_kg
+    value: 2500.0
+    units: W/kg
+    confidence: assumed
+    band: [1500.0, 4000.0]
+    source: "Author's rationale: 2500 W/kg is the author's estimate from typical installed specific power of small brushless outrunner motors with ESC and propeller. No datasheet was read; the T-MOTOR MN series is named only as the kind of source consulted, not as a value taken from it."

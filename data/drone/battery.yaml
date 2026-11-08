@@ -1,0 +1,20 @@
+set: drone/battery
+quantities:
+  - name: pack_specific_energy_Wh_per_kg
+    value: 180.0
+    units: Wh/kg
+    confidence: assumed
+    band: [150.0, 210.0]
+    source: "Cell-level about 250 Wh/kg from the Samsung INR18650-35E datasheet (3.6 V, 3500 mAh, 50 g; 3.6 x 3.5 / 0.050 = 252 Wh/kg) times a pack factor of 0.72 for packaging, wiring and BMS share. Datasheet cited, not retrieved; the pack factor is a rationale, so the value is assumed."
+  - name: volumetric_energy_density_Wh_per_L
+    value: 350.0
+    units: Wh/L
+    confidence: assumed
+    band: [250.0, 450.0]
+    source: "Pack level. An 18650 cell (IEC 61960 format, 18 mm x 65 mm, about 16.5 cm^3) at 12.6 Wh gives about 760 Wh/L at cell level; a pack share near one half for packaging gives about 350 Wh/L. Rationale only, not retrieved, so assumed."
+  - name: depth_of_discharge
+    value: 0.8
+    units: "-"
+    confidence: assumed
+    band: [0.7, 0.9]
+    source: "Usable fraction of nominal capacity for lithium-ion packs; the 0.7 to 0.9 band reflects the cycle-life versus depth-of-discharge trade in the ageing review of Vetter et al., J. Power Sources 147 (2005). Rationale, not retrieved, so assumed."

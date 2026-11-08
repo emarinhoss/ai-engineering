@@ -1,0 +1,24 @@
+set: drone/structure
+quantities:
+  - name: skin_areal_density_kg_m2
+    value: 0.45
+    units: kg/m^2
+    confidence: assumed
+    band: [0.25, 0.90]
+    source: "Areal mass of a thin foam-composite or balsa-film wing skin for a hand-built small UAV wing. Rationale from typical build practice; no public source retrieved, so assumed with a band."
+  - name: spar_allowable_stress_Pa
+    value: 6.0e+8
+    units: Pa
+    confidence: assumed
+    band: [3.0e+8, 1.0e+9]
+    source: "Design allowable tensile stress of a unidirectional carbon-fibre pultruded spar, a knockdown from the tensile strength quoted on public pultrusion datasheets (not retrieved); the knockdown practice follows the Composite Materials Handbook, MIL-HDBK-17. Rationale, so assumed."
+  - name: limit_load_factor
+    value: 3.8
+    units: "-"
+    confidence: published
+    source: "14 CFR 23.337(b), limit maneuvering load factor of 3.8, the positive limit for the normal category of FAR Part 23. Cited from the regulation; not retrieved in the sandbox."
+  - name: factor_of_safety
+    value: 1.5
+    units: "-"
+    confidence: published
+    source: "14 CFR 23.303, factor of safety of 1.5 applied to limit loads to give ultimate loads under FAR Part 23. Cited from the regulation; not retrieved in the sandbox."
