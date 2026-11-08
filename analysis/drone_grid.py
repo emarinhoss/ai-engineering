@@ -61,12 +61,17 @@ def _row(item):
     except ValueError as exc:
         row["error"] = str(exc)
         return row
-    for k in SCALARS:
-        row[k] = out[k]
-    for k, v in out["masses"].items():
-        row["mass_" + k] = v
-    row["gates"] = " | ".join(out["gates"])
+    row.update(flatten(out))
     return row
+
+
+def flatten(out):
+    """The value columns of one evaluate() result: SCALARS, mass_<name>, gates (joined by " | ")."""
+    flat = {k: out[k] for k in SCALARS}
+    for k, v in out["masses"].items():
+        flat["mass_" + k] = v
+    flat["gates"] = " | ".join(out["gates"])
+    return flat
 
 
 def row_inputs(row):
