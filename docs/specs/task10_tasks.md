@@ -347,6 +347,32 @@ still at 0.11 to 0.13 after 40; max-variance sits between. This is the cheap, sm
 level, so it is the easy case for a GP; the online replay (unrestricted candidates, gates live)
 and the two-level model are where the claim is tested, and the online run is in progress.
 
+### T10.10b, second half recorded (Fable, 2026-11-08 18:20 UTC): the online replay, and active learning LOSES
+
+`runs/replay_drone_online/2026-11-08/` (online.csv, record.json; commit 83c7676, 2,496 s on one
+sandbox core): the four strategies run online on the real low-fidelity model, 10 seeds, 8 initial
+points, 40 evaluations, 4,096 fresh Sobol candidates per step, regret against the exact 9^6 front.
+Mean hypervolume regret and mean number of gated picks (of the 32 after the initial design):
+
+| n | random | lhs | al_ehvi | al_maxvar |
+|---|---|---|---|---|
+| 8 | 0.409 | 0.409 | 0.409 | 0.409 |
+| 16 | 0.344 | 0.365 | 0.347 | 0.382 |
+| 24 | 0.321 | 0.312 | 0.323 | 0.368 |
+| 40 | **0.294** | **0.271** | 0.317 | 0.353 |
+| gated picks at 40 | 1.9 | 4.0 | **29.7** | **25.4** |
+
+**Active learning loses to random and LHS on the unrestricted box, and the mechanism is in the
+table: EHVI spends 30 of its 32 picks on candidates that fail a gate** (tip-chord floor, structure
+fraction, stall margin), because the front lies against the gated edge of the box (long span, high
+aspect ratio, low taper) and the two GPs know nothing about the gates; max-variance does the same
+for a different reason (variance is largest where nothing has been observed, which is the gated
+region). Random and LHS lose only 2 to 4 picks to gates. This is the honest result the plan asked
+for and it is published as such. It is also the measured case for a feasibility model in the
+acquisition (the inlet study has one, `surrogate/feasibility.py`): a fifth strategy that weights
+the acquisition by P(feasible) is the next experiment, run beside these four and not instead of
+them, so the comparison stays on the record.
+
 ## Questions for Éder (answered above; kept as the record)
 
 1. **Airfoil family.** The spec varies the NACA four-digit section per design, which is what makes
