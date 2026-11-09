@@ -1,0 +1,78 @@
+{
+  "params": {
+    "span_m": 1.214053,
+    "aspect_ratio": 7.88896,
+    "taper_ratio": 0.428628,
+    "battery_fraction": 0.394761,
+    "camber_pct": 4.138827,
+    "thickness_pct": 13.292792
+  },
+  "cases": [
+    "airfoil2d-5b18409bc4",
+    "airfoil2d-77f1d4389c",
+    "airfoil2d-2162c83493",
+    "airfoil2d-ad439b1105",
+    "airfoil2d-dbcaebcab5"
+  ],
+  "section": {
+    "cl_max": 1.3150578267499997,
+    "alpha_L0": -0.06837828032781186,
+    "cl_alpha_per_deg": 0.10099369408796988,
+    "flags": [
+      "not_peaked",
+      "missing_angles",
+      "cauchy_stopped",
+      "cl_drift_max_pct=4.9",
+      "cd_drift_max_pct=5.5",
+      "v6e:cl_alpha:Re203800=+5.5%:fail",
+      "v6e:cd_ratio:Re203800=+8.0%:pass",
+      "v6e:cl_alpha:Re305200=+6.4%:fail",
+      "v6e:cd_ratio:Re305200=+5.7%:pass",
+      "v6e_ruling=decision8_accepted_with_bias"
+    ],
+    "source": "airfoil2d camber=4.138827 thickness=13.292792 Re=134800.0 transition=BCM cases=airfoil2d-5b18409bc4,airfoil2d-77f1d4389c,airfoil2d-2162c83493,airfoil2d-ad439b1105"
+  },
+  "result": {
+    "endurance_h": 4.683886343852992,
+    "mtow_kg": 1.2890986430483022,
+    "range_km": 216.4707230479977,
+    "v_cruise": 12.270488218357842,
+    "v_stall": 9.438837091044494,
+    "wing_loading": 67.66300600953369,
+    "re_cruise": 136196.2708208669,
+    "throttle_cruise": 0.26815462520891026,
+    "static_margin": 0.2532961283170514,
+    "cl_max": 1.3150578267499997,
+    "e_span": 0.9825076797278748,
+    "cd0": 0.021710921597947446,
+    "masses": {
+      "payload": 0.5,
+      "battery": 0.5088858698660799,
+      "wing_skin": 0.17373842816674048,
+      "spar": 0.002098648169213704,
+      "tail": 0.05512473614067831,
+      "fuselage": 0.02621924817144733,
+      "propulsion": 0.023031712534142657
+    },
+    "closure_iterations": 23,
+    "closure_residual": 8.60092774611503e-10,
+    "diagnostics": {
+      "P_cruise_W": 15.440150606280962,
+      "P_installed_W": 57.57928133535664,
+      "section_source": "airfoil2d camber=4.138827 thickness=13.292792 Re=134800.0 transition=BCM cases=airfoil2d-5b18409bc4,airfoil2d-77f1d4389c,airfoil2d-2162c83493,airfoil2d-ad439b1105",
+      "CL_cruise": 0.733705052391275,
+      "CD_cruise": 0.043818309877078944,
+      "L_over_D": 16.74425723971319,
+      "L_over_D_max": 17.518396957755318,
+      "v_best_ld": 13.626922034578614,
+      "cl_max_wing": 1.239961538541255,
+      "tip_stall_ratio": 0.8431827533933098,
+      "alpha_cruise_deg": 4.495940854551163,
+      "x_np": 0.08158328997992198,
+      "CL_alpha_wing": 4.735874753800349,
+      "tip_panel_aspect": 7.249348175219741,
+      "structure_propulsion_fraction": 0.21737108725620774
+    },
+    "gates": []
+  }
+}
