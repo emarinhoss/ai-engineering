@@ -1376,8 +1376,11 @@ def mf_answer():
     reach = [n for n in ns if e1[n] <= e2[n0]]
     tail = (f"SU2 alone reaches it at {reach[0]} designs" if reach
             else f"SU2 alone does not reach it within {ns[-1]} designs")
+    worse = all(m[("two", n, "cov90_endurance")] < m[("single", n, "cov90_endurance")] for n in ns)
+    cov = ("; the gain is in the mean, and the two-level 90 % interval covers fewer held-out points"
+           if worse else "; 90 % interval coverage is in the table")
     return (f"With {n0} SU2 designs the two-level endurance error is {e2[n0]:.3f} h against "
-            f"{e1[n0]:.3f} h for SU2 alone; {tail} (mean over seeds, {MF}).")
+            f"{e1[n0]:.3f} h for SU2 alone; {tail}{cov}.")
 
 
 def hf_front_answer():
@@ -1814,19 +1817,22 @@ def body_mf(slide, v):
     m = mf_means()
     ns = sorted({n for (model, n, _) in m if model == "two"})
     rows = [["SU2 designs n", "endurance RMSE (h): SU2 only", "two-level",
-             "mass rel. error: SU2 only", "two-level"]]
+             "90 % coverage: SU2 only", "two-level", "mass rel. error: SU2 only", "two-level"]]
     for n in ns:
         rows.append([n, f"{m[('single', n, 'rmse_endurance')]:.3f}",
                      f"{m[('two', n, 'rmse_endurance')]:.3f}",
+                     f"{m[('single', n, 'cov90_endurance')]:.2f}",
+                     f"{m[('two', n, 'cov90_endurance')]:.2f}",
                      f"{m[('single', n, 'rmse_mtow_rel')]:.4f}",
                      f"{m[('two', n, 'rmse_mtow_rel')]:.4f}"])
-    bd.add_table(slide, LM, CT, [2.0, 2.9, 1.6, 2.9, 1.6], rows, size=12, row_h=0.4, flag=())
+    bd.add_table(slide, LM, CT, [1.5, 2.3, 1.2, 2.1, 1.2, 2.3, 1.2], rows, size=12, row_h=0.4,
+                 flag=())
     y = CT + 0.4 * len(rows) + 0.3
     eq.add_equation(slide, EQ_MF_TWO_LEVEL, LM, y, 4.0, 0.5, fontsize=15)
     eq.add_equation(slide, EQ_MF_POSTERIOR, LM + 4.2, y, 3.8, 0.5, fontsize=15)
     eq.add_equation(slide, EQ_MF_GLS, LM + 8.2, y, 3.8, 0.5, fontsize=15)
-    bd.caption(slide, LM, y + 0.7, CW, f"Record: {MF} (mean over seeds). Equations: "
-               "surrogate/mf_gp.py.", lines=1)
+    bd.caption(slide, LM, y + 0.7, CW, f"Record: {MF} (mean over ten seeds; coverage = share of "
+               "held-out designs inside the 90 % interval). Equations: surrogate/mf_gp.py.", lines=1)
 
 
 def body_pool_status(slide, v):
