@@ -520,6 +520,36 @@ one — which is the measurable thing the multi-fidelity analysis (T10.10c) now 
 recorded: the fine-mesh row of V6e stays `not run` and is blocked on the mesher (8 inverted cells),
 not on Colab time.
 
+### T10.10a and T10.10d on the LOW pool, recorded as diagnostics (Fable, 2026-11-09 00:40 UTC)
+
+Three low-fidelity records, run so that the analyses exist end to end before the SU2 pool lands;
+none of them is a study answer, because the questions are asked of the high level.
+
+- `runs/drone_pareto_lf/2026-11-09/`: `analysis.pareto --family drone` on the 192-point low pool —
+  4,096 gate-checked Sobol candidates (420 of 4,544 failed the closed-form gates, 4 the full gates),
+  observed front of 15 designs from 3.47 h at 0.953 kg to 11.71 h at 2.283 kg, a 57-point predicted
+  front and a 25-level band; the two most sensitive inputs by GP lengthscale are `aspect_ratio` and
+  `span_m`, which is the design map's pair.
+- `runs/drone_inverse_lf/2026-11-09/`: `analysis.inverse --family drone`, 21^6 = 85,766,121 grid
+  points walked in chunks, 76,587,147 passing the closed-form gates, cap 4.0 kg at P ≥ 0.9. **The
+  answer is a box corner**: span 3.0 m, aspect ratio 16, taper 0.3, battery fraction 0.45, camber
+  6 %, thickness 8 % — five of the six inputs at a bound — predicted 13.307 h (90 % interval
+  [13.228, 13.386]) at a median 2.435 kg, P(mtow ≤ 4) = 1.000, closure gates passed. Evaluated
+  directly on the low model the design gives **13.245 h and 2.438 kg**, both inside the intervals.
+  Two facts travel with it: **the 4 kg cap never binds on the low model** (every one of the 192 pool
+  designs is under 2.5 kg; the lightest is 0.953 kg), so the low-fidelity answer is simply the
+  longest-endurance buildable corner and question 4 is only tested by the high level; and the GP is
+  **extrapolating to the box edge**, since the Sobol pool has no point at the bounds.
+- `runs/drone_bias_lf/2026-11-09/`: the one-at-a-time sweep of all 21 banded ledger quantities at
+  that design, ranked by max |% endurance|: skin areal density (+13.0 / −17.2 % endurance,
+  −27.2 / +62.0 % mtow), propulsive efficiency (±17.0 %), pack specific energy (±16.7 %), payload
+  mass (+7.3 / −12.7 %), depth of discharge (±12.6 %), section lift effectiveness (−8.6 / +4.7 %),
+  tail arm (−4.1 / +5.3 %), section stall angle (−4.1 / +3.0 %); everything else under 2 %, and four
+  quantities have no effect at this design (installed power margin, cruise cl fraction, static
+  margin target, turbulence intensity — read but not binding). Spec section 10 item 5 asks for this
+  sweep at the inverse answer, which is this corner on the low model; it is re-run at the SU2 answer
+  when that exists.
+
 ## Questions for Éder (answered above; kept as the record)
 
 1. **Airfoil family.** The spec varies the NACA four-digit section per design, which is what makes

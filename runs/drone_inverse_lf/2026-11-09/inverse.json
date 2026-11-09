@@ -1,0 +1,36 @@
+{
+  "feasible": true,
+  "design": {
+    "span_m": 3.0,
+    "aspect_ratio": 16.0,
+    "taper_ratio": 0.3,
+    "battery_fraction": 0.45,
+    "camber_pct": 6.0,
+    "thickness_pct": 8.0
+  },
+  "endurance_h": {
+    "mean": 13.307462957608976,
+    "lo90": 13.228444523288921,
+    "hi90": 13.386481391929031,
+    "std": 0.04803979699184936
+  },
+  "mtow_kg": {
+    "median": 2.434546564983529,
+    "lo90": 2.428256768343095,
+    "hi90": 2.4408526537814863,
+    "log_std": 0.0015727253229334305
+  },
+  "p_mtow_le_cap": 1.0,
+  "gate_skipped": [],
+  "closure_gates_passed": true,
+  "family": "drone",
+  "mtow_cap_kg": 4.0,
+  "prob_required": 0.9,
+  "n_train": 192,
+  "grid_points_per_axis": 21,
+  "n_grid": 85766121,
+  "n_cheap_gate_feasible": 76587147,
+  "n_cheap_gate_feasible_note": "points passing the closed-form gates (tip chord, spar depth) only; the closure gates were run on the best candidates, not on the grid",
+  "interval": "90 percent, predictive (includes noise)",
+  "min_observed_mtow_kg": 0.9526489987082964
+}
