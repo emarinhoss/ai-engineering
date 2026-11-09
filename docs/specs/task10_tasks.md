@@ -671,6 +671,17 @@ both stay well under 0.9 everywhere. At n = 16 the two models' means are close (
 0.706 h) and the two-level model wins in only 6 of 10 seeds, so the advantage narrows as the SU2
 budget grows. Both readings are kept; the 32-design sweep decides.
 
+**Re-run at 25 designs (Opus, 2026-11-09 22:15 UTC, commit `bbbf15f`):** pool batch 20 completed
+design 25; budgets 8, 12 and 16 form, with 17, 13 and 9 held out. Means over ten seeds, held-out
+endurance RMSE: **n = 8: 0.638 h two-level against 1.269 h SU2-only (10 of 10 seeds); n = 12:
+0.582 h against 1.158 h (10 of 10); n = 16: 0.594 h against 0.742 h (8 of 10)**; raw low model
+2.133 h. MTOW relative RMSE 0.0015 / 0.0932, 0.0016 / 0.0190 and 0.0014 / 0.0131 (10 of 10 at every
+budget); raw low 0.0024. ρ_endurance 0.890 (0.65 to 1.02), 0.843 (0.68 to 0.98) and 0.886 (0.82 to
+0.93). Endurance coverage of the 90 % interval: two-level 0.44, 0.55 and 0.60 against SU2-only 0.42,
+0.43 and 0.62. **The 24-design pattern holds**: two-level coverage is higher at n = 8 and 12 and
+slightly lower at n = 16, both well under 0.9 everywhere. SU2 alone still does not reach the
+two-level error at 8 designs within 16. Nothing tuned.
+
 ## Questions for Éder (answered above; kept as the record)
 
 1. **Airfoil family.** The spec varies the NACA four-digit section per design, which is what makes
