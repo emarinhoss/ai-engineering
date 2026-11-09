@@ -92,3 +92,63 @@ def test_fallback_when_first_command_cannot_start(case_dir):
 def test_command_line(case_dir, capsys):
     main([str(case_dir), "--su2-cmd", FAKE, "--timeout", "60"])
     assert json.loads(capsys.readouterr().out)["run"]["iterations"] == 300
+
+
+# ---- local work directory (flow.dat rewritten in place on a Drive mount came back corrupt) ----
+
+def test_local_work_dir_runs_there_and_copies_every_output_back(tmp_path, monkeypatch):
+    import worker.run_case as rc
+    case = tmp_path / "case"
+    make({**PARAMS, "save_volume": True}, case)
+    work = tmp_path / "local" / "w"
+    seen = {}
+    real = rc._execute
+
+    def spy(tokens, cwd, log_path, timeout_s):
+        seen["cwd"], seen["log"] = Path(cwd), Path(log_path)
+        seen["case_files_during_run"] = sorted(p.name for p in case.iterdir())
+        return real(tokens, cwd, log_path, timeout_s)
+
+    monkeypatch.setattr(rc, "_execute", spy)
+    result = run(case, FAKE, work_dir=work)
+    assert seen["cwd"] == work and seen["log"].parent == work
+    assert "history.csv" not in seen["case_files_during_run"]     # nothing written to case/ mid-run
+    assert not work.exists()                                       # local copy removed afterwards
+    for name in ("history.csv", "surface_flow.dat", "flow.dat", "log.txt", "solver_version.txt",
+                 "result_partial.json", "result.json"):
+        assert (case / name).exists(), name
+    assert not list(case.glob("*.part"))
+    volume = read_tecplot_ascii(case / "flow.dat")
+    assert volume["zonetype"] == ["FEQUADRILATERAL"] and len(volume["data"]["x"]) == 25
+    assert result["run"]["iterations"] == 300 and result["history_summary"]["status"] == "converged"
+    assert "metrics" in result
+
+
+def test_local_work_dir_gives_the_same_record_as_running_in_place(tmp_path):
+    a, b = tmp_path / "a", tmp_path / "b"
+    make(PARAMS, a)
+    make(PARAMS, b)
+    ra = run(a, FAKE)
+    rb = run(b, FAKE, work_dir=tmp_path / "w")
+    for block in ("history_summary", "metrics"):
+        assert ra[block] == rb[block], block
+    assert ra["run"]["iterations"] == rb["run"]["iterations"]
+    assert ra["solver"]["config_sha256"] == rb["solver"]["config_sha256"]
+
+
+def test_local_work_dir_leaves_untouched_inputs_alone(tmp_path):
+    case = tmp_path / "case"
+    make(PARAMS, case)
+    mesh = case / "mesh.su2"
+    before = mesh.stat().st_mtime_ns
+    run(case, FAKE, work_dir=tmp_path / "w")
+    assert mesh.stat().st_mtime_ns == before
+
+
+def test_local_work_dir_copies_back_after_a_timeout(tmp_path, monkeypatch):
+    case = tmp_path / "case"
+    make(PARAMS, case)
+    monkeypatch.setenv("FAKE_SU2_SLEEP", "5")
+    result = run(case, FAKE, timeout_s=1, work_dir=tmp_path / "w")
+    assert result["run"]["timeout"] is True
+    assert (case / "log.txt").exists() and not (tmp_path / "w").exists()

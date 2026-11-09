@@ -32,6 +32,7 @@ import signal
 import socket
 import subprocess
 import sys
+import tempfile
 import threading
 import time
 import traceback
@@ -327,10 +328,14 @@ def run_with_heartbeat(run_dir, job, args):
     """Call worker.run_case.run in a thread; write heartbeat.json every args.heartbeat seconds."""
     timeout_s = min(args.timeout, job.get("timeout_s", args.timeout))
     box = {}
+    # SU2 runs on local disk and its outputs are copied to the Drive run folder once at the end
+    # (run_case docstring: in-place rewrites of flow.dat on the Drive mount corrupted it).
+    work_dir = Path(args.work_root) / job["case_id"] if args.work_root else None
+    progress = (work_dir or run_dir) / "history.csv"
 
     def target():
         try:
-            box["result"] = run(run_dir, args.su2_cmd, timeout_s)
+            box["result"] = run(run_dir, args.su2_cmd, timeout_s, work_dir=work_dir)
         except Exception as err:  # noqa: BLE001  (reported as a failed job, not a dead worker)
             box["error"] = f"{type(err).__name__}: {err}"
 
@@ -339,7 +344,8 @@ def run_with_heartbeat(run_dir, job, args):
     thread.start()
     while True:
         beat = {"worker_id": args.worker_id, "started_at": started, "last_seen": now(),
-                "current_case": job["case_id"], "iterations": count_iterations(run_dir / "history.csv")}
+                "current_case": job["case_id"],
+                "iterations": count_iterations(progress if progress.exists() else run_dir / "history.csv")}
         write_json(run_dir / "heartbeat.json", beat)
         write_worker_heartbeat(args, job["case_id"])
         if not thread.is_alive():
@@ -430,6 +436,9 @@ def parse_args(argv):
     ap.add_argument("--stale-minutes", type=float, default=10,
                     help="a 1-running job with an older heartbeat is a crash victim")
     ap.add_argument("--heartbeat", type=float, default=30, help="seconds between heartbeats")
+    ap.add_argument("--work-root", default=str(Path(tempfile.gettempdir()) / "su2work"),
+                    help="local directory SU2 runs in (one subfolder per case); outputs are copied "
+                         "to the run folder once at the end. Empty: run in the run folder itself")
     ap.add_argument("--shard", type=parse_shard, default="0/1", metavar="K/N",
                     help="serve only the jobs whose case_id hash is K modulo N (default 0/1 = all); "
                          "the only safe way to run N workers on one queue")

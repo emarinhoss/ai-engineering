@@ -695,6 +695,25 @@ two-level coverage is now lower at n = 8 and 12 and higher at n = 16 and 24, and
 0.9 for either model; the n = 24 coverage rests on five held-out designs per seed. The mean result
 does hold: SU2 alone does not reach the two-level error at 8 designs even with 24. Nothing tuned.
 
+### The volume file came back corrupt from the Drive run folder, and the worker now runs SU2 on local disk (Opus, 2026-11-10 00:05 UTC)
+
+The first flow-field case, `airfoil2d-731806baea` (design 0, 6 deg, `save_volume` true), finished
+with a sound `result.json`, but its 9.7 MB `flow.dat` could not be read: the zone line declares
+22,102 nodes and the file holds about 40,000 node rows, with rows of 17 to 19 fields where two
+writes overlap. SU2 ran with the Drive run folder as its working directory and rewrites its output
+files every `OUTPUT_WRT_FREQ` = 1000 iterations; on the Drive mount those in-place rewrites of a
+large file overlapped. The 50 KB `surface_flow.dat` of the same case is intact (228 nodes, 228
+segments, one zone), so pool results and the surface plots are not affected; only volume output is.
+The corrupt file was not committed. Fix (`worker/run_case.py`, `worker/run_worker.py`): `run` takes a
+`work_dir`, stages a copy of the case's files there, runs SU2 in it, and copies every new or changed
+file back to the run folder once, after SU2 exits (also after a timeout), each through a `.part`
+file and a rename; the worker passes `--work-root/<case_id>` (default `/tmp/su2work`) and reads its
+heartbeat progress from the local history. Four tests in `tests/test_run_case.py` pin it: SU2's
+working directory is the local folder and nothing lands in the run folder mid-run; every output,
+including a readable `flow.dat`, is copied back and the local folder removed; the record equals the
+in-place record; untouched inputs keep their mtime; a timed-out run still copies back. The two viz
+cases are re-run on the fixed worker by clearing their status flags.
+
 ## Questions for Éder (answered above; kept as the record)
 
 1. **Airfoil family.** The spec varies the NACA four-digit section per design, which is what makes

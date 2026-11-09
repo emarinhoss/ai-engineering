@@ -2,6 +2,11 @@
 
     python -m worker.run_case CASE_DIR --su2-cmd "mpirun -n 2 SU2_CFD" --timeout 2400
 
+With work_dir set, SU2 runs in that local directory (a copy of the case's files) and its outputs are
+copied back into CASE_DIR once, after it exits: SU2 rewrites its output files every OUTPUT_WRT_FREQ
+iterations, and on a Google Drive mount those in-place rewrites of a large flow.dat overlapped into
+a corrupt file (viz case airfoil2d-731806baea, 2026-11-09). One copy at the end is one write.
+
 Writes log.txt, solver_version.txt and result_partial.json (the "run" and "solver" blocks of the
 run record in 01_interfaces.md plus a convergence summary). After a run that exited with code 0,
 postprocess.metrics.compute adds the "metrics" block and the same record is also written to
@@ -13,6 +18,7 @@ import json
 import os
 import re
 import shlex
+import shutil
 import signal
 import subprocess
 import sys
@@ -96,8 +102,40 @@ def _execute(tokens, case_dir, log_path, timeout_s):
             return None, True
 
 
-def run(case_dir, su2_cmd="SU2_CFD", timeout_s=2400, log_name="log.txt"):
-    """Run `<su2_cmd> case.cfg` in case_dir; return and save the run/solver/history blocks."""
+def _stage_local(case_dir, work_dir):
+    """Fresh work_dir holding a copy of every file (not directory) in case_dir; returns the names."""
+    work_dir = Path(work_dir)
+    shutil.rmtree(work_dir, ignore_errors=True)
+    work_dir.mkdir(parents=True)
+    names = set()
+    for f in Path(case_dir).iterdir():
+        if f.is_file():
+            shutil.copy2(f, work_dir / f.name)
+            names.add(f.name)
+    return names
+
+
+def _copy_back(work_dir, case_dir, inputs):
+    """Copy every file SU2 wrote or changed in work_dir into case_dir (one write each), then
+    remove work_dir. A file is copied when it is new or differs in size or mtime from its input."""
+    work_dir, case_dir = Path(work_dir), Path(case_dir)
+    for f in sorted(work_dir.iterdir()):
+        if not f.is_file():
+            continue
+        dest = case_dir / f.name
+        if f.name in inputs and dest.exists():
+            a, b = f.stat(), dest.stat()
+            if a.st_size == b.st_size and int(a.st_mtime) == int(b.st_mtime):
+                continue                              # an input SU2 did not touch
+        tmp = dest.with_name(dest.name + ".part")
+        shutil.copyfile(f, tmp)
+        os.replace(tmp, dest)
+    shutil.rmtree(work_dir, ignore_errors=True)
+
+
+def run(case_dir, su2_cmd="SU2_CFD", timeout_s=2400, log_name="log.txt", work_dir=None):
+    """Run `<su2_cmd> case.cfg` in case_dir (or in a local copy at work_dir, outputs copied back
+    once at the end); return and save the run/solver/history blocks."""
     case_dir = Path(case_dir)
     tokens = shlex.split(su2_cmd)
     log_path = case_dir / log_name
@@ -108,7 +146,15 @@ def run(case_dir, su2_cmd="SU2_CFD", timeout_s=2400, log_name="log.txt"):
 
     version = solver_version(tokens, case_dir)
     started_at, t0 = _now(), time.monotonic()
-    exit_code, timed_out = _execute(tokens, case_dir, log_path, timeout_s)
+    if work_dir is None:
+        exit_code, timed_out = _execute(tokens, case_dir, log_path, timeout_s)
+    else:
+        inputs = _stage_local(case_dir, work_dir)
+        try:
+            exit_code, timed_out = _execute(tokens, Path(work_dir), Path(work_dir) / log_name,
+                                            timeout_s)
+        finally:
+            _copy_back(work_dir, case_dir, inputs)
     wall = time.monotonic() - t0
     finished_at = _now()
     if version == "unknown":
