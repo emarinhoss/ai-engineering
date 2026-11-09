@@ -12,6 +12,11 @@ The regenerated mesh is compared by fingerprint (1 um rounding); a job file stag
 Before a job runs, the worker checks the physics gates again (a job file not made by create_case
 has not been checked) and stops any process still running in its run folder (an SU2 left behind
 by a worker that died alone).
+Several workers may serve one queue only if they are SHARDED (--shard K/N): a worker takes the jobs
+whose case_id hash is congruent to K modulo N, so the shards are disjoint and no claim race exists.
+Without a shard flag the worker takes every job, and two such workers on one queue would both start
+the same job (the 1-running flag is written only after the mesh is regenerated, and Drive sync adds
+tens of seconds on top), so never run two unsharded workers on one queue.
 The worker never deletes or moves anything; re-running a job overwrites its outputs. The one
 exception is `--retry-reason R`: at start-up, a job flagged 2-failed whose error.json has reason R
 gets its 2-failed and 1-running flags removed (error.json is kept as error.retried.json), so it is
@@ -22,6 +27,7 @@ copy that crossed Drive through a transcription can be checked byte for byte at 
 import argparse
 import json
 import os
+import re
 import signal
 import socket
 import subprocess
@@ -155,6 +161,21 @@ def job_state(run_dir, stale_s):
     return "crashed" if heartbeat_age_s(run_dir) >= stale_s else "running"
 
 
+def parse_shard(text):
+    """"K/N" -> (K, N) with 0 <= K < N; the default "0/1" is every job."""
+    m = re.fullmatch(r"(\d+)/(\d+)", text.strip())
+    if not m or int(m.group(2)) < 1 or int(m.group(1)) >= int(m.group(2)):
+        raise ValueError(f"--shard must be K/N with 0 <= K < N, got {text!r}")
+    return int(m.group(1)), int(m.group(2))
+
+
+def in_shard(case_id, shard):
+    """True if this worker's shard owns case_id: the hex digest after the family prefix, as an
+    integer, modulo N equals K. Every case_id lands in exactly one of the N shards."""
+    k, n = shard
+    return int(case_id.rsplit("-", 1)[1], 16) % n == k
+
+
 def check_job(job, label, expected_id=None):
     """`job` if it has all JOB_KEYS (and, when given, case_id == expected_id), else None."""
     try:
@@ -192,16 +213,17 @@ def read_batch(path):
     return [j for j in jobs if j]
 
 
-def jobs_in_state(queue, states, stale_s):
+def jobs_in_state(queue, states, stale_s, shard=(0, 1)):
     """Jobs (single files jobs/<case_id>.json and entries of jobs/*.batch.json) whose state is in
-    `states`, oldest created_at first. A case_id listed twice is taken once."""
+    `states` and whose case_id is in `shard`, oldest created_at first. A case_id listed twice is
+    taken once."""
     jobs_dir = Path(queue) / "jobs"
     found, seen = [], set()
     candidates = [read_job(p) for p in sorted(jobs_dir.glob("*.json")) if not p.name.endswith(".batch.json")]
     for path in sorted(jobs_dir.glob("*.batch.json")):
         candidates += read_batch(path)
     for job in candidates:
-        if job and job["case_id"] not in seen:
+        if job and job["case_id"] not in seen and in_shard(job["case_id"], shard):
             seen.add(job["case_id"])
             if job_state(Path(queue) / "runs" / job["case_id"], stale_s) in states:
                 found.append(job)
@@ -379,8 +401,11 @@ def stop_leftover_solvers(run_dir):
 def write_worker_heartbeat(args, current_case=None):
     folder = Path(args.queue) / "worker"
     folder.mkdir(parents=True, exist_ok=True)
-    write_json(folder / "heartbeat.json", {"worker_id": args.worker_id, "last_seen": now(),
-                                           "current_case": current_case, "pid": os.getpid()})
+    k, n = args.shard
+    name = "heartbeat.json" if n == 1 else f"heartbeat.{k}of{n}.json"
+    write_json(folder / name, {"worker_id": args.worker_id, "last_seen": now(),
+                               "current_case": current_case, "pid": os.getpid(),
+                               "shard": f"{k}/{n}"})
 
 
 def stop_solver():
@@ -405,6 +430,9 @@ def parse_args(argv):
     ap.add_argument("--stale-minutes", type=float, default=10,
                     help="a 1-running job with an older heartbeat is a crash victim")
     ap.add_argument("--heartbeat", type=float, default=30, help="seconds between heartbeats")
+    ap.add_argument("--shard", type=parse_shard, default="0/1", metavar="K/N",
+                    help="serve only the jobs whose case_id hash is K modulo N (default 0/1 = all); "
+                         "the only safe way to run N workers on one queue")
     ap.add_argument("--retry-reason", action="append", default=[], metavar="REASON",
                     help="at start-up, make 2-failed jobs with this error.json reason pending again "
                          "(repeatable), e.g. config_mismatch after a worker-side fix")
@@ -417,17 +445,18 @@ def main(argv=None):
     for sub in ("jobs", "runs", "worker"):
         (queue / sub).mkdir(parents=True, exist_ok=True)
     write_worker_heartbeat(args)
-    say(f"worker {args.worker_id} on {queue}, SU2 command: {args.su2_cmd}")
+    say(f"worker {args.worker_id} on {queue}, shard {args.shard[0]}/{args.shard[1]}, "
+        f"SU2 command: {args.su2_cmd}")
     backfill_digests(queue)
     if args.retry_reason:
         retried = retry_failed(queue, set(args.retry_reason))
         say(f"{len(retried)} failed job(s) made pending again ({', '.join(args.retry_reason)})")
-    for job in jobs_in_state(queue, {"crashed"}, stale_s):
+    for job in jobs_in_state(queue, {"crashed"}, stale_s, args.shard):
         say(f"{job['case_id']}: crash victim (1-running, stale heartbeat), will be re-run")
     try:
         while True:
             write_worker_heartbeat(args)
-            todo = jobs_in_state(queue, {"new", "crashed"}, stale_s)
+            todo = jobs_in_state(queue, {"new", "crashed"}, stale_s, args.shard)
             if todo:
                 try:
                     process(todo[0], args)
