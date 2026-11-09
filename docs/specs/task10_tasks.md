@@ -533,7 +533,7 @@ none of them is a study answer, because the questions are asked of the high leve
 - `runs/drone_inverse_lf/2026-11-09/`: `analysis.inverse --family drone`, 21^6 = 85,766,121 grid
   points walked in chunks, 76,587,147 passing the closed-form gates, cap 4.0 kg at P ≥ 0.9. **The
   answer is a box corner**: span 3.0 m, aspect ratio 16, taper 0.3, battery fraction 0.45, camber
-  6 %, thickness 8 % — five of the six inputs at a bound — predicted 13.307 h (90 % interval
+  6 %, thickness 8 % — ALL SIX inputs at a bound (this first said five; corrected 2026-11-09, caught by the deck builder reading inverse.json) — predicted 13.307 h (90 % interval
   [13.228, 13.386]) at a median 2.435 kg, P(mtow ≤ 4) = 1.000, closure gates passed. Evaluated
   directly on the low model the design gives **13.245 h and 2.438 kg**, both inside the intervals.
   Two facts travel with it: **the 4 kg cap never binds on the low model** (every one of the 192 pool

@@ -192,6 +192,9 @@ def test_every_su2_polar_carries_the_recorded_v6e_bias_and_the_ruling():
     row = next(c for c in rec if c["name"] == "V6e cl_alpha Re 203800")
     assert f"v6e:cl_alpha:Re203800={100 * row['deviation']:+.1f}%:{row['verdict']}" in v6e
     assert row["verdict"] == "fail" and row["deviation"] > row["tolerance"]   # accepted WITH a fail
+    ratio = next(c for c in rec if c["name"] == "V6e cd ratio Re 203800")
+    assert f"v6e:cd_ratio:Re203800={100 * ratio['deviation']:+.1f}%:{ratio['verdict']}" in v6e
+    assert not any("ReRe" in f or ":cd:" in f for f in v6e)        # the 2026-11-09 parse bug
 
 
 def test_v6e_flags_refuse_a_record_without_a_toleranced_row(tmp_path):

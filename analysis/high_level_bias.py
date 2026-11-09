@@ -9,6 +9,7 @@ slope minus one); for cd_ratio it is the MEAN ABSOLUTE deviation over the cl ban
 negative — read "+8.0%" there as "8.0 % mean |cd/cd_tunnel - 1|", not as "SU2 drag 8 % high".
 """
 import json
+import re
 from pathlib import Path
 
 RECORD = Path(__file__).resolve().parents[1] / "runs/drone/validation/2026-11-08/v6.json"
@@ -22,9 +23,15 @@ def v6e_flags(record=RECORD):
     for c in checks:
         if not c["name"].startswith("V6e ") or c.get("tolerance") is None:
             continue
-        # "V6e cl_alpha Re 203800" -> quantity "cl_alpha", re "203800"
-        _, quantity, _, re = c["name"].split(" ", 3)
-        flags.append(f"v6e:{quantity}:Re{re}={100 * c['deviation']:+.1f}%:{c['verdict']}")
+        # "V6e cl_alpha Re 203800" -> quantity "cl_alpha", re "203800";
+        # "V6e cd ratio Re 203800" -> quantity "cd_ratio" (a space in the name becomes "_").
+        # The first version split the name on its first three spaces and wrote
+        # "v6e:cd:ReRe 203800" for the ratio row; corrected 2026-11-09, found by the deck builder.
+        m = re.fullmatch(r"V6e (.+?) Re (\d+)", c["name"])
+        if not m:
+            raise ValueError(f"unexpected V6e row name {c['name']!r} in {record}")
+        quantity, reynolds = m.group(1).replace(" ", "_"), m.group(2)
+        flags.append(f"v6e:{quantity}:Re{reynolds}={100 * c['deviation']:+.1f}%:{c['verdict']}")
     if not flags:
         raise ValueError(f"no toleranced V6e row in {record}")
     return flags + [RULING]
