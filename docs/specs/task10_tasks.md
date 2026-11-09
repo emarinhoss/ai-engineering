@@ -658,6 +658,19 @@ interval is the more over-confident one; at this pool size the two-level posteri
 not carry the scatter of the held-out points. The n = 8 win count fell to 7 of 10 with the larger
 held-out set. Recorded, not tuned: no noise floor, kernel or prior is changed to move the coverage.
 
+**Re-run at 24 designs (Opus, 2026-11-09 21:05 UTC, commit `43713c2`):** pool batch 19 completed
+designs 23 and 24; budgets 8, 12 and 16 form, with 16, 12 and 8 held out. Means over ten seeds,
+held-out endurance RMSE: **n = 8: 0.692 h two-level against 1.248 h SU2-only (10 of 10 seeds);
+n = 12: 0.604 h against 1.199 h (9 of 10); n = 16: 0.598 h against 0.706 h (6 of 10)**; raw low
+model 2.134 h. MTOW relative RMSE 0.0015 / 0.1344, 0.0013 / 0.0240 and 0.0013 / 0.0121 (10 of 10 at
+every budget); raw low 0.0023. ρ_endurance 0.847 (0.73 to 0.93), 0.847 (0.75 to 0.93) and 0.836
+(0.78 to 0.91). Endurance coverage of the 90 % interval: two-level 0.51, 0.65 and 0.64 against
+SU2-only 0.42, 0.53 and 0.75. **The 22-design finding that the two-level interval covers less at
+every budget does NOT hold at 24 designs**: it covers more at n = 8 and 12 and less at n = 16, and
+both stay well under 0.9 everywhere. At n = 16 the two models' means are close (0.598 against
+0.706 h) and the two-level model wins in only 6 of 10 seeds, so the advantage narrows as the SU2
+budget grows. Both readings are kept; the 32-design sweep decides.
+
 ## Questions for Éder (answered above; kept as the record)
 
 1. **Airfoil family.** The spec varies the NACA four-digit section per design, which is what makes
