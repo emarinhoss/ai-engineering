@@ -1,0 +1,76 @@
+{
+  "params": {
+    "span_m": 2.175873,
+    "aspect_ratio": 13.794322,
+    "taper_ratio": 0.404843,
+    "battery_fraction": 0.332683,
+    "camber_pct": 5.284009,
+    "thickness_pct": 14.142896
+  },
+  "cases": [
+    "airfoil2d-385ba1fd49",
+    "airfoil2d-c3d46916ac",
+    "airfoil2d-df2f5e7af7",
+    "airfoil2d-9ddfff7dc0",
+    "airfoil2d-febbc3e1c2"
+  ],
+  "section": {
+    "cl_max": 1.0228755420743243,
+    "alpha_L0": -0.2304301143644623,
+    "cl_alpha_per_deg": 0.03154176593137083,
+    "flags": [
+      "cauchy_stopped",
+      "cl_drift_max_pct=11.0",
+      "cd_drift_max_pct=6.1",
+      "v6e:cl_alpha:Re203800=+5.5%:fail",
+      "v6e:cd_ratio:Re203800=+8.0%:pass",
+      "v6e:cl_alpha:Re305200=+6.4%:fail",
+      "v6e:cd_ratio:Re305200=+5.7%:pass",
+      "v6e_ruling=decision8_accepted_with_bias"
+    ],
+    "source": "airfoil2d camber=5.284009 thickness=14.142896 Re=106475.0 transition=BCM cases=airfoil2d-385ba1fd49,airfoil2d-c3d46916ac,airfoil2d-df2f5e7af7,airfoil2d-9ddfff7dc0,airfoil2d-febbc3e1c2"
+  },
+  "result": {
+    "endurance_h": 4.629851754702338,
+    "mtow_kg": 1.5109171425196068,
+    "range_km": 183.99843529602717,
+    "v_cruise": 11.039376466701686,
+    "v_stall": 8.491828051308989,
+    "wing_loading": 43.17124739749912,
+    "re_cruise": 126368.21057104069,
+    "throttle_cruise": 0.23769810245661913,
+    "static_margin": 0.27516375112785324,
+    "cl_max": 1.0228755420743243,
+    "e_span": 0.971922964578876,
+    "cd0": 0.024730831455456022,
+    "masses": {
+      "payload": 0.5,
+      "battery": 0.502656447389883,
+      "wing_skin": 0.319815465239523,
+      "spar": 0.007124544954009901,
+      "tail": 0.12925870212597942,
+      "fuselage": 0.02614567916277083,
+      "propulsion": 0.025916303647440783
+    },
+    "closure_iterations": 19,
+    "closure_residual": 6.663941657650309e-10,
+    "diagnostics": {
+      "P_cruise_W": 15.400640499215577,
+      "P_installed_W": 64.79075911860195,
+      "section_source": "airfoil2d camber=5.284009 thickness=14.142896 Re=106475.0 transition=BCM cases=airfoil2d-385ba1fd49,airfoil2d-c3d46916ac,airfoil2d-df2f5e7af7,airfoil2d-9ddfff7dc0,airfoil2d-febbc3e1c2",
+      "CL_cruise": 0.5783615542289734,
+      "CD_cruise": 0.03267259141508105,
+      "L_over_D": 17.701734976614457,
+      "L_over_D_max": 17.701734976614457,
+      "v_best_ld": 11.039376466701686,
+      "cl_max_wing": 0.9774310266469651,
+      "tip_stall_ratio": 0.9011387798296286,
+      "alpha_cruise_deg": 0.6835973213185977,
+      "x_np": 0.08779348428910874,
+      "CL_alpha_wing": 5.322825277656962,
+      "tip_panel_aspect": 3.982133502672839,
+      "structure_propulsion_fraction": 0.33639216902866054
+    },
+    "gates": []
+  }
+}
