@@ -38,9 +38,23 @@ record at build time or marked PENDING.
 ### D3. The model in one picture
 
 - **Message:** Six inputs go through a vortex lattice, a drag build-up, a mass closure and a mission to endurance and take-off mass, at two fidelity levels that differ only in the section data.
-- **Figure or table:** Pipeline: six inputs, vortex-lattice method, drag build-up, mass closure, mission, two outputs; below it the two section-data levels.
-- **Source:** `docs/specs/task10_drone_sizing.md` (sections 2, 3 and 6); `drone/evaluate.py`
+- **Figure or table:** Pipeline drawn with boxes and arrows: six inputs with their ranges, geometry, vortex lattice, drag build-up, mass closure with its loop, mission, outputs; above the drag block the two section-data levels, the only block that differs.
+- **Source:** `docs/specs/task10_drone_sizing.md` (sections 2, 3 and 6); `drone/evaluate.py`; `mcp_server/schemas.py` (DRONE_BOUNDS); `docs/talk/build_deck_drone.py`
 - **Speaker notes:** The lattice, the drag build-up and the closure are the same at both levels. The low level takes the section from closed forms; the high level takes it from an SU2 airfoil polar at the design's own Reynolds number.
+
+### D3a. The nominal design in one top view
+
+- **Message:** The nominal design has a {nom_span} m span, aspect ratio {nom_ar} and taper {nom_taper}: {nom_area} m^2 of wing and a closed take-off mass of {nom_mtow} kg; tail and fuselage follow from the wing by rule.
+- **Figure or table:** Top view drawn by `drone.geometry.build`, with the six inputs labeled and the NACA section inset.
+- **Source:** `drone/geometry.py`; `drone/naca.py`; `drone/evaluate.py`; `runs/drone/validation/2026-11-08/v6.json`; `docs/talk/build_deck_drone.py`
+- **Speaker notes:** Span and aspect ratio fix the wing area, taper fixes the chords, and the tail is sized by volume coefficients with a fixed arm. The fuselage is a body of revolution holding the payload and the battery; its position along the wing is schematic.
+
+### D3b. Mass closure and the endurance balance
+
+- **Message:** Take-off mass is a fixed point and endurance is an energy balance: at the nominal design the closure takes {nom_iters} iterations and the balance gives {nom_endurance} h.
+- **Figure or table:** The closure loop, the nominal mass breakdown and the energy chain with its nominal values.
+- **Source:** `drone/evaluate.py`; `drone/mission.py`; `runs/drone/validation/2026-11-08/v6.json`; `docs/talk/build_deck_drone.py`
+- **Speaker notes:** Battery mass is the battery fraction times take-off mass, so the loop has to be iterated. V6d checks that the loop and the energy balance close to 1e-9.
 
 ### D4. Gates and the queue: what is new
 
@@ -49,12 +63,33 @@ record at build time or marked PENDING.
 - **Source:** `runs/smoke/airfoil2d-96a9dd0f51/result.json`; `runs/smoke2/airfoil2d-51d551f2cc/result.json`; `cases/templates/inc_rans_airfoil.cfg`; `docs/specs/task10_tasks.md` (decision 6)
 - **Speaker notes:** Everything else in the queue, the worker and the gates is the inlet machinery unchanged. The new parts are the airfoil family, its mesh checks and the convergence rule.
 
+### D4a. Where each gate sits
+
+- **Message:** Every request passes the same ordered checks before SU2 starts, and every result passes more before it becomes a record; the numbered marks show where.
+- **Figure or table:** Diagram from the request through the MCP tools, the Drive queue folder and the Colab worker to the ingested record, with the gates numbered.
+- **Source:** `mcp_server/queue.py`; `mcp_server/schemas.py`; `worker/run_worker.py`; `analysis/drone_polar.py`; `postprocess/history.py`; `docs/talk/build_deck_drone.py`
+- **Speaker notes:** This is the inlet pipeline unchanged, drawn once for both studies. Stage and step names in the drawing are checked against the code at build time.
+
+### D4b. The airfoil2d mesh
+
+- **Message:** The SU2 section runs on a structured C-mesh of {mesh_cells} cells with a first cell of {mesh_first_cell} m, drawn here from the mesh builder at the coarse level.
+- **Figure or table:** The coarse mesh around the nominal section: whole domain, near field and a zoom at the leading edge.
+- **Source:** `geometry/airfoil2d.py`; `runs/mesh/airfoil2d-59cd4287e9/geometry.json`; `runs/mesh/airfoil2d-59cd4287e9/mesh_quality.json`; `runs/mesh/airfoil2d-59cd4287e9/params.json`
+- **Speaker notes:** The mesh is rebuilt from the recorded parameters and checked against the recorded cell count before it is drawn. The first cell is set for y+ of 0.5 at the design's Reynolds number.
+
 ### D5. Validation V6a to V6d
 
 - **Message:** The solver's own checks pass: {n_pass} toleranced rows pass, {n_pending} is pending a source, {n_fail} fails.
 - **Figure or table:** Table of V6a to V6d: row group, rows by verdict, and the worst deviation among the toleranced rows.
 - **Source:** `runs/drone/validation/2026-11-08/v6.json`
 - **Speaker notes:** These rows check the vortex lattice against Helmbold's slope and lifting-line theory, the Warren-12 benchmark, the lattice convergence and the mass and energy closure. The one pending row waits on the source of the benchmark's moment reference point; it is not tuned to agree.
+
+### D5a. What V6a checks
+
+- **Message:** The lattice puts one horseshoe vortex on each panel; V6a checks its span efficiency ({v6a_e_dev} against 1) and lift slope ({v6a_cla_dev} against Helmbold) on an elliptic wing of aspect ratio 8.
+- **Figure or table:** The medium lattice on the nominal planform with one horseshoe highlighted, and the spanwise cl at 4 degrees.
+- **Source:** `drone/vlm.py`; `drone/geometry.py`; `runs/drone/validation/2026-11-08/v6.json`; `docs/talk/build_deck_drone.py`
+- **Speaker notes:** Bound vortices sit on the quarter chord and control points on the three-quarter chord of each panel. The nominal wing's own span efficiency and lift slope are in the figure beside the V6a values.
 
 ### D6. V6f: the low-fidelity section against the E387 tunnel
 
@@ -76,6 +111,13 @@ record at build time or marked PENDING.
 - **Figure or table:** Figure a: the exact front and the 192-point pool's front, endurance against take-off mass.
 - **Source:** `docs/validation/figures/task10/a_front_lowfi.png`; `runs/drone_grid/2026-11-08/record.json`; `runs/drone_grid/2026-11-08/front.csv`; `runs/drone_pool_lf/2026-11-08/front.csv`
 - **Speaker notes:** The exact front is the reference against which both replays measure regret. The pool's front has {pool_front_n} designs.
+
+### D8a. The box, the gates and the observed front
+
+- **Message:** Endurance changes fastest with aspect ratio and span, which is why the design map uses them; in this projection {n_front_edge} of the {n_front} observed front designs lie within one cell of a gated cell.
+- **Figure or table:** The six inputs ranked by the GP length scale of endurance, and the gate-feasible region over aspect ratio and span with the observed front overlaid.
+- **Source:** `runs/drone_pareto_lf/2026-11-09/design_map.csv`; `runs/drone_pareto_lf/2026-11-09/notes.json`; `runs/drone_pool_lf/2026-11-08/front.csv`; `docs/talk/build_deck_drone.py`
+- **Speaker notes:** The map holds the other four inputs at one base point while the front designs have their own values, so the overlay is a projection. The count says how close the front comes to the cheap gates in this view, and no more.
 
 ### D9. The pool replay
 
@@ -101,8 +143,8 @@ record at build time or marked PENDING.
 ### D12. Multi-fidelity
 
 - **Message:** PENDING: whether the two-level model reaches a given held-out error with fewer SU2 designs than SU2 alone.
-- **Figure or table:** Placeholder box; the error-against-designs figure will go here (figure not drawn).
-- **Source:** PENDING: multi-fidelity analysis (T10.10c)
+- **Figure or table:** Sketch of y_H = rho y_L + d beside the E387 lift-slope values at Re 203,800 that d has to absorb; the error-against-designs figure is not drawn.
+- **Source:** PENDING: multi-fidelity analysis (T10.10c); the sketch is drawn from `runs/drone/validation/2026-11-08/v6.json` by `docs/talk/build_deck_drone.py`
 - **Speaker notes:** The known bias of the high level is recorded beside every SU2 number, so the correction term absorbs a known offset. Whether that pays is the measurement still to come.
 
 ### D13. The inverse query and its confirmation
