@@ -39,6 +39,7 @@ from drone import geometry, ledger, naca, vlm
 from drone.evaluate import _CAMBER_POSITION, _helmbold, evaluate
 from geometry import airfoil2d
 from mcp_server.schemas import DRONE_BOUNDS
+from postprocess import plot_airfoil as pa
 
 plt = bd.plt
 
@@ -48,6 +49,10 @@ V6 = "runs/drone/validation/2026-11-08/v6.json"
 SPEC = "docs/specs/task10_drone_sizing.md"
 TASKS = "docs/specs/task10_tasks.md"
 FIG = "docs/validation/figures/task10/"
+FLOW = FIG + "flow/"
+# The two volume-output cases queued for the contour pictures (tag viz, design 0 coarse); their
+# job files are in su2queue_local/jobs/. Not run yet, so nothing is drawn from them.
+VIZ_CASES = ("airfoil2d-731806baea", "airfoil2d-0ae85f2779")
 LM, CW, CT = bd.LM, bd.CW, bd.CT
 
 
@@ -114,6 +119,68 @@ def drawing_values():
             "n_front_edge": n_edge, "n_front": len(front)}
 
 
+# ---- values read from the surface files, for the flow slides -----------------------------------
+def suction_peak(surface):
+    """Most negative Cp on the upper surface."""
+    return float(np.min(pa.side(surface, "upper", "Pressure_Coefficient")[1]))
+
+
+def case_by_alpha(cases):
+    """[(alpha, result.json, surface)] sorted by angle for [(tag, case id)]."""
+    out = [(r["params"]["alpha_deg"], r, s) for r, s in (pa.load_case(t, c) for t, c in cases)]
+    return sorted(out, key=lambda row: row[0])
+
+
+def e387_flow_values():
+    rows = case_by_alpha(pa.E387_CASES)
+    (a0, _, s0), (a1, _, s1) = rows[0], rows[-1]
+    x0, x1 = pa.reversed_flow_extent(s0), pa.reversed_flow_extent(s1)
+    return {"e387_a_lo": f"{a0:g}", "e387_a_hi": f"{a1:g}",
+            "e387_peak_lo": f"{suction_peak(s0):.2f}", "e387_peak_hi": f"{suction_peak(s1):.2f}",
+            "e387_rev_lo": f"{x0[0]:.2f} to {x0[1]:.2f}", "e387_rev_hi": f"{x1[0]:.2f} to {x1[1]:.2f}"}
+
+
+def design0_flow_values():
+    rows = {a: (r, s) for a, r, s in case_by_alpha(pa.DESIGN0_CASES)}
+    (r10, s10), (r14, s14) = rows[10.0], rows[14.0]
+    return {"d0_cl10": f"{r10['metrics']['cl']:.3f}", "d0_cl14": f"{r14['metrics']['cl']:.3f}",
+            "d0_cd10": f"{r10['metrics']['cd']:.4f}", "d0_cd14": f"{r14['metrics']['cd']:.4f}",
+            "d0_peak10": f"{suction_peak(s10):.2f}", "d0_peak14": f"{suction_peak(s14):.2f}"}
+
+
+def mesh_flow_values():
+    out = {}
+    for level, tag, case in pa.MESH_CASES:
+        r, s = pa.load_case(tag, case)
+        out[f"mesh_{level}_peak"] = f"{suction_peak(s):.3f}"
+        out[f"mesh_{level}_cl"] = f"{r['metrics']['cl']:.4f}"
+        out[f"mesh_{level}_cells"] = f"{r['geometry']['cells']:,}"
+    return out
+
+
+def convergence_flow_values():
+    c = jload(pa.SMOKE2 + "/result.json")
+    return {"conv_iters": c["convergence"]["iterations"], "conv_budget": c["params"]["max_iter"],
+            "conv_drop": f"{c['convergence']['drop_orders']:.1f}",
+            "conv_cl_drift": f"{c['convergence']['drift_pct']['cl']:.2f} %",
+            "conv_cd_drift": f"{c['convergence']['drift_pct']['cd']:.2f} %"}
+
+
+def stall_flow_values():
+    """cl and cd at 14 degrees of every complete pool design, as a range."""
+    at14 = [r["metrics"] for d in pa.pool_designs() for r, _ in pa.design_cases(d)
+            if r["params"]["alpha_deg"] == 14.0]
+    cl, cd = [m["cl"] for m in at14], [m["cd"] for m in at14]
+    return {"n_stall": len(at14), "stall_cl": f"{min(cl):.2f} to {max(cl):.2f}",
+            "stall_cd": f"{min(cd):.3f} to {max(cd):.3f}", "n_designs": len(pa.pool_designs())}
+
+
+def flow_values():
+    return {**e387_flow_values(), **design0_flow_values(), **mesh_flow_values(),
+            **convergence_flow_values(), **stall_flow_values(),
+            "viz_cases": " and ".join(VIZ_CASES)}
+
+
 def values():
     """Every {name} a message or note may use, each computed from a file."""
     v6 = jload(V6)["checks"]
@@ -158,6 +225,7 @@ def values():
         "su2_cd_range": signed_range([p[2] / p[4] - 1 for p in pts], "high", "low"),
         "e387_re": f"{203800:,}",
         **drawing_values(),
+        **flow_values(),
     }
 
 
@@ -889,6 +957,30 @@ def body_d7(slide, v):
                 size=11, bullets=True)
 
 
+def body_flow(name, record, max_h=4.6):
+    """A flow figure (docs/validation/figures/task10/flow/) full width with its caption."""
+    def body(slide, v):
+        bd.add_figure_with_caption(slide, FLOW + name, record, LM, CT - 0.05, CW, max_h)
+    return body
+
+
+def body_d7a(slide, v):
+    _, h = bd.add_figure(slide, FLOW + "section_polars.png", LM, CT - 0.05, CW, 4.1)
+    bd.caption(slide, LM, CT + h, CW, "Figure: " + FLOW + "section_polars.png. Records: runs/e387/*/result.json, "
+               "runs/pool_af/*/result.json, " + pa.POOL_RESULTS + ", " + pa.E387_TUNNEL
+               + ". Open circles are cases the pool did not keep.", lines=2)
+
+
+def body_d11a(slide, v):
+    how = ("The command that draws them exists: python -m postprocess.plot_flowfield airfoil "
+           "CASE_DIR --out PNG, tested on a synthetic volume file.")
+    panels = "Panels: Cp contours and speed with streamlines, whole section and the leading edge."
+    body_pending(slide, [how, panels],
+                 ("Cp contours and streamlines, design 0 coarse mesh, Re 121,945:\n"
+                  + "\n".join(f"{c}: {a} deg" for c, a in zip(VIZ_CASES, (6, 14)))
+                  + "\nPENDING: the viz batch (flow.dat is written only when save_volume is true)"))
+
+
 def body_d8(slide, v):
     bd.add_figure_with_caption(slide, FIG + "a_front_lowfi.png", "runs/drone_grid/2026-11-08/front.csv",
                                LM, CT, 6.4, 4.3)
@@ -1017,10 +1109,17 @@ BODIES = {"D2": body_d2, "D3": body_d3, "D3a": body_figure("planform.png", "dron
           "D3b": body_d3b,
           "D4a": body_figure("queue_gates.png", "mcp_server/queue.py, worker/run_worker.py"),
           "D4b": body_d4b,
+          "D4c": body_flow("cp_e387.png", "runs/e387/*/surface_flow.dat.gz"),
+          "D4d": body_flow("cp_design0.png", "runs/pool_af/*/surface_flow.dat.gz"),
+          "D4e": body_flow("cf_e387.png", "runs/e387/*/surface_flow.dat.gz", max_h=4.5),
+          "D4f": body_flow("cp_mesh_pair.png", "runs/mesh, runs/smoke2 surface_flow.dat.gz"),
+          "D4g": body_flow("convergence_smoke2.png", "runs/smoke2/airfoil2d-51d551f2cc/history.csv.gz",
+                           max_h=4.6),
+          "D7a": body_d7a,
           "D5a": body_d5a,
           "D8a": body_figure("design_space.png", "runs/drone_pareto_lf/2026-11-09/design_map.csv"),
           "D4": body_d4, "D5": body_d5, "D6": body_d6, "D7": body_d7,
-          "D8": body_d8, "D9": body_d9, "D10": body_d10, "D11": body_d11, "D12": body_d12, "D13": body_d13,
+          "D8": body_d8, "D9": body_d9, "D10": body_d10, "D11": body_d11, "D11a": body_d11a, "D12": body_d12, "D13": body_d13,
           "D14": body_d14, "D15": body_d15}
 
 
@@ -1033,6 +1132,8 @@ def ensure_figures():
     names = ("a_front_lowfi.png", "b_pool_replay.png", "c_online_regret.png", "d_e387_comparison.png")
     if not all((ROOT / FIG / n).is_file() for n in names):
         fd.main(ROOT, ROOT / FD_OUT)
+    if not all((ROOT / FLOW / name).is_file() for name, _ in pa.captions()):
+        pa.main(ROOT / FLOW)
 
 
 FD_OUT = fd.OUT_DIR

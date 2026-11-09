@@ -86,6 +86,41 @@ record at build time or marked PENDING.
 - **Source:** `geometry/airfoil2d.py`; `runs/mesh/airfoil2d-59cd4287e9/geometry.json`; `runs/mesh/airfoil2d-59cd4287e9/mesh_quality.json`; `runs/mesh/airfoil2d-59cd4287e9/params.json`
 - **Speaker notes:** The mesh is rebuilt from the recorded parameters and checked against the recorded cell count before it is drawn. The first cell is set for y+ of 0.5 at the design's Reynolds number.
 
+### D4c. The E387 pressure distributions
+
+- **Message:** On E387 at Re {e387_re} the suction peak on the upper surface deepens from Cp {e387_peak_lo} at {e387_a_lo} deg to {e387_peak_hi} at {e387_a_hi} deg, and a kink in the upper-surface Cp moves forward as the angle rises.
+- **Figure or table:** Five Cp panels against x/c, one per angle, upper surface solid and lower surface dashed, with cl, cd and the convergence status of each case.
+- **Source:** `docs/validation/figures/task10/flow/cp_e387.png`; `docs/validation/figures/task10/flow/captions.md`; `runs/e387/airfoil2d-498b156761/surface_flow.dat.gz`; `postprocess/plot_airfoil.py`
+- **Speaker notes:** Every curve is the Pressure_Coefficient column SU2 wrote at the surface nodes, read from the committed files. All five cases are flagged not converged by the drift rule, which each panel title states.
+
+### D4d. The stall at 14 degrees
+
+- **Message:** On pool design 0 the section stalls between 10 and 14 degrees: cl falls from {d0_cl10} to {d0_cl14}, cd rises from {d0_cd10} to {d0_cd14}, and the suction peak collapses from Cp {d0_peak10} to {d0_peak14}.
+- **Figure or table:** Five Cp panels for design 0 on the coarse mesh at -2, 2, 6, 10 and 14 degrees.
+- **Source:** `docs/validation/figures/task10/flow/cp_design0.png`; `docs/validation/figures/task10/flow/captions.md`; `runs/pool_af/airfoil2d-2862718ac9/surface_flow.dat.gz`; `postprocess/plot_airfoil.py`
+- **Speaker notes:** The flat upper-surface Cp at 14 degrees is the signature of separated flow over most of the chord. Cases a pool design leaves out of its polar are drawn as open circles on the polar slide.
+
+### D4e. Where the wall shear reverses
+
+- **Message:** On the E387 upper surface the skin friction changes sign, which marks reversed flow at the wall: from x/c {e387_rev_lo} at {e387_a_lo} deg and from {e387_rev_hi} at {e387_a_hi} deg.
+- **Figure or table:** Skin friction Cf_x against x/c on the upper and lower surface, one curve per angle.
+- **Source:** `docs/validation/figures/task10/flow/cf_e387.png`; `docs/validation/figures/task10/flow/captions.md`; `runs/e387/airfoil2d-498b156761/surface_flow.dat.gz`; `postprocess/plot_airfoil.py`
+- **Speaker notes:** Cf_x is the x component of SU2's Skin_Friction_Coefficient, so a negative value means the wall shear points upstream. The negative stretch sits where the Cp panels show their kink, and it moves forward with angle.
+
+### D4f. What the mesh does to the pressure distribution
+
+- **Message:** On the nominal section the peak suction is Cp {mesh_coarse_peak} on the coarse mesh ({mesh_coarse_cells} cells), {mesh_medium_peak} on the medium ({mesh_medium_cells}) and {mesh_fine_peak} on the fine ({mesh_fine_cells}); cl is {mesh_coarse_cl}, {mesh_medium_cl} and {mesh_fine_cl}.
+- **Figure or table:** Cp of the three meshes on one axis with a leading-edge zoom.
+- **Source:** `docs/validation/figures/task10/flow/cp_mesh_pair.png`; `docs/validation/figures/task10/flow/captions.md`; `runs/mesh/airfoil2d-59cd4287e9/surface_flow.dat.gz`; `runs/smoke2/airfoil2d-51d551f2cc/surface_flow.dat.gz`; `runs/mesh/airfoil2d-e161fb7e6b/surface_flow.dat.gz`
+- **Speaker notes:** This is the picture behind the mesh table in the ledger: the curves agree away from the leading edge and differ in the peak. Every run of the three was flagged not converged, so the differences mix mesh and convergence effects.
+
+### D4g. What the solver history looks like
+
+- **Message:** The medium-mesh nominal case ran {conv_iters} of {conv_budget} iterations and dropped rms[P] by {conv_drop} orders, yet over the last 20 % of its history CL still drifts {conv_cl_drift} and CD {conv_cd_drift}.
+- **Figure or table:** rms[P], CL and CD against iteration with the last-20 % window and the end of the run marked.
+- **Source:** `docs/validation/figures/task10/flow/convergence_smoke2.png`; `docs/validation/figures/task10/flow/captions.md`; `runs/smoke2/airfoil2d-51d551f2cc/history.csv.gz`; `runs/smoke2/airfoil2d-51d551f2cc/result.json`
+- **Speaker notes:** The residual alone looks converged while the force coefficients are still moving, which is why the drift rule exists. This is the only history file downloaded so far; the others are not drawn.
+
 ### D5. Validation V6a to V6d
 
 - **Message:** The solver's own checks pass: {n_pass} toleranced rows pass, {n_pending} is pending a source, {n_fail} fails.
@@ -117,6 +152,13 @@ record at build time or marked PENDING.
 - **Equations:** $a_{\mathrm{fit}}=\dfrac{\sum(\alpha_i-\bar\alpha)(c_{l,i}-\bar c_l)}{\sum(\alpha_i-\bar\alpha)^{2}},\quad \mathrm{dev}=\dfrac{a_{\mathrm{SU2}}}{a_{\mathrm{tun}}}-1$; $\mathrm{mean}_{\,0.3\leq c_{l,\mathrm{tun}}\leq0.9}\left|\dfrac{c_d}{c_{d,\mathrm{tun}}}-1\right|$
 - **Source:** `docs/validation/figures/task10/d_e387_comparison.png`; `runs/drone/validation/2026-11-08/v6.json`; `runs/e387/airfoil2d-498b156761/result.json`; `docs/specs/task10_tasks.md` (V6e and decision 8)
 - **Speaker notes:** The tolerance was fixed before any case ran, and the miss is reported as a fail. Decision 8 accepts the medium-mesh polar as the high level and attaches the miss to every record it produces. The figure draws whatever E387 points exist at build time.
+
+### D7a. Section polars: SU2, the closed form and the tunnel
+
+- **Message:** On E387 SU2's cl is {su2_cl_range} and cd is {su2_cd_range} against the tunnel; on the {n_designs} complete pool designs the {n_stall} cases at 14 degrees (cl {stall_cl}, cd {stall_cd}) are the stall the closed form cannot show.
+- **Figure or table:** cl against alpha and cd against cl for E387 and each complete pool design: SU2 points, the closed-form section and, for E387, the UIUC tunnel.
+- **Source:** `docs/validation/figures/task10/flow/section_polars.png`; `docs/validation/figures/task10/flow/captions.md`; `runs/pool_af/2026-11-09/results.csv`; `data/validation/e387_uiuc.yaml`; `drone/section.py`
+- **Speaker notes:** The closed form is a straight line to a cap and a constant drag, so it has no stall and no drag rise. Open circles are cases the pool did not keep for the polar.
 
 ### D8. The low-fidelity grid and its exact front
 
@@ -154,6 +196,13 @@ record at build time or marked PENDING.
 - **Figure or table:** Placeholder box naming the pool batch; the front with its GP band will go here (figure not drawn).
 - **Source:** PENDING: pool batch (`designs/pool_af_cases.csv`)
 - **Speaker notes:** The case table is committed and the cases are queued. No SU2 pool number appears in this deck until `runs/pool_af/results.csv` exists.
+
+### D11a. Pressure contours and streamlines
+
+- **Message:** PENDING: two volume-output cases, {viz_cases}, will give Cp contours and streamlines at 6 and 14 degrees once they run after the pool.
+- **Figure or table:** Placeholder box naming the two cases; the picture is drawn by `python -m postprocess.plot_flowfield airfoil`.
+- **Source:** PENDING: viz batch (volume output of design 0, coarse mesh)
+- **Speaker notes:** The cases are queued with volume output on and will run after the pool. The drawing command is written and tested on a synthetic file, so the pictures follow the moment the files land.
 
 ### D12. Multi-fidelity
 

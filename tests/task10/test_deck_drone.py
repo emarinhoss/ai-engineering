@@ -21,7 +21,7 @@ def test_slide_count_matches_the_outline(deck):
     n, prs = deck
     slides = bdd.read_outline()
     assert n == len(prs.slides) == len(slides)
-    assert 12 <= n <= 25
+    assert 12 <= n <= 32
     ids = [s["id"] for s in slides]
     assert len(set(ids)) == n
     numbers = [int(re.match(r"D(\d+)", i).group(1)) for i in ids]
@@ -52,7 +52,7 @@ def test_notes_are_at_most_three_sentences_and_placeholders_resolve(deck):
 def test_pending_slides_say_pending_and_show_no_su2_pool_number(deck):
     _, prs = deck
     by_id = {s["id"]: sl for s, sl in zip(bdd.read_outline(), prs.slides)}
-    for sid in ("D11", "D12", "D13"):
+    for sid in ("D11", "D11a", "D12", "D13"):
         text = " ".join(sh.text_frame.text for sh in by_id[sid].shapes if sh.has_text_frame)
         assert "PENDING" in text
 
@@ -107,3 +107,41 @@ def test_every_outline_equation_renders_and_sits_on_its_slide_as_a_picture(deck,
     assert n_equations >= 30                      # the slides the brief names all carry at least one
     for sid in ("D3", "D3b", "D4", "D5", "D5a", "D6", "D9", "D10", "D12", "D13"):
         assert next(s for s in outline if s["id"] == sid).get("equations"), sid
+
+
+FLOW_SLIDES = {"D4c": "cp_e387.png", "D4d": "cp_design0.png", "D4e": "cf_e387.png",
+               "D4f": "cp_mesh_pair.png", "D4g": "convergence_smoke2.png", "D7a": "section_polars.png"}
+
+
+def test_flow_figures_exist_and_sit_on_their_slides(deck):
+    _, prs = deck
+    by_id = {s["id"]: sl for s, sl in zip(bdd.read_outline(), prs.slides)}
+    order = [s["id"] for s in bdd.read_outline()]
+    for sid, name in FLOW_SLIDES.items():
+        assert (ROOT / bdd.FLOW / name).stat().st_size > 20_000, name
+        pics = [sh for sh in by_id[sid].shapes if sh.shape_type == 13]
+        assert len(pics) == 1, f"{sid}: expected one picture"
+        text = " ".join(sh.text_frame.text for sh in by_id[sid].shapes if sh.has_text_frame)
+        assert name in text, f"{sid}: caption does not name {name}"
+    assert order.index("D4b") < order.index("D4c") < order.index("D4g") < order.index("D5")
+    assert order.index("D7") < order.index("D7a") < order.index("D8")
+
+
+def test_contour_slide_is_pending_and_names_both_viz_cases(deck):
+    _, prs = deck
+    by_id = {s["id"]: sl for s, sl in zip(bdd.read_outline(), prs.slides)}
+    text = " ".join(sh.text_frame.text for sh in by_id["D11a"].shapes if sh.has_text_frame)
+    assert "PENDING" in text
+    for case in bdd.VIZ_CASES:
+        assert case in text
+    assert not any(sh.shape_type == 13 for sh in by_id["D11a"].shapes)
+
+
+def test_flow_numbers_come_from_the_surface_files():
+    v = bdd.values()
+    rows = bdd.case_by_alpha(bdd.pa.DESIGN0_CASES)
+    cl = {a: r["metrics"]["cl"] for a, r, _ in rows}
+    assert v["d0_cl14"] == f"{cl[14.0]:.3f}" and v["d0_cl10"] == f"{cl[10.0]:.3f}"
+    assert float(v["d0_peak10"]) < float(v["d0_peak14"]) < 0.0            # the 14 degree peak collapses
+    assert v["conv_iters"] == 4867 and v["conv_budget"] == 6000
+    assert v["n_designs"] >= 3 and v["n_stall"] >= 3

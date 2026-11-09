@@ -4,6 +4,9 @@ Usage:
     python -m postprocess.plot_flowfield inlet CASE_DIR --out PNG      (Mach, p/p_inf, T/T_inf, schlieren)
     python -m postprocess.plot_flowfield inlet CASE_DIR --out PNG --only mach|p|T|schlieren   (one panel)
     python -m postprocess.plot_flowfield cylinder CASE_DIR --out PNG   (Mach + stand-off against Billig)
+    python -m postprocess.plot_flowfield airfoil CASE_DIR --out PNG    (2-D incompressible airfoil2d case:
+        Cp contours, speed with streamlines, and a leading-edge zoom; needs flow.dat from a case run
+        with save_volume true)
 
 CASE_DIR holds flow.dat, params.json and geometry.json written by worker.make_case / run_case.
 Pure plotting: every value shown is read from the file; the only analytic line is Billig's
@@ -11,10 +14,13 @@ stand-off correlation (physics.heating.billig_standoff). The cylinder command al
 PNG's sibling standoff.json with the measured and the Billig stand-off.
 """
 import argparse
+import gzip
 import json
+import tempfile
 from pathlib import Path
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.tri as mtri
@@ -28,24 +34,33 @@ from postprocess.tecplot import read_tecplot_ascii
 GAMMA = 1.4
 
 
+def gunzip_to_temp(gz_path):
+    """Unpack a .gz file into a fresh temporary directory and return the new path."""
+    tmp = Path(tempfile.mkdtemp()) / Path(gz_path).stem
+    with gzip.open(gz_path) as f:
+        tmp.write_bytes(f.read())
+    return tmp
+
+
+def triangulate(data):
+    """Triangulation of a read_tecplot_ascii result: each quad is split into two triangles."""
+    tris = []
+    for _, conn in data["elements"]:
+        if conn.shape[1] == 4:
+            tris.append(conn[:, [0, 1, 2]]); tris.append(conn[:, [0, 2, 3]])
+        else:
+            tris.append(conn)
+    return mtri.Triangulation(data["data"]["x"], data["data"]["y"], np.vstack(tris))
+
+
 def load_volume(case_dir):
     """Nodes (x, y), a triangulation of the quad mesh, and the variables of flow.dat."""
     case_dir = Path(case_dir)
     path = case_dir / "flow.dat"
     if not path.exists() and (case_dir / "flow.dat.gz").exists():     # committed records are gzipped
-        import gzip, tempfile
-        tmp = Path(tempfile.mkdtemp()) / "flow.dat"
-        tmp.write_bytes(gzip.open(case_dir / "flow.dat.gz").read())
-        path = tmp
+        path = gunzip_to_temp(case_dir / "flow.dat.gz")
     data = read_tecplot_ascii(path)
-    x, y = data["data"]["x"], data["data"]["y"]
-    tris = []
-    for _, conn in data["elements"]:
-        if conn.shape[1] == 4:                      # split each quad into two triangles
-            tris.append(conn[:, [0, 1, 2]]); tris.append(conn[:, [0, 2, 3]])
-        else:
-            tris.append(conn)
-    tri = mtri.Triangulation(x, y, np.vstack(tris))
+    tri = triangulate(data)
     params = json.loads((case_dir / "params.json").read_text())
     geometry = json.loads((case_dir / "geometry.json").read_text())
     return tri, data["data"], params, geometry
@@ -108,7 +123,6 @@ def plot_inlet(case_dir, out_png):
     p_inf, T_inf = freestream(params)
     x1 = float(g["E_body"][0]) + 0.01
     window = (float(g["x_in"]), x1, -0.005, 0.6 * float(g["y_top"]))
-    mask = np.zeros(tri.triangles.shape[0], dtype=bool)
     fields = [("Mach", v["Mach"], "Mach number", None),
               ("p/p_inf", v["Pressure"] / p_inf, "static pressure p / p_inf", None),
               ("T/T_inf", v["Temperature"] / T_inf, "static temperature T / T_inf", None)]
@@ -183,9 +197,103 @@ def plot_cylinder(case_dir, out_png):
     return out
 
 
+# ---- airfoil2d: incompressible 2-D volume file --------------------------------------------------
+def wall_edges(tri, radius=2.0):
+    """Boundary edges of the triangulation within `radius` chords of the origin: the airfoil wall.
+    The mesh has a hole where the airfoil is, so its edges are used by one triangle only; the
+    far-field boundary edges lie beyond the radius."""
+    used = {}
+    for t in tri.triangles:
+        for a, b in ((t[0], t[1]), (t[1], t[2]), (t[2], t[0])):
+            key = (min(a, b), max(a, b))
+            used[key] = used.get(key, 0) + 1
+    keep = [k for k, n in used.items()
+            if n == 1 and np.hypot(tri.x[k[0]], tri.y[k[0]]) < radius]
+    return np.array(keep)
+
+
+def freestream_speed(tri, v):
+    """Median speed of the 1 percent of nodes farthest from the origin (the far field)."""
+    speed = np.hypot(v["Velocity_x"], v["Velocity_y"])
+    r = np.hypot(tri.x, tri.y)
+    return float(np.median(speed[r >= np.percentile(r, 99)]))
+
+
+def airfoil_windows(tri, wall):
+    """(whole, zoom) windows (x0, x1, y0, y1) from the wall's bounding box: the airfoil with half a
+    chord around it, and the front 30 percent of the chord."""
+    xs, ys = tri.x[np.unique(wall)], tri.y[np.unique(wall)]
+    c = xs.max() - xs.min()
+    whole = (xs.min() - 0.5 * c, xs.max() + 0.5 * c, ys.min() - 0.5 * c, ys.max() + 0.5 * c)
+    zoom = (xs.min() - 0.03 * c, xs.min() + 0.3 * c, ys.min() - 0.1 * c, ys.max() + 0.12 * c)
+    return whole, zoom
+
+
+def draw_wall(ax, tri, wall):
+    """Gray fill of the airfoil: the wall edges ordered by their angle about the centroid."""
+    pts = np.unique(wall)
+    x, y = tri.x[pts], tri.y[pts]
+    order = np.argsort(np.arctan2(y - y.mean(), x - x.mean()))
+    ax.fill(x[order], y[order], color="#bbbbbb", zorder=3)
+    ax.plot(x[order], y[order], color="k", lw=0.8, zorder=4)
+
+
+def speed_streamlines(ax, tri, v, window, u_inf, density=2.2):
+    """Speed / U_inf as filled contours and streamlines of the (Velocity_x, Velocity_y) field."""
+    x0, x1, y0, y1 = window
+    speed = np.hypot(v["Velocity_x"], v["Velocity_y"]) / u_inf
+    cf = ax.tricontourf(tri, speed, levels=np.linspace(0.0, max(1.6, 0.0 + np.nanmax(speed)), 33),
+                        cmap="viridis", extend="max")
+    gx, gy = np.meshgrid(np.linspace(x0, x1, 240), np.linspace(y0, y1, 160))
+    ux = mtri.LinearTriInterpolator(tri, v["Velocity_x"])(gx, gy)
+    uy = mtri.LinearTriInterpolator(tri, v["Velocity_y"])(gx, gy)
+    ax.streamplot(gx, gy, ux, uy, color="white", linewidth=0.5, density=density, arrowsize=0.6)
+    return cf
+
+
+def cp_contours(ax, tri, v, window):
+    """Filled Cp contours of the SU2 Pressure_Coefficient variable (suction in blue)."""
+    cp = v["Pressure_Coefficient"]
+    lo, hi = np.nanpercentile(cp, [0.5, 99.5])
+    return ax.tricontourf(tri, cp, levels=np.linspace(lo, hi, 41), cmap="RdBu", extend="both")
+
+
+def plot_airfoil_volume(case_dir, out_png):
+    """Four panels of an airfoil2d flow.dat: Cp and speed with streamlines, whole and near the
+    leading edge. params.json (if present) supplies the title; every value is from flow.dat."""
+    case_dir = Path(case_dir)
+    path = case_dir / "flow.dat"
+    if not path.exists() and (case_dir / "flow.dat.gz").exists():
+        path = gunzip_to_temp(case_dir / "flow.dat.gz")
+    data = read_tecplot_ascii(path)
+    tri, v = triangulate(data), data["data"]
+    wall = wall_edges(tri)
+    whole, zoom = airfoil_windows(tri, wall)
+    u_inf = freestream_speed(tri, v)
+    fig, axes = plt.subplots(2, 2, figsize=(13, 7.4), constrained_layout=True)
+    for col, window in enumerate((whole, zoom)):
+        cf = cp_contours(axes[0, col], tri, v, window)
+        fig.colorbar(cf, ax=axes[0, col], label="Cp", shrink=0.85)
+        cs = speed_streamlines(axes[1, col], tri, v, window, u_inf)
+        fig.colorbar(cs, ax=axes[1, col], label="speed / far-field speed", shrink=0.85)
+        for ax in axes[:, col]:
+            draw_wall(ax, tri, wall)
+            ax.set_xlim(window[0], window[1]); ax.set_ylim(window[2], window[3])
+            ax.set_aspect("equal"); ax.set_xlabel("x/c")
+    params_file = case_dir / "params.json"
+    title = case_dir.name
+    if params_file.exists():
+        p = json.loads(params_file.read_text())
+        title += f": alpha {p.get('alpha_deg')} deg, Re {p.get('reynolds'):,.0f}, {p.get('mesh_level')} mesh"
+    fig.suptitle(title, fontsize=11)
+    fig.savefig(out_png, dpi=150)
+    plt.close(fig)
+    return {"u_inf_file_units": u_inf, "wall_nodes": int(np.unique(wall).size)}
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("kind", choices=["inlet", "cylinder"])
+    ap.add_argument("kind", choices=["inlet", "cylinder", "airfoil"])
     ap.add_argument("case_dir")
     ap.add_argument("--out", required=True)
     ap.add_argument("--only", choices=["mach", "p", "T", "schlieren"], help="inlet: one panel instead of four")
@@ -194,6 +302,8 @@ def main(argv=None):
         plot_inlet_panel(a.case_dir, a.out, a.only); print(f"wrote {a.out}")
     elif a.kind == "inlet":
         plot_inlet(a.case_dir, a.out); print(f"wrote {a.out}")
+    elif a.kind == "airfoil":
+        info = plot_airfoil_volume(a.case_dir, a.out); print(f"wrote {a.out}; {info}")
     else:
         out = plot_cylinder(a.case_dir, a.out)
         print(f"wrote {a.out}; stand-off delta/R = {out['delta_over_R_measured']:.3f}, "
