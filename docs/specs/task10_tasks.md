@@ -537,7 +537,10 @@ none of them is a study answer, because the questions are asked of the high leve
   [13.228, 13.386]) at a median 2.435 kg, P(mtow ≤ 4) = 1.000, closure gates passed. Evaluated
   directly on the low model the design gives **13.245 h and 2.438 kg**, both inside the intervals.
   Two facts travel with it: **the 4 kg cap never binds on the low model** (every one of the 192 pool
-  designs is under 2.5 kg; the lightest is 0.953 kg), so the low-fidelity answer is simply the
+  designs is under the cap: the heaviest is 3.574 kg and the lightest 0.953 kg; this first said
+  "under 2.5 kg", which 18 of the 192 are not — corrected 2026-11-09 from
+  `runs/drone_pool_lf/2026-11-08/grid.csv`, caught while writing the drone study guide; the
+  conclusion is unchanged), so the low-fidelity answer is simply the
   longest-endurance buildable corner and question 4 is only tested by the high level; and the GP is
   **extrapolating to the box edge**, since the Sobol pool has no point at the bounds.
 - `runs/drone_bias_lf/2026-11-09/`: the one-at-a-time sweep of all 21 banded ledger quantities at
