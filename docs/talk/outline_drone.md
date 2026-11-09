@@ -508,10 +508,10 @@ Backup slides DB1 to DB17 follow D45 and are not timed.
 
 ### DB14. Backup: the study guide
 
-- **Message:** The study guide has entries for the new physics of this deck, in the same form as the inlet entries.
-- **Figure or table:** The study guide's section on low-speed aircraft sizing, entry by entry, read from the file.
-- **Source:** `docs/talk/study_guide.html`
-- **Speaker notes:** The entries cover the vortex lattice, the mass closure, electric endurance and airfoil RANS at low Reynolds number. The surrogate and automation entries are shared with the inlet talk.
+- **Message:** The drone study guide has 31 entries in four blocks, in the same form as the inlet guide.
+- **Figure or table:** The four blocks of the drone study guide with their entry titles, read from the file.
+- **Source:** `docs/talk/study_guide_drone.html`
+- **Speaker notes:** Blocks: the problem and the low-fidelity model, airfoil RANS at low Reynolds number, surrogates and the study's answers, and the automation layer. Every number in an entry names the file it comes from.
 
 ### DB15. Backup: carried over from the inlet study, and new
 

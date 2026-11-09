@@ -2315,19 +2315,26 @@ def body_equation_index(slide, v):
 
 
 def body_study_guide(slide, v):
-    html = (ROOT / "docs/talk/study_guide.html").read_text()
-    part = html[html.index('id="d7"'):]
-    part = part[:part.index("<h2", 10)]
-    entries = re.findall(r'<label for="k\d+">([^<]+)</label>', part)
-    title = re.search(r'id="d7">([^<]+)</h2>', html).group(1)
-    bd.text_box(slide, LM, CT, CW, 0.4, f"docs/talk/study_guide.html, section {title}", size=14,
+    path = "docs/talk/study_guide_drone.html"
+    html = (ROOT / path).read_text()
+    rows = [["Block", "Entries", "Titles"]]
+    for bid in ("d1", "d2", "d3", "d4"):
+        part = html[html.index(f'id="{bid}"'):]
+        part = part[:part.index("<h2", 10)]
+        title = re.search(r'>([^<]+)</h2>', part).group(1)
+        labels = re.findall(r'<label for="k\d+">(\d+)\. ([^<]+)</label>', part)
+        rows.append([title, f"{labels[0][0]} to {labels[-1][0]}",
+                     "; ".join(t.split(":")[0] for _, t in labels)])
+    n = len(re.findall(r'data-id="', html))
+    bd.text_box(slide, LM, CT - 0.1, CW, 0.4, f"{path}: {n} entries in four blocks", size=14,
                 bold=True, color=bd.BLUE)
-    bd.text_box(slide, LM, CT + 0.5, CW, 2.5, entries, size=15, bullets=True)
-    bd.text_box(slide, LM, CT + 3.2, CW, 1.4,
-                [("Shared with the inlet talk: the GP, calibration, hypervolume and EHVI "
-                  "entries, and the automation layer."),
-                 ("Open the file in a browser; entries carry checkboxes for the rehearsal "
-                  "schedule.")], size=12, bullets=True)
+    bd.add_table(slide, LM, CT + 0.4, [3.2, 1.1, 7.9], rows, size=9, row_h=0.7, flag=())
+    bd.text_box(slide, LM, CT + 4.15, CW, 0.8,
+                [("Each entry: definition, relations in LaTeX, variables with their code names, "
+                  "implementation, a worked example from the records, interview questions and a "
+                  "self-check."),
+                 "Open the file in a browser; the inlet plan is docs/talk/study_guide.html."],
+                size=11, bullets=True)
 
 
 def body_carried(slide, v):
