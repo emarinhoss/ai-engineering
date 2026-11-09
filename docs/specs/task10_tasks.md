@@ -682,6 +682,19 @@ budget); raw low 0.0024. ρ_endurance 0.890 (0.65 to 1.02), 0.843 (0.68 to 0.98)
 slightly lower at n = 16, both well under 0.9 everywhere. SU2 alone still does not reach the
 two-level error at 8 designs within 16. Nothing tuned.
 
+**Re-run at 29 designs, budget 24 forms (Opus, 2026-11-09 23:45 UTC, commit `3331ef8`):** pool
+batch 21 completed designs 26 to 29, so budgets 8, 12, 16 and 24 form, with 21, 17, 13 and 5 held
+out. Means over ten seeds, held-out endurance RMSE: **n = 8: 0.586 h two-level against 1.061 h
+SU2-only (10 of 10 seeds); n = 12: 0.617 h against 0.944 h (10 of 10); n = 16: 0.461 h against
+0.750 h (9 of 10); n = 24: 0.551 h against 0.805 h (9 of 10)**; raw low model 2.086 h. MTOW relative
+RMSE two-level 0.0015 / 0.0013 / 0.0014 / 0.0015 against SU2-only 0.0401 / 0.0227 / 0.0113 /
+0.0060 (10 of 10 at every budget); raw low 0.0023. ρ_endurance 0.886, 0.851, 0.830 and 0.853 (single
+seeds 0.74 to 1.04). Endurance coverage of the 90 % interval: two-level 0.51, 0.59, 0.69 and 0.70
+against SU2-only 0.63, 0.63, 0.66 and 0.60. **The 24/25-design coverage pattern does NOT hold**: the
+two-level coverage is now lower at n = 8 and 12 and higher at n = 16 and 24, and no budget reaches
+0.9 for either model; the n = 24 coverage rests on five held-out designs per seed. The mean result
+does hold: SU2 alone does not reach the two-level error at 8 designs even with 24. Nothing tuned.
+
 ## Questions for Éder (answered above; kept as the record)
 
 1. **Airfoil family.** The spec varies the NACA four-digit section per design, which is what makes
