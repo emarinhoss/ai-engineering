@@ -34,6 +34,7 @@ if str(ROOT) not in sys.path:
 from analysis import figures_drone as fd
 from analysis.high_level_bias import v6e_flags
 from docs.talk import build_deck as bd  # sets matplotlib to Agg on import
+from docs.talk import equations as eq
 from drone import geometry, ledger, naca, vlm
 from drone.evaluate import _CAMBER_POSITION, _helmbold, evaluate
 from geometry import airfoil2d
@@ -162,7 +163,7 @@ def values():
 
 # ---- reading the outline ----------------------------------------------------------------------
 def read_outline():
-    """[{id, title, message, figure, source, notes}] in file order."""
+    """[{id, title, message, figure, equations, source, notes}] in file order."""
     slides, cur = [], None
     for line in OUTLINE.read_text(encoding="utf-8").splitlines():
         head = re.match(r"^### (D\d+[a-z]?)\. (.+)$", line)
@@ -174,6 +175,9 @@ def read_outline():
                              ("source", "Source"), ("notes", "Speaker notes")):
                 if line.startswith(f"- **{tag}:** "):
                     cur[key] = line[len(f"- **{tag}:** "):].strip()
+            found = eq.outline_equations(line)
+            if found is not None:
+                cur["equations"] = found
     return slides
 
 
@@ -335,7 +339,7 @@ def draw_lattice(path_name="vlm_lattice.png"):
     chord = np.interp(lat["eta"], pf.eta, pf.chord)
     x_far = float(pf.x_le[-1] + pf.chord[0] * 1.35)
     xc_frac = xi[:-1] + 0.75 * np.diff(xi)                         # control points at 3/4 of the panel
-    fig = plt.figure(figsize=(12, 4.4), dpi=200)
+    fig = plt.figure(figsize=(12, 3.6), dpi=200)
     ax = fig.add_axes([0.01, 0.02, 0.56, 0.96])
     for s, alpha in ((1.0, 1.0),):                                 # right half solved, left is the mirror
         for j in range(m + 1):
@@ -375,7 +379,7 @@ def draw_lattice(path_name="vlm_lattice.png"):
     camber = functools.partial(lambda x, mm, p: naca.camber_line(x, mm, p)[1],
                                mm=params["camber_pct"] / 100.0, p=_CAMBER_POSITION)
     res = vlm.solve(pf, math.radians(4.0), "medium", camber)
-    cl = fig.add_axes([0.65, 0.3, 0.33, 0.55])
+    cl = fig.add_axes([0.65, 0.42, 0.33, 0.45])
     cl.plot(res["eta"], res["cl"], color=BLUE_H, lw=2)
     cl.set_xlabel("eta = y / (b/2)", fontsize=10)
     cl.set_ylabel("section cl", fontsize=10)
@@ -507,7 +511,7 @@ def draw_closure(path_name="closure_energy.png"):
     assert abs(usable_j / bal["measured"] - 1) < 1e-6 and abs(out["endurance_h"] / end["measured"] - 1) < 1e-6
     p_cr, p_in, v = diag["P_cruise_W"], diag["P_installed_W"], out["v_cruise"]
     drag = p_cr * prop["propulsive_efficiency"] / v
-    fig = plt.figure(figsize=(12, 4.4), dpi=200)
+    fig = plt.figure(figsize=(12, 3.6), dpi=200)
     ax = blank_axes(fig, [0, 0, 0.5, 1], (0, 6), (0, 4.4))
     ax.text(0.1, 4.25, "Mass closure: fixed point on take-off mass", fontsize=11.5, color=BLUE_H,
             fontweight="bold", va="top")
@@ -623,7 +627,6 @@ def draw_two_level(path_name="two_level.png"):
     marrow(ax, (2.3, 3.4), (3.5, 3.4), color=ACCENT_H)
     ax.text(2.9, 3.62, "x rho", fontsize=11, color=ACCENT_H, ha="center")
     ax.text(2.9, 3.05, "+ d(x)", fontsize=11, color=ACCENT_H, ha="center")
-    ax.text(3.0, 2.2, "y_H = rho y_L + d", fontsize=17, color=BLUE_H, ha="center", fontweight="bold")
     ax.text(3.0, 1.45, "rho: a scale the model learns from paired runs\nd(x): a discrepancy surface fitted "
             "to the SU2 designs\n(surrogate/mf_gp.py, Task 9)", fontsize=10, color=TEXT_H, ha="center")
     ax.text(3.0, 0.55, "The known lift-slope offset below is what d has to absorb\nbefore any new "
@@ -655,6 +658,60 @@ def ensure_drawings():
     return [fn() for fn in (draw_planform, draw_lattice, draw_queue, draw_airfoil_mesh, draw_closure,
                             draw_design_space, draw_two_level)]
 
+
+
+# ---- equations: LaTeX sources, each also listed in the outline under its slide ----------------------
+# The relations are the ones the code implements (module and function named in each comment).
+EQ_D3_LOOP = r"m_{k{+}1}=\sum_i m_i(m_k),\quad |m_{k{+}1}-m_k|/m_k<10^{-9}"        # evaluate._closure
+EQ_D3_CRUISE = r"V=\sqrt{\dfrac{2W}{\rho\,S\,C_L}},\quad P=\dfrac{D\,V}{\eta_p}"   # mission.cruise_point
+EQ_D3B_MASS = (r"m_{k{+}1}=m_{\mathrm{pay}}+f_b\,m_k+m_{\mathrm{skin}}+m_{\mathrm{spar}}"
+               r"+m_{\mathrm{tail}}+m_{\mathrm{fus}}+P_{\mathrm{inst}}/\sigma_P")   # evaluate._closure
+EQ_D3B_INST = (r"P_{\mathrm{inst}}=\max\!\left(k_P\,P_{\mathrm{cr}},\ "
+               r"\dfrac{W\,\dot h}{\eta_p}+P_{\mathrm{cr}}\right)")               # evaluate._closure
+EQ_D3B_POWER = r"P_{\mathrm{cr}}=\dfrac{D\,V}{\eta_p}"                          # mission.power_required
+EQ_D3B_TIME = (r"t=\dfrac{\mathrm{DoD}\,E_{\mathrm{spec}}\,3600\,m_b-P_{\mathrm{inst}}\,"
+               r"t_{\mathrm{climb}}}{3600\,P_{\mathrm{cr}}}")                       # mission.endurance_h
+EQ_D4_DRIFT = (r"\mathrm{drift}=\dfrac{\max_{k\in W}f_k-\min_{k\in W}f_k}{|f_n|}"
+               r"\times100\,\%")                                                  # history.drift_pct
+EQ_D4_WINDOW = r"W=\{\,n-\lceil 0.2\,n\rceil+1,\ \ldots,\ n\,\}"               # history.drift_pct
+EQ_D4_CAUCHY = (r"\dfrac{1}{N}\sum_{k=n-N+1}^{n}\dfrac{|f_k-f_{k-1}|}{|f_k|}<\varepsilon,"
+                r"\quad f\in\{C_L,C_D\}")                                          # inc_rans_airfoil.cfg
+EQ_D4B_RE = r"Re=\dfrac{\rho\,V\,c}{\mu}"                                       # evaluate._closure
+EQ_D4B_CELL = (r"C_f=0.074\,Re^{-0.2},\quad \dfrac{u_\tau}{V}=\sqrt{\dfrac{C_f}{2}},"
+               r"\quad d_0=\dfrac{y^{+}\,c}{Re\,(u_\tau/V)}")                       # airfoil2d.first_cell
+EQ_D5_HELMBOLD = r"C_{L\alpha}=\dfrac{2\pi\,AR}{2+\sqrt{AR^{2}+4}}"             # evaluate._helmbold
+EQ_D5_INDUCED = r"C_{Di}=\dfrac{C_L^{2}}{\pi\,AR\,e}"                            # drag.total
+EQ_D5_DEV = r"\mathrm{dev}=\dfrac{M}{R}-1\quad\mathrm{or}\quad\mathrm{dev}=M-R"   # drone_validation.row
+EQ_D5A_SEGMENT = (r"\vec v_{\mathrm{seg}}=\dfrac{\Gamma}{4\pi}\ "
+                  r"\dfrac{\vec r_1\times\vec r_2}{|\vec r_1\times\vec r_2|^{2}}\ "
+                  r"\vec r_0\cdot\left(\dfrac{\vec r_1}{|\vec r_1|}-\dfrac{\vec r_2}{|\vec r_2|}\right)")
+EQ_D5A_NOFLOW = r"\left(\vec V_\infty+\sum_j A_{ij}\,\Gamma_j\right)\cdot\hat n_i=0"   # vlm._lattice
+EQ_D5A_TREFFTZ = (r"C_{Di}=\pi\,AR\sum_{n\ \mathrm{odd}}n\,A_n^{2},\quad "
+                  r"e=\dfrac{C_L^{2}}{\pi\,AR\,C_{Di}}")                             # vlm._forces
+EQ_D6_CLMAX = r"c_{l,\max}=k_{\mathrm{eff}}\,2\pi\,(\alpha_{\mathrm{stall}}-\alpha_{L0})"  # section
+EQ_D6_CD0 = r"c_{d0}=2\,C_f\,FF,\quad FF=1+k_1\,(t/c)+k_2\,(t/c)^{4}"             # section
+EQ_D6_CDDEV = (r"\mathrm{mean}_{\,0.3\leq c_{l,\mathrm{tun}}\leq0.9}"
+               r"\left|\dfrac{c_d}{c_{d,\mathrm{tun}}}-1\right|")                                         # _cd_ratio
+EQ_D7_SLOPE = (r"a_{\mathrm{fit}}=\dfrac{\sum(\alpha_i-\bar\alpha)(c_{l,i}-\bar c_l)}"
+               r"{\sum(\alpha_i-\bar\alpha)^{2}},\quad "
+               r"\mathrm{dev}=\dfrac{a_{\mathrm{SU2}}}{a_{\mathrm{tun}}}-1")             # v6e
+EQ_D9_MEAN = r"\mu(x)=c+k_{*}^{T}(K+\sigma_n^{2}I)^{-1}(y-c)"                    # gp.GP.predict
+EQ_D9_VAR = r"\sigma^{2}(x)=k_{**}-k_{*}^{T}(K+\sigma_n^{2}I)^{-1}k_{*}"          # gp.GP.predict
+EQ_D9_REGRET = r"\mathrm{regret}=1-\dfrac{HV(\mathrm{observed})}{HV(\mathrm{front})}"  # replay
+EQ_D9_HVI = r"\mathrm{HVI}(y)=HV(P\cup\{y\})-HV(P)"                             # acquisition.hvi_2d
+EQ_D9_EHVI = (r"\mathrm{EHVI}(x)\approx\dfrac{1}{S}\sum_{s=1}^{S}\mathrm{HVI}(y_s),\quad "
+              r"y_s\sim\mathcal{N}(\mu,\mathrm{diag}\,\sigma^{2})")              # acquisition.ehvi_mc
+EQ_D10_FEAS = (r"\mathrm{EHVI}_{\mathrm{feas}}(x)=\mathrm{EHVI}(x)\cdot "
+               r"p(\mathrm{feasible}\mid x)")                                         # replay_drone_online
+EQ_D10_LOGISTIC = r"p(x)=\dfrac{1}{1+e^{-(w\cdot z(x)+b)}}"                       # feasibility.Feasibility
+EQ_D12_TWO_LEVEL = r"y_H(x)=\rho\,y_L(x)+d(x),\quad d\sim\mathcal{GP}"            # mf_gp.TwoLevelGP
+EQ_D12_POSTERIOR = (r"\mu_H=\rho\,\mu_L+\mu_d,\quad "
+                    r"\sigma_H^{2}=\rho^{2}\sigma_L^{2}+\sigma_d^{2}")                 # mf_gp.predict
+EQ_D12_GLS = r"(\rho,c)^{T}=(A^{T}K^{-1}A)^{-1}A^{T}K^{-1}y_H"                     # mf_gp.fit
+EQ_D13_QUERY = (r"x^{*}=\arg\max_{x}\ \mathrm{E}\left[t(x)\right]\quad\mathrm{subject\ to}"
+                r"\quad P\left(m_{TO}(x)\leq m_{\mathrm{cap}}\right)\geq p_{\min}")  # inverse
+EQ_D13_PROB = (r"P\left(m_{TO}\leq m_{\mathrm{cap}}\right)=\Phi\!\left("
+               r"\dfrac{\ln m_{\mathrm{cap}}-\mu_{\ln m}(x)}{\sigma_{\ln m}(x)}\right)")  # inverse
 
 
 # ---- slide bodies -----------------------------------------------------------------------------
@@ -694,9 +751,9 @@ def body_d3(slide, v):
     bd.arrow(slide, xs[4] + bw / 2, y + bh, xs[4] + bw / 2, y + bh + 0.35, head=False)
     bd.arrow(slide, xs[4] + bw / 2, y + bh + 0.35, xs[1] + bw / 2, y + bh + 0.35, head=False)
     bd.arrow(slide, xs[1] + bw / 2, y + bh + 0.35, xs[1] + bw / 2, y + bh)
-    bd.text_box(slide, xs[1] + bw / 2 + 0.2, y + bh + 0.4, 5.5, 0.3,
-                "repeat until m_TO changes by less than 1e-9 (relative)", size=11, color=bd.GREY)
-    bd.text_box(slide, LM, y + bh + 0.9, CW, 0.5,
+    eq.add_equation(slide, EQ_D3_LOOP, xs[1] + bw / 2 + 0.2, y + bh + 0.42, 5.2, 0.5, fontsize=15)
+    eq.add_equation(slide, EQ_D3_CRUISE, 8.6, y + bh + 0.38, 4.1, 0.7, fontsize=15)
+    bd.text_box(slide, LM, y + bh + 1.2, CW, 0.5,
                 "Gates before any solver: Reynolds range, stall margin, mass closure, manufacturing floor, "
                 "lattice quality (spec section 4).", size=12, color=bd.GREY)
 
@@ -706,6 +763,38 @@ def body_figure(name, record, max_h=4.2):
     def body(slide, v):
         bd.add_figure_with_caption(slide, FIG_DRONE + name, record, LM, CT, CW, max_h)
     return body
+
+
+def body_d3b(slide, v):
+    """Closure drawing, then the relations it draws as equations: mass fixed point, powers, endurance."""
+    _, h = bd.add_figure(slide, FIG_DRONE + "closure_energy.png", LM, CT - 0.05, CW, 3.6)
+    y = CT - 0.05 + h + 0.04
+    eq.add_equation(slide, EQ_D3B_MASS, LM, y, 7.2, 0.4, fontsize=15)
+    eq.add_equation(slide, EQ_D3B_POWER, LM + 7.5, y - 0.05, 2.0, 0.6, fontsize=15)
+    eq.add_equation(slide, EQ_D3B_INST, LM, y + 0.5, 3.6, 0.7, fontsize=15)
+    eq.add_equation(slide, EQ_D3B_TIME, LM + 3.9, y + 0.5, 3.9, 0.7, fontsize=15)
+    bd.caption(slide, LM + 8.1, y + 0.62, 4.0, "Figure: " + FIG_DRONE + "closure_energy.png. Record: "
+               + V6 + ", drone/evaluate.py, drone/mission.py.", lines=4)
+
+
+def body_d4b(slide, v):
+    _, h = bd.add_figure(slide, FIG_DRONE + "airfoil2d_mesh.png", LM, CT, CW, 3.45)
+    y = CT + h + 0.1
+    eq.add_equation(slide, EQ_D4B_RE, LM, y, 1.6, 0.7, fontsize=15)
+    eq.add_equation(slide, EQ_D4B_CELL, LM + 1.8, y, 5.4, 0.8, fontsize=15)
+    bd.caption(slide, LM + 7.6, y, 4.5, "Figure: " + FIG_DRONE + "airfoil2d_mesh.png. Record: "
+               "runs/mesh/airfoil2d-59cd4287e9/geometry.json. Equations: drone/evaluate.py, "
+               "geometry/airfoil2d.py.", lines=4)
+
+
+def body_d5a(slide, v):
+    _, h = bd.add_figure(slide, FIG_DRONE + "vlm_lattice.png", LM, CT - 0.05, CW, 3.6)
+    y = CT - 0.05 + h + 0.08
+    eq.add_equation(slide, EQ_D5A_SEGMENT, LM, y, 4.5, 0.8, fontsize=15)
+    eq.add_equation(slide, EQ_D5A_NOFLOW, LM + 4.7, y + 0.05, 3.0, 0.7, fontsize=15)
+    eq.add_equation(slide, EQ_D5A_TREFFTZ, LM + 7.9, y, 4.2, 0.8, fontsize=15)
+    bd.caption(slide, LM, y + 0.85, CW, "Figure: " + FIG_DRONE + "vlm_lattice.png. Record: " + V6
+               + ", drone/vlm.py (segment velocity, no-flow condition, Trefftz-plane drag).", lines=1)
 
 
 def body_d4(slide, v):
@@ -718,13 +807,19 @@ def body_d4(slide, v):
         rows.append([label, r["params"]["max_iter"], it if it else "not recorded (postprocess error)",
                      f"{m['cl_drift_pct']:.2f}", f"{m['cd_drift_pct']:.2f}", conv.get("status")])
     bd.add_table(slide, LM, CT + 0.1, [3.0, 1.2, 3.0, 1.4, 1.4, 2.1], rows, size=12, row_h=0.55)
+    bd.text_box(slide, LM, CT + 1.8, 6.0, 0.3, "Drift rule (postprocess/history.py)", size=12, color=bd.GREY)
+    bd.text_box(slide, LM + 6.6, CT + 1.8, 5.5, 0.3, "SU2 Cauchy rule, as the case template states it",
+                size=12, color=bd.GREY)
+    eq.add_equation(slide, EQ_D4_DRIFT, LM, CT + 2.12, 3.2, 0.75, fontsize=14)
+    eq.add_equation(slide, EQ_D4_WINDOW, LM + 3.3, CT + 2.3, 3.0, 0.4, fontsize=14)
+    eq.add_equation(slide, EQ_D4_CAUCHY, LM + 6.6, CT + 2.12, 5.4, 0.75, fontsize=14)
     cfg = (ROOT / "cases/templates/inc_rans_airfoil.cfg").read_text()
     keys = ("CONV_FIELD", "CONV_CAUCHY_ELEMS", "CONV_CAUCHY_EPS", "CONV_STARTITER")
     lines = [m.group(0).strip() for k in keys for m in re.finditer(rf"^{k}=.*$", cfg, re.MULTILINE)]
-    bd.text_box(slide, LM, CT + 2.2, 5.5, 0.4, "Cauchy settings (cases/templates/inc_rans_airfoil.cfg)",
+    bd.text_box(slide, LM, CT + 3.0, 5.5, 0.4, "Cauchy settings (cases/templates/inc_rans_airfoil.cfg)",
                 size=13, bold=True)
-    bd.text_box(slide, LM, CT + 2.65, 5.5, 1.6, lines, size=13, font="Consolas", space_after=2)
-    bd.text_box(slide, LM + 6.0, CT + 2.2, 6.0, 2.5,
+    bd.text_box(slide, LM, CT + 3.4, 5.5, 1.4, lines, size=13, font="Consolas", space_after=2)
+    bd.text_box(slide, LM + 6.0, CT + 3.0, 6.0, 1.8,
                 ["What stays the same: the Drive queue, the worker, the digest check and the gates.",
                  "What is new: the airfoil2d family, its mesh-quality checks and this stopping rule.",
                  "The drift rule and SU2's Cauchy rule measure different things; the record carries both."],
@@ -744,7 +839,13 @@ def body_d5(slide, v):
         elif verdict == "fail":
             verdict = "FAIL"
         rows.append([c["name"], dev, tol, verdict])
-    bd.add_table(slide, LM, CT - 0.1, [7.0, 1.6, 1.3, 2.2], rows, size=10, row_h=0.31)
+    bd.add_table(slide, LM, CT - 0.1, [7.0, 1.6, 1.3, 2.2], rows, size=10, row_h=0.27)
+    y = CT - 0.1 + 0.27 * len(rows) + 0.15
+    eq.add_equation(slide, EQ_D5_HELMBOLD, LM, y, 2.6, 0.75, fontsize=15)
+    eq.add_equation(slide, EQ_D5_INDUCED, LM + 3.0, y, 2.0, 0.75, fontsize=15)
+    eq.add_equation(slide, EQ_D5_DEV, LM + 5.4, y + 0.1, 4.0, 0.6, fontsize=15)
+    bd.text_box(slide, LM + 9.6, y + 0.1, 2.5, 0.6, "M measured, R reference; the table says which form each row uses",
+                size=11, color=bd.GREY)
 
 
 def body_d6(slide, v):
@@ -759,7 +860,10 @@ def body_d6(slide, v):
             cells.append(f"{100 * d:+.1f} %" if unit == "%" else f"{d:+.2f} deg")
         rows.append([label, *cells])
     bd.add_table(slide, LM, CT + 0.1, [4.2, 2.6, 2.6, 2.6], rows, size=14, row_h=0.6, flag=())
-    bd.text_box(slide, LM, CT + 3.4, CW, 1.3,
+    eq.add_equation(slide, EQ_D6_CLMAX, LM, CT + 3.35, 3.4, 0.5, fontsize=14)
+    eq.add_equation(slide, EQ_D6_CD0, LM + 3.7, CT + 3.35, 4.4, 0.5, fontsize=14)
+    eq.add_equation(slide, EQ_D6_CDDEV, LM + 8.3, CT + 3.2, 3.8, 0.7, fontsize=14)
+    bd.text_box(slide, LM, CT + 4.1, CW, 0.8,
                 [("Report-only rows by the spec: closed forms of drone/section.py at the E387's measured camber "
                   "and thickness against Volume 1 runs 211, 213 and 215."),
                  ("The ledger's assumed lift effectiveness does not contain the value the tunnel implies: a ledger "
@@ -767,20 +871,22 @@ def body_d6(slide, v):
 
 
 def body_d7(slide, v):
-    _, _ = bd.add_figure_with_caption(slide, FIG + "d_e387_comparison.png", "runs/e387/*/result.json",
-                                      LM, CT, 7.0, 4.2)
+    _, h = bd.add_figure_with_caption(slide, FIG + "d_e387_comparison.png", "runs/e387/*/result.json",
+                                      LM, CT - 0.05, 6.4, 3.35)
     checks = [c for c in jload(V6)["checks"] if c["name"].startswith("V6e ")]
     rows = [["Row", "Deviation", "Tol.", "Verdict"]]
     for c in checks:
         tol = "report" if c["tolerance"] is None else f"{100 * c['tolerance']:.0f} %"
         verdict = "report" if c["verdict"] == "report" else c["verdict"].upper() if c["verdict"] == "fail" else c["verdict"]
-        rows.append([c["name"][5:], f"{100 * c['deviation']:+.2f} %", tol, verdict])
-    bd.add_table(slide, LM + 7.2, CT, [2.0, 1.1, 0.8, 0.9], rows, size=10, row_h=0.45)
-    bd.text_box(slide, LM + 7.2, CT + 2.0, 4.9, 2.4,
+        rows.append([c["name"][4:], f"{100 * c['deviation']:+.2f} %", tol, verdict])
+    bd.add_table(slide, LM + 7.2, CT, [2.0, 1.1, 0.8, 0.9], rows, size=10, row_h=0.42)
+    eq.add_equation(slide, EQ_D7_SLOPE, LM, CT + h + 0.55, 3.5, 0.75, fontsize=12)
+    eq.add_equation(slide, EQ_D6_CDDEV, LM + 3.7, CT + h + 0.55, 3.4, 0.75, fontsize=12)
+    bd.text_box(slide, LM + 7.2, CT + 3.1, 4.9, 1.7,
                 [(f"Against the tunnel at the five angles of Re {v['e387_re']}: cl is {v['su2_cl_range']}; "
                   f"cd is {v['su2_cd_range']}."), "Decision 8: accepted as the high level with the miss recorded beside every number.",
                  "Re 305,200 and the fine-mesh pair are not complete; the figure draws what exists."],
-                size=12, bullets=True)
+                size=11, bullets=True)
 
 
 def body_d8(slide, v):
@@ -802,7 +908,15 @@ def body_d9(slide, v):
     ns = (8, 16, 24, 32, 40)
     strategies = ("random", "lhs", "al_ehvi", "al_maxvar")
     rows = [["n", *strategies]] + [[n, *[f"{mean_at(rep, s, 'hv_regret', n):.3f}" for s in strategies]] for n in ns]
-    _, h = bd.add_figure_with_caption(slide, FIG + "b_pool_replay.png", fd.POOL_REPLAY, LM, CT - 0.05, 8.4, 2.9)
+    _, h = bd.add_figure_with_caption(slide, FIG + "b_pool_replay.png", fd.POOL_REPLAY, LM, CT - 0.05, 7.6, 2.9)
+    x, y = LM + 7.9, CT - 0.1
+    bd.text_box(slide, x, y, 4.2, 0.3, "Gaussian process posterior", size=12, color=bd.GREY)
+    eq.add_equation(slide, EQ_D9_MEAN, x, y + 0.3, 4.2, 0.4, fontsize=14)
+    eq.add_equation(slide, EQ_D9_VAR, x, y + 0.72, 4.2, 0.4, fontsize=14)
+    bd.text_box(slide, x, y + 1.15, 4.2, 0.3, "Metric and acquisition (minimization form)", size=12, color=bd.GREY)
+    eq.add_equation(slide, EQ_D9_REGRET, x, y + 1.45, 4.2, 0.6, fontsize=14)
+    eq.add_equation(slide, EQ_D9_HVI, x, y + 2.08, 4.2, 0.4, fontsize=14)
+    eq.add_equation(slide, EQ_D9_EHVI, x, y + 2.5, 4.2, 0.7, fontsize=14)
     bd.add_table(slide, LM, CT + h + 0.6, [1.0, 2.0, 2.0, 2.0, 2.0], rows, size=11, row_h=0.27, flag=())
 
 
@@ -815,15 +929,21 @@ def body_d10(slide, v):
     bd.add_figure_with_caption(slide, FIG + "c_online_regret.png", fd.ONLINE + ", " + fd.ONLINE_FEAS,
                                LM, CT, 7.4, 3.2)
     bd.add_table(slide, LM + 7.6, CT, [1.9, 1.4, 1.2], rows, size=12, row_h=0.4, flag=())
+    eq.add_equation(slide, EQ_D10_FEAS, LM, CT + 4.0, 4.1, 0.5, fontsize=14)
+    eq.add_equation(slide, EQ_D10_LOGISTIC, LM + 4.4, CT + 3.95, 3.0, 0.7, fontsize=14)
     bd.text_box(slide, LM + 7.6, CT + 3.0, 4.5, 1.8,
                 ["The front lies against the gated edge, and the GPs do not know the gates.",
                  "Both runs are published; neither replaces the other."], size=12, bullets=True)
 
 
-def body_pending(slide, lines, box_text):
+def body_pending(slide, lines, box_text, equations=()):
     bd.pending(slide, LM, CT + 0.1, CW, "PENDING: no number is shown here until the record exists.")
     bd.box(slide, LM, CT + 0.9, CW, 1.6, box_text, size=14)
-    bd.text_box(slide, LM, CT + 2.9, CW, 1.6, lines, size=13, bullets=True)
+    y = CT + 2.7
+    for latex, h in equations:
+        _, h_used = eq.add_equation(slide, latex, LM, y, CW, h, fontsize=16)
+        y += h_used + 0.12
+    bd.text_box(slide, LM, max(y, CT + 2.9), CW, 1.6, lines, size=13, bullets=True)
 
 
 def body_d11(slide, v):
@@ -838,13 +958,23 @@ def body_d11(slide, v):
 
 def body_d12(slide, v):
     bd.pending(slide, LM, CT - 0.05, CW, "PENDING: the held-out error comparison waits on the multi-fidelity analysis.")
-    bd.add_figure_with_caption(slide, FIG_DRONE + "two_level.png", V6, LM, CT + 0.4, CW, 3.8)
+    w, h = bd.add_figure(slide, FIG_DRONE + "two_level.png", LM, CT + 0.35, CW, 3.5)
+    eq.add_equation(slide, EQ_D12_TWO_LEVEL, LM + 0.25 * w - 2.3, CT + 0.35 + 0.5 * h - 0.2, 4.6, 0.6,
+                    fontsize=20, align="center")                    # centered on the drawing's left half
+    y = CT + 0.35 + h + 0.1
+    eq.add_equation(slide, EQ_D12_POSTERIOR, LM, y, 3.8, 0.5, fontsize=14)
+    eq.add_equation(slide, EQ_D12_GLS, LM + 4.1, y, 3.4, 0.5, fontsize=14)
+    bd.caption(slide, LM + 7.7, y - 0.02, 4.4, "Figure: " + FIG_DRONE + "two_level.png. Record: " + V6
+               + ". Equations: surrogate/mf_gp.py.", lines=3)
 
 
 def body_d13(slide, v):
-    body_pending(slide, ["The query is a computation on the fitted surrogate, never a choice by the language model.",
+    body_pending(slide, [("m_cap and p_min are the mass cap and the probability in the message above; mu and sigma are "
+                          "the GP's posterior mean and standard deviation of ln m_TO."),
+                         "The query is a computation on the fitted surrogate, never a choice by the language model.",
                          "The confirmation is one SU2 polar at the answer, through the queue."],
-                 "Design, predicted endurance, P(mass <= cap), SU2 confirmation\nPENDING: confirmation run (T10.10d)")
+                 "Design, predicted endurance, P(mass <= cap), SU2 confirmation\nPENDING: confirmation run (T10.10d)",
+                 [(EQ_D13_QUERY, 0.45), (EQ_D13_PROB, 0.7)])
 
 
 def body_d14(slide, v):
@@ -884,10 +1014,10 @@ def body_d15(slide, v):
 
 
 BODIES = {"D2": body_d2, "D3": body_d3, "D3a": body_figure("planform.png", "drone/geometry.py, drone/naca.py"),
-          "D3b": body_figure("closure_energy.png", V6 + ", drone/evaluate.py"),
+          "D3b": body_d3b,
           "D4a": body_figure("queue_gates.png", "mcp_server/queue.py, worker/run_worker.py"),
-          "D4b": body_figure("airfoil2d_mesh.png", "runs/mesh/airfoil2d-59cd4287e9/geometry.json"),
-          "D5a": body_figure("vlm_lattice.png", V6 + ", drone/vlm.py"),
+          "D4b": body_d4b,
+          "D5a": body_d5a,
           "D8a": body_figure("design_space.png", "runs/drone_pareto_lf/2026-11-09/design_map.csv"),
           "D4": body_d4, "D5": body_d5, "D6": body_d6, "D7": body_d7,
           "D8": body_d8, "D9": body_d9, "D10": body_d10, "D11": body_d11, "D12": body_d12, "D13": body_d13,

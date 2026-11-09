@@ -87,6 +87,7 @@ Backup slides B1 to B9, then S17, S20 and S23 (moved there on 2026-11-04), follo
 
 - **Message:** The inlet trades total pressure recovery against peak wall heating, and neither objective alone is a design.
 - **Figure or table:** Schematic of the two-ramp inlet with cowl, throat plane and the two objectives marked (to draw from `geometry/inlet.py`; no data).
+- **Equations:** $\eta_{p_0}=\dfrac{1}{p_{0,\infty}}\,\dfrac{\sum w\,\phi\;p_0\,\pi_{NS}(M)}{\sum w\,\phi}$; $p_0=p\,(1+0.2\,M^{2})^{3.5}$; $\pi_{NS}(M)=\left[\dfrac{(\gamma+1)M^{2}}{(\gamma-1)M^{2}+2}\right]^{\frac{\gamma}{\gamma-1}}\left[\dfrac{\gamma+1}{2\gamma M^{2}-(\gamma-1)}\right]^{\frac{1}{\gamma-1}}$
 - **Source:** schematic: none (no number), definitions in `docs/specs/00_decisions.md`, sections 2 and 3. Schlieren: `runs/dev/2026-11-02_flow_fields/figures/inlet_8_8_schlieren.png` from the development run `runs/dev/2026-11-02_flow_fields/inlet2r-92352faad1` (laminar 8/8, medium mesh, volume output; same metrics as the Colab record `runs/val/inlet2r-d4d29884be`).
 - **Speaker notes:** Recovery includes the terminal normal shock, which is what makes external compression worth anything. Peak heating is taken on ramp 2 including the duct wall, not on the sharp leading edge, where the computed peak is a mesh artifact.
 
@@ -119,6 +120,7 @@ Backup slides B1 to B9, then S17, S20 and S23 (moved there on 2026-11-04), follo
 
 - **Message:** The Euler wedge matches the oblique-shock relation within the hard tolerances, and the laminar wedge heating matches the Eckert flat-plate reference within the window.
 - **Figure or table:** `docs/validation/2026-11-01_wedge_heat_flux.png`, with a V1 table beside it.
+- **Equations:** $\tan\theta=\dfrac{2\cot\beta\,(M^{2}\sin^{2}\beta-1)}{M^{2}(\gamma+\cos2\beta)+2}$; $\dfrac{p_2}{p_1}=1+\dfrac{2\gamma}{\gamma+1}\left(M_{n1}^{2}-1\right),\quad M_{n1}=M\sin\beta$; $T^{*}=0.5\,(T_e+T_w)+0.22\,(T_{aw}-T_e)$; $T_{aw}=T_e\left(1+r\,\dfrac{\gamma-1}{2}M_e^{2}\right),\quad r=\sqrt{Pr}$; $q=St\,\rho^{*}u_e\,c_p\,(T_{aw}-T_w),\quad St=0.332\,Re_x^{*\,-1/2}\,Pr^{-2/3}$
 - **Source:** `runs/task1/README.md` and `runs/task1/v1_oblique_shock.json` (V1 and V2a, official). `docs/validation/2026-11-01_report.md` (V2b, development, final numerics).
 - **Speaker notes:** The V1 check is the official Colab record, so it is the one to quote for the solver setup. The V2b check is a development run with the final numerics; the entropy-fix change moved its deviation, and B4 shows the comparison.
 
@@ -126,6 +128,7 @@ Backup slides B1 to B9, then S17, S20 and S23 (moved there on 2026-11-04), follo
 
 - **Message:** With the first numerics (Roe, entropy fix 0.1) the stagnation heating failed Fay-Riddell on the fine mesh; with entropy fix 0.3 it passes on that mesh.
 - **Figure or table:** `docs/validation/2026-11-01_cylinder_heat_flux.png` (heat flux by mesh level) and `runs/dev/2026-11-02_flow_fields/figures/cylinder.png` (bow shock, Mach contours, measured stand-off against Billig; the grid-study figure moved to B3).
+- **Equations:** $q_{FR}=0.57\,Pr^{-0.6}(\rho_e\mu_e)^{0.4}(\rho_w\mu_w)^{0.1}\sqrt{\dfrac{du_e}{dx}}\,(h_0-h_w)$; $\dfrac{du_e}{dx}=\dfrac{1}{R}\sqrt{\dfrac{2\,(p_{02}-p_\infty)}{\rho_e}}$; $\dfrac{\delta}{R}=0.386\,e^{4.67/M^{2}}$
 - **Source:** `docs/validation/2026-11-01_report.md` (V3 rows and grid study); `runs/dev/2026-11-01_cylinder_v3_attempt1/README.md` (the failure); `runs/dev/2026-11-01_cylinder_v3_attempt3/README.md` (the final numerics); `runs/dev/2026-11-02_flow_fields/cylinder-04b6b912c5/standoff.json` (stand-off delta/R = 0.546 against Billig 0.517, +5.6 percent, report tolerance 15 percent; development run 2026-11-02).
 - **Speaker notes:** The failure was kept and not tuned away, and the fix was chosen from a six-scheme comparison and a split test. The grid study passes on two levels only, so no order of convergence is claimed.
 
@@ -176,6 +179,7 @@ Backup slides B1 to B9, then S17, S20 and S23 (moved there on 2026-11-04), follo
 
 - **Message:** With two inputs and a small number of runs, an exact Gaussian process gives calibrated intervals from its posterior, and it needs no GPU.
 - **Figure or table:** Diagram: two inputs, one GP per objective, predicted mean and interval for each output.
+- **Equations:** $k(r)=\sigma_f^{2}\left(1+\sqrt{5}\,r+\dfrac{5}{3}r^{2}\right)e^{-\sqrt{5}\,r},\quad r=\sqrt{\sum_d\dfrac{(x_d-x_d')^{2}}{\ell_d^{2}}}$; $\mu(x)=c+k_{*}^{T}(K+\sigma_n^{2}I)^{-1}(y-c)$; $\sigma^{2}(x)=k_{**}-k_{*}^{T}(K+\sigma_n^{2}I)^{-1}k_{*}$
 - **Source:** none (no number). Specification: `docs/specs/task4_surrogate_active_learning.md`.
 - **Speaker notes:** The model is pure PyTorch with a Matern 5/2 kernel with automatic relevance lengths, fitted by marginal likelihood. The Colab GPU is not needed, and we say so rather than suggest otherwise; deep ensembles are the alternative for high-dimensional inputs.
 
@@ -183,6 +187,7 @@ Backup slides B1 to B9, then S17, S20 and S23 (moved there on 2026-11-04), follo
 
 - **Message:** Expected hypervolume improvement picks the next run, a max-variance rule is the control, and the LLM chooses nothing.
 - **Figure or table:** Schematic of candidate scores over the box, with the selected point marked (no data).
+- **Equations:** $f(x)=\left(-\eta_{p_0}(x),\ \ln q_{\mathrm{peak}}(x)\right)$; $\mathrm{HVI}(y)=HV(P\cup\{y\})-HV(P)$; $\mathrm{EHVI}(x)\approx\dfrac{1}{S}\sum_{s=1}^{S}\mathrm{HVI}(y_s),\quad y_s\sim\mathcal{N}(\mu,\mathrm{diag}\,\sigma^{2})$; $\mathrm{score}(x)=\tilde\sigma_1^{2}(x)+\tilde\sigma_2^{2}(x)$
 - **Source:** none (no number). Specification: `docs/specs/task4_surrogate_active_learning.md`.
 - **Speaker notes:** Both rules are deterministic given a seed, so every run can be reproduced from its record. The max-variance rule is in the comparison so that the audience can see what the hypervolume term adds.
 
@@ -190,6 +195,7 @@ Backup slides B1 to B9, then S17, S20 and S23 (moved there on 2026-11-04), follo
 
 - **Message:** On the same pool, EHVI finds the Pareto front fastest and max-variance learns the whole box fastest; active learning beats random and Latin hypercube on the objective it targets, not on global error, and both are shown.
 - **Figure or table:** Held-out error against number of runs for al_ehvi, al_maxvar, random and LHS, with bands over 10 seeds.
+- **Equations:** $\mathrm{regret}=1-\dfrac{HV(\mathrm{observed})}{HV(\mathrm{front})}$
 - **Source:** `docs/validation/2026-11-02_replay_full_error_vs_n.png`, `docs/validation/2026-11-02_replay_full_summary.md`, `docs/validation/2026-11-02_replay.md` (final replay on all 92 pool points, 10 seeds, n = 8 to 48). EHVI has the lowest hypervolume regret at every budget after the shared 8-point start and 0 regret in 10 of 10 seeds from n = 32 (the 26-point true front is contained), while no other strategy reaches 0 by n = 48; on held-out error it is the worst strategy from n = 12 to 32 and overtakes random and LHS only at n = 40; max-variance has the lowest held-out error from n = 16 on (LHS at n = 12).
 - **Speaker notes:** Every strategy uses the same pool, so the ground truth is shared and no extra CFD is needed. If active learning does not beat the baselines, the slide says so and the next step is to investigate, not to retune.
 
@@ -240,6 +246,7 @@ Backup slides B1 to B9, then S17, S20 and S23 (moved there on 2026-11-04), follo
 
 - **Message:** A two-level model that starts from Euler plus Eckert reaches with 12 NS runs the heat-flux error that NS alone needs 48 for; for recovery it helps only below about 24 runs, because Euler is already close.
 - **Figure or table:** `docs/validation/2026-11-04_task9_mf.png` (held-out error against the number of NS runs, NS only against the two-level model, with the raw low-fidelity error as a line).
+- **Equations:** $y_H(x)=\rho\,y_L(x)+d(x),\quad d\sim\mathcal{GP}$; $\mu_H=\rho\,\mu_L+\mu_d,\quad \sigma_H^{2}=\rho^{2}\sigma_L^{2}+\sigma_d^{2}$; $(\rho,c)^{T}=(A^{T}K^{-1}A)^{-1}A^{T}K^{-1}y_H$
 - **Source:** `runs/pool3r/analysis/mf.csv`, `docs/validation/2026-11-04_task9_tables.md` (section 2), `docs/validation/2026-11-04_task9_report.md` (question 2): relative q error 0.025 (two-level, 12 runs) against 0.026 (NS only, 48 runs); recovery RMSE 0.0032 (two-level, 12 runs) against 0.0064 (NS only, 12 runs) and 0.0029 (NS only, 24 runs); raw Eckert q off by 0.295, raw Euler recovery off by 0.0047; fitted rho 1.00 to 1.07; 90 percent intervals of the two-level model cover 0.52 to 0.58 at 12 runs.
 - **Speaker notes:** Eckert on the Euler wall state is about 30 percent off in level but tracks the NS heating closely, which is exactly what the linear two-level form uses. The model is Kennedy and O'Hagan's autoregressive form: one GP for the cheap level and one for the discrepancy. Its intervals are too narrow at small budgets, so I trust its means there, not its error bars.
 
@@ -337,6 +344,7 @@ Backup slides B1 to B9, then S17, S20 and S23 (moved there on 2026-11-04), follo
 
 - **Message:** A Fourier neural operator predicts the whole ramp-2 heat-flux profile about 3 times more accurately than PCA plus GP, but the scalar GP still predicts the peak 7 times better than the operator.
 - **Figure or table:** `docs/validation/2026-11-02_operator.png` (four held-out profiles with both models, and the error distributions), with a short table of medians.
+- **Equations:** $\mathcal{L}=\dfrac{1}{BN}\sum_{b=1}^{B}\sum_{j=1}^{N}(\hat z_{bj}-z_{bj})^{2},\quad z=\dfrac{\ln q-\mu}{s}$; $\epsilon_{L2}=\dfrac{\|\hat q-q\|_2}{\|q\|_2}$
 - **Source:** `runs/profiles/2026-11-02/operator_compare.csv`, `docs/validation/2026-11-02_operator_profiles.md`, `runs/profiles/2026-11-02/pca_floor.csv`; settings fixed in `docs/specs/task4c_operator_profiles.md` before the run. Median relative L2 error with all data: 0.11 percent (FNO) against 0.32 percent (PCA plus GP); peak error 0.013 percent (scalar GP), 0.092 percent (FNO), 0.18 percent (PCA plus GP); fit 1030 s against 4.7 s.
 - **Speaker notes:** All 92 pool cases were re-run on the container to recover the wall profiles, and every one matched its Colab record. The PCA plus GP error equals its three-component truncation floor, so the FNO margin comes from the 99.9 percent rule fixed in the spec; more components were not run. For the design objective the scalar GP remains the right tool; the operator adds where the peak sits and the shape of the whole load.
 
@@ -359,6 +367,7 @@ Backup slides B1 to B9, then S17, S20 and S23 (moved there on 2026-11-04), follo
 
 - **Message:** Design maps show recovery and heat flux over the trimmed box, with the surrogate and the observed points on top.
 - **Figure or table:** Map output from `analysis/design_map.py`.
+- **Equations:** $M_{n,i}=M_{i-1}\sin\beta_i$; $M_{n,1}=M_{n,2}=\cdots=M_{n,N}$
 - **Source:** `runs/analysis/2026-11-02/design_map.png`, `runs/analysis/2026-11-02/oswatitsch_cut.png`, `runs/analysis/2026-11-02/grid.csv`, `docs/validation/2026-11-02_pareto_inverse.md`, section 4 (recovery std 1.8e-5 to 1.1e-4 over the box; GP mean 0.0008 to 0.0022 above the inviscid analytic curve along the Oswatitsch cut, explained from the recorded throat Mach).
 - **Speaker notes:** The maps show where the trade-off bends for an aerodynamics audience. They are interpolations between runs and are labeled that way.
 

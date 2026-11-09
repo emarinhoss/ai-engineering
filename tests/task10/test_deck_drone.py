@@ -5,6 +5,7 @@ import pytest
 from pptx import Presentation
 
 from docs.talk import build_deck_drone as bdd
+from docs.talk import equations
 
 ROOT = bdd.ROOT
 
@@ -86,3 +87,23 @@ def test_drawing_numbers_come_from_the_code_and_records():
     assert v["nom_mtow"] == f"{out['mtow_kg']:.2f}" and v["nom_span"] == "2"
     assert v["mesh_cells"] == "21,760"
     assert 0 <= v["n_front_edge"] <= v["n_front"] == 15
+
+
+def test_every_outline_equation_renders_and_sits_on_its_slide_as_a_picture(deck, tmp_path, monkeypatch):
+    """Each `**Equations:**` entry renders, and the slide carries exactly those pictures (alt text = LaTeX)."""
+    _, prs = deck
+    monkeypatch.setattr(equations, "EQ_DIR", tmp_path)       # the checks below draw at the default size
+    outline = bdd.read_outline()
+    n_equations = 0
+    for s, slide in zip(outline, prs.slides):
+        listed = s.get("equations", [])
+        for latex in listed:
+            path = equations.render(latex)
+            assert path.is_file() and path.stat().st_size > 2000, f"{s['id']}: {latex}"
+        placed = equations.placed_on(slide)
+        assert sorted(latex for latex, _ in placed) == sorted(listed), s["id"]
+        assert all(len(blob) > 2000 for _, blob in placed), s["id"]
+        n_equations += len(listed)
+    assert n_equations >= 30                      # the slides the brief names all carry at least one
+    for sid in ("D3", "D3b", "D4", "D5", "D5a", "D6", "D9", "D10", "D12", "D13"):
+        assert next(s for s in outline if s["id"] == sid).get("equations"), sid

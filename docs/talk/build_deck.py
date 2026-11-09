@@ -25,6 +25,7 @@ if str(ROOT) not in sys.path:          # lets "python docs/talk/build_deck.py" i
     sys.path.insert(0, str(ROOT))
 
 import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
@@ -35,6 +36,7 @@ from pptx.enum.shapes import MSO_CONNECTOR, MSO_SHAPE
 from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
 from pptx.util import Inches, Pt
 
+from docs.talk import equations as eq
 from geometry.inlet import design_points
 from postprocess.tecplot import read_su2_points, read_tecplot_ascii, surface_nodes_for_marker
 from worker.make_case import make
@@ -59,7 +61,7 @@ USED_FIGURES = []                      # repo-relative path of every PNG placed 
 
 # ---- reading the outline ----------------------------------------------------------------------
 def read_outline():
-    """Return {slide id: {"message": ..., "notes": ...}} read from docs/talk/outline.md."""
+    """Return {slide id: {"message": ..., "notes": ..., "equations": [LaTeX, ...]}} from docs/talk/outline.md."""
     out, current = {}, None
     for line in OUTLINE.read_text(encoding="utf-8").splitlines():
         head = re.match(r"^### (S\d+[a-z]?|B\d+)\. ", line)
@@ -69,7 +71,49 @@ def read_outline():
             current["message"] = line[len("- **Message:** "):].strip()
         elif current is not None and line.startswith("- **Speaker notes:** "):
             current["notes"] = line[len("- **Speaker notes:** "):].strip()
+        elif current is not None and eq.outline_equations(line) is not None:
+            current["equations"] = eq.outline_equations(line)
     return out
+
+
+# ---- equations: LaTeX sources, each also listed in the outline under its slide ----------------------
+# The relations are the ones the code and docs/specs/00_decisions.md use (module named in each comment).
+EQ_S2_RECOVERY = (r"\eta_{p_0}=\dfrac{1}{p_{0,\infty}}\,"
+                  r"\dfrac{\sum w\,\phi\;p_0\,\pi_{NS}(M)}{\sum w\,\phi}")        # decisions, recovery_total
+EQ_S2_P0 = r"p_0=p\,(1+0.2\,M^{2})^{3.5}"                                      # decisions, local total pressure
+EQ_S2_PINS = (r"\pi_{NS}(M)=\left[\dfrac{(\gamma+1)M^{2}}{(\gamma-1)M^{2}+2}\right]^{\frac{\gamma}{\gamma-1}}"
+              r"\left[\dfrac{\gamma+1}{2\gamma M^{2}-(\gamma-1)}\right]^{\frac{1}{\gamma-1}}")  # physics.shock._jump
+EQ_S6_THETA_BETA = (r"\tan\theta=\dfrac{2\cot\beta\,(M^{2}\sin^{2}\beta-1)}"
+                    r"{M^{2}(\gamma+\cos2\beta)+2}")                                    # physics.shock._theta_of_beta
+EQ_S6_PRESSURE = (r"\dfrac{p_2}{p_1}=1+\dfrac{2\gamma}{\gamma+1}\left(M_{n1}^{2}-1\right),\quad "
+                  r"M_{n1}=M\sin\beta")                                                 # physics.shock._jump
+EQ_S6_TSTAR = r"T^{*}=0.5\,(T_e+T_w)+0.22\,(T_{aw}-T_e)"                          # physics.heating.eckert
+EQ_S6_TAW = (r"T_{aw}=T_e\left(1+r\,\dfrac{\gamma-1}{2}M_e^{2}\right),\quad r=\sqrt{Pr}")  # physics.heating
+EQ_S6_ECKERT_Q = (r"q=St\,\rho^{*}u_e\,c_p\,(T_{aw}-T_w),\quad "
+                  r"St=0.332\,Re_x^{*\,-1/2}\,Pr^{-2/3}")                                # physics.heating
+EQ_S7_FR = (r"q_{FR}=0.57\,Pr^{-0.6}(\rho_e\mu_e)^{0.4}(\rho_w\mu_w)^{0.1}"
+            r"\sqrt{\dfrac{du_e}{dx}}\,(h_0-h_w)")                                      # physics.heating.fay_riddell
+EQ_S7_GRADIENT = r"\dfrac{du_e}{dx}=\dfrac{1}{R}\sqrt{\dfrac{2\,(p_{02}-p_\infty)}{\rho_e}}"  # same
+EQ_S7_BILLIG = r"\dfrac{\delta}{R}=0.386\,e^{4.67/M^{2}}"                          # physics.heating.billig
+EQ_S13_KERNEL = (r"k(r)=\sigma_f^{2}\left(1+\sqrt{5}\,r+\dfrac{5}{3}r^{2}\right)e^{-\sqrt{5}\,r},\quad "
+                 r"r=\sqrt{\sum_d\dfrac{(x_d-x_d')^{2}}{\ell_d^{2}}}")                   # surrogate.gp.GP.kernel
+EQ_S13_MEAN = r"\mu(x)=c+k_{*}^{T}(K+\sigma_n^{2}I)^{-1}(y-c)"                    # surrogate.gp.GP.predict
+EQ_S13_VAR = r"\sigma^{2}(x)=k_{**}-k_{*}^{T}(K+\sigma_n^{2}I)^{-1}k_{*}"          # surrogate.gp.GP.predict
+EQ_S14_OBJECTIVES = r"f(x)=\left(-\eta_{p_0}(x),\ \ln q_{\mathrm{peak}}(x)\right)"      # replay.to_objectives
+EQ_S14_HVI = r"\mathrm{HVI}(y)=HV(P\cup\{y\})-HV(P)"                             # acquisition.hvi_2d
+EQ_S14_EHVI = (r"\mathrm{EHVI}(x)\approx\dfrac{1}{S}\sum_{s=1}^{S}\mathrm{HVI}(y_s),\quad "
+               r"y_s\sim\mathcal{N}(\mu,\mathrm{diag}\,\sigma^{2})")                  # acquisition.ehvi_mc
+EQ_S14_VARIANCE = r"\mathrm{score}(x)=\tilde\sigma_1^{2}(x)+\tilde\sigma_2^{2}(x)"      # acquisition.max_variance
+EQ_S15_REGRET = r"\mathrm{regret}=1-\dfrac{HV(\mathrm{observed})}{HV(\mathrm{front})}"  # replay.metrics_row
+EQ_S20_NORMAL_MACH = r"M_{n,i}=M_{i-1}\sin\beta_i"                                # analysis.v5_check
+EQ_S20_OSWATITSCH = r"M_{n,1}=M_{n,2}=\cdots=M_{n,N}"                              # analysis.v5_check V5d
+EQ_S20C_TWO_LEVEL = r"y_H(x)=\rho\,y_L(x)+d(x),\quad d\sim\mathcal{GP}"            # surrogate.mf_gp
+EQ_S20C_POSTERIOR = (r"\mu_H=\rho\,\mu_L+\mu_d,\quad "
+                     r"\sigma_H^{2}=\rho^{2}\sigma_L^{2}+\sigma_d^{2}")                  # surrogate.mf_gp.predict
+EQ_S20C_GLS = r"(\rho,c)^{T}=(A^{T}K^{-1}A)^{-1}A^{T}K^{-1}y_H"                     # surrogate.mf_gp.fit
+EQ_B8_LOSS = (r"\mathcal{L}=\dfrac{1}{BN}\sum_{b=1}^{B}\sum_{j=1}^{N}(\hat z_{bj}-z_{bj})^{2},"
+              r"\quad z=\dfrac{\ln q-\mu}{s}")                                          # surrogate.fno.FNOEnsemble
+EQ_B8_ERROR = r"\epsilon_{L2}=\dfrac{\|\hat q-q\|_2}{\|q\|_2}"                        # operator_compare
 
 
 # ---- small text helpers -----------------------------------------------------------------------
@@ -317,7 +361,7 @@ def draw_inlet_schematic(path):
     ax.plot(*zip(Eb, Ec), color=BLUE_H, lw=2, ls="--")                        # throat plane
     ax.plot(*zip(O, P), color=GREY_H, lw=1, ls=":")                           # shock 1 (shock-on-lip rule)
     ax.plot(*zip(C, P), color=GREY_H, lw=1, ls=":")                           # shock 2
-    ax.annotate("", xy=(-0.012, 0.004), xytext=(-0.06, 0.004), arrowprops=dict(arrowstyle="->", color=GREY_H, lw=1.5))
+    ax.annotate("", xy=(-0.012, 0.004), xytext=(-0.06, 0.004), arrowprops={"arrowstyle": "->", "color": GREY_H, "lw": 1.5})
     ax.text(-0.036, 0.012, "freestream", color=GREY_H, ha="center", fontsize=12)
     ax.text(0.05, 0.027, "ramp 1", color=BLUE_H, ha="center", fontweight="bold", fontsize=13)
     ax.text(0.185, 0.012, "ramp 2: q_peak on ramp 2", color=ACCENT_H, ha="center", va="top", fontweight="bold", fontsize=13)
@@ -325,7 +369,7 @@ def draw_inlet_schematic(path):
     ax.text(0.085, 0.07, "ramp-1 and ramp-2 shocks\nmeet at the cowl lip", color=GREY_H, fontsize=11, ha="center")
     ax.annotate("throat plane:\nrecovery measured at throat\n(incl. terminal normal shock)",
                 xy=((Eb[0] + Ec[0]) / 2, (Eb[1] + Ec[1]) / 2), xytext=(0.285, 0.075), color=BLUE_H,
-                fontsize=12, va="center", arrowprops=dict(arrowstyle="->", color=BLUE_H))
+                fontsize=12, va="center", arrowprops={"arrowstyle": "->", "color": BLUE_H})
     ax.set_xlim(-0.065, 0.42)
     ax.set_ylim(-0.012, 0.125)
     ax.set_aspect("equal")
@@ -360,7 +404,7 @@ def draw_design_box(path):
 
 def draw_box_diagnostics(path):
     """B5: points of the box diagnostics records and the four excluded pool points."""
-    idx, t1, t2 = read_pool_design()
+    _idx, t1, t2 = read_pool_design()
     out = t1 + t2 > 24
     conv = [(8, 8), (5, 14), (8, 14), (12, 12)]      # converged: inlet_grid_study_ef03 and inlet_box_diagnostics
     fig, ax = plt.subplots(figsize=(6.2, 4.5), dpi=200)
@@ -557,7 +601,7 @@ def draw_wall_laminar_vs_sa(path):
     ax_q.set_ylim(0, top)
     for (color, q, x, label), dy in zip(peaks, (-0.2 * top, 0.15 * top)):
         ax_q.annotate(f"{label} q_peak {q:.2f} kW/m2", (x, q), xytext=(0.125, q + dy), fontsize=8.5, color=color,
-                      arrowprops=dict(arrowstyle="-", color=color, lw=0.8))
+                      arrowprops={"arrowstyle": "-", "color": color, "lw": 0.8})
     ax_q.text(0.02, 0.97, f"off scale at x = 0:\n{edge_q[0]:.0f} (laminar), {edge_q[1]:.0f} (SA) kW/m2",
               transform=ax_q.transAxes, fontsize=8.5, color=GREY_H, va="top")
     fig.savefig(path, bbox_inches="tight", facecolor="white")
@@ -635,10 +679,10 @@ def body_s1a(slide):
     rows = [["Question", "Answered on"],
             ["Design trade: how much pressure recovery does a lower peak heat flux on ramp 2 cost?",
              "S18, Pareto front with 90% bands"],
-            ["Inverse design: which ramp angles give the most recovery with peak heat flux at most "
-             "40 kW/m2, and does a new SU2 run confirm it?", "S19, confirmation run (C2)"],
-            ["Sampling cost: does active learning find the answers with fewer CFD runs than random "
-             "or Latin hypercube sampling?", "S15, reported whichever way it goes"],
+            [("Inverse design: which ramp angles give the most recovery with peak heat flux at most "
+             "40 kW/m2, and does a new SU2 run confirm it?"), "S19, confirmation run (C2)"],
+            [("Sampling cost: does active learning find the answers with fewer CFD runs than random "
+             "or Latin hypercube sampling?"), "S15, reported whichever way it goes"],
             ["Trust: does the solver match analytic cases first, and do the 90% intervals hold?",
              "S5 to S8, S16"],
             ["Automation: can an agent run the pipeline while the surrogate, not the LLM, picks every point?",
@@ -659,26 +703,29 @@ def body_s1a(slide):
               "Electronics or HVAC cooling: fan power against peak temperature."],
              size=13, bullets=True, space_after=4)
     text_box(slide, x, CT + 2.85, w, 2.0,
-             ["Transfers: validation ladder, input gates, run queue, GP with uncertainty, acquisition, "
-              "replay against random and LHS.",
-              "Does not transfer as is: the physics choices (laminar flow, 300 K wall, tolerances). "
-              "An exact GP suits a few inputs and up to a few thousand runs; past that, another surrogate."],
+             [("Transfers: validation ladder, input gates, run queue, GP with uncertainty, acquisition, "
+              "replay against random and LHS."),
+              ("Does not transfer as is: the physics choices (laminar flow, 300 K wall, tolerances). "
+              "An exact GP suits a few inputs and up to a few thousand runs; past that, another surrogate.")],
              size=13, bullets=True, space_after=4)
 
 
 def body_s2(slide):
     path = "docs/talk/figures/inlet_schematic.png"
     draw_inlet_schematic(ROOT / path)
-    w, h = add_figure(slide, path, LM, CT, 6.2, 3.0)
+    _w, _h = add_figure(slide, path, LM, CT, 6.2, 3.0)
     sch = "runs/dev/2026-11-02_flow_fields/figures/inlet_8_8_schlieren.png"
-    w2, h2 = add_figure(slide, sch, LM + 6.5, CT, 5.8, 3.0)
+    _w2, h2 = add_figure(slide, sch, LM + 6.5, CT, 5.8, 3.0)
     caption(slide, LM + 6.5, CT + h2 + 0.04, 5.8, "Numerical schlieren of the laminar SU2 solution at 8/8 (medium mesh): the two ramp "
             "shocks meet at the cowl lip. Figure: " + sch + ". Record: runs/dev/2026-11-02_flow_fields/inlet2r-92352faad1.", lines=3)
-    text_box(slide, LM, CT + 3.35, CW, 1.0,
+    eq.add_equation(slide, EQ_S2_RECOVERY, LM, CT + 2.0, 3.6, 0.7, fontsize=14)
+    eq.add_equation(slide, EQ_S2_P0, LM + 3.8, CT + 2.15, 2.4, 0.4, fontsize=14)
+    eq.add_equation(slide, EQ_S2_PINS, LM, CT + 2.75, 6.1, 0.8, fontsize=13)
+    text_box(slide, LM, CT + 3.6, CW, 0.8,
              ["Maximize: total pressure recovery at the throat plane, including the terminal normal shock.",
               "Minimize: peak wall heat flux on ramp 2, including the duct wall; not on the sharp leading edge."],
              size=14, bullets=True, space_after=4)
-    caption(slide, LM, 6.3, CW,
+    caption(slide, LM, 6.42, CW,
             f"Left: {path}, drawn by docs/talk/build_deck.py from geometry.inlet.design_points(8, 8), the geometry function "
             "of geometry/inlet.py (theta1 = theta2 = 8 deg); dotted lines: the shock-on-lip rule. Definitions: "
             "docs/specs/00_decisions.md, sections 2 and 3.", lines=2)
@@ -687,7 +734,7 @@ def body_s2(slide):
 def body_s3(slide):
     path = "docs/talk/figures/design_box.png"
     draw_design_box(ROOT / path)
-    w, h = add_figure(slide, path, LM, CT, 6.2, 4.1)
+    _w, h = add_figure(slide, path, LM, CT, 6.2, 4.1)
     caption(slide, LM, CT + h + 0.05, 6.4,
             f"Figure: {path}, drawn by docs/talk/build_deck.py from designs/pool_sobol96.csv. "
             "Record: runs/dev/2026-11-01_inlet_box_diagnostics/README.md.", lines=3)
@@ -730,8 +777,8 @@ def body_s5(slide):
 
 
 def body_s6(slide):
-    w, h = add_figure_with_caption(slide, "docs/validation/2026-11-01_wedge_heat_flux.png",
-                                   "docs/validation/2026-11-01_report.md", LM, CT, 6.6, 4.1)
+    _w, _h = add_figure_with_caption(slide, "docs/validation/2026-11-01_wedge_heat_flux.png",
+                                   "docs/validation/2026-11-01_report.md", LM, CT, 5.5, 3.3)
     rows = [["Check", "Measured", "Tolerance"],
             ["V1 beta (ref 22.234 deg)", "22.366 deg, +0.132 deg", "0.5 deg"],
             ["V1 p2/p1 (ref 2.5060)", "2.5030, -0.12%", "2%"],
@@ -743,29 +790,37 @@ def body_s6(slide):
     caption(slide, 7.5, CT + 3.4, 5.2,
             "V1 and V2a: official Colab records, runs/task1/README.md and runs/task1/v1_oblique_shock.json, v2a.json. "
             "V2b: development run, final numerics (wedge_lam_ef03_cfl20), report V2b row, 88 nodes.", lines=4)
+    eq.add_equation(slide, EQ_S6_THETA_BETA, LM, CT + 3.75, 4.4, 0.6, fontsize=12)
+    eq.add_equation(slide, EQ_S6_PRESSURE, LM, CT + 4.35, 5.0, 0.5, fontsize=12)
+    eq.add_equation(slide, EQ_S6_TSTAR, 7.5, CT + 3.95, 4.3, 0.35, fontsize=13)
+    eq.add_equation(slide, EQ_S6_TAW, 7.5, CT + 4.35, 5.2, 0.55, fontsize=13)
+    eq.add_equation(slide, EQ_S6_ECKERT_Q, 7.5, CT + 4.95, 5.2, 0.4, fontsize=13)
 
 
 def body_s7(slide):
-    w1, h1 = add_figure(slide, "docs/validation/2026-11-01_cylinder_heat_flux.png", LM, CT, 5.0, 3.2)
+    _w1, h1 = add_figure(slide, "docs/validation/2026-11-01_cylinder_heat_flux.png", LM, CT - 0.1, 4.2, 2.6)
     cyl = "runs/dev/2026-11-02_flow_fields/figures/cylinder.png"
-    w2, h2 = add_figure(slide, cyl, LM + 5.3, CT, 7.0, 3.2)
-    caption(slide, LM, CT + h1 + 0.04, 5.0, "Figure: docs/validation/2026-11-01_cylinder_heat_flux.png. "
-            "Record: docs/validation/2026-11-01_report.md.", lines=2)
-    caption(slide, LM + 5.3, CT + h2 + 0.04, 7.0, "Bow shock of the final numerics (fine mesh, development run with volume output): "
+    _w2, h2 = add_figure(slide, cyl, LM + 4.5, CT - 0.1, 7.0, 2.6)
+    caption(slide, LM, CT - 0.1 + h1 + 0.04, 4.2, "Figure: docs/validation/2026-11-01_cylinder_heat_flux.png. "
+            "Record: docs/validation/2026-11-01_report.md.", lines=3)
+    caption(slide, LM + 4.5, CT - 0.1 + h2 + 0.04, 7.0, "Bow shock of the final numerics (fine mesh, development run with volume output): "
             "measured stand-off delta/R = 0.546 against Billig 0.517 (+5.6 percent, report tolerance 15 percent). "
             "Figure: " + cyl + ". Record: runs/dev/2026-11-02_flow_fields/cylinder-04b6b912c5/standoff.json.", lines=3)
     rows = [["Cylinder, hard checks", "q_stag vs Fay-Riddell, fine mesh (15%)", "Medium to fine change (5%)"],
             ["Roe, entropy fix 0.1 (attempt 1)", "FAIL: +216.84%", "FAIL: +628.92%"],
             ["Roe, entropy fix 0.3 (attempt 3)", "PASS: -4.49%", "PASS: -3.46%"]]
-    add_table(slide, LM, CT + 3.9, [3.8, 4.6, 3.7], rows, size=12, row_h=0.36)
+    eq.add_equation(slide, EQ_S7_FR, LM, CT + 2.95, 4.4, 0.5, fontsize=13)
+    eq.add_equation(slide, EQ_S7_GRADIENT, LM + 4.5, CT + 3.4, 3.0, 0.6, fontsize=13)
+    eq.add_equation(slide, EQ_S7_BILLIG, LM + 8.0, CT + 3.45, 2.1, 0.5, fontsize=13)
+    add_table(slide, LM, CT + 4.0, [3.8, 4.6, 3.7], rows, size=11, row_h=0.3)
 
 
 def body_s8(slide):
     wall = "docs/talk/figures/wall_8_8_laminar_vs_sa.png"
     draw_wall_laminar_vs_sa(ROOT / wall)
     throat = "docs/validation/2026-11-01_inlet_throat_p0.png"
-    w1, h1 = add_figure(slide, throat, LM, CT, 4.7, 2.75)
-    w2, h2 = add_figure(slide, wall, LM + 4.7 + 0.3, CT, 7.1, 2.75)
+    _w1, h1 = add_figure(slide, throat, LM, CT, 4.7, 2.75)
+    _w2, h2 = add_figure(slide, wall, LM + 4.7 + 0.3, CT, 7.1, 2.75)
     caption(slide, LM, CT + h1 + 0.04, 4.7, f"Figure: {throat}. Record: docs/validation/2026-11-01_report.md and "
             "runs/dev/2026-11-01_inlet_design_point/README.md. Development run, not the official Task 2 record.", lines=4)
     caption(slide, LM + 5.0, CT + h2 + 0.04, 7.1, f"Figure: {wall}, drawn by docs/talk/build_deck.py from the body-wall nodes of "
@@ -805,7 +860,7 @@ def body_s10(slide):
     path = "docs/talk/figures/wall_12_14_diverged.png"
     info = draw_wall_12_14_diverged(ROOT / path)
     p_max_file = info[f"{GRID_RUNS}/12_14_medium"][1]
-    w, h = add_figure(slide, path, 8.05, CT + 0.05, 4.65, 3.2)
+    _w, h = add_figure(slide, path, 8.05, CT + 0.05, 4.65, 3.2)
     caption(slide, 8.05, CT + 0.05 + h + 0.04, 4.65,
             f"Figure: {path}, drawn by docs/talk/build_deck.py from surface_flow.dat.gz of {GRID_RUNS}/12_14_medium "
             f"(exited with an error after 4347 iterations; {GRID_RUNS}/README.md) and {BOX_RUNS}/12_12_medium. "
@@ -840,8 +895,8 @@ def body_s11(slide):
             lines=1)
     text_box(slide, 8.8, CT + 0.1, 3.9, 4.6,
              ["Ingest refuses a result that does not match the sha256 digest the worker wrote next to it.",
-              "2026-11-02: the worker on Colab restarted with --retry-reason config_mismatch and re-ran the 63 refused pool "
-              "jobs without repeating the 29 finished ones; all 92 pool points converged.",
+              ("2026-11-02: the worker on Colab restarted with --retry-reason config_mismatch and re-ran the 63 refused pool "
+              "jobs without repeating the 29 finished ones; all 92 pool points converged."),
               "F8: a killed worker is found by its stale heartbeat and the job is re-run once (fake solver; with real SU2, R4 in B9)."],
              size=14, bullets=True, space_after=8)
 
@@ -864,57 +919,67 @@ def body_s12(slide):
 
 
 def body_s13(slide):
-    box(slide, LM, CT + 1.2, 2.6, 1.0, "inputs\ntheta1, theta2\n(scaled to the unit box)", size=13, fill=WHITE)
-    box(slide, 4.2, CT + 0.4, 3.2, 0.9, "GP: recovery_total", size=15, bold=True)
-    box(slide, 4.2, CT + 2.1, 3.2, 0.9, "GP: log q_peak", size=15, bold=True)
-    box(slide, 8.8, CT + 0.4, 3.9, 0.9, "mean and 90 percent interval\nrecovery_total", size=13, fill=WHITE)
-    box(slide, 8.8, CT + 2.1, 3.9, 0.9, "mean and 90 percent interval\nq_peak (from the log prediction)", size=13, fill=WHITE)
-    arrow(slide, LM + 2.6, CT + 1.6, 4.2, CT + 0.85)
-    arrow(slide, LM + 2.6, CT + 1.8, 4.2, CT + 2.55)
-    arrow(slide, 7.4, CT + 0.85, 8.8, CT + 0.85)
-    arrow(slide, 7.4, CT + 2.55, 8.8, CT + 2.55)
-    text_box(slide, LM, CT + 3.35, CW, 1.4,
+    d = -0.55                                      # the diagram moves up to leave a row for the equations
+    box(slide, LM, CT + 1.2 + d, 2.6, 1.0, "inputs\ntheta1, theta2\n(scaled to the unit box)", size=13, fill=WHITE)
+    box(slide, 4.2, CT + 0.4 + d, 3.2, 0.9, "GP: recovery_total", size=15, bold=True)
+    box(slide, 4.2, CT + 2.1 + d, 3.2, 0.9, "GP: log q_peak", size=15, bold=True)
+    box(slide, 8.8, CT + 0.4 + d, 3.9, 0.9, "mean and 90 percent interval\nrecovery_total", size=13, fill=WHITE)
+    box(slide, 8.8, CT + 2.1 + d, 3.9, 0.9, "mean and 90 percent interval\nq_peak (from the log prediction)", size=13, fill=WHITE)
+    arrow(slide, LM + 2.6, CT + 1.6 + d, 4.2, CT + 0.85 + d)
+    arrow(slide, LM + 2.6, CT + 1.8 + d, 4.2, CT + 2.55 + d)
+    arrow(slide, 7.4, CT + 0.85 + d, 8.8, CT + 0.85 + d)
+    arrow(slide, 7.4, CT + 2.55 + d, 8.8, CT + 2.55 + d)
+    eq.add_equation(slide, EQ_S13_KERNEL, LM, CT + 2.55, 7.0, 0.8, fontsize=13)
+    eq.add_equation(slide, EQ_S13_MEAN, LM + 7.4, CT + 2.5, 4.7, 0.4, fontsize=14)
+    eq.add_equation(slide, EQ_S13_VAR, LM + 7.4, CT + 2.95, 4.7, 0.4, fontsize=14)
+    text_box(slide, LM, CT + 3.45, CW, 1.1,
              ["Exact GP, pure PyTorch, Matern 5/2 kernel with automatic relevance lengths, fitted by marginal likelihood.",
               "One GP per objective; the Colab GPU is not needed.",
               "Interval check: the replay calibration (slide S16)."], size=14, bullets=True, space_after=6)
-    caption(slide, LM, CT + 4.55, CW, "Specification: docs/specs/task4_surrogate_active_learning.md. Drawing, no data.", lines=1)
+    caption(slide, LM, CT + 4.6, CW, "Specification: docs/specs/task4_surrogate_active_learning.md. Drawing, no data.", lines=1)
 
 
 def body_s14(slide):
-    box(slide, LM, CT + 1.1, 2.9, 1.1, "posterior mean + variance\n(both GPs)", size=14, fill=WHITE)
-    box(slide, 4.5, CT + 0.2, 3.4, 0.9, "EHVI (Monte-Carlo)", size=15, bold=True)
-    box(slide, 4.5, CT + 2.2, 3.4, 0.9, "max-variance (control)", size=15, bold=True)
-    box(slide, 9.4, CT + 1.2, 3.3, 0.9, "next design", size=15, bold=True, fill=WHITE)
-    arrow(slide, LM + 2.9, CT + 1.5, 4.5, CT + 0.65)
-    arrow(slide, LM + 2.9, CT + 1.8, 4.5, CT + 2.65)
-    arrow(slide, 7.9, CT + 0.65, 9.4, CT + 1.5)
-    arrow(slide, 7.9, CT + 2.65, 9.4, CT + 1.8)
-    text_box(slide, 9.4, CT + 2.3, 3.3, 0.8, "deterministic given the seed; LLM not in the loop", size=13, color=ACCENT, bold=True)
-    text_box(slide, LM, CT + 3.45, CW, 1.4,
+    d = -0.3                                       # the diagram moves up to leave a row for the equations
+    box(slide, LM, CT + 1.1 + d, 2.9, 1.1, "posterior mean + variance\n(both GPs)", size=14, fill=WHITE)
+    box(slide, 4.5, CT + 0.2 + d, 3.4, 0.9, "EHVI (Monte-Carlo)", size=15, bold=True)
+    box(slide, 4.5, CT + 2.2 + d, 3.4, 0.9, "max-variance (control)", size=15, bold=True)
+    box(slide, 9.4, CT + 1.2 + d, 3.3, 0.9, "next design", size=15, bold=True, fill=WHITE)
+    arrow(slide, LM + 2.9, CT + 1.5 + d, 4.5, CT + 0.65 + d)
+    arrow(slide, LM + 2.9, CT + 1.8 + d, 4.5, CT + 2.65 + d)
+    arrow(slide, 7.9, CT + 0.65 + d, 9.4, CT + 1.5 + d)
+    arrow(slide, 7.9, CT + 2.65 + d, 9.4, CT + 1.8 + d)
+    text_box(slide, 9.4, CT + 2.3 + d, 3.3, 0.8, "deterministic given the seed; LLM not in the loop", size=13, color=ACCENT, bold=True)
+    eq.add_equation(slide, EQ_S14_OBJECTIVES, LM, CT + 2.95, 3.4, 0.4, fontsize=12)
+    eq.add_equation(slide, EQ_S14_HVI, LM + 3.5, CT + 2.95, 2.9, 0.4, fontsize=12)
+    eq.add_equation(slide, EQ_S14_EHVI, LM + 6.5, CT + 2.85, 3.6, 0.7, fontsize=12)
+    eq.add_equation(slide, EQ_S14_VARIANCE, LM + 10.2, CT + 2.95, 1.9, 0.4, fontsize=12)
+    text_box(slide, LM, CT + 3.65, CW, 0.9,
              ["EHVI: Monte-Carlo expected hypervolume improvement on (-recovery_total, log q_peak).",
               "Max-variance: sum of the standardized posterior variances; pure exploration, the control.",
               "Candidates: in the replay, the unselected pool points."], size=14, bullets=True, space_after=6)
-    caption(slide, LM, CT + 4.55, CW, "Specification: docs/specs/task4_surrogate_active_learning.md. Drawing, no data.", lines=1)
+    caption(slide, LM, CT + 4.6, CW, "Specification: docs/specs/task4_surrogate_active_learning.md. Drawing, no data.", lines=1)
 
 
 def body_s15(slide):
     fig = "docs/validation/2026-11-02_replay_full_error_vs_n.png"
-    w, h = add_figure_with_caption(slide, fig, "docs/validation/2026-11-02_replay.md and "
+    _w, _h = add_figure_with_caption(slide, fig, "docs/validation/2026-11-02_replay.md and "
                                    "docs/validation/2026-11-02_replay_full_summary.md", LM, CT, 8.2, 2.8)
     text_box(slide, 9.0, CT, 3.7, 3.0,
              ["Final replay: all 92 pool points, 10 seeds, n = 8 to 48. Median and interquartile band.",
-              "Hypervolume regret: EHVI is lowest at every budget from n = 12; 0 in 10 of 10 seeds from n = 32 "
-              "(the 26-point true front is contained). No other strategy reaches 0 by n = 48."],
+              ("Hypervolume regret: EHVI is lowest at every budget from n = 12; 0 in 10 of 10 seeds from n = 32 "
+              "(the 26-point true front is contained). No other strategy reaches 0 by n = 48.")],
              size=13, bullets=True, space_after=6)
+    eq.add_equation(slide, EQ_S15_REGRET, 9.0, CT + 2.65, 3.7, 0.65, fontsize=14)
     text_box(slide, LM, CT + 3.4, CW, 1.5,
-             ["Held-out error: EHVI has the highest recovery RMSE of the four from n = 12 to 32 and overtakes random and LHS "
-              "only at n = 40. Recovery RMSE at n = 48: EHVI 1.6e-5, random 3.1e-5, LHS 2.3e-5, max-variance 1.4e-5.",
+             [("Held-out error: EHVI has the highest recovery RMSE of the four from n = 12 to 32 and overtakes random and LHS "
+              "only at n = 40. Recovery RMSE at n = 48: EHVI 1.6e-5, random 3.1e-5, LHS 2.3e-5, max-variance 1.4e-5."),
               "Max-variance has the lowest recovery RMSE from n = 16 on. All four strategies share one pool, so no extra CFD."],
              size=13, bullets=True, space_after=6)
 
 
 def body_s16(slide):
-    w, h = add_figure_with_caption(slide, "docs/validation/2026-11-02_replay_full_calibration.png",
+    _w, _h = add_figure_with_caption(slide, "docs/validation/2026-11-02_replay_full_calibration.png",
                                    "docs/validation/2026-11-02_replay.md", LM, CT, 7.4, 3.6)
     text_box(slide, 8.3, CT, 4.4, 4.0,
              ["Final replay, 92 pool points, n = 48, 44 held-out points.",
@@ -925,33 +990,33 @@ def body_s16(slide):
 
 
 def body_s17(slide):
-    w, h = add_figure_with_caption(slide, "runs/analysis/2026-11-02/design_map.png",
+    _w, _h = add_figure_with_caption(slide, "runs/analysis/2026-11-02/design_map.png",
                                    "runs/pool/results.csv", LM, CT, 5.0, 4.3,
                                    crop_note=" (panel \"observed runs\" cropped)", crop=(0.315, 0.495, 0.425, 0.0))
     text_box(slide, 6.6, CT, 6.1, 4.0,
              ["92 converged, 0 failed (runs/pool/results.csv).",
-              "The 4 of the 96 Sobol points in designs/pool_sobol96.csv with theta1 + theta2 > 24 deg were refused by gate 4 "
-              "and never staged.",
+              ("The 4 of the 96 Sobol points in designs/pool_sobol96.csv with theta1 + theta2 > 24 deg were refused by gate 4 "
+              "and never staged."),
               "Shaded corner: theta1 + theta2 > 24 deg (gate 4). The full design map, with the GP maps, is on slide S20."],
              size=15, bullets=True, space_after=10)
 
 
 def body_s18(slide):
-    w, h = add_figure_with_caption(slide, "runs/analysis/2026-11-02/pareto_front.png",
+    _w, _h = add_figure_with_caption(slide, "runs/analysis/2026-11-02/pareto_front.png",
                                    "runs/analysis/2026-11-02/pareto.csv", LM, CT, 6.6, 4.2)
     text_box(slide, 7.6, CT, 5.1, 4.4,
              ["26 observed front points of 92.",
               "Posterior band: 1.2e-4 to 1.8e-3 wide in recovery.",
-              "Discretization error bar (V4m grid study): 3.1e-4 in recovery and 530 W/m2 in q_peak; "
-              "25 times the posterior uncertainty in heat flux.",
+              ("Discretization error bar (V4m grid study): 3.1e-4 in recovery and 530 W/m2 in q_peak; "
+              "25 times the posterior uncertainty in heat flux."),
               "Source: docs/validation/2026-11-02_pareto_inverse.md, section 2."],
              size=14, bullets=True, space_after=8)
 
 
 def body_s19(slide):
     rows = [["Query", "Surrogate answer (90 percent interval)", "Confirmation run result", "Inside interval?"],
-            ["Highest recovery with q_peak under the 40th percentile of pool heating (cap 31493 W/m2); "
-             "answer theta1 = 11.965 deg, theta2 = 7.115 deg",
+            [("Highest recovery with q_peak under the 40th percentile of pool heating (cap 31493 W/m2); "
+             "answer theta1 = 11.965 deg, theta2 = 7.115 deg"),
              "recovery_total 0.34515 (0.34506 to 0.34523)", "0.34513 (z = -0.41)", "yes"],
             ["", "q_peak 31470 W/m2 (31450 to 31490); P(q <= cap) = 0.972", "31462 W/m2 (z = -0.66)", "yes"]]
     table = add_table(slide, LM, CT + 0.1, [4.6, 3.9, 2.2, 1.4], rows, size=13, row_h=0.7)
@@ -961,22 +1026,24 @@ def body_s19(slide):
     text_box(slide, LM, CT + 3.0, 6.8, 1.9,
              ["The cap is fixed from the pool before the answer is known (40th percentile of the pool's q_peak).",
               "One run inside a 90 percent interval is one draw, not a calibration statistic; the calibration evidence is the replay (S16).",
-              "Refitting the GPs with this one new point shrinks the predictive std at the design from 5.1e-5 to 4.6e-5 in recovery "
-              "and from 3.9e-4 to 3.5e-4 in log q_peak (ratios 0.90 and 0.92)."],
+              ("Refitting the GPs with this one new point shrinks the predictive std at the design from 5.1e-5 to 4.6e-5 in recovery "
+              "and from 3.9e-4 to 3.5e-4 in log q_peak (ratios 0.90 and 0.92).")],
              size=13, bullets=True, space_after=5)
     sch = "runs/dev/2026-11-02_flow_fields/figures/inlet_confirm_schlieren.png"
-    w, h = add_figure(slide, sch, LM + 7.1, CT + 2.85, 5.2, 1.6)
+    _w, h = add_figure(slide, sch, LM + 7.1, CT + 2.85, 5.2, 1.6)
     caption(slide, LM + 7.1, CT + 2.85 + h + 0.02, 5.2, "Schlieren of the confirmed design (development run with volume output, "
             "same metrics as the Colab run): " + sch + ".", lines=2)
 
 
 def body_s20(slide):
-    w, h = add_figure(slide, "runs/analysis/2026-11-02/design_map.png", LM, CT, 8.0, 4.3)
+    _w, h = add_figure(slide, "runs/analysis/2026-11-02/design_map.png", LM, CT, 8.0, 4.3)
     caption(slide, LM, CT + h + 0.04, 8.0, "Figure: runs/analysis/2026-11-02/design_map.png. "
             "Records: runs/analysis/2026-11-02/grid.csv, docs/validation/2026-11-02_pareto_inverse.md, section 4.", lines=2)
-    w2, h2 = add_figure(slide, "runs/analysis/2026-11-02/oswatitsch_cut.png", 8.9, CT, 3.8, 2.5)
+    _w2, h2 = add_figure(slide, "runs/analysis/2026-11-02/oswatitsch_cut.png", 8.9, CT, 3.8, 2.2)
     caption(slide, 8.9, CT + h2 + 0.04, 3.8, "Figure: runs/analysis/2026-11-02/oswatitsch_cut.png.", lines=1)
-    text_box(slide, 8.9, CT + h2 + 0.5, 3.8, 1.9,
+    eq.add_equation(slide, EQ_S20_NORMAL_MACH, 8.9, CT + h2 + 0.4, 3.8, 0.35, fontsize=13)
+    eq.add_equation(slide, EQ_S20_OSWATITSCH, 8.9, CT + h2 + 0.8, 3.8, 0.35, fontsize=13)
+    text_box(slide, 8.9, CT + h2 + 1.25, 3.8, 1.5,
              ["Recovery std 1.8e-5 to 1.1e-4 over the box.",
               "Oswatitsch cut: GP mean 0.0008 to 0.0022 above the inviscid analytic curve, explained from the recorded throat Mach."],
              size=12, bullets=True, space_after=4)
@@ -990,17 +1057,17 @@ def body_s20a(slide):
             ["Wall temperature", "300 to 600 K", "isothermal body and cowl"]]
     add_table(slide, LM, CT, [3.0, 2.4, 6.7], rows, size=13, row_h=0.42)
     text_box(slide, LM, CT + 2.35, CW, 2.4,
-             ["Pools: laminar NS at 159 Sobol points (152 converged, 7 solver errors; 144 on the container, 15 on Colab); "
-              "Euler + Eckert at 316 points (all converged).",
+             [("Pools: laminar NS at 159 Sobol points (152 converged, 7 solver errors; 144 on the container, 15 on Colab); "
+              "Euler + Eckert at 316 points (all converged)."),
               "Gate V5 as first specified: FAIL (Euler wall-Mach plateaus; first fine-mesh NS run diverged at the duct outlet).",
-              "Gate after two recorded changes (plateaus measured off the wall; pressure outlet on the duct): PASS. "
-              "Recovery medium against fine -0.13%, q_peak +2.28%; Euler recovery against analytic -0.07%.",
+              ("Gate after two recorded changes (plateaus measured off the wall; pressure outlet on the duct): PASS. "
+              "Recovery medium against fine -0.13%, q_peak +2.28%; Euler recovery against analytic -0.07%."),
               "All 7 NS pool failures are start-up numerics at the duct outlet, not an inlet limit: each converges with a two-stage start."],
              size=14, bullets=True, space_after=6)
 
 
 def body_s20b(slide):
-    w, h = add_figure_with_caption(slide, "docs/validation/2026-11-04_task9_replay.png",
+    _w, _h = add_figure_with_caption(slide, "docs/validation/2026-11-04_task9_replay.png",
                                    "runs/pool3r/analysis/replay_s*.csv", LM, CT, 8.6, 3.2)
     text_box(slide, LM + 8.8, CT, CW - 8.8, 4.6,
              ["Hypervolume regret at 24 runs: EHVI 0.000, max-variance 0.047, random 0.246, LHS 0.292.",
@@ -1011,7 +1078,7 @@ def body_s20b(slide):
 
 
 def body_s20c(slide):
-    w, h = add_figure_with_caption(slide, "docs/validation/2026-11-04_task9_mf.png",
+    _w, _h = add_figure_with_caption(slide, "docs/validation/2026-11-04_task9_mf.png",
                                    "runs/pool3r/analysis/mf.csv", LM, CT, 7.6, 3.6)
     text_box(slide, LM + 7.9, CT, CW - 7.9, 4.6,
              ["q_peak error 0.025 with 12 NS runs (two-level) against 0.026 with 48 (NS only).",
@@ -1019,6 +1086,10 @@ def body_s20c(slide):
               "Raw Eckert q_peak off by 0.295; raw Euler recovery off by 0.0047; fitted rho 1.00 to 1.07.",
               "Two-level 90% intervals cover 0.52 to 0.58 at 12 runs: too narrow."],
              size=13, bullets=True, space_after=6)
+    x = LM + 7.9
+    eq.add_equation(slide, EQ_S20C_TWO_LEVEL, x, CT + 3.3, CW - 7.9, 0.45, fontsize=15)
+    eq.add_equation(slide, EQ_S20C_POSTERIOR, x, CT + 3.85, CW - 7.9, 0.45, fontsize=14)
+    eq.add_equation(slide, EQ_S20C_GLS, x, CT + 4.4, CW - 7.9, 0.45, fontsize=14)
 
 
 def body_s20d(slide):
@@ -1027,8 +1098,8 @@ def body_s20d(slide):
              "CV accuracy 0.950 against 0.956 (always converges); AUC 0.63; at p < 0.5: 0 of 7 failures skipped, 1 good run lost",
              "No. 7 failures in 159 runs; all 7 are start-up numerics and converge with a two-stage start"],
             ["Best recovery with P(q_peak <= cap) >= 0.9 at all 125 envelope points",
-             "Cap 16,081 W/m2 (40th percentile). No feasible design: 22 envelope points cannot be met by any design; "
-             "worst Mach 4.5, 28 km, 300 K, lowest predicted q 27,202 W/m2",
+             ("Cap 16,081 W/m2 (40th percentile). No feasible design: 22 envelope points cannot be met by any design; "
+             "worst Mach 4.5, 28 km, 300 K, lowest predicted q 27,202 W/m2"),
              "Infeasible as specified; no confirmation run"]]
     add_table(slide, LM, CT + 0.1, [3.4, 5.6, 3.1], rows, size=13, row_h=0.9, flag=())
 
@@ -1056,16 +1127,16 @@ def body_s21(slide):
 def body_s22(slide):
     rows = [["Limit", "Consequence for the Pareto front"],
             ["Laminar flow at a sub-scale, high-altitude condition (Re_L at most 5e5)",
-             "Spalart-Allmaras sensitivity (development runs, a bound): peak heating 2.5 to 2.6 times laminar; "
-             "throat recovery 0.857 against 0.909 at 8/8. The trade-off keeps its direction, the heating level does not"],
-            ["Two-dimensional, two design variables", "The front is a front in theta1 and theta2 only; cowl position and wall "
-             "temperature are not design variables"],
+             ("Spalart-Allmaras sensitivity (development runs, a bound): peak heating 2.5 to 2.6 times laminar; "
+             "throat recovery 0.857 against 0.909 at 8/8. The trade-off keeps its direction, the heating level does not")],
+            ["Two-dimensional, two design variables", ("The front is a front in theta1 and theta2 only; cowl position and wall "
+             "temperature are not design variables")],
             ["12/14 corner (26 deg total turning) does not converge",
              "Gate 4 trims total turning to 24 deg, so the front holds inside the trimmed box; the 25 deg band was not tested"],
             ["Sharp leading edge: wall-node temperature departs from 300 K within about 30 mm (750 K at the tip)",
              "Both objectives are placed away from it: ramp 2 only, x >= 0.1 m"],
-            ["Mesh level", "Discretization error bar 3.1e-4 in recovery and 530 W/m2 in q_peak (V4m, 8/8); "
-             "no converged grid study at 12/14"]]
+            ["Mesh level", ("Discretization error bar 3.1e-4 in recovery and 530 W/m2 in q_peak (V4m, 8/8); "
+             "no converged grid study at 12/14")]]
     add_table(slide, LM, CT + 0.1, [4.6, 7.5], rows, size=14, row_h=0.8)
 
 
@@ -1110,15 +1181,15 @@ def body_b1(slide):
     add_table(slide, LM, CT + 0.1, [1.4, 0.9, 3.4, 1.5, 1.6, 1.5, 1.8], rows, size=11, row_h=0.42)
     text_box(slide, LM, CT + 3.6, CW, 1.4,
              ["Peak heating 2.59, 2.61 and 2.52 times laminar; recovery_total lower by 0.005 to 0.014; throat recovery 0.857 against 0.909 at 8/8.",
-              "Colab runs (RANS_SA, 4 ranks) equal the container development runs to every printed digit. "
-              "SA without a transition model and with y+ above 1: a sensitivity bound, not a validated turbulent prediction."],
+              ("Colab runs (RANS_SA, 4 ranks) equal the container development runs to every printed digit. "
+              "SA without a transition model and with y+ above 1: a sensitivity bound, not a validated turbulent prediction.")],
              size=13, bullets=True, space_after=6)
 
 
 def body_b2(slide):
     path = "docs/talk/figures/wall_temperature.png"
     draw_wall_temperature(ROOT / path)
-    w, h = add_figure(slide, path, LM, CT, 6.4, 4.0)
+    _w, h = add_figure(slide, path, LM, CT, 6.4, 4.0)
     caption(slide, LM, CT + h + 0.05, 6.6, f"Figure: {path}, drawn by docs/talk/build_deck.py from "
             "runs/dev/2026-11-01_numerics/wedge-381c48d17f-tecplot/surface_flow.dat.gz (laminar wedge, development run).", lines=3)
     rows = [["x along the wedge", "SU2 wall-node temperature"],
@@ -1132,7 +1203,7 @@ def body_b2(slide):
 def body_b3(slide):
     path = "docs/validation/2026-11-01_grid_study.png"
     # the two inlet panels of the final numerics (entropy fix 0.3: panels 3 and 4 of 6); the table below matches them
-    w, h = add_figure(slide, path, LM, CT, 6.3, 2.0, crop=(2 / 6, 0, 2 / 6, 0))
+    _w, h = add_figure(slide, path, LM, CT, 6.3, 2.0, crop=(2 / 6, 0, 2 / 6, 0))
     caption(slide, LM, CT + h + 0.04, 6.3, f"Figure: {path}, panels 3 and 4 of 6 (inlet 8/8, final numerics; the "
             "other panels are on S7 and in the report). Record: docs/validation/2026-11-01_report.md.", lines=3)
     rows = [["8/8 laminar inlet", "Cells", "recovery_total", "q_peak [kW/m2]"],
@@ -1145,7 +1216,7 @@ def body_b3(slide):
     mesh = "docs/talk/figures/mesh_8_8_medium.png"
     cells, nodes = draw_mesh_8_8_medium(ROOT / mesh)
     quality = read_json(ROOT / f"{GRID_RUNS}/8_8_medium/mesh_quality.json")["first_cell_height"]
-    mw, mh = add_figure(slide, mesh, 6.9, CT, 5.8, 3.5)
+    _mw, mh = add_figure(slide, mesh, 6.9, CT, 5.8, 3.5)
     n_cells, n_nodes = (f"{n:,}".replace(",", " ") for n in (cells, nodes))     # deck style: 30 600
     caption(slide, 6.9, CT + mh + 0.04, 5.8,
             f"Figure: {mesh}, drawn by docs/talk/build_deck.py. The mesh of {GRID_RUNS}/8_8_medium is rebuilt from "
@@ -1171,7 +1242,7 @@ def body_b4(slide):
     add_table(slide, 6.9, CT, [2.6, 1.6, 1.6], rows_b, size=10, row_h=0.32, flag=())
     path = "docs/talk/figures/cylinder_schemes.png"
     draw_cylinder_schemes(ROOT / path)
-    w, h = add_figure(slide, path, LM, CT + 1.8, 6.0, 3.0)
+    _w, _h = add_figure(slide, path, LM, CT + 1.8, 6.0, 3.0)
     text_box(slide, 6.9, CT + 2.55, 5.8, 1.0,
              ["Attempt 3: only the entropy fix cured the carbuncle; the CFL cap did not.",
               "Wedge Eckert window: mean 0.75% at entropy fix 0.1, 1.60% at 0.3."], size=12, bullets=True, space_after=3)
@@ -1185,7 +1256,7 @@ def body_b4(slide):
 def body_b5(slide):
     path = "docs/talk/figures/design_box_diagnostics.png"
     draw_box_diagnostics(ROOT / path)
-    w, h = add_figure(slide, path, LM, CT, 6.2, 4.2)
+    _w, h = add_figure(slide, path, LM, CT, 6.2, 4.2)
     caption(slide, LM, CT + h + 0.05, 6.4, f"Figure: {path}, drawn by docs/talk/build_deck.py from "
             "runs/dev/2026-11-01_inlet_box_diagnostics/README.md and designs/pool_sobol96.csv.", lines=3)
     text_box(slide, 7.4, CT + 0.1, 5.3, 4.2,
@@ -1197,7 +1268,7 @@ def body_b5(slide):
 
 def body_b7(slide):
     fig = "docs/validation/2026-11-02_replay_gp_vs_mlp.png"
-    w, h = add_figure(slide, fig, LM, CT, CW, 2.85)
+    _w, h = add_figure(slide, fig, LM, CT, CW, 2.85)
     caption(slide, LM, CT + h + 0.03, CW, "Figure: " + fig + " (GP solid, MLP ensemble dashed; median and interquartile band "
             "over 10 seeds). Records: runs/replay/2026-11-02_full/replay.csv, runs/replay/2026-11-02_mlp/replay.csv.", lines=2)
     rows = [["At n = 48 (median of 10 seeds)", "GP", "MLP ensemble (5 x 2-64-64-1)"],
@@ -1210,7 +1281,7 @@ def body_b7(slide):
 
 def body_b8(slide):
     fig = "docs/validation/2026-11-02_operator.png"
-    w, h = add_figure(slide, fig, LM, CT, 6.9, 3.6)
+    _w, h = add_figure(slide, fig, LM, CT, 6.9, 3.6)
     caption(slide, LM, CT + h + 0.04, 6.9, "Figure: " + fig + ". Top: four held-out designs (5-fold CV), SU2 in black; "
             "bottom: error over held-out designs, all data and 24 runs. Record: runs/profiles/2026-11-02/operator_compare.csv.", lines=3)
     x = LM + 7.1
@@ -1226,6 +1297,8 @@ def body_b8(slide):
               "Post hoc: the PCA + GP error equals its 3-component truncation floor; more components were not run.",
               "For the objective q_peak, the scalar GP stays the right tool."],
              size=12, bullets=True, space_after=5)
+    eq.add_equation(slide, EQ_B8_LOSS, x, CT + 3.75, CW - 7.1, 0.7, fontsize=13)
+    eq.add_equation(slide, EQ_B8_ERROR, x, CT + 4.55, CW - 7.1, 0.55, fontsize=13)
 
 
 def body_b9(slide):
@@ -1374,12 +1447,12 @@ def draw_fault_layers(path):
 def body_s1b(slide):
     path = "docs/talk/figures/clean_exit.png"
     draw_clean_exit(ROOT / path)
-    w, h = add_figure(slide, path, LM, CT, 6.7, 3.4)
+    _w, h = add_figure(slide, path, LM, CT, 6.7, 3.4)
     caption(slide, LM, CT + h + 0.03, 6.8, f"Figure: {path}, drawn by docs/talk/build_deck.py from "
             "runs/faults/2026-11-03/R0, R7 and R7b observed.json (wedge, coarse mesh, laminar). R1: docs/faults/README.md.", lines=3)
     text_box(slide, LM, CT + h + 0.65, 6.8, 1.3,
-             ["Reversed node order alone (R7) is repaired by SU2 and gives the same result to every digit, so not every "
-              "bad mesh is dangerous. A tangled cell is.",
+             [("Reversed node order alone (R7) is repaired by SU2 and gives the same result to every digit, so not every "
+              "bad mesh is dangerous. A tangled cell is."),
               "Only the mesh-quality gate stops it, and the worker never runs a mesh it did not build and check itself."],
              size=12, bullets=True, space_after=4)
     x, bw = 7.9, 4.8
@@ -1397,20 +1470,20 @@ def body_s1b(slide):
 def body_s1c(slide):
     path = "docs/talk/figures/fault_layers.png"
     draw_fault_layers(ROOT / path)
-    w, h = add_figure(slide, path, LM, CT - 0.05, CW, 4.55)
+    _w, h = add_figure(slide, path, LM, CT - 0.05, CW, 4.55)
     caption(slide, LM, CT - 0.05 + h + 0.03, CW, f"Figure: {path}, drawn by docs/talk/build_deck.py from the 'Caught by' columns of "
             "docs/faults/fault_matrix.md (fake solver) and docs/faults/real_fault_matrix.md (SU2 v8.2.0); transfer row: "
             "docs/faults/README.md.", lines=2)
 
 
 def body_s1d(slide):
-    bw, gap, step = 1.4, 0.37, 1.77
+    bw, _gap, step = 1.4, 0.37, 1.77
     text_box(slide, LM, CT, 6.7, 0.3, "Door 1: the MCP tools", size=13, color=BLUE, bold=True, space_after=0)
     row1 = ["Claude Code\n(MCP client)", "typed call\nschema, bounds", "physics gates\nphysics/gates.py", "mesh, config\nchecks, staged job"]
     row2 = ["job file written\nby hand", "Drive queue,\nColab worker", "physics gates\n(same function)", "mesh and config\nrebuilt, hashes"]
     for i, (a, b) in enumerate(zip(row1, row2)):
         shared = i == 2
-        kw = dict(fill=BLUE, color=WHITE, bold=True) if shared else dict(fill=WHITE)
+        kw = {"fill": BLUE, "color": WHITE, "bold": True} if shared else {"fill": WHITE}
         box(slide, LM + i * step, CT + 0.4, bw, 0.8, a, size=11, **kw)
         box(slide, LM + i * step, CT + 2.25, bw, 0.8, b, size=11, **kw)
         if i:
@@ -1419,8 +1492,8 @@ def body_s1d(slide):
     text_box(slide, LM, CT + 1.25, 6.7, 0.35, "every call is logged with its arguments: mcp_log.jsonl", size=11, color=GREY, space_after=0)
     text_box(slide, LM, CT + 1.85, 6.7, 0.3, "Door 2: around the MCP server", size=13, color=BLUE, bold=True, space_after=0)
     text_box(slide, LM, CT + 3.15, 6.7, 1.0,
-             ["Until 2026-11-03 door 2 had no gate: R9 reached SU2 and diverged after 449.5 s. Now the worker calls the "
-              "same gate function and refuses the job in 0.0 s."], size=12, color=ACCENT, bold=True, space_after=0)
+             [("Until 2026-11-03 door 2 had no gate: R9 reached SU2 and diverged after 449.5 s. Now the worker calls the "
+              "same gate function and refuses the job in 0.0 s.")], size=12, color=ACCENT, bold=True, space_after=0)
     caption(slide, LM, CT + 4.1, 6.7, "Blue: physics.gates.check, called from mcp_server/queue.py and worker/run_worker.py. "
             "Drawing, no data. Records: docs/faults/real_fault_matrix.md (R9, R9g).", lines=2)
     rows = [["What MCP adds", "What does not depend on MCP"],
@@ -1430,10 +1503,10 @@ def body_s1d(slide):
             ["Any MCP client can call it, no glue code", "The sampling choice: surrogate and acquisition"]]
     add_table(slide, 7.75, CT, [2.5, 2.5], rows, size=11, row_h=0.55)
     text_box(slide, 7.75, CT + 2.95, 5.0, 1.9,
-             ["The schema caught the agent's own mistake: the first three live validate_config calls left out the required "
-              "tag and were refused with the field named.",
-              "Limit: the first live call listed ten rows and chose nothing, and we injected the faults. The evidence shows "
-              "the guards work, not how often a model errs."], size=12, bullets=True, space_after=5)
+             [("The schema caught the agent's own mistake: the first three live validate_config calls left out the required "
+              "tag and were refused with the field named."),
+              ("Limit: the first live call listed ten rows and chose nothing, and we injected the faults. The evidence shows "
+              "the guards work, not how often a model errs.")], size=12, bullets=True, space_after=5)
 
 
 SLIDES = {
@@ -1576,10 +1649,10 @@ def build(out_path=DEFAULT_OUT):
     info = outline["S1"]
     add_title_slide(prs, 1, "Aero-thermal inlet design: surrogate and automation", info["message"],
                     ["Friday 13 November 2026",
-                     "Mach 4 at 30 km, two-ramp inlet, two design variables; then a three-ramp inlet over a "
-                     "flight envelope, six inputs.",
-                     "Status 2026-11-04: every number comes from a record in this repository; "
-                     "the confirmation run passed (C2)."], info["notes"])
+                     ("Mach 4 at 30 km, two-ramp inlet, two design variables; then a three-ramp inlet over a "
+                     "flight envelope, six inputs."),
+                     ("Status 2026-11-04: every number comes from a record in this repository; "
+                     "the confirmation run passed (C2).")], info["notes"])
     for section_title, sub, ids in SECTIONS:
         add_divider_slide(prs, section_title, sub)
         for sid in ids:
