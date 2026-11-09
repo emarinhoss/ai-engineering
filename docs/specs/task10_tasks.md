@@ -566,6 +566,39 @@ in the same direction as the nominal pair (coarse +3.8 % at 6 deg), and the lift
 to the drift band. Recorded, not corrected: no pool number is adjusted by it, and it travels with
 the pool as a stated bias beside the V6e flags.
 
+### T10.10c, the two-level model at the first budget (Fable, 2026-11-09 13:05 UTC)
+
+Thirteen designs are complete after pool batch 12 (0 to 7, 9 to 13), past the 12-design line the
+spec set for the first multi-fidelity run, so `analysis.mf_drone` ran on
+`runs/pool_af/2026-11-09/results.csv` (sha256 in the record) against the 192-point low pool; the
+record is `runs/drone_mf/2026-11-09/mf.csv` and `mf.json`, commit `da10f1e`. **Only budget n = 8
+is formed**: the rule that a budget must leave four held-out designs drops 12, 16, 24 and 32, and
+the record's own note says so. Every figure below is a mean over ten seeds, each seed drawing eight
+SU2 designs as the high level and holding out the other five, so a coverage fraction is resolved to
+0.2 and the result is a FIRST READING, to be re-run when all 32 designs are in.
+
+| metric at n = 8 (mean of 10 seeds) | low model raw | GP on SU2 alone | two-level |
+|---|---|---|---|
+| endurance RMSE, held out (h) | 2.184 | 1.369 | **0.945** |
+| MTOW relative RMSE, held out | 0.0020 | 0.0689 | **0.0012** |
+| 90 % interval coverage, endurance | — | 0.52 | 0.46 |
+| 90 % interval coverage, MTOW | — | 0.48 | 0.58 |
+| fitted slope ρ (endurance / MTOW) | — | — | 0.759 (0.41 to 0.94) / 0.998 |
+
+The two-level model beats the SU2-only GP on endurance in **9 of 10 seeds** (seed 3 loses, 0.975 h
+against 0.777 h) and on MTOW in **10 of 10**; its endurance RMSE is 0.69× the single GP's and
+0.43× the raw low model's. Three things travel with that. (1) The endurance slope ρ scatters from
+0.41 to 0.94 across seeds: with eight points the correction term is poorly determined, which is
+what the budget sweep at 32 designs exists to show. (2) **Both models are over-confident on
+endurance**: the 90 % intervals cover about half of the held-out points, so neither interval may
+be quoted as a 90 % interval at this budget. (3) On MTOW the raw low model is already within
+0.2 % of SU2 and the single GP on eight points is 34× WORSE than using the low model unchanged,
+so the two-level model's win on mass is mostly the low model's and not the correction's; the
+honest statement is that mass is a low-fidelity quantity and endurance is where the SU2 level
+earns its cost. The direction of the correction is the one the pool already showed: SU2 endurance
+is 16 to 43 % below the low model on every complete design, with ρ < 1 on endurance absorbing it.
+Nothing is tuned; the budgets fill in as the pool lands.
+
 ## Questions for Éder (answered above; kept as the record)
 
 1. **Airfoil family.** The spec varies the NACA four-digit section per design, which is what makes
