@@ -625,6 +625,16 @@ both budgets, and at n = 12 it is resolved only in steps of 0.25. The n = 8 win 
 15-design note warned about; the two-level model now wins at both budgets on the mean, and the
 over-confident intervals stay a stated limitation. Nothing is tuned.
 
+**Re-run at 17 designs (Opus, 2026-11-09 17:35 UTC, commit `0d2c954`):** pool batch 16, the first
+cases from the CLI-started worker0, completed design 17; budgets 8 and 12 still form, with nine and
+five held out. Means over ten seeds, held-out endurance RMSE: **n = 8: 0.742 h two-level against
+1.468 h SU2-only (10 of 10 seeds); n = 12: 0.362 h against 0.882 h (9 of 10)**; raw low model
+2.178 h. MTOW relative RMSE 0.0015 / 0.1192 at n = 8 and 0.0015 / 0.0223 at n = 12 (10 of 10 at
+both); raw low 0.0022. ρ_endurance 0.835 (0.62 to 1.04) at n = 8 and 0.842 (0.74 to 0.91) at
+n = 12; one n = 8 seed fits ρ above 1, so the slope is not yet pinned below 1 on every draw.
+Endurance coverage of the 90 % interval: two-level 0.47 and 0.88, single 0.42 and 0.68. At n = 12
+the two-level coverage is the closest to nominal so far, resolved in steps of 0.2.
+
 ## Questions for Éder (answered above; kept as the record)
 
 1. **Airfoil family.** The spec varies the NACA four-digit section per design, which is what makes
