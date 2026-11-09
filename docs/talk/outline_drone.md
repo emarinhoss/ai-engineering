@@ -497,7 +497,7 @@ Backup slides DB1 to DB17 follow D45 and are not timed.
 - **Message:** Wall time per SU2 case by mesh level and the worker-hours spent so far, from every result record.
 - **Figure or table:** Table by mesh level: cases, median and range of wall seconds and iterations; worker-hours by tag; the low-fidelity runs' wall time.
 - **Source:** `runs/pool_af/airfoil2d-2862718ac9/result.json`; `runs/e387/airfoil2d-498b156761/result.json`; `runs/drone_grid/2026-11-08/record.json`; `runs/drone_pool_lf/2026-11-08/record.json`; `runs/replay_drone_online/2026-11-08/record.json`
-- **Speaker notes:** All SU2 cases ran on four Colab ranks. The worker-hours count only the cases that have landed, so the pool total grows with every ingest.
+- **Speaker notes:** SU2 cases ran on four Colab ranks until the two sharded workers started on 2026-11-09; each sharded worker runs two, and the slide counts the cases at each rank count from the records. The worker-hours count only the cases that have landed, so the pool total grows with every ingest.
 
 ### DB13. Backup: the equations index
 

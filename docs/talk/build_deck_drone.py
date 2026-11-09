@@ -1686,7 +1686,7 @@ def body_costs(slide, v):
               f"{pool['points_evaluated']}-point pool in {pool['wall_seconds']:.0f} s on "
               f"{pool['workers']}"),
              "exact front, low pool, online replay, the low level of the two-level model"],
-            ["High (Colab, 4 ranks)", "SU2 polar of the design's own section at its cruise Re",
+            ["High (Colab, 2 or 4 ranks)", "SU2 polar of the design's own section at its cruise Re",
              (f"per angle: median {np.median(co):.1f} min coarse ({len(co)} cases), "
              f"{np.median(me):.1f} min medium ({len(me)} cases); five angles per design"),
              f"the SU2 pool: {n_cases} cases in the case table"]]
@@ -2288,8 +2288,16 @@ def body_cost(slide, v):
                  f"Low pool: {pool['wall_seconds']:.0f} s on {pool['workers']} workers.",
                  (f"Online replays: {online['wall_seconds']:.0f} s and "
                   f"{feas['wall_seconds']:.0f} s."),
-                 "SU2 wall times are from each result.json; every case ran on 4 Colab ranks."],
+                 "SU2 wall times are from each result.json; ranks per case: " + ranks_line() + "."],
                 size=12, bullets=True)
+
+
+def ranks_line():
+    """'N cases on 4 ranks, M on 2' from the solver block of every SU2 result record."""
+    count = defaultdict(int)
+    for r in all_su2_records().values():
+        count[r.get("solver", {}).get("n_cores")] += 1
+    return ", ".join(f"{n} cases on {k} ranks" for k, n in sorted(count.items(), key=str))
 
 
 def body_equation_index(slide, v):
