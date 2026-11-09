@@ -599,6 +599,16 @@ earns its cost. The direction of the correction is the one the pool already show
 is 16 to 43 % below the low model on every complete design, with ρ < 1 on endurance absorbing it.
 Nothing is tuned; the budgets fill in as the pool lands.
 
+**Re-run at 15 designs (Fable, 2026-11-09 14:00 UTC, commit `23dec4d`):** pool batch 13 added
+designs 14 and 15; the budget set is still {8} (15 − 4 = 11 < 12) with seven held out per seed, and
+the record file is overwritten in place (the 13-design figures above stay as the dated record).
+Means over ten seeds: endurance RMSE **0.869 h two-level against 1.278 h SU2-only and 2.146 h raw
+low**; MTOW relative RMSE 0.0013 against 0.0856 and 0.0019; ρ_endurance 0.795 (0.65 to 0.86, a
+tighter spread than at 13); coverage 0.37 / 0.56 (two-level) against 0.56 / 0.69 (single). **The
+per-seed win count on endurance fell from 9 of 10 to 6 of 10** while the mean gap widened, so at
+eight points the comparison depends on which eight are drawn — the budget sweep at 32 is what
+settles it, and this is reported as unsettled until then. MTOW: 10 of 10, as before.
+
 ## Questions for Éder (answered above; kept as the record)
 
 1. **Airfoil family.** The spec varies the NACA four-digit section per design, which is what makes
