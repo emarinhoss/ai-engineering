@@ -1,0 +1,74 @@
+{
+  "params": {
+    "span_m": 2.882299,
+    "aspect_ratio": 12.277016,
+    "taper_ratio": 0.976794,
+    "battery_fraction": 0.252644,
+    "camber_pct": 3.286149,
+    "thickness_pct": 13.531975
+  },
+  "cases": [
+    "airfoil2d-8537378695",
+    "airfoil2d-8044db6e51",
+    "airfoil2d-91558c7a87"
+  ],
+  "section": {
+    "cl_max": 1.2114492484886363,
+    "alpha_L0": -0.06520180505159784,
+    "cl_alpha_per_deg": 0.0396939883663073,
+    "flags": [
+      "cauchy_stopped",
+      "cl_drift_max_pct=12.6",
+      "cd_drift_max_pct=2.5",
+      "v6e:cl_alpha:Re203800=+5.5%:fail",
+      "v6e:cd_ratio:Re203800=+8.0%:pass",
+      "v6e:cl_alpha:Re305200=+6.4%:fail",
+      "v6e:cd_ratio:Re305200=+5.7%:pass",
+      "v6e_ruling=decision8_accepted_with_bias"
+    ],
+    "source": "airfoil2d camber=3.286149 thickness=13.531975 Re=132237.2 transition=BCM cases=airfoil2d-8537378695,airfoil2d-8044db6e51,airfoil2d-91558c7a87"
+  },
+  "result": {
+    "endurance_h": 4.237885780770824,
+    "mtow_kg": 1.9413494325543703,
+    "range_km": 128.47550819390608,
+    "v_cruise": 8.421095571788245,
+    "v_stall": 6.477765824452495,
+    "wing_loading": 28.134496568487332,
+    "re_cruise": 135381.86826008378,
+    "throttle_cruise": 0.20487939741186809,
+    "static_margin": 0.2808399073447305,
+    "cl_max": 1.2114492484886363,
+    "e_span": 0.9166558853250799,
+    "cd0": 0.027771938638107157,
+    "masses": {
+      "payload": 0.5,
+      "battery": 0.49047028580160956,
+      "wing_skin": 0.6296175919100873,
+      "spar": 0.015871900394492135,
+      "tail": 0.24746325107626382,
+      "fuselage": 0.026001461266105752,
+      "propulsion": 0.03192494210581181
+    },
+    "closure_iterations": 17,
+    "closure_residual": 4.825098674462067e-10,
+    "diagnostics": {
+      "P_cruise_W": 16.351907252618744,
+      "P_installed_W": 79.81235526452951,
+      "section_source": "airfoil2d camber=3.286149 thickness=13.531975 Re=132237.2 transition=BCM cases=airfoil2d-8537378695,airfoil2d-8044db6e51,airfoil2d-91558c7a87",
+      "CL_cruise": 0.6477327600472849,
+      "CD_cruise": 0.03963898665765268,
+      "L_over_D": 16.340800173362503,
+      "L_over_D_max": 16.340800173362503,
+      "v_best_ld": 8.421095571788245,
+      "cl_max_wing": 1.0946683644799116,
+      "tip_stall_ratio": 0.7240606938541511,
+      "alpha_cruise_deg": 3.8207633245953496,
+      "x_np": 0.12463204564721186,
+      "CL_alpha_wing": 5.0891278204791055,
+      "tip_panel_aspect": 7.671955584938911,
+      "structure_propulsion_fraction": 0.48980319079649937
+    },
+    "gates": []
+  }
+}
