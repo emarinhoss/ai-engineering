@@ -612,6 +612,19 @@ per-seed win count on endurance fell from 9 of 10 to 6 of 10** while the mean ga
 eight points the comparison depends on which eight are drawn — the budget sweep at 32 is what
 settles it, and this is reported as unsettled until then. MTOW: 10 of 10, as before.
 
+**Re-run at 16 designs, budget 12 forms (Opus, 2026-11-09 15:20 UTC, commit `78d260e`):** pool
+batch 14 completed design 16, so budgets 8 and 12 form (16 − 4 = 12) with eight and four held out
+per seed; the record file is overwritten in place and the earlier readings stay above. Means over
+ten seeds, held-out endurance RMSE: **n = 8: 0.593 h two-level against 1.357 h SU2-only (10 of 10
+seeds); n = 12: 0.410 h against 0.986 h (9 of 10 seeds)**; raw low model 2.091 h. MTOW relative
+RMSE 0.0014 / 0.1465 at n = 8 and 0.0011 / 0.0151 at n = 12 (10 of 10 at both); raw low 0.0019.
+ρ_endurance 0.785 (0.58 to 0.93) at n = 8 and 0.789 (0.73 to 0.83) at n = 12. Coverage of the
+90 % interval on endurance: two-level 0.59 and 0.73, single 0.49 and 0.63 — still under 0.9 at
+both budgets, and at n = 12 it is resolved only in steps of 0.25. The n = 8 win count went
+9 → 6 → 10 of 10 as the pool grew from 13 to 15 to 16 designs, which is the sampling noise the
+15-design note warned about; the two-level model now wins at both budgets on the mean, and the
+over-confident intervals stay a stated limitation. Nothing is tuned.
+
 ## Questions for Éder (answered above; kept as the record)
 
 1. **Airfoil family.** The spec varies the NACA four-digit section per design, which is what makes
