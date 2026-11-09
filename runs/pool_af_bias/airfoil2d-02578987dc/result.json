@@ -1,0 +1,108 @@
+{
+ "case_id": "airfoil2d-02578987dc",
+ "code": {
+  "dirty": false,
+  "git_commit": "2a9f0c9e1d5b310e17aa8010f43d34768f249a2d"
+ },
+ "convergence": {
+  "drift_pct": {
+   "cd": 5.8946436647689895,
+   "cl": 5.947265156696642,
+   "q_peak": null,
+   "recovery_total": null
+  },
+  "drop_orders": 4.297701226000001,
+  "iterations": 5282,
+  "residual_column": "rms[P]",
+  "rms_rho_log10_end": -8.133080055,
+  "rms_rho_log10_start": -3.835378829,
+  "status": "not_converged"
+ },
+ "files": {
+  "history": "history.csv",
+  "log": "log.txt",
+  "surface": "surface_flow.dat"
+ },
+ "geometry": {
+  "airfoil": "naca4",
+  "alpha_deg": 10.0,
+  "camber_pct": 2.428554,
+  "cells": 43008,
+  "chord_m": 1.0,
+  "farfield_chords": 30.0,
+  "first_cell_m": 5.7202881464826035e-05,
+  "level": "medium",
+  "nodes": 43488,
+  "reynolds": 149604.9,
+  "thickness_pct": 13.906555,
+  "trailing_edge_closed": true,
+  "y_plus": 0.5
+ },
+ "job": {
+  "code_commit": "9d0289a996a8d96f03d239197d0bb1f149f8ff34",
+  "config_sha256": "4f5102f4abc474aa29db6da90e742ddcd2a93128a8e231365ecdfaea5c650f6c",
+  "mesh_fingerprint": "403823b44434b73c7d7d34111c9e5bd69fc9d5862bbe0d154b63fca2d003e4fe"
+ },
+ "mesh": {
+  "cells": 43008,
+  "level": "medium",
+  "nodes": 43488,
+  "quality": {
+   "failures": [],
+   "first_cell_height": {
+    "airfoil": 5.720285032404069e-05
+   },
+   "max_aspect_ratio": 2640.8043656018467,
+   "max_growth": 1.122324170583792,
+   "min_angle_deg": 57.095628849038604,
+   "n_inverted": 0,
+   "pass": true,
+   "requested_first_cell_m": {
+    "airfoil": 5.7202881464826035e-05
+   }
+  }
+ },
+ "metrics": {
+  "alpha_deg": 10.0,
+  "cd": 0.028695198643667295,
+  "cd_drift_pct": 5.8946436647689895,
+  "cl": 1.1603032913534972,
+  "cl_drift_pct": 5.947265156696642,
+  "cm": 0.02932697531347826,
+  "notes": [],
+  "reynolds": 149604.9,
+  "transition": "BCM"
+ },
+ "params": {
+  "alpha_deg": 10.0,
+  "camber_pct": 2.428554,
+  "family": "airfoil2d",
+  "max_iter": 6000,
+  "mesh_level": "medium",
+  "reynolds": 149604.9,
+  "save_volume": false,
+  "tag": "pool_af_bias",
+  "thickness_pct": 13.906555,
+  "transition": "BCM"
+ },
+ "run": {
+  "exit_code": 0,
+  "finished_at": "2026-11-09T05:45:39+00:00",
+  "iterations": 5282,
+  "runtime": {
+   "nproc": 8,
+   "ram_gb": 50.99
+  },
+  "started_at": "2026-11-09T05:21:35+00:00",
+  "timeout": false,
+  "wall_time_s": 1443.8670467740048,
+  "worker_id": "colab-b8c25328df7d"
+ },
+ "solver": {
+  "command": "mpirun -n 4 --allow-run-as-root /content/su2mpi/bin/SU2_CFD case.cfg",
+  "config_sha256": "4f5102f4abc474aa29db6da90e742ddcd2a93128a8e231365ecdfaea5c650f6c",
+  "n_cores": 4,
+  "name": "SU2_CFD",
+  "version": "SU2 v8.2.0 \"Harrier\", The Open-Source CFD Code"
+ }
+}
