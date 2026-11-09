@@ -10,14 +10,17 @@
   "cases": [
     "airfoil2d-ac979830d0",
     "airfoil2d-1646867c37",
-    "airfoil2d-ab3acf8d74"
+    "airfoil2d-ab3acf8d74",
+    "airfoil2d-b176f055f9",
+    "airfoil2d-6da2603f05"
   ],
   "section": {
-    "cl_max": 1.0594824913855423,
-    "alpha_L0": -0.06680375949705655,
-    "cl_alpha_per_deg": 0.11559372760401201,
+    "cl_max": 1.2779054681214166,
+    "alpha_L0": -0.07178080112433621,
+    "cl_alpha_per_deg": 0.10602830762056772,
     "flags": [
       "not_peaked",
+      "missing_angles",
       "cauchy_stopped",
       "cl_drift_max_pct=4.3",
       "cd_drift_max_pct=5.0",
@@ -27,48 +30,48 @@
       "v6e:cd_ratio:Re305200=+5.7%:pass",
       "v6e_ruling=decision8_accepted_with_bias"
     ],
-    "source": "airfoil2d camber=4.653938 thickness=10.698099 Re=126752.0 transition=BCM cases=airfoil2d-ac979830d0,airfoil2d-1646867c37,airfoil2d-ab3acf8d74"
+    "source": "airfoil2d camber=4.653938 thickness=10.698099 Re=126752.0 transition=BCM cases=airfoil2d-ac979830d0,airfoil2d-1646867c37,airfoil2d-ab3acf8d74,airfoil2d-6da2603f05"
   },
   "result": {
-    "endurance_h": 7.221888654112424,
-    "mtow_kg": 2.3312053197379563,
-    "range_km": 270.7003135741729,
-    "v_cruise": 10.41203142166812,
-    "v_stall": 8.009254939744707,
-    "wing_loading": 39.04967075792719,
-    "re_cruise": 145005.2036459409,
-    "throttle_cruise": 0.19966805323738782,
+    "endurance_h": 8.308519485004219,
+    "mtow_kg": 2.329416982624084,
+    "range_km": 283.6259464280359,
+    "v_cruise": 9.47878516823067,
+    "v_stall": 7.291373206331284,
+    "wing_loading": 39.01971459108525,
+    "re_cruise": 132008.1661274133,
+    "throttle_cruise": 0.17825220903246872,
     "static_margin": 0.28144712355577495,
-    "cl_max": 1.0594824913855423,
+    "cl_max": 1.2779054681214166,
     "e_span": 0.93173507180548,
-    "cd0": 0.01992266706904946,
+    "cd0": 0.020445912480074817,
     "masses": {
       "payload": 0.5,
-      "battery": 0.9644895763961385,
+      "battery": 0.96374968770053,
       "wing_skin": 0.5409897481978349,
-      "spar": 0.025321540486021886,
+      "spar": 0.0253021155777393,
       "tail": 0.23096555102105534,
-      "fuselage": 0.03135251589324256,
-      "propulsion": 0.038086387743663144
+      "fuselage": 0.031344530244789566,
+      "propulsion": 0.03706534988213495
     },
     "closure_iterations": 25,
-    "closure_residual": 5.58892577355343e-10,
+    "closure_residual": 5.401114139712138e-10,
     "diagnostics": {
-      "P_cruise_W": 19.01158723905382,
-      "P_installed_W": 95.21596935915787,
-      "section_source": "airfoil2d camber=4.653938 thickness=10.698099 Re=126752.0 transition=BCM cases=airfoil2d-ac979830d0,airfoil2d-1646867c37,airfoil2d-ab3acf8d74",
-      "CL_cruise": 0.5880853262387765,
-      "CD_cruise": 0.02818209661199835,
-      "L_over_D": 20.867337669561564,
-      "L_over_D_max": 20.867337669561564,
-      "v_best_ld": 10.41203142166812,
-      "cl_max_wing": 0.9938642013435324,
-      "tip_stall_ratio": 0.7993830907316761,
-      "alpha_cruise_deg": 1.4854500791485434,
+      "P_cruise_W": 16.517451237629775,
+      "P_installed_W": 92.66337470533739,
+      "section_source": "airfoil2d camber=4.653938 thickness=10.698099 Re=126752.0 transition=BCM cases=airfoil2d-ac979830d0,airfoil2d-1646867c37,airfoil2d-ab3acf8d74,airfoil2d-6da2603f05",
+      "CL_cruise": 0.7090430990989472,
+      "CD_cruise": 0.0324523630040109,
+      "L_over_D": 21.84873560705931,
+      "L_over_D_max": 21.857145524985054,
+      "v_best_ld": 9.614115864015188,
+      "cl_max_wing": 1.198282837477221,
+      "tip_stall_ratio": 0.7973486133717268,
+      "alpha_cruise_deg": 2.798469080447048,
       "x_np": 0.10808923177068964,
       "CL_alpha_wing": 5.278194662328627,
       "tip_panel_aspect": 5.8171231723954255,
-      "structure_propulsion_fraction": 0.37178867749846967
+      "structure_propulsion_fraction": 0.37162401616384255
     },
     "gates": []
   }
