@@ -635,6 +635,16 @@ n = 12; one n = 8 seed fits ρ above 1, so the slope is not yet pinned below 1 o
 Endurance coverage of the 90 % interval: two-level 0.47 and 0.88, single 0.42 and 0.68. At n = 12
 the two-level coverage is the closest to nominal so far, resolved in steps of 0.2.
 
+**Re-run at 19 designs (Opus, 2026-11-09 18:45 UTC, commit `d77d665`):** pool batch 17 completed
+designs 18 and 19; budgets 8 and 12 still form, with eleven and seven held out. Means over ten
+seeds, held-out endurance RMSE: **n = 8: 0.743 h two-level against 1.524 h SU2-only (10 of 10);
+n = 12: 0.501 h against 1.089 h (10 of 10)**; raw low model 2.167 h. MTOW relative RMSE 0.0017 /
+0.0788 at n = 8 and 0.0014 / 0.0201 at n = 12 (10 of 10 at both); raw low 0.0024. ρ_endurance
+0.777 (0.35 to 1.07) at n = 8 and 0.885 (0.85 to 0.94) at n = 12. Endurance coverage of the 90 %
+interval: two-level 0.55 and 0.71, single 0.42 and 0.63 — both still over-confident. The n = 12
+two-level coverage fell from 0.88 at 17 designs to 0.71 here, so the 17-design reading was not a
+sign that the intervals had reached nominal.
+
 ## Questions for Éder (answered above; kept as the record)
 
 1. **Airfoil family.** The spec varies the NACA four-digit section per design, which is what makes
