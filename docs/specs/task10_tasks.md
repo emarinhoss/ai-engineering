@@ -550,6 +550,22 @@ none of them is a study answer, because the questions are asked of the high leve
   sweep at the inverse answer, which is this corner on the low model; it is re-run at the SU2 answer
   when that exists.
 
+### T10.9d, the coarse-against-medium bias check recorded (Fable, 2026-11-09 09:05 UTC)
+
+All 12 `pool_af_bias` cases are in (designs 0 to 3 at 2, 6 and 10 deg on the medium mesh; the
+record is `runs/pool_af/2026-11-09/bias.csv`, rebuilt by `analysis.pool_af_results` from the
+case records). **Ten pairs form**, not twelve: design 0's medium runs at 2 and 10 deg exhausted the
+6,000-iteration budget and are dropped by the aggregator's rule (the 10 deg one drifts 19 % in cl
+and 40 % in cd, so it is also unsteady), which is the budget-exhausted ruling's own evidence.
+Over the ten pairs, medium over coarse: **cl 0.995 to 1.028 (mean 1.0076),
+cd 0.945 to 1.016 (mean 0.9879)** — lift agrees to 1 % at 2 and 6 deg and to
+2.8 % at the worst 10 deg point, drag within 1.5 % at 2 deg and 3.3 to 5.5 % lower on the medium
+mesh at 6 and 10 deg (designs 2 and 3; design 1 at 10 deg goes the other way by 1.6 %). So the
+coarse pool carries a drag that is a few percent HIGH relative to medium in the working range,
+in the same direction as the nominal pair (coarse +3.8 % at 6 deg), and the lift is mesh-converged
+to the drift band. Recorded, not corrected: no pool number is adjusted by it, and it travels with
+the pool as a stated bias beside the V6e flags.
+
 ## Questions for Éder (answered above; kept as the record)
 
 1. **Airfoil family.** The spec varies the NACA four-digit section per design, which is what makes
