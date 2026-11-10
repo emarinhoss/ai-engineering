@@ -255,3 +255,30 @@ def test_the_ruling_never_accepts_a_timeout_or_a_failed_run(tmp_path):
     row = _rows(_run(tmp_path, cases, designs, runs, "--accept-budget-exhausted", "0")
                 / "results.csv")[0]
     assert row["status"] == "incomplete" and row["n_kept"] == "2"
+
+
+# ---- decision 10 (Eder, 2026-11-10): the design-record CLI accepts one named exhausted case ----
+
+def test_design_cli_accepts_only_the_named_exhausted_case(tmp_path):
+    from analysis import drone_design
+    runs = tmp_path / "runs"
+    paths, exhausted = [], None
+    for a in (-2.0, 2.0, 6.0, 10.0, 14.0):
+        cid = f"airfoil2d-{int(a + 10):02d}00000000"
+        kw = {"iterations": 6000, "cl_drift": 12.0, "cd_drift": 7.2} if a == 14.0 else {}
+        _land(runs, "confirm", cid, a, *_polar(a), **kw)
+        paths.append(str(runs / "confirm" / cid / "result.json"))
+        if a == 14.0:
+            exhausted = cid
+    params = tmp_path / "params.json"
+    params.write_text(json.dumps({"span_m": 2.0, "aspect_ratio": 10.0, "taper_ratio": 0.6,
+                                  "battery_fraction": 0.3, "camber_pct": 4.0, "thickness_pct": 12.0}))
+    without = tmp_path / "without"
+    drone_design.main(["--params", str(params), "--cases", *paths, "--out", str(without)])
+    flags = json.loads((without / "result.json").read_text())["section"]["flags"]
+    assert not any(f.startswith("budget_exhausted_accepted") for f in flags)
+    with_ = tmp_path / "with"
+    drone_design.main(["--params", str(params), "--cases", *paths, "--out", str(with_),
+                       "--accept-budget-exhausted", exhausted])
+    flags = json.loads((with_ / "result.json").read_text())["section"]["flags"]
+    assert "budget_exhausted_accepted=1" in flags and "exhausted_cl_drift_max_pct=12.0" in flags

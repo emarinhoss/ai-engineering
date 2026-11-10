@@ -33,10 +33,13 @@ def main(argv=None):
     ap.add_argument("--params", required=True)
     ap.add_argument("--cases", nargs="+", required=True)
     ap.add_argument("--out", required=True)
+    ap.add_argument("--accept-budget-exhausted", action="append", default=[], metavar="CASE_ID",
+                    help="case id whose budget-exhausted run is accepted by a ruling (repeatable; "
+                         "flagged in the section flags)")
     a = ap.parse_args(argv)
     params = json.loads(Path(a.params).read_text())
     records = [json.loads(Path(p).read_text()) for p in a.cases]
-    rec = design_record(params, records)
+    rec = design_record(params, records, accept_exhausted=frozenset(a.accept_budget_exhausted))
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
     (out / "result.json").write_text(json.dumps(rec, indent=2, default=float))

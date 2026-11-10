@@ -821,6 +821,17 @@ Refitting with the confirmed design shrinks the predictive std at that design to
 and 0.08x (log mass). This tests the 30-design prediction only; the 32-design answer's own
 confirmation is still running.
 
+### Decision 10 (Éder, 2026-11-10 02:20 UTC): "accept the 14 degree run too"
+
+Scoped to the one case named: the 14 deg confirmation case `airfoil2d-84a1950ba6` of the 30-design
+answer, which exhausted its budget (cl drift 12.0 %, cd drift 7.2 %). `analysis/drone_design.py` gains
+`--accept-budget-exhausted CASE_ID` (same definition and flags as decision 9; one new test). The
+design record now has five angles (flags `budget_exhausted_accepted=1`, `exhausted_cl_drift_max_pct=
+12.0`; `not_peaked` and `missing_angles` are gone, since cl at 14 deg, 0.849, is below the peak of
+1.254). **The confirmation is unchanged: endurance 9.951 h inside 8.596 to 10.073, mass 2.963 kg inside
+2.919 to 2.988, C2 pass**, because the 14 deg point lies past the peak and the endurance uses the polar
+up to it. The four-angle record is kept in `runs/drone_confirm/2026-11-09_30designs/standing_rule_4angles/`.
+
 ## Questions for Éder (answered above; kept as the record)
 
 1. **Airfoil family.** The spec varies the NACA four-digit section per design, which is what makes
