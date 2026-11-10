@@ -2105,7 +2105,7 @@ def q4_answer(inv):
 def body_discussion(slide, v):
     prompts = ["Where would you trust the low level alone, and where not?",
                "Is a fixed propulsive efficiency acceptable for a sizing study?",
-               "Was accepting three budget-exhausted SU2 designs the right call?",
+               "Was accepting the budget-exhausted runs of two designs and one confirmation angle right?",
                "What would a feasibility model need to beat a hard gate in the acquisition?",
                "How would wind and altitude change the front (an envelope study)?",
                "What would make the two-level model worth its SU2 cost here?"]

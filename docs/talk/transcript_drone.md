@@ -436,7 +436,7 @@ That is the end of the talk. I would like to use the rest of the time for discus
 
 *40:00 onward, about 20 min*
 
-On the left are the questions I think the study invites. Where would you trust the low level alone? Is a fixed propulsive efficiency acceptable for sizing? Was accepting three budget-exhausted SU2 designs the right call? What would a feasibility model need to beat a hard gate? How would wind and altitude change the front? And what would make the two-level model worth its SU2 cost? On the right is the index of backup slides DB1 to DB17. Tell me which limit matters most to you, and I will open the matching one.
+On the left are the questions I think the study invites. Where would you trust the low level alone? Is a fixed propulsive efficiency acceptable for sizing? Was accepting the budget-exhausted runs of two designs and one confirmation angle right? What would a feasibility model need to beat a hard gate? How would wind and altitude change the front? And what would make the two-level model worth its SU2 cost? On the right is the index of backup slides DB1 to DB17. Tell me which limit matters most to you, and I will open the matching one.
 
 # Backup slides (only if asked)
 
