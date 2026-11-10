@@ -157,7 +157,7 @@ stays as it is.
 
 ### V24. Conclusions (26:00, 2 min)
 
-- **Message:** The pipeline runs the design loop unattended, refuses what it cannot check, and asks a person only for rulings; on this problem it cut the expensive runs at small budgets, answered the capped design question, and its first confirmation run passed.
+- **Message:** The pipeline runs the design loop unattended, refuses what it cannot check, and asks a person only for rulings; on this problem it cut the expensive runs at small budgets and answered the capped design question; one confirmation run passed and the final one found the endurance below its predicted interval, which is the honest limit of the surrogate.
 - **Body:** New. Four questions, one line each with its answer and status from the records; one line on what version 2 changed.
 - **Speaker notes:** If I had to keep one idea: put the checks after the solver, not just before it, and make every claim computable from the records.
 

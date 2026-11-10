@@ -399,9 +399,9 @@ Backup slides DB1 to DB17 follow D45 and are not timed.
 
 ### D44. Conclusions: the four questions as far as the records go (38:30, 1.5 min)
 
-- **Message:** Active learning wins on this problem only with a feasibility model; the two-level model beats SU2 alone on the mean at small SU2 budgets, with intervals that are over-confident; the inverse query is answered on the SU2 pool and waits on its confirmation run, and the front on the SU2 pool on its analysis, each stated as the records stand at build time.
+- **Message:** Active learning wins on this problem only with a feasibility model; the two-level model beats SU2 alone on the mean at small SU2 budgets, with intervals that are over-confident; the front and the inverse query are answered on the SU2 pool, and the confirmation of the final answer kept the mass under the cap but found the endurance below its predicted interval, each stated as the records stand at build time.
 - **Figure or table:** Table: each question, its answer from the records, the evidence file, and what is still pending.
-- **Source:** `runs/drone_grid/2026-11-08/record.json`; `runs/replay_drone_online/2026-11-08/online.csv`; `runs/replay_drone_online/2026-11-08_feas/online.csv`; `runs/drone_inverse_lf/2026-11-09/inverse.json`; `runs/pool_af/2026-11-09/record.json`; `runs/drone_mf/2026-11-09/mf.csv`; `runs/drone_inverse_hf/2026-11-09/inverse.json`; PENDING: `runs/drone_pareto_hf/2026-11-09/pareto.csv`, `runs/drone_confirm/2026-11-09/confirm.json` (pool analyses)
+- **Source:** `runs/drone_grid/2026-11-08/record.json`; `runs/replay_drone_online/2026-11-08/online.csv`; `runs/replay_drone_online/2026-11-08_feas/online.csv`; `runs/drone_inverse_lf/2026-11-09/inverse.json`; `runs/pool_af/2026-11-09/record.json`; `runs/drone_mf/2026-11-09/mf.csv`; `runs/drone_inverse_hf/2026-11-09/inverse.json`; `runs/drone_pareto_hf/2026-11-09/pareto.csv`; `runs/drone_confirm/2026-11-09/confirm.json`
 - **Speaker notes:** The pipeline carried over with its gates, queue and replay unchanged, and the new parts are the airfoil family, the two-level model and the sharded workers. The method's answer on question 2 is the result I would lead with, because it includes a loss. Anything still PENDING on this slide is a run in progress, not an estimate.
 
 ## Discussion (about 20 minutes, outside the 40)

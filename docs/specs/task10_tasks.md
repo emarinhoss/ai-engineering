@@ -853,6 +853,28 @@ Every split was checked to cover the parent shard exactly on all case ids before
 cases were cut short at a split and re-run once stale. Sign-ins by Éder: four (Drive on each runtime
 start).
 
+### Confirmation of the 32-design inverse answer: MISS on endurance; the SU2-level front (Opus, 2026-11-10 02:40 UTC)
+
+**Confirmation** (`designs/confirm_drone_cases_32.csv`, five cases; `runs/drone_confirm/2026-11-09/`):
+four angles stopped on the Cauchy criterion (drift up to 7.3 % in cl, 19.5 % in cd at 10 deg); **the
+14 deg case `airfoil2d-dadd969dfe` exhausted its budget** (cl drift 3.8 %, cd drift 9.4 %), which
+decision 10 does not cover (it named one case of the other run), so under the standing rule it is
+dropped and put to Éder. `analysis.confirm --family drone` against `runs/drone_inverse_hf/2026-11-09/
+inverse.json`: **endurance 8.955 h, BELOW the 90 % interval 9.116 to 11.163 (z = -1.90): the
+prediction was optimistic; mass 3.936 kg inside 3.862 to 3.975 (z = 0.51) and under the 4 kg cap.
+C2 FAILS on endurance.** The ruling would not change the verdict: with the 14 deg case accepted
+(recorded beside it in `with_14deg_accepted/`, cl_max 1.349 against 1.298) the endurance is 8.957 h,
+also below. Refitting with the confirmed design shrinks the predictive std there to 0.74x (endurance)
+and 0.06x (log mass). The miss is in the direction section 6 predicts: the two-level and SU2-only
+intervals covered 0.43 to 0.78 of held-out designs, not 0.9, and the SU2 level sits below the low
+model on every design. Recorded as a miss; nothing is adjusted.
+
+**Front on the SU2 pool** (`runs/drone_pareto_hf/2026-11-09/`, `analysis.pareto --family drone` on the
+32 designs, run on the Colab runtime after the 15 GB sandbox ran out of memory): 13 observed front
+designs from 2.949 h at 1.091 kg to 8.402 h at 3.144 kg; 77 predicted front points from 1.537 h at
+0.898 kg to 9.559 h at 3.293 kg; a 25-level band from 1.154 to 2.723 kg. The low-fidelity predicted
+front reaches 11.967 h at 2.247 kg, so the SU2 level lowers the attainable endurance at a given mass.
+
 ## Questions for Éder (answered above; kept as the record)
 
 1. **Airfoil family.** The spec varies the NACA four-digit section per design, which is what makes
