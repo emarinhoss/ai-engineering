@@ -832,6 +832,27 @@ design record now has five angles (flags `budget_exhausted_accepted=1`, `exhaust
 2.919 to 2.988, C2 pass**, because the 14 deg point lies past the peak and the endurance uses the polar
 up to it. The four-angle record is kept in `runs/drone_confirm/2026-11-09_30designs/standing_rule_4angles/`.
 
+### Runtime operations log, 2026-11-09/10: what the session did to the cloud workers (Opus, 2026-11-10 02:30 UTC)
+
+Recorded so that the version-2 deck's claims about runtime management rest on a record; the times are
+the heartbeat and worker-log times observed in this session (UTC), and the actions were taken through
+the Colab command-line interface from the session, with Éder's Drive sign-in where marked.
+- 14:10: both notebook-started workers (shards 0/2 and 1/2) stopped heartbeating; their runtimes had
+  ended. Nothing ran until 15:50.
+- 15:50: the session started runtime worker0 (high-memory CPU), mounted Drive (sign-in) and started the
+  shard 0/2 worker; 17:21: runtime worker1 and the shard 1/2 worker (sign-in); both re-ran the case
+  their predecessor had left half done.
+- 20:35: worker1's runtime ended. 20:58: the session started a shard 1/2 worker on worker0 beside its
+  0/2 worker (no sign-in needed).
+- 21:35: worker1 restarted (sign-in); shard 1/2 split into 1/4 (worker1) and 3/4 (worker0).
+- 23:28 and 23:37: when worker0's shards drained, shard 1/4 was split into 1/8 and 5/8, then 1/8 into
+  1/16 (worker1) and 9/16 (worker0), so neither runtime idled while the other had a queue.
+- 23:59: the fixed worker (local-disk run folder) deployed on worker0 for the viz cases.
+- 01:19: shard 0/2 split into 0/4 (worker0) and 2/4 (worker1) for the confirmation cases.
+Every split was checked to cover the parent shard exactly on all case ids before it was made. Three
+cases were cut short at a split and re-run once stale. Sign-ins by Éder: four (Drive on each runtime
+start).
+
 ## Questions for Éder (answered above; kept as the record)
 
 1. **Airfoil family.** The spec varies the NACA four-digit section per design, which is what makes

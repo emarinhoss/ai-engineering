@@ -81,7 +81,7 @@ stays as it is.
 
 - **Message:** The session starts, deploys, watches, rebalances and restarts the cloud runtimes itself; a person is needed only to authorise a runtime's storage and to rule on the data.
 - **Body:** New. A timeline of the pool day from the run records: cases finished per hour, the number of live workers over time, the points where a runtime ended and was restarted, and the shard splits that moved idle capacity onto the longest queue.
-- **Speaker notes:** In the first version a person restarted workers by hand, and when two workers died the queue sat idle for an hour. In version 2 the session manages runtimes through a command-line interface, notices a dead worker from its heartbeat, and re-splits the shards so no runtime idles while another has a queue.
+- **Speaker notes:** Before, a person restarted workers by hand: when both runtimes ended at 14:10 UTC nothing ran until 15:50. Now the session starts and restarts runtimes through a command-line interface, sees a dead worker from its heartbeat, and re-splits the shards when one runtime drains, so neither idles while the other has a queue. The runtime log in the task record lists every action.
 
 ### V12. What the checks caught (11:30, 1 min)
 
@@ -99,7 +99,7 @@ stays as it is.
 
 - **Message:** On a 192-point pool, expected hypervolume improvement reaches regret {ehvi_32} at 32 evaluations, while random sampling is still at {rand_40} after 40.
 - **Body:** Reuse version-1 D31.
-- **Speaker notes:** Regret is how much of the true front is still missing. Active learning finds the whole front in a third of the budget random sampling uses and still misses part of it.
+- **Speaker notes:** Regret is how much of the true front is still missing. Active learning has the whole front at 32 evaluations; random sampling is still missing part of it after 40.
 
 ### V15. Active learning on the open box, honestly (14:30, 1.5 min)
 
@@ -111,7 +111,7 @@ stays as it is.
 
 - **Message:** {mf_answer}
 - **Body:** Reuse version-1 D33 (table with error and coverage).
-- **Speaker notes:** The cheap model runs everywhere; SU2 only has to learn the scale and a correction. The saving is real at small SU2 budgets and narrows as the budget grows, and neither model's interval is calibrated, so I quote the mean.
+- **Speaker notes:** The cheap model runs everywhere; SU2 only has to learn the scale and a correction. The saving is large at small SU2 budgets and reverses by 24 designs, where SU2 alone is slightly better; neither model's interval is calibrated, so I quote the mean.
 
 ### V17. How much engineering time this saves (17:30, 1.5 min)
 
@@ -157,7 +157,7 @@ stays as it is.
 
 ### V24. Conclusions (26:00, 2 min)
 
-- **Message:** The pipeline runs the design loop unattended, refuses what it cannot check, and asks a person only for rulings; on this problem it found the front, cut the expensive runs at small budgets, and answered the capped design question with a confirmation run.
+- **Message:** The pipeline runs the design loop unattended, refuses what it cannot check, and asks a person only for rulings; on this problem it cut the expensive runs at small budgets, answered the capped design question, and its first confirmation run passed.
 - **Body:** New. Four questions, one line each with its answer and status from the records; one line on what version 2 changed.
 - **Speaker notes:** If I had to keep one idea: put the checks after the solver, not just before it, and make every claim computable from the records.
 
