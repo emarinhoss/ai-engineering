@@ -103,6 +103,29 @@ E0 decides most of the question. If restarting from a real neighbouring solution
 30 %, no learned start will, and the line stops after a few worker-hours. If it does, the neighbour
 restart is itself a speed-up that needs no training and can go into the worker as it is.
 
+### E0 as it will run (Éder, 2026-11-10: "run E0 once the fine cases finish"), fixed before any case
+
+Section: pool design 1 (Re 170,203.9), chosen because its recorded coarse and medium runs at 2, 6 and
+10 deg all stopped on the Cauchy rule (coarse 3,447 / 3,654 / 4,083 iterations; medium 5,040 / 4,999 /
+4,429). Those records were meshed before decision 11, so they are context only: every comparison
+below is between new runs on the current mesher. Twelve cases, tag `e0`, budget 6,000 each.
+
+| Batch | Cases | Start |
+|---|---|---|
+| A, cold | coarse at 2, 6, 10 deg, writing a restart file | free stream |
+| A, cold | medium at 2, 6, 10 deg | free stream |
+| B, angle step | coarse 6 from coarse 2; coarse 10 from coarse 6; coarse 2 from coarse 6 | neighbour angle, same mesh |
+| B, mesh step | medium at 2, 6, 10 deg | coarse solution at the same angle, nearest-neighbour onto the medium mesh |
+
+For each warm case and its cold twin (same params except the start): iterations to the Cauchy
+stop, wall time, cl and cd. **Pass**, per kind of start: the median iteration count falls by at
+least 30 %, and every warm cl and cd is within the cold twin's own recorded drift of the cold value.
+A warm run that exhausts its budget, or a cold twin that does, is reported and counted as no
+saving. Wall time is reported beside iterations; the cost of the donor run is charged to the
+mesh step (a coarse run is needed first) and not to the angle step (the donor is a case the polar
+needs anyway). The restart feature this needs (`save_restart`, `restart_from`) is new worker code
+and is smoke-tested on one short case before the batch is staged.
+
 ## 5. Pros and cons
 
 | For | Against |
