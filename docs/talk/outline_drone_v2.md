@@ -63,7 +63,7 @@ stays as it is.
 
 - **Message:** A low-fidelity design costs {lf_s_core} s of one core; one SU2 angle costs a median {hf_coarse_min} min on the coarse mesh and {hf_medium_min} min on the medium mesh, and a design needs five angles.
 - **Body:** Reuse version-1 D8 (costs) or D9 (model in one picture).
-- **Speaker notes:** The two levels share everything except the section data, so the expensive level corrects the cheap one rather than replacing it. That is what makes the two-level model on V17 possible.
+- **Speaker notes:** The two levels share everything except the section data, so the expensive level corrects the cheap one rather than replacing it. That is what makes the two-level model on V16 possible.
 
 ### V9. Validation before any machine learning (8:00, 1 min)
 
