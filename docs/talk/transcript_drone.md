@@ -1,12 +1,12 @@
 # Transcript: the drone deck
 
-This is a transcript of the 40-minute talk on the drone deck (`docs/talk/deck_drone.pptx`), written as I would say it, with the records as they stood on 2026-11-09/10. The deck rebuilds from the records every time it is built, so on any slide that says PENDING, and on the live SU2 pool slides, the numbers may change before Friday. Where a slide is pending, the transcript says so and names what will close it.
+This is a transcript of the 40-minute talk on the drone deck (`docs/talk/deck_drone.pptx`), written as I would say it, with the records as they stood on 2026-11-10. The deck rebuilds from the records every time it is built. The SU2 pool is complete, and the SU2-level front, inverse query, confirmation run and bias sweep have landed. Where a slide still says PENDING, the transcript says so and names what will close it.
 
 ## Slide 1 — D1: Sizing a small electric aircraft with the inlet pipeline
 
 *0:00, 0.5 min*
 
-The inlet study built a pipeline. This talk asks whether it carries over to a different physics problem, a small electric aircraft. The answer is partly in. Validation V6a to V6f is recorded, the low-fidelity studies are complete, and the SU2 pool stood at 29 of 32 designs at build time. Every number is read from a record, and every slide says what is still pending.
+The inlet study built a pipeline. This talk asks whether it carries over to a different physics problem, a small electric aircraft. The answer is partly in. Validation V6a to V6f is recorded, the low-fidelity studies are complete, and the SU2 pool is complete: 32 of 32 designs. Every number is read from a record, and every slide says which part is answered and which is not.
 
 ## Slide 2 — Section divider: 1a. Why a gated, automated process
 
@@ -48,13 +48,13 @@ Now the problem itself: what we are sizing, and what the study asks.
 
 This table gives the status of the four questions at build time.
 
-Question 1 is the front of endurance against take-off mass. On the low-fidelity model the exact front exists: 249 designs. The SU2-pool front is pending, until the front file on the SU2 pool is written.
+Question 1 is the front of endurance against take-off mass. On the low-fidelity model the exact front exists: 249 designs. The front on the SU2 pool is now recorded too.
 
-Question 2 is active learning against Latin hypercube and random. On the low-fidelity model, plain EHVI loses online and weighted EHVI wins. The SU2-pool replay is pending.
+Question 2 is active learning against Latin hypercube and random. On the low-fidelity model, plain EHVI loses online and weighted EHVI wins. The SU2-pool replay is still pending.
 
-Question 3 asks whether the two-level model reaches a given error with fewer SU2 polars. That is recorded, with 29 of 32 SU2 designs complete.
+Question 3 asks whether the two-level model reaches a given error with fewer SU2 polars. That is recorded, with 32 of 32 SU2 designs complete.
 
-Question 4 is the longest endurance under the 4.0 kilogram cap, with at least 0.9 probability of meeting it, plus one SU2 confirmation. On the low model the answer is a box corner and the cap never binds. The SU2 answer is pending. A null result is reported as one.
+Question 4 is the longest endurance under the 4.0 kilogram cap, with at least 0.9 probability of meeting it, plus one SU2 confirmation. On the low model the answer is a box corner and the cap never binds. At the SU2 level the confirmation is recorded, and you will see on D38 that it failed. A null result is reported as one.
 
 ## Slide 8 — D6: Endurance against take-off mass, under the C2 cap
 
@@ -84,7 +84,7 @@ There are two fidelity levels, and the cost difference between them shapes the w
 
 The low level runs in the container from closed-form section data. It costs 0.25 seconds per design on one core. That is why the full 531,441-point grid ran in 4.7 hours on 8 workers, and the 192-point pool in 669 seconds on 2.
 
-The high level runs on Colab, on 2 or 4 ranks. It takes an SU2 polar of the design's own section at its own cruise Reynolds number. One angle costs a median of 11.4 minutes on the coarse mesh, over 155 cases, and 22.9 minutes on the medium mesh, over 30 cases. A design needs five angles. The SU2 pool is 172 cases in the case table.
+The high level runs on Colab, on 2 or 4 ranks. It takes an SU2 polar of the design's own section at its own cruise Reynolds number. One angle costs a median of 11.8 minutes on the coarse mesh, over 173 cases, and 22.9 minutes on the medium mesh, over 30 cases. A design needs five angles. The SU2 pool is 172 cases in the case table.
 
 These are medians over every SU2 record at build time. The ratio between the levels is what makes the exact low-fidelity front possible and keeps the high-fidelity pool small.
 
@@ -196,7 +196,7 @@ This is the skin friction along the chord. Where it goes negative, the wall shea
 
 On the left, lift against angle. On the right, drag against lift. For E387, SU2's lift is 8.0 to 11.6 percent high and its drag 10.3 percent low to 1.6 percent high against the tunnel.
 
-The closed form is a straight line to a cap, with a constant drag. It has no stall and no drag rise. Now look at the pool designs at the top of the angle range. On the 29 complete pool designs, the 27 cases at 14 degrees have lift from 0.48 to 1.39 and drag from 0.067 to 0.188. That is the stall the closed form cannot show. Open circles are cases the pool did not keep.
+The closed form is a straight line to a cap, with a constant drag. It has no stall and no drag rise. Now look at the pool designs at the top of the angle range. On the 32 complete pool designs, the 32 cases at 14 degrees have lift from 0.48 to 1.39 and drag from 0.067 to 0.188. That is the stall the closed form cannot show. Open circles are cases the pool did not keep.
 
 ## Slide 26 — D23: The stall at 14 degrees
 
@@ -208,7 +208,7 @@ Here is one design, pool design 0, on the coarse mesh. Between 10 and 14 degrees
 
 *16:30, 0.5 min*
 
-This slide is pending. Two volume-output cases of design 0 will give pressure contours and streamlines, at 6 and 14 degrees. They are queued with volume output on and run after the pool. The drawing command is written and tested on a synthetic file, so the pictures follow as soon as the files land. Until then, no number is shown here.
+This is pool design 0 at 14 degrees: pressure contours and streamlines. The upper surface is separated, with reversed flow at the wall from x over c of 0.013, just behind the leading edge, to 0.96. That is the stall the closed form cannot show. The 6 degree case is not shown: its volume file came back unreadable twice, so the cause is in the writer, not yet established.
 
 ## Slide 28 — Section divider: 3. Automation layer: MCP tools, gates, queue
 
@@ -238,9 +238,9 @@ The stage and step names in the drawing are checked against the code when the de
 
 *19:00, 1 min*
 
-One thing that is new in this study is two workers on one queue. With the shard flag, K over N, a worker takes only the cases whose id hash is K modulo N. On the left you see the split: two Colab sessions take the 172 pool cases as 85 and 87. Every case lands in exactly one shard, so no two workers claim the same job. Before this flag, two workers on one queue would both have started the same job, so only one ran. The pool records so far carry 8 worker ids.
+One thing that is new in this study is two workers on one queue. With the shard flag, K over N, a worker takes only the cases whose id hash is K modulo N. On the left you see the split: two Colab sessions take the 172 pool cases as 85 and 87. Every case lands in exactly one shard, so no two workers claim the same job. Before this flag, two workers on one queue would both have started the same job, so only one ran. Without the flag a worker takes every job, and two unsharded workers on one queue are not allowed. The pool records carry 11 worker ids.
 
-On the right is ingestion. Each result comes back with its sha256 and is checked before it goes under runs. The aggregator forms a design polar only when at least 3 angles are kept. The results table stands at 32 designs: 29 complete, 3 incomplete, 0 failed. And the table's own hash matches its record: yes.
+On the right is ingestion. Each result comes back with its sha256 and is checked before it goes under runs. The aggregator forms a design polar only when at least 3 angles are kept. The results table stands at 32 designs: 32 complete, 0 incomplete, 0 failed. And the table's own hash matches its record: yes.
 
 ## Slide 32 — D28: What the gated process caught
 
@@ -306,13 +306,13 @@ So the honest answer to question 2 is this: active learning beats space-filling 
 
 *27:00, 2 min*
 
-Question 3. Does a two-level model reach a given held-out error with fewer SU2 designs than SU2 alone?
+The third question. Does a two-level model reach a given held-out error with fewer SU2 designs than SU2 alone?
 
 The model is the one in the sketch: the high-level output equals a scale factor rho times the low-level output, plus a discrepancy d that is itself a Gaussian process. Rho and a constant are fitted by generalized least squares. The discrepancy has to absorb the gap between the levels, and we know that gap is real, from V6e and V6f.
 
-The table is the mean over ten seeds. Read the endurance error first. With 8 SU2 designs, the two-level model's error is 0.586 hours against 1.061 for SU2 alone. At 12 it is 0.617 against 0.944. At 16, 0.461 against 0.750. At 24, 0.551 against 0.805. SU2 alone does not reach the two-level error at 8 designs anywhere within 24. On mass the gap is larger: at 8 designs the relative error is 0.0015 against 0.0401.
+The table is the mean over ten seeds, on the complete SU2 pool. Read the endurance error first. With 8 SU2 designs, the two-level model's error is 0.824 hours against 1.525 for SU2 alone. At 12 it is 0.808 against 1.112. At 16, 0.747 against 0.865. At 24 the order flips: SU2 alone at 0.704, the two-level model at 0.726. So the gain is at small budgets. On mass the gap is larger: at 8 designs the relative error is 0.0022 against 0.0869.
 
-Now the part I want to be clear about: the intervals. A 90 percent interval should contain about 90 percent of the held-out designs. The two-level model's coverage is 0.51 at 8 designs, 0.59 at 12, 0.69 at 16 and 0.70 at 24. SU2 alone is between 0.60 and 0.66. Both are well short of 90 percent. So the two-level model is more accurate, but its intervals are over-confident, and that is recorded as it stands, not adjusted.
+Now the intervals. A 90 percent interval should contain about 90 percent of the held-out designs. The two-level coverage is 0.61 at 8 and 12 designs, 0.68 at 16 and 0.69 at 24. SU2 alone goes from 0.43 to 0.78. Both are short of 90 percent. So the two-level model is more accurate at small budgets, but its intervals are over-confident, and that is recorded as it stands, not adjusted.
 
 The inlet's Task 9 found that a cheap level helps most at small budgets. This is the same measurement on a new problem, and on accuracy it points the same way.
 
@@ -334,11 +334,11 @@ This exact front is the reference against which both replays measured regret. An
 
 *30:00, 1.5 min*
 
-This is the SU2 pool as it stood when the deck was built. It is read from the hourly-ingested results, so it grows as the pool lands. Of the 32 pool designs, 29 are complete and 3 incomplete. 165 of the 172 cases have landed, counting the coarse pool and the medium bias check.
+This is the SU2 pool as it stood when the deck was built, read from the ingested results, and it is now complete. Of the 32 pool designs, 32 are complete and 0 incomplete. 172 of the 172 cases have landed, counting the coarse pool and the medium bias check.
 
 Each row is one complete design: the angles kept, then endurance and mass at both levels and their ratio. The low column is the same design through the low model, with the same lattice, closure and mission. Only the section data differ.
 
-Look at the endurance ratio column. On the complete designs the SU2-level endurance is 15.8 to 59.5 percent lower than the low level's. Design 21, for example, is 8.31 hours against 11.11. The worst are designs 19 and 17, at ratios of 0.405 and 0.420. The mass ratio, by contrast, stays between 1.001 and 1.006.
+Look at the endurance ratio column. On the complete designs the SU2-level endurance is 15.8 to 65.5 percent lower than the low level's. Design 21, for example, is 8.31 hours against 11.11. The worst are designs 30, 19 and 17, at ratios of 0.345, 0.405 and 0.420. The mass ratio, by contrast, stays between 1.001 and 1.011.
 
 That design-by-design difference is exactly the discrepancy the two-level model has to learn. A design with fewer than three kept angles is not evaluated, and every SU2 row carries the decision-8 flags.
 
@@ -346,33 +346,33 @@ That design-by-design difference is exactly the discrepancy the two-level model 
 
 *31:30, 1 min*
 
-This slide is pending. The front on the SU2 pool, with its uncertainty band, will be drawn here once the Pareto analysis on the SU2 pool writes its file. It does not exist yet.
+This is the front on the SU2 pool. The observed front has 13 designs, from 2.95 hours at 1.09 kilograms to 8.40 hours at 3.14 kilograms.
 
-When it runs, the inputs are the complete designs of the pool results table. The Pareto analysis for the drone family writes the observed front, the predicted front and the band. The band is the posterior uncertainty of the two GPs, sampled jointly, and it is drawn beside the observed designs, not instead of them. The exact low-fidelity front from D34 goes beside it.
+Around it is the band. The band is the posterior uncertainty of the two GPs, sampled jointly, and it is drawn beside the observed designs, not instead of them. The exact low-fidelity front from D34 goes beside it, so you can see the endurance gap of the pool table, now at the level of the front.
 
-Every point of this front will carry the V6e bias of decision 8. Until the file exists, no number is shown here.
+Every point of this front carries the V6e bias of decision 8. So this is the SU2-level answer to question 1, with the lift-slope fail recorded beside it, not removed from it.
 
 ## Slide 43 — D37: The inverse query under the 4 kg cap
 
 *32:30, 1 min*
 
-The inverse query asks: what is the longest expected endurance, subject to a high enough probability that take-off mass stays under the 4 kilogram cap? It is a computation on the fitted surrogate, never a choice by the language model.
+The inverse query asks: what is the longest expected endurance, subject to a high enough probability that take-off mass stays under the 4 kilogram cap? It is computed on the fitted surrogate, never chosen by the language model.
 
-On the low model the answer is a box corner. 6 of the six inputs sit at a bound: span 3, aspect ratio 16, taper 0.3, battery fraction 0.45, camber 6 and thickness 8. The GPs predict 13.307 hours, with a 90 percent interval from 13.228 to 13.386. Mass has a median of 2.435 kilograms, and the probability of being under 4 kilograms is 1.000. So the cap never binds there.
+On the low model the answer is a box corner, with 6 of the six inputs at a bound. The GPs predict 13.307 hours and a median mass of 2.435 kilograms, and the probability of being under 4 kilograms is 1.000. So the cap never binds there. The GP extrapolates there, so I evaluated the corner directly: 13.245 hours and 2.438 kilograms, inside both intervals.
 
-This is a diagnostic: the GP extrapolates to a corner the Sobol pool never sampled. So I evaluated it directly on the low model: 13.245 hours and 2.438 kilograms, inside both intervals. The SU2-pool answer is pending its inverse file.
+On the SU2 pool the answer moves. Span 3, taper 0.3 and battery fraction 0.45 stay at their bounds, but aspect ratio comes down to 7, camber to 3.9 and thickness to 10.8 percent. The GPs predict 10.139 hours, with a 90 percent interval from 9.116 to 11.163. The median mass is 3.918 kilograms, close to the cap, with a probability of 0.991 of staying under it.
 
 ## Slide 44 — D38: The confirmation run
 
 *33:30, 0.5 min*
 
-This one is pending. The confirmation is one SU2 polar, five cases, at the SU2-pool answer, sent through the queue. It passes the C2 check if both simulated objectives fall inside their predicted 90 percent intervals. If it misses, the miss is documented and explained, as in the inlet study. The file does not exist yet.
+This is the confirmation: one SU2 polar at the SU2-pool answer. It passes the C2 check only if both objectives fall inside their predicted 90 percent intervals. It failed. Mass came out at 3.936 kilograms, inside its interval and under the cap. Endurance came out at 8.955 hours against a predicted 10.139, below the interval. The verdict is C2 FAIL, and it stays a fail, documented as in the inlet study.
 
 ## Slide 45 — D39: Which fixed quantities move the answer
 
 *34:00, 0.5 min*
 
-Each of the 21 banded quantities is moved alone to each end of its band, at the low-fidelity answer. The largest are skin areal density at 17.2 percent, propulsive efficiency at 17.0, and pack specific energy at 16.7. This ranking is for one design, not a global sensitivity. The sweep at the SU2 answer is pending. The full table is backup DB8.
+Each of the 21 banded quantities is moved alone to each end of its band. At the low-fidelity answer the largest are skin areal density at 17.2 percent, propulsive efficiency at 17.0, and pack specific energy at 16.7. At the SU2 answer the same three lead: skin areal density at 22.0, propulsive efficiency at 17.1, and pack specific energy at 16.8. Each ranking is for one design, not a global sensitivity. The full table is backup DB8.
 
 ## Slide 46 — D40: Coarse against medium on the pool
 
@@ -410,7 +410,7 @@ The most useful entry is the online replay. Plain EHVI at 0.317 against random's
 
 The study sizes one cruise point, at sea level, with a fixed propeller efficiency and a closed-form structure. On the left is what the spec puts out of scope: stability beyond the static margin, structure beyond the spar rule, propeller design, take-off and landing, wind and altitude, cost, and certification beyond the C2 cap. Wind and altitude come first; a candidate Task 11 would add them in the form of Task 9's envelope.
 
-On the right are the open items. The medium-against-fine mesh row of V6e at Reynolds 203800 is not run. V6g, the Ultra Stick 25e check, is not run, because the data were not retrieved. The Warren-12 moment row is pending its reference point. And the open rulings: accepting budget-exhausted runs, and the lift-effectiveness band, where re-centring means a 4.6-hour re-run. Nothing here claims more than one cruise point.
+On the right are the open items. The medium-against-fine mesh row of V6e at Reynolds 203800 is not run. V6g, the Ultra Stick 25e check, is not run, because the data were not retrieved. The Warren-12 moment row is pending its reference point. And the rulings. Decision 9, on 2026-11-10, accepted the budget-exhausted runs of designs 8 and 28, with a flag; every other one is still dropped. Still open is the lift-effectiveness band, where re-centring means a 4.6-hour re-run. Nothing here claims more than one cruise point.
 
 ## Slide 51 — D44: Conclusions: the four questions as far as the records go
 
@@ -418,13 +418,13 @@ On the right are the open items. The medium-against-fine mesh row of V6e at Reyn
 
 Here are the four questions, as far as the records go.
 
-Question 1, the front. The exact low-fidelity front is 249 designs over 531,441 points, and aspect ratio and span drive endurance. The SU2-pool front is pending.
+Question 1, the front. The exact low-fidelity front is 249 designs over 531,441 points, and aspect ratio and span drive endurance. The front on the SU2 pool is now recorded as well.
 
-Question 2, active learning. This is the result I would lead with, because it includes a loss. Plain EHVI loses online, 0.317 against random's 0.294. With the probability of feasibility it wins, at 0.092. The SU2-pool replay is pending.
+Question 2, active learning. This is the result I would lead with, because it includes a loss. Plain EHVI loses online, 0.317 against random's 0.294. With the probability of feasibility it wins, at 0.092. The SU2-pool replay is still pending.
 
-Question 3, the two-level model. With 8 SU2 designs the two-level endurance error is 0.586 hours against 1.061 for SU2 alone, and SU2 alone does not reach it within 24 designs. The interval coverage is in the table on the two-level slide, and it is short of the nominal level.
+Question 3, the two-level model. With 8 SU2 designs the two-level endurance error is 0.824 hours against 1.525 for SU2 alone, and SU2 alone reaches it only at 24 designs. It wins on the mean at small budgets, and its intervals are over-confident.
 
-Question 4, the inverse query. On the low model the answer is a corner at 13.31 hours and 2.43 kilograms, and the 4 kilogram cap does not bind there. The SU2 answer and its confirmation are pending.
+Question 4, the inverse query. On the low model the answer is a corner at 13.31 hours and 2.43 kilograms, and the 4 kilogram cap does not bind there. On the SU2 pool the confirmation kept the mass under the cap but found the endurance below its predicted interval. That is a failed confirmation, reported as one.
 
 The pipeline carried over with its gates, queue and replay unchanged. What is new is the airfoil family, the two-level model and the sharded workers. Anything still pending on this slide is a run in progress, not an estimate.
 
@@ -462,7 +462,7 @@ If you ask whether the coarse mesh is good enough: on the nominal section the th
 
 ## Slide 59 — DB5: Backup: the budget-exhausted runs
 
-If you ask what happens to runs that hit the budget: this lists every one, with its drift. Today the aggregator drops them and the record keeps them; whether to accept some is ruling 1 on DB16. Be careful with the largest drifts. Design 2 at minus 2 degrees shows 98.2 percent lift drift, but its lift is minus 0.0020. The rule divides the range by the final value, so near zero lift a tiny absolute movement looks huge.
+If you ask what happens to runs that hit the budget: this lists every one, with its drift. The aggregator drops them by its default rule and the record keeps them. Decision 9, on D43, accepted the runs of designs 8 and 28 with a flag; the rule for the rest is unchanged. The confirm rows at the top are not pool cases. Be careful with the largest drifts. Design 2 at minus 2 degrees shows 98.2 percent lift drift, but its lift is minus 0.0020. The rule divides the range by the final value, so near zero lift a tiny absolute movement looks huge.
 
 ## Slide 60 — DB6: Backup: the low-pool Pareto record
 
@@ -474,7 +474,7 @@ If you ask how the inverse query searches: it walks the whole grid of 21 to the 
 
 ## Slide 62 — DB8: Backup: the bias sweep, full table
 
-If you ask which assumptions matter most: this is every banded quantity, moved one at a time to its band ends at the low-fidelity answer. Skin areal density moves endurance from plus 13.0 to minus 17.2 percent and mass by up to plus 62.0 percent. Propulsive efficiency and pack specific energy move endurance about 17 percent each way. The ones marked no effect at this design are different: the model reads them, but they do not bind here.
+If you ask which assumptions matter most: this is every banded quantity, moved one at a time to its band ends at the low-fidelity answer. Skin areal density moves endurance from plus 13.0 to minus 17.2 percent and mass by up to plus 62.0 percent. Propulsive efficiency and pack specific energy move endurance about 17 percent each way. The ones marked no effect at this design are different: the model reads them, but they do not bind here. The sweep at the SU2 answer is the second ranking on D39.
 
 ## Slide 63 — DB9: Backup: the online replays, full tables
 
@@ -490,7 +490,7 @@ If you ask where the fixed numbers come from: every one of the 46 fixed quantiti
 
 ## Slide 66 — DB12: Backup: the cost ledger
 
-If you ask what this cost in compute: SU2 cases took a median of 684 seconds on the coarse mesh over 155 cases, and 1,372 on the medium over 30. The single fine case took 3,162. The pool alone has used 30.4 worker-hours so far, and the total grows with every ingest. The low-fidelity grid took 4.65 hours on 8 workers, and the low pool 669 seconds on 2.
+If you ask what this cost in compute: SU2 cases took a median of 705 seconds on the coarse mesh over 173 cases, and 1,372 on the medium over 30. The single fine case took 3,162. The pool used 31.9 worker-hours, and the confirmation 3.4. The low-fidelity grid took 4.65 hours on 8 workers, and the low pool 669 seconds on 2.
 
 ## Slide 67 — DB13: Backup: the equations index
 
@@ -510,4 +510,4 @@ If you ask what is still undecided: three rulings are open for me. First, whethe
 
 ## Slide 71 — DB17: Backup: record status, what exists and what is pending
 
-If you ask exactly what has run and what has not: this table lists every file the deck reads or waits for, and its status is computed when the deck is built. The validation record, the grid, the online replays, the low-fidelity inverse and bias sweep, the pool results and the multi-fidelity analysis exist. The SU2-pool front, the SU2-pool inverse, the confirmation run, the SU2 bias sweep and the two viz cases are pending. The talk claims nothing beyond the existing files.
+If you ask exactly what has run and what has not: this table lists every file the deck reads or waits for, and its status is computed when the deck is built. The validation record, the grid, the online replay, the low-fidelity inverse and bias sweep, the pool results, the multi-fidelity analysis, the SU2-pool front and inverse, the confirmation run, the SU2 bias sweep and one of the two viz files all exist. The other viz file is pending, and D24 says why. The talk claims nothing beyond the existing files.
