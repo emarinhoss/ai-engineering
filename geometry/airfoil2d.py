@@ -28,6 +28,13 @@ Nodes sit on the curve by arc length with one geometric ratio and first spacing 
 parameter that is half normalised wall arc length and half normalised node index, so the farfield
 points spread out more evenly than the clustered wall points.
 
+The column launch directions are the wall normals after NORMAL_SMOOTHING_PASSES [1/4, 1/2, 1/4]
+passes over the interior wall tangents (decision 11, 2026-11-10). Without them the E387's concave
+lower surface near the trailing edge (tangent 2.2 deg at x = 0.97 to 3.7 deg at the edge) made
+neighbouring columns cross about 0.9 chord out, and the fine mesh had 8 inverted cells at Re 203,800
+and 7 at 305,200. The passes change every mesh slightly, so records made before decision 11 keep
+their own recorded mesh fingerprints and do not re-mesh identically from this code.
+
 Wake blocks: Hermite columns from the cut point (x, 0) to (x_top, +-30), arriving vertically. They
 leave the cut along the trailing-edge normal of their own surface at the trailing edge, turning
 linearly to the vertical at the outflow; the trailing-edge column is shared with the wall block.
@@ -60,6 +67,7 @@ Y_PLUS = 0.5
 N_GEOMETRY = 801                   # points per surface of the dense section the wall is cut from
 WAKE_ASPECT = 2500.0               # first wake cell d0 + (dx - dx_TE) / 2500: aspect ratio <= ~2500
 HERMITE_TANGENT = 0.5              # Hermite tangent length over the distance |Q - P|
+NORMAL_SMOOTHING_PASSES = 5        # [1/4, 1/2, 1/4] passes on the wall tangents (decision 11)
 FACTOR = {"coarse": 1.0 / 1.4, "medium": 1.0, "fine": 1.4}   # node-count factor per level
 
 # Medium level. Lengths in metres, counts are nodes.
@@ -194,6 +202,8 @@ def build(params):
     wall = _wall(x, y, s)
     nw = len(wall)
     tang = np.gradient(wall, axis=0)                         # one-sided at the two TE nodes
+    for _ in range(NORMAL_SMOOTHING_PASSES):                  # interior nodes only; the TE keeps its own
+        tang[1:-1] = 0.25 * tang[:-2] + 0.5 * tang[1:-1] + 0.25 * tang[2:]
     tang /= np.hypot(tang[:, 0], tang[:, 1])[:, None]
     normal = np.column_stack((-tang[:, 1], tang[:, 0]))      # outward (the wall runs clockwise)
     arc = _arc(wall)

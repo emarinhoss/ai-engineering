@@ -875,6 +875,36 @@ designs from 2.949 h at 1.091 kg to 8.402 h at 3.144 kg; 77 predicted front poin
 0.898 kg to 9.559 h at 3.293 kg; a 25-level band from 1.154 to 2.723 kg. The low-fidelity predicted
 front reaches 11.967 h at 2.247 kg, so the SU2 level lowers the attainable endurance at a given mass.
 
+### Decision 11 (Éder, 2026-11-10 15:00 UTC): run the fine E387 cases; smooth the mesher for every mesh
+
+Éder: "Earlier I said that I would 'accept the medium mesh as the high level with the bias
+recorded', but now I have more time. Can we run the fine cases now in Colab?" Decision 8 stands; this
+fills the V6e medium-against-fine row that it left `not run`. That row was blocked on the mesher, not
+on Colab time: the fine E387 mesh had 8 inverted cells at Re 203,800 and 7 at 305,200 (the strict
+xfail in `tests/task10/test_airfoil_file.py`). Two choices were put to Éder and both ruled:
+
+- **Mesher fix scope: every mesh** (not E387 only, not fine only). `geometry/airfoil2d.py` now applies
+  `NORMAL_SMOOTHING_PASSES = 5` passes of [1/4, 1/2, 1/4] to the interior wall tangents before the
+  column launch normals are formed. Measured (scratch sweep, NACA camber 0/4/6, thickness 8/12/15,
+  Re 8e4/2e5/5e5, and the E387 at both Re, all three levels, 87 meshes): **none fails the quality
+  gate**; minimum angle 48.0 deg, largest aspect ratio 2845, largest wall-normal growth 1.199. The
+  E387 fine meshes now pass (aspect ratio 2597 at 203,800, 2626 at 305,200, no inverted cell). The
+  passes move nodes off the wall: within one chord of mid-chord the largest move is 0.0020 chord on a
+  NACA 2412 medium mesh and 0.0097 chord on the E387 medium mesh (the wall nodes and first cell
+  height are unchanged by construction). **Consequence: every record made before decision 11 keeps
+  its own recorded mesh fingerprint and does not re-mesh identically from current code**; the commit
+  in each record names the code that made it. The strict xfail is lifted.
+- **Budget: 12,000 iterations.** The one earlier fine case (`runs/mesh/airfoil2d-e161fb7e6b`, NACA,
+  6 deg) used its whole 6,000 in 3,162 s, so at 6,000 these would likely be dropped by the standing
+  rule. The workers run with `--timeout 10800`.
+
+Staged by `designs/make_e387_fine.py` (angles and Re read from the ten recorded medium E387 cases,
+never typed): ten cases, tag `e387`, mesh `fine`, `designs/e387_fine_cases.csv`, batch `e387_fine`.
+**Caveat recorded before any result:** the recorded medium E387 cases were meshed without the
+smoothing, so the medium-against-fine row compares two mesh constructions as well as two levels;
+the E387 medium nodes moved up to 0.0097 chord. A like-for-like row needs the five medium cases at
+Re 203,800 re-run on the smoothed mesh (offered to Éder, not staged).
+
 ## Questions for Éder (answered above; kept as the record)
 
 1. **Airfoil family.** The spec varies the NACA four-digit section per design, which is what makes

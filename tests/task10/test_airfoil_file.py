@@ -166,12 +166,8 @@ def test_e387_mesh_passes_the_quality_gate(level):
     assert g["airfoil"] == "e387" and g["section_sha256"] == E387_SHA256
 
 
-@pytest.mark.xfail(strict=True, reason="recorded negative 2026-11-08: the E387's lower surface is "
-                   "concave over its last few percent (tangent 2.2 deg at x = 0.97 to 3.7 deg at the "
-                   "trailing edge), so neighbouring wall-normal columns converge about 0.9 chord out "
-                   "and at the fine spacing 8 cells invert in the lower wall block near x = 0.95, "
-                   "aspect ratio 8763. A mesher change (smoothing the wall normals) is deferred until "
-                   "the nominal batch is done, because it moves every staged mesh fingerprint.")
+# Was a strict xfail until decision 11 (2026-11-10): the E387's concave lower surface near the
+# trailing edge inverted 8 fine cells at Re 2e5. Smoothing the wall tangents in the mesher fixed it.
 def test_e387_fine_mesh_passes_the_quality_gate():
     _, m = airfoil2d.build({**E387, "mesh_level": "fine"})
     assert quality_failures(m.quality(), requested_first_cell({**E387, "mesh_level": "fine"})) == []
