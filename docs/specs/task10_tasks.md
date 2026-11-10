@@ -807,6 +807,20 @@ The 30-design readings above stay as the record; these replace them as the study
   `--batch-name confirm_drone_32` so the first batch stays visible to the workers).
 - **Question 1**: the Pareto run on 32 designs is running on the Colab runtime.
 
+### Confirmation of the 30-design inverse answer: PASS under the standing rule (Opus, 2026-11-10 02:10 UTC)
+
+The five cases of `designs/confirm_drone_cases.csv` landed. Four stopped on SU2's Cauchy criterion
+(drift up to 4.1 % in cl, 5.2 % in cd); **the 14 deg case `airfoil2d-84a1950ba6` exhausted its
+6,000-iteration budget (cl drift 12.0 %, cd drift 7.2 %)**. Decision 9 names designs 8 and 28 only,
+so under the standing rule it is dropped and the design record uses four angles (flags `not_peaked`,
+`missing_angles`: the polar has no stall point). Whether to accept it is put to Éder.
+`analysis.confirm --family drone` against `runs/drone_inverse_hf/2026-11-09_30designs/inverse.json`
+(`runs/drone_confirm/2026-11-09_30designs/confirm.json`): **endurance 9.951 h inside 8.596 to 10.073
+(z = 1.37, toward the top), mass 2.963 kg inside 2.919 to 2.988 (z = 0.49): C2 pass**, below the cap.
+Refitting with the confirmed design shrinks the predictive std at that design to 0.44x (endurance)
+and 0.08x (log mass). This tests the 30-design prediction only; the 32-design answer's own
+confirmation is still running.
+
 ## Questions for Éder (answered above; kept as the record)
 
 1. **Airfoil family.** The spec varies the NACA four-digit section per design, which is what makes
