@@ -1425,19 +1425,31 @@ def bias_hf_answer():
         f"{pretty(r['name'])} ({float(r['max_abs_pct_endurance']):.1f} %)" for r in top) + "."
 
 
+VIZ_ALPHA = {"airfoil2d-731806baea": 6, "airfoil2d-0ae85f2779": 14}
+VIZ_UNREADABLE = {"airfoil2d-731806baea": "its volume file is unreadable on both runs (spec, 2026-11-10)"}
+
+
 def viz_files():
-    """The two viz case directories, or None while either volume file is missing."""
+    """The viz case directories that hold a volume file, or None while none does."""
     dirs = [ROOT / "runs/viz" / c for c in VIZ_CASES]
-    have = all((d / "flow.dat").is_file() or (d / "flow.dat.gz").is_file() for d in dirs)
-    return dirs if have else None
+    have = [d for d in dirs if (d / "flow.dat").is_file() or (d / "flow.dat.gz").is_file()]
+    return have or None
 
 
 def viz_answer():
     ids = " and ".join(VIZ_CASES)
-    if viz_files() is None:
+    dirs = viz_files()
+    if dirs is None:
         return (f"PENDING: two volume-output cases, {ids}, will give Cp contours and streamlines "
                 "at 6 and 14 degrees once they run after the pool.")
-    return f"Cp contours and streamlines of pool design 0 at 6 and 14 degrees, from {ids}."
+    shown = [d.name for d in dirs]
+    text = ("Cp contours and streamlines of pool design 0 at "
+            + " and ".join(f"{VIZ_ALPHA[c]} degrees" for c in shown) + f", from {', '.join(shown)}")
+    missing = [c for c in VIZ_CASES if c not in shown]
+    for c in missing:
+        why = VIZ_UNREADABLE.get(c, "its volume file has not landed")
+        text += f"; the {VIZ_ALPHA[c]} degree case is not shown: {why}"
+    return text + "."
 
 
 def pending_values():
@@ -1705,12 +1717,13 @@ def body_viz(slide, v):
         body_pending_viz(slide, v)
         return
     from postprocess.plot_flowfield import plot_airfoil_volume
+    width = CW if len(dirs) == 1 else 5.95
     for i, d in enumerate(dirs):
         png = ROOT / FIG_DRONE / f"viz_{d.name}.png"
         png.parent.mkdir(parents=True, exist_ok=True)
         plot_airfoil_volume(d, png)
         bd.add_figure_with_caption(slide, str(png.relative_to(ROOT)), str(d.relative_to(ROOT)),
-                                   LM + i * 6.15, CT, 5.95, 4.3)
+                                   LM + i * 6.15, CT, width, 4.3)
 
 
 def body_pending_viz(slide, v):

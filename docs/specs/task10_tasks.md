@@ -714,6 +714,24 @@ including a readable `flow.dat`, is copied back and the local folder removed; th
 in-place record; untouched inputs keep their mtime; a timed-out run still copies back. The two viz
 cases are re-run on the fixed worker by clearing their status flags.
 
+### The local-disk fix cured one viz case and not the other (Opus, 2026-11-10 00:40 UTC)
+
+Both viz cases re-ran on the fixed worker (commit `c803ca2`, SU2 in `/tmp/su2work/<case>`, outputs
+copied to Drive once). **14 deg, `airfoil2d-0ae85f2779`: clean** — 22,102 node rows and 21,760
+element rows exactly as the zone line declares; committed as `runs/viz/airfoil2d-0ae85f2779/
+flow.dat.gz` and drawn as `docs/validation/figures/task10/flow/contours_14.png` (it shows the
+separated upper surface the 14 deg pool cases record). **6 deg, `airfoil2d-731806baea`: still
+unreadable** — written on local disk this time and copied once (the Drive copy's md5 equals the
+downloaded file's), yet the node block breaks at line 10,255 with four-field rows, and the file has
+70,526 lines against the 43,865 the zone declares. So the Drive mount was not the only cause, and
+the earlier diagnosis is corrected here rather than overwritten: the corruption happens at the
+writer itself. Not established: why one case and not the other on the same runtime, code and four
+ranks (the 6 deg log mentions the volume file 40 times, the 14 deg one 32). Candidates to test, not
+yet tested: SU2's parallel Tecplot ASCII writer when the file is rewritten every 1000 iterations,
+and a serial (one-rank) or end-only volume write. The corrupt files are kept outside the repository
+as evidence and nothing from them is plotted; D24 shows the 14 deg case and says why the 6 deg one
+is missing. The local-disk change stays: it removes one cause and costs nothing.
+
 ## Questions for Éder (answered above; kept as the record)
 
 1. **Airfoil family.** The spec varies the NACA four-digit section per design, which is what makes

@@ -247,9 +247,9 @@ Backup slides DB1 to DB17 follow D45 and are not timed.
 ### D24. Pressure contours and streamlines (16:30, 0.5 min)
 
 - **Message:** {viz_answer}
-- **Figure or table:** Cp contours and speed with streamlines for design 0 at 6 and 14 degrees when the volume files exist; until then a box naming the two cases.
-- **Source:** PENDING: `runs/viz/airfoil2d-731806baea/flow.dat.gz`, `runs/viz/airfoil2d-0ae85f2779/flow.dat.gz` (viz batch, volume output of design 0, coarse mesh)
-- **Speaker notes:** The cases are queued with volume output on and run after the pool. The drawing command is written and tested on a synthetic file, so the pictures follow the moment the files land.
+- **Figure or table:** Cp contours and speed with streamlines for design 0 at 14 degrees (whole section and leading edge); the 6 degree case is named with the reason it is not shown.
+- **Source:** `runs/viz/airfoil2d-0ae85f2779/flow.dat.gz` (14 degrees, volume output of design 0, coarse mesh); `runs/viz/airfoil2d-731806baea/result.json` (6 degrees, result only: its volume file is unreadable)
+- **Speaker notes:** At 14 degrees the upper surface is separated, with reversed flow at the wall from x/c 0.013, the first upper-surface point behind the leading edge, to 0.96 on pool design 0's 14 degree surface record: this is the stall the 14 degree pool cases record and the closed form cannot show. The 6 degree volume file came back unreadable twice, the second time written on local disk, so the cause is in the writer and is not yet established; I show only the file that reads cleanly.
 
 ## Section 3: Automation layer: MCP tools, gates, queue (4 minutes)
 
