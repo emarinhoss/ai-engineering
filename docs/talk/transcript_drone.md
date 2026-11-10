@@ -366,7 +366,7 @@ On the SU2 pool the answer moves. Span 3, taper 0.3 and battery fraction 0.45 st
 
 *33:30, 0.5 min*
 
-This is the confirmation: one SU2 polar at the SU2-pool answer. It passes the C2 check only if both objectives fall inside their predicted 90 percent intervals. It failed. Mass came out at 3.936 kilograms, inside its interval and under the cap. Endurance came out at 8.955 hours against a predicted 10.139, below the interval. The verdict is C2 FAIL, and it stays a fail, documented as in the inlet study.
+This is the confirmation: one SU2 polar at the answer. It passes the C2 check only if both objectives fall inside their predicted 90 percent intervals. There are two rows, because there were two answers. The earlier answer, on 30 designs, passed: endurance 9.951 hours inside 8.596 to 10.073, and mass 2.963 kilograms inside its interval. The final answer, on 32 designs, failed. Mass came out at 3.936 kilograms, inside its interval and under the cap. Endurance came out at 8.955 hours against a predicted 10.139, below the interval. The final verdict is C2 FAIL, and it stays a fail, documented as in the inlet study.
 
 ## Slide 45 — D39: Which fixed quantities move the answer
 
@@ -424,7 +424,7 @@ Question 2, active learning. This is the result I would lead with, because it in
 
 Question 3, the two-level model. With 8 SU2 designs the two-level endurance error is 0.824 hours against 1.525 for SU2 alone, and SU2 alone reaches it only at 24 designs. It wins on the mean at small budgets, and its intervals are over-confident.
 
-Question 4, the inverse query. On the low model the answer is a corner at 13.31 hours and 2.43 kilograms, and the 4 kilogram cap does not bind there. On the SU2 pool the confirmation kept the mass under the cap but found the endurance below its predicted interval. That is a failed confirmation, reported as one.
+Question 4, the inverse query. On the low model the answer is a corner at 13.31 hours and 2.43 kilograms, and the 4 kilogram cap does not bind there. On the SU2 pool the answer moves to aspect ratio 7, at 10.14 hours and 3.92 kilograms. The confirmation kept the mass under the cap, at 3.94 kilograms, but found the endurance at 8.95 hours, below its predicted interval. That is a failed confirmation, reported as one.
 
 The pipeline carried over with its gates, queue and replay unchanged. What is new is the airfoil family, the two-level model and the sharded workers. Anything still pending on this slide is a run in progress, not an estimate.
 
@@ -436,7 +436,7 @@ That is the end of the talk. I would like to use the rest of the time for discus
 
 *40:00 onward, about 20 min*
 
-On the left are the questions I think the study invites. Where would you trust the low level alone? Is a fixed propulsive efficiency acceptable for sizing? Should budget-exhausted SU2 runs enter the pool, and with what flag? What would a feasibility model need to beat a hard gate? How would wind and altitude change the front? And what would make the two-level model worth its SU2 cost? On the right is the index of backup slides DB1 to DB17. Tell me which limit matters most to you, and I will open the matching one.
+On the left are the questions I think the study invites. Where would you trust the low level alone? Is a fixed propulsive efficiency acceptable for sizing? Was accepting three budget-exhausted SU2 designs the right call? What would a feasibility model need to beat a hard gate? How would wind and altitude change the front? And what would make the two-level model worth its SU2 cost? On the right is the index of backup slides DB1 to DB17. Tell me which limit matters most to you, and I will open the matching one.
 
 # Backup slides (only if asked)
 
@@ -462,7 +462,7 @@ If you ask whether the coarse mesh is good enough: on the nominal section the th
 
 ## Slide 59 — DB5: Backup: the budget-exhausted runs
 
-If you ask what happens to runs that hit the budget: this lists every one, with its drift. The aggregator drops them by its default rule and the record keeps them. Decision 9, on D43, accepted the runs of designs 8 and 28 with a flag; the rule for the rest is unchanged. The confirm rows at the top are not pool cases. Be careful with the largest drifts. Design 2 at minus 2 degrees shows 98.2 percent lift drift, but its lift is minus 0.0020. The rule divides the range by the final value, so near zero lift a tiny absolute movement looks huge.
+If you ask what happens to runs that hit the budget: this lists every one, with its drift. The aggregator drops them by its default rule and the record keeps them. The Kept column marks the ones a ruling accepted. Decision 9, on D43, accepted the runs of designs 8 and 28 with a flag. Decision 10 accepted the 14 degree case of the 30-design answer's confirmation. The final answer's 14 degree case is not accepted, and the rule for the rest is unchanged. Be careful with the largest drifts. Design 2 at minus 2 degrees shows 98.2 percent lift drift, but its lift is minus 0.0020. The rule divides the range by the final value, so near zero lift a tiny absolute movement looks huge.
 
 ## Slide 60 — DB6: Backup: the low-pool Pareto record
 
@@ -504,9 +504,9 @@ If you ask how I prepared the physics behind each slide: the drone study guide h
 
 If you ask how much of this was reused: the queue, the gates, the GP, EHVI, the replay and the feasibility model carried over unchanged. New here are the airfoil family, the Cauchy stop, the per-design polar aggregation, the online replay against an exact front, the two-level model and the sharded workers. The inlet study took seven days with its tools built along the way; this one reused them from the first day. The feasibility model did not help in the inlet's Task 9, and here it decided the result.
 
-## Slide 70 — DB16: Backup: the open rulings
+## Slide 70 — DB16: Backup: the rulings, one ruled and two open
 
-If you ask what is still undecided: three rulings are open for me. First, whether budget-exhausted SU2 runs enter the pool; 36 pool cases used their whole budget and are dropped today. Second, the lift-effectiveness band, 0.75 within 0.6 to 0.9, while V6f's slope is 19 to 23 percent low; re-centring means a full re-run. Third, the Warren-12 moment reference point. None is decided by the deck, and the record keeps both states.
+If you ask what is still undecided: of three rulings, one is ruled and two are open. First, whether budget-exhausted SU2 runs enter the pool; 36 pool cases used their whole budget. That one is ruled: decision 9 accepts designs 8 and 28, and decision 10 the 30-design answer's 14 degree case, which left its C2 pass unchanged. Second, still open, the lift-effectiveness band, 0.75 within 0.6 to 0.9, while V6f's slope is 19 to 23 percent low; re-centring means a full re-run. Third, still open, the Warren-12 moment reference point. None is decided by the deck, and the record keeps both states.
 
 ## Slide 71 — DB17: Backup: record status, what exists and what is pending
 

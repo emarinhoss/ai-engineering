@@ -356,9 +356,9 @@ Backup slides DB1 to DB17 follow D45 and are not timed.
 ### D38. The confirmation run (33:30, 0.5 min)
 
 - **Message:** {confirm_answer}
-- **Figure or table:** Table: predicted endurance and take-off mass with their 90 % intervals against the SU2-level evaluation of the answer, and the C2 verdict, when the run exists.
-- **Source:** PENDING: `runs/drone_confirm/2026-11-09/confirm.json` (confirmation run, T10.10d)
-- **Speaker notes:** The check passes if both simulated objectives fall inside their predicted 90 % intervals. A miss is documented and explained, as in the inlet study.
+- **Figure or table:** Table: for the earlier 30-design answer and the final answer, predicted endurance and take-off mass with their 90 % intervals against the SU2-level evaluation, and each C2 verdict.
+- **Source:** `runs/drone_confirm/2026-11-09_30designs/confirm.json`; PENDING: `runs/drone_confirm/2026-11-09/confirm.json` (confirmation run, T10.10d)
+- **Speaker notes:** The check passes if both simulated objectives fall inside their predicted 90 % intervals. The earlier answer passes; the final one misses on endurance, and the miss is reported as a fail.
 
 ### D39. Which fixed quantities move the answer (34:00, 0.5 min)
 
@@ -445,10 +445,10 @@ Backup slides DB1 to DB17 follow D45 and are not timed.
 
 ### DB5. Backup: the budget-exhausted runs
 
-- **Message:** Every SU2 run that used its whole budget, with its drift: which to accept is an open ruling, and one large drift is a division by a lift coefficient near zero.
+- **Message:** Every SU2 run that used its whole budget, with its drift: the ones a ruling accepted are marked, and one large drift is a division by a lift coefficient near zero.
 - **Figure or table:** Table of the runs whose iterations equal the budget: tag, design and angle, cl, cd, cl and cd drift, kept or not.
 - **Source:** `runs/pool_af_bias/airfoil2d-5bfe6fe9ef/result.json`; `runs/pool_af/airfoil2d-0b9023e0fd/result.json`; `runs/nominal/airfoil2d-a41849e173/result.json`; `runs/mesh/airfoil2d-e161fb7e6b/result.json`; `designs/pool_af_cases.csv`
-- **Speaker notes:** The drift rule divides the range over the window by the final value, so a case near zero lift reports a huge relative drift on a tiny absolute one. The aggregator drops budget-exhausted runs today and the record keeps them; accepting some of them is ruling 1 on DB16.
+- **Speaker notes:** The drift rule divides the range over the window by the final value, so a case near zero lift reports a huge relative drift on a tiny absolute one. The aggregator drops budget-exhausted runs unless a ruling names them, and the record keeps all of them; decisions 9 and 10 are ruling 1 on DB16.
 
 ### DB6. Backup: the low-pool Pareto record
 
@@ -520,12 +520,12 @@ Backup slides DB1 to DB17 follow D45 and are not timed.
 - **Source:** `worker/run_worker.py`; `surrogate/gp.py`; `surrogate/feasibility.py`; `surrogate/mf_gp.py`; `analysis/drone_polar.py`; `cases/templates/inc_rans_airfoil.cfg`
 - **Speaker notes:** The inlet study took seven days with the tools built along the way, and this study reused them from the first day. The feasibility model failed to help in the inlet's Task 9 and decided the result here, for the reason on D32.
 
-### DB16. Backup: the open rulings
+### DB16. Backup: the rulings, one ruled and two open
 
-- **Message:** Three rulings are open for Éder, each with the evidence that frames it.
-- **Figure or table:** Table: the ruling, the evidence, and what changes either way.
+- **Message:** Of the three rulings put to Éder, one is ruled and two stay open, each with the evidence that frames it.
+- **Figure or table:** Table: the ruling, the evidence, and its status or what changes either way.
 - **Source:** `docs/validation/2026-11-08_task10_report.md` (section 9); `runs/drone/validation/2026-11-08/v6.json`; `data/drone/rules.yaml`
-- **Speaker notes:** None of these is decided by the deck. Each one moves a number only after it is ruled, and the record keeps both states.
+- **Speaker notes:** None of these is decided by the deck. Accepting the budget-exhausted runs changed no verdict, and the record keeps both states.
 
 ### DB17. Backup: record status, what exists and what is pending
 

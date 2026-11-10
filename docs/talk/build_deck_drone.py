@@ -67,6 +67,11 @@ MF = "runs/drone_mf/2026-11-09/mf.csv"
 PARETO_HF = "runs/drone_pareto_hf/2026-11-09/pareto.csv"
 INVERSE_HF = "runs/drone_inverse_hf/2026-11-09/inverse.json"
 CONFIRM = "runs/drone_confirm/2026-11-09/confirm.json"
+CONFIRM_30 = "runs/drone_confirm/2026-11-09_30designs/confirm.json"
+CONFIRM_30_CASES = "designs/confirm_drone_cases.csv"           # decision 10 names its 14 deg case
+DECISION10_ALPHA = 14.0
+CONFIRM_LABEL = {"airfoil2d-84a1950ba6": "30-design answer",
+                 "airfoil2d-dadd969dfe": "final answer"}
 BIAS_HF = "runs/drone_bias_hf/2026-11-09/bias_sweep.csv"
 LM, CW, CT = bd.LM, bd.CW, bd.CT
 
@@ -1195,6 +1200,20 @@ def budget_exhausted():
             if r["convergence"].get("iterations") == r["params"]["max_iter"]]
 
 
+def accepted_exhausted():
+    """{case_id: decision} for the budget-exhausted runs a ruling accepted, read from the records:
+    decision 9 is the pool record's accepted design indices, decision 10 the 30-design answer's
+    14 deg confirmation case."""
+    accept = set(jload(POOL + "/record.json").get("accept_budget_exhausted", []))
+    out = {c: "decision 9" for c, (tag, i, _) in pool_case_index().items()
+           if tag == "pool_af" and i in accept}
+    for r in csv_rows(CONFIRM_30_CASES):
+        if float(r["alpha_deg"]) == DECISION10_ALPHA and "budget_exhausted_accepted=1" in \
+                jload(CONFIRM_30)["section_flags"]:
+            out[r["case_id"]] = "decision 10"
+    return out
+
+
 def motivation_values():
     smoke, smoke2 = jload(SMOKE + "/result.json"), jload(SMOKE2 + "/result.json")
     col = re.search(r"\('(rms\[\w+\])',\)", smoke["convergence"]["error"]).group(1)
@@ -1410,11 +1429,14 @@ def confirm_answer():
     if not exists(CONFIRM):
         return pending_text(CONFIRM, "confirmation run, T10.10d") + (
             " One SU2 polar at the SU2-pool answer checks the inverse query.")
-    c = jload(CONFIRM)
-    e, m = c["endurance_h"], c["mtow_kg"]
-    return (f"At the answer SU2 gives {e['simulated']:.2f} h ({e['position']} the 90 % interval) "
-            f"and {m['simulated']:.2f} kg ({m['position']}): C2 "
-            f"{'pass' if c['c2_pass'] else 'FAIL'}.")
+    def one(c):
+        e, m = c["endurance_h"], c["mtow_kg"]
+        return (f"{e['simulated']:.2f} h ({e['position']} the 90 % interval) and "
+                f"{m['simulated']:.2f} kg ({m['position']}): C2 {'pass' if c['c2_pass'] else 'FAIL'}")
+    text = f"At the final answer SU2 gives {one(jload(CONFIRM))}."
+    if exists(CONFIRM_30):
+        text += f" The earlier 30-design answer gave {one(jload(CONFIRM_30))}."
+    return text
 
 
 def bias_hf_answer():
@@ -1924,15 +1946,21 @@ def body_confirm(slide, v):
                              "Pass: both objectives inside their 90 % intervals (C2)."],
                      f"Predicted against simulated endurance and take-off mass\nPENDING: {CONFIRM}")
         return
-    c = jload(CONFIRM)
-    rows = [["Objective", "Predicted", "90 % interval", "SU2 level", "Position"]]
-    for key, pred, unit in (("endurance_h", "predicted_mean", "h"), ("mtow_kg", "predicted_median",
-                                                                      "kg")):
-        o = c[key]
-        rows.append([key, f"{o[pred]:.3f} {unit}", f"[{o['lo90']:.3f}, {o['hi90']:.3f}]",
-                     f"{o['simulated']:.3f} {unit}", o["position"]])
-    rows.append(["C2", "", "", "", "pass" if c["c2_pass"] else "FAIL"])
-    bd.add_table(slide, LM, CT, [2.4, 2.4, 2.8, 2.4, 2.1], rows, size=13, row_h=0.5)
+    rows = [["Answer", "Objective", "Predicted", "90 % interval", "SU2 level", "Position"]]
+    answers = [("Final, 32 designs", CONFIRM)]
+    if exists(CONFIRM_30):
+        answers.insert(0, ("Earlier, 30 designs", CONFIRM_30))
+    for label, rel in answers:
+        c = jload(rel)
+        for key, pred, unit in (("endurance_h", "predicted_mean", "h"),
+                                ("mtow_kg", "predicted_median", "kg")):
+            o = c[key]
+            rows.append([label if key == "endurance_h" else "", key, f"{o[pred]:.3f} {unit}",
+                         f"[{o['lo90']:.3f}, {o['hi90']:.3f}]", f"{o['simulated']:.3f} {unit}",
+                         o["position"]])
+        rows.append(["", "C2", "", "", "", "pass" if c["c2_pass"] else "FAIL"])
+    bd.add_table(slide, LM, CT, [2.3, 1.9, 2.0, 2.4, 1.9, 1.6], rows, size=12, row_h=0.45,
+                 flag=("FAIL", "below", "above"))
 
 
 def body_bias_sweep(slide, v):
@@ -2056,17 +2084,28 @@ def body_conclusions(slide, v):
              f"{rec['designs']} SU2 designs complete; the low-to-high gap is "
              f"{v['hf_lf_end_range']} in endurance", "pool_af results.csv",
              "none" if exists(MF) else "mf.csv"],
-            ["4. Inverse query", (f"Low model: a corner at {inv['endurance_h']['mean']:.2f} h, "
-             f"{inv['mtow_kg']['median']:.2f} kg; the {inv['mtow_cap_kg']:g} kg cap does not "
-             "bind there"), "drone_inverse_lf",
+            ["4. Inverse query", q4_answer(inv), "drone_inverse_lf, _hf, drone_confirm",
              "none" if exists(CONFIRM) else "SU2 answer and confirmation"]]
     bd.add_table(slide, LM, CT - 0.05, [2.1, 5.7, 2.2, 2.1], rows, size=12, row_h=0.95, flag=())
+
+
+def q4_answer(inv):
+    low = (f"Low model: a corner at {inv['endurance_h']['mean']:.2f} h, "
+           f"{inv['mtow_kg']['median']:.2f} kg, cap not binding")
+    if not (exists(INVERSE_HF) and exists(CONFIRM)):
+        return low
+    hf, c = jload(INVERSE_HF), jload(CONFIRM)
+    d = hf["design"]
+    return (f"{low}. SU2 level: AR {d['aspect_ratio']:g}, {hf['endurance_h']['mean']:.2f} h at "
+            f"{hf['mtow_kg']['median']:.2f} kg; confirmed {c['endurance_h']['simulated']:.2f} h "
+            f"({c['endurance_h']['position']} its interval), {c['mtow_kg']['simulated']:.2f} kg: "
+            f"C2 {'pass' if c['c2_pass'] else 'FAIL'}")
 
 
 def body_discussion(slide, v):
     prompts = ["Where would you trust the low level alone, and where not?",
                "Is a fixed propulsive efficiency acceptable for a sizing study?",
-               "Should budget-exhausted SU2 runs enter the pool, and with what flag?",
+               "Was accepting three budget-exhausted SU2 designs the right call?",
                "What would a feasibility model need to beat a hard gate in the acquisition?",
                "How would wind and altitude change the front (an envelope study)?",
                "What would make the two-level model worth its SU2 cost here?"]
@@ -2151,15 +2190,21 @@ def body_mesh_table(slide, v):
 
 def body_budget(slide, v):
     from analysis.pool_af_results import kept
-    idx = pool_case_index()
+    idx, accepted = pool_case_index(), accepted_exhausted()
     rows = [["Tag", "Case", "Design, alpha", "Mesh", "cl", "cd", "cl drift (%)", "cd drift (%)",
              "Kept"]]
     for tag, case, r in budget_exhausted():
         where = idx.get(case)
+        alpha = f"{r['params']['alpha_deg']:g} deg"
         label = (f"{where[1]}, {where[2]:g} deg" if where
-                 else f"nominal, {r['params']['alpha_deg']:g} deg")
+                 else f"{CONFIRM_LABEL.get(case, 'nominal')}, {alpha}")
         d = r["convergence"]["drift_pct"]
-        keep = ("yes" if kept([r]) else "no") if tag.startswith("pool") else "not a pool case"
+        if case in accepted:
+            keep = f"yes, {accepted[case]}"
+        elif tag.startswith("pool"):
+            keep = "yes" if kept([r]) else "no"
+        else:
+            keep = "no" if tag == "confirm" else "not a pool case"
         rows.append([tag, case.removeprefix("airfoil2d-"), label, r["params"]["mesh_level"],
                      f"{r['metrics']['cl']:+.4f}", f"{r['metrics']['cd']:.5f}", f"{d['cl']:.1f}",
                      f"{d['cd']:.1f}", keep])
@@ -2168,8 +2213,8 @@ def body_budget(slide, v):
     bd.text_box(slide, LM, CT + 3.85, CW, 1.0,
                 [("A drift of tens of percent at cl near zero is the division by |f_n| in the "
                   "drift rule, not a moving solution: read the cl column beside it."),
-                 ("Design, alpha from designs/pool_af_cases.csv; kept = "
-                  "analysis.pool_af_results.kept.")],
+                 ("Accepted by ruling: designs 8 and 28 (decision 9) and the 30-design answer's "
+                  "14 deg confirmation case (decision 10); every other one is dropped.")],
                 size=11, bullets=True)
 
 
@@ -2377,17 +2422,19 @@ def body_rulings(slide, v):
     lift = lift_effectiveness()
     n_budget = sum(t.startswith("pool") for t, _, _ in budget_exhausted())
     cm = v6_check("V6b Warren-12 fine: Cm_alpha (about root LE, reference chord 1.0) vs benchmark")
-    rows = [["Ruling", "Evidence", "Either way"],
+    accept = jload(POOL + "/record.json").get("accept_budget_exhausted", [])
+    rows = [["Ruling", "Evidence", "Status"],
             ["1. Accept budget-exhausted SU2 runs into the pool?",
-             f"{n_budget} pool cases used their whole budget (DB5); today they are dropped",
-             "accepting adds angles to incomplete designs, with their drift as a flag"],
+             (f"{n_budget} pool cases used their whole budget (DB5); all others are dropped"),
+             (f"RULED: decision 9 accepts designs {' and '.join(map(str, accept))}; decision 10 "
+              "the 30-design answer's 14 deg case, which left its C2 pass unchanged")],
             ["2. The section lift-effectiveness band",
              (f"ledger {lift['value']:g}, band {lift['band']}; V6f lift slope "
              f"{v['f_clalpha_range']} low against the tunnel"),
-             "re-centring moves the low-fidelity grid and the replays (a full re-run)"],
+             "OPEN: re-centring moves the low-fidelity grid and the replays (a full re-run)"],
             ["3. The Warren-12 moment reference point",
              f"Cm_alpha {pct(cm['deviation'])} about the root leading edge, verdict pending",
-             "sourcing the point closes V6b; no tolerance moves"]]
+             "OPEN: sourcing the point closes V6b; no tolerance moves"]]
     bd.add_table(slide, LM, CT, [3.6, 4.8, 3.7], rows, size=12, row_h=1.0, flag=())
 
 
