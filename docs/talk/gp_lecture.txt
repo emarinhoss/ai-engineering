@@ -1,0 +1,422 @@
+Gaussian Processes, from the Ground Up. A lecture for listening.
+
+Written for Éder, to be read aloud by a text-to-speech app while driving. There are no figures and no symbols. Every equation is spoken in words, so nothing needs to be seen. It runs about an hour at normal reading speed. It starts at a high school level and ends at a graduate one. The last part ties every idea back to the code in this repository, the files surrogate slash g p dot py, surrogate slash m f underscore g p dot py, and surrogate slash acquisition dot py, and ends with practice questions for the interview.
+
+This lecture contains no results from the study. It explains the method only.
+
+
+Part one. The problem a Gaussian process solves.
+
+Let's begin with a situation everyone has been in.
+
+You are driving down a long country road, and you want to know the temperature at every point along it. But you only have five thermometers, nailed to five fence posts, spread out over twenty miles. Each thermometer gives you an exact reading at its own post. Between the posts, you have nothing.
+
+Somebody asks you: what is the temperature at mile seven, halfway between the post at mile five and the post at mile nine?
+
+You would not refuse to answer. You would say something like: well, it was sixty degrees at mile five and sixty-four at mile nine, so probably about sixty-two at mile seven. And if they asked how sure you are, you would say: pretty sure, give or take a degree, because mile seven is close to two posts that agree with each other.
+
+Now they ask about mile nineteen, far beyond the last post, which was at mile twelve. You might still give a guess, but you would say: honestly, I have no idea, it could be anything from fifty to seventy.
+
+Notice what you just did. For every point on the road, you produced two things. A best guess. And a statement of how sure you are. Near the posts you are confident. Far from the posts you are not.
+
+That pair, a best guess plus an honest statement of uncertainty, at every point, is exactly what a Gaussian process gives you. The rest of this lecture is about how it makes that pair, why the uncertainty is trustworthy, and how you use it.
+
+Now replace the road with an aircraft design. Instead of one number, mile marker, you have several inputs: span, aspect ratio, taper, battery share, airfoil camber and thickness. Instead of temperature, you have endurance, or drag, or lift. And instead of a thermometer, you have a computational fluid dynamics run that costs an hour of computer time. You can only afford a few dozen of them. Between those runs, you have nothing. You need a best guess and an honest uncertainty everywhere else. Same problem, more dimensions.
+
+The model that fills in between expensive runs is called a surrogate model, because it stands in for the expensive simulation. A Gaussian process is one kind of surrogate. It is especially popular when runs are expensive and few, because it is good at exactly the thing that matters then: knowing what it doesn't know.
+
+
+Part two. Why not just fit a curve?
+
+A natural first idea is to draw a smooth curve through the points. In school you fit straight lines. You might fit a parabola, or a higher-degree polynomial.
+
+There are two problems.
+
+First, you have to choose the shape in advance. A straight line? A parabola? A cubic? With five points, a degree-four polynomial passes exactly through all of them, but between and beyond the points it can swing wildly. Pick too simple a shape and you miss real features. Pick too complex a shape and you invent features that aren't there.
+
+Second, and more important, a fitted curve gives you one answer and no sense of doubt. It says sixty-two at mile seven and it says something equally definite at mile nineteen, even though you know much less there. In design work, a confident wrong answer is worse than an honest "I don't know", because it sends you to build the wrong thing.
+
+A Gaussian process avoids choosing a fixed shape. Instead of saying "the answer is a parabola", it says something softer: "the answer is a smooth function, and points that are close together have similar values". That's all. From that one assumption, plus the data, it produces both the guess and the doubt.
+
+To see how, we need one tool from statistics: the bell curve.
+
+
+Part three. The bell curve, one number at a time.
+
+Imagine measuring the heights of a thousand adults and plotting how many people have each height. You get a hill: most people near the middle, fewer and fewer as you go to very short or very tall. That hill shape is called the normal distribution, or the Gaussian distribution, after the mathematician Carl Friedrich Gauss. It's also called the bell curve.
+
+A bell curve is described by just two numbers.
+
+The first is the mean. That's the center of the hill, the average, the most likely value.
+
+The second is the spread. There are two ways to say spread. The standard deviation is in the same units as the data, for example three inches. The variance is the standard deviation squared, so nine square inches. Statisticians love variance because it adds nicely. Engineers like standard deviation because it's in units you can picture. Keep both words in mind, because the code uses variance and talks often say standard deviation.
+
+One fact about bell curves you should know by heart. About sixty-eight percent of the values fall within one standard deviation of the mean. About ninety-five percent fall within two. About ninety-nine point seven percent fall within three. So when a model says "my guess is sixty-two, with a standard deviation of one", it is really saying: "I'm about ninety-five percent sure the true value is between sixty and sixty-four."
+
+That's the language a Gaussian process speaks. At every point, it gives you a bell curve. The mean of that bell curve is the best guess. The width of it is the uncertainty.
+
+So the question becomes: how do we get a bell curve at every point that respects the data? For that, we need to go from one number to two numbers at once.
+
+
+Part four. Two numbers that move together.
+
+Think about the heights of two siblings. Before you know anything, each sibling's height is a bell curve around the population average. But they are not independent. If you learn the older sibling is very tall, you would now expect the younger one to be taller than average too. Not certainly, but probably.
+
+We say the two heights are correlated. Correlation is a number between minus one and plus one. Zero means knowing one tells you nothing about the other. Plus one means they move in perfect lockstep. Siblings might be around a half.
+
+When two quantities are each bell-shaped, and they are tied together by a correlation, we say they have a joint Gaussian distribution, or a two-variable Gaussian. Picture it as a hill on a map instead of a hill on a line. If there's no correlation, the hill is round. If there's strong positive correlation, the hill is stretched into a long ridge running diagonally: when one is high, the other tends to be high.
+
+The variances of each, and the covariance between them, are collected into a little two-by-two table called the covariance matrix. The two diagonal entries are the two variances. The two off-diagonal entries are equal, and they hold the covariance, which is the correlation multiplied by both standard deviations. Remember this phrase: covariance matrix. It's the beating heart of everything that follows.
+
+Now the key move. Suppose you measure the older sibling. What happens to your belief about the younger one?
+
+Here is the beautiful fact about Gaussians: the updated belief about the younger sibling is still a bell curve. Its mean shifts toward what the measurement suggests, in proportion to the correlation. And its spread shrinks, because you've learned something. The stronger the correlation, the bigger the shift and the more the spread shrinks. If the correlation were one, you'd know the younger sibling's height exactly. If it were zero, nothing would change.
+
+This operation, updating your belief about some variables after observing others, is called conditioning. Gaussian distributions are special because conditioning a Gaussian always gives another Gaussian, and the new mean and variance come out of simple formulas. No simulation, no approximation, just algebra. That's the whole reason Gaussian processes are practical.
+
+Let me say the two-variable formulas in words, because you'll see their big brothers later.
+
+The new mean of the unknown one equals its old mean, plus a correction. The correction is: how surprising the observed value was, meaning observed minus its expected value, multiplied by the covariance between the two, divided by the variance of the observed one.
+
+The new variance of the unknown one equals its old variance, minus the covariance squared divided by the variance of the observed one.
+
+Notice something about that second formula. The new variance does not depend on what value you actually observed. It only depends on the fact that you observed something, and on how strongly the two are linked. Hold onto that. It comes back as a very important property later.
+
+
+Part five. From two numbers to a whole function.
+
+Now stretch the idea.
+
+Go back to the road. Think of the temperature at mile one, mile two, mile three, all the way to mile twenty. That's twenty numbers. Assume each is bell-shaped. And assume they are correlated with each other, strongly for neighbouring miles, weakly for distant ones. Mile seven and mile eight are almost the same. Mile one and mile twenty barely relate.
+
+That's a twenty-variable Gaussian, with a twenty by twenty covariance matrix.
+
+Now measure five of them, at the five fence posts. Condition on those five. Every one of the other fifteen gets a new bell curve: its mean pulled toward nearby measurements, its spread shrunk if it's close to a post, and left nearly untouched if it's far from every post.
+
+That's already a Gaussian process in all but name. Now just let the miles get finer: every tenth of a mile, every foot, every inch. In the limit you are describing the temperature at every single point on the road, an infinitely long list of numbers, which is just another way of saying a function.
+
+Here's the formal definition, and now you can understand every word. A Gaussian process is a collection of random variables, one for each input point, such that any finite collection of them has a joint Gaussian distribution.
+
+In plainer words: a Gaussian process is a probability distribution over functions. It describes not one curve, but a whole cloud of possible curves, with some more likely than others.
+
+You can't store an infinite covariance matrix. You don't need to. You only need a rule that tells you the covariance between any two points you happen to ask about. That rule is called the covariance function, or, much more commonly, the kernel.
+
+So a Gaussian process is completely described by two things.
+
+One: a mean function, the best guess before seeing any data. Often this is just a constant. In this repository's code, it is a single fitted constant, called c.
+
+Two: a kernel, which takes two input points and returns how strongly their outputs are linked.
+
+Everything a Gaussian process believes about the shape of the function lives in the kernel. Choosing the kernel is choosing your assumptions.
+
+
+Part six. The kernel, or what "nearby" means.
+
+The most famous kernel is called the squared exponential, also known as the radial basis function kernel, or the Gaussian kernel. Here's what it says in words.
+
+The covariance between two points equals a signal variance, multiplied by the exponential of minus one half times the squared distance between the two points divided by a length scale squared.
+
+Let's unpack it.
+
+When the two points are the same, the distance is zero, the exponential is one, and the covariance equals the signal variance. So the signal variance is the variance of the function at any single point, before you see data. It sets how far the function typically wanders from its mean. A big signal variance means the function swings a lot up and down. A small one means it stays close to the mean.
+
+As the two points move apart, the exponential falls toward zero, so they become unrelated. How fast it falls is controlled by the length scale. The length scale is the distance over which the function "remembers" itself. If the length scale is one mile, then points one mile apart are still fairly linked, and points five miles apart are essentially independent. A long length scale means a slow, gentle, smooth function. A short length scale means a wiggly, quickly changing function.
+
+So the kernel has a small number of knobs: the signal variance, the length scale, and, as we'll see, a noise level. These knobs are called hyperparameters. The word "hyper" is there because they are not the function values themselves; they are settings that describe what kind of functions you expect.
+
+A very useful exercise you can do in your head. Imagine pulling random functions out of the Gaussian process before seeing any data. These are called samples from the prior. With a long length scale, every sample looks like a lazy, rolling hill. With a short length scale, every sample looks like a nervous seismograph. With a large signal variance, the samples go high and low. The prior is a cloud of such curves, and the data will later cut away the ones that don't pass near the observations.
+
+Now a slightly more advanced point, about smoothness. The squared exponential kernel produces functions that are infinitely smooth. You can differentiate them as many times as you want. That sounds nice, but real physical responses are rarely that smooth, and assuming too much smoothness makes the model overconfident between points and prone to strange ripples.
+
+So engineers often use a family called the Matérn kernels, after the Swedish statistician Bertil Matérn. The Matérn family has a smoothness setting, usually written as nu, the Greek letter. The common choices are one half, three halves and five halves. With one half, the functions are continuous but rough, like a jagged random walk. With three halves, they are once differentiable. With five halves, twice differentiable: smooth enough for physics, but not unrealistically so. As nu goes to infinity, Matérn becomes the squared exponential.
+
+This repository uses Matérn five halves. In words, its formula is: signal variance, times the quantity one plus root five times r plus five thirds r squared, times the exponential of minus root five times r. Here r is the scaled distance between the two points. You don't need to memorize the polynomial. You do need to be able to say why: "Matérn five halves gives twice-differentiable sample functions, which is a common, defensible default for smooth engineering responses, and it is less overconfident than the squared exponential."
+
+One more feature of the kernel in this code: A R D. That stands for automatic relevance determination. Instead of one length scale shared by all inputs, each input gets its own. Span gets one length scale, thickness gets another, battery share gets another, and so on. Distance is computed after dividing each input's difference by its own length scale.
+
+This matters in two ways. First, it's more realistic: the response may change rapidly with one input and hardly at all with another. Second, it's interpretable. After fitting, an input with a very long length scale is one the output barely depends on, because the function hardly changes across that input's whole range. An input with a short length scale is one the output is sensitive to. That's where the name comes from: the model automatically determines which inputs are relevant. A caution, though: length scales are only comparable across inputs if the inputs are on comparable scales. That's one reason the code scales every input to the range zero to one before fitting.
+
+
+Part seven. Fitting to data: the posterior.
+
+Now let's take the formulas from the siblings and grow them up.
+
+We have n observed points. Call their inputs the training inputs and their outputs the training outputs. We want to predict at a new point, which we'll call the test point.
+
+Build three things from the kernel.
+
+First, K: the n by n covariance matrix among all training points. Entry i, j is the kernel evaluated between training point i and training point j.
+
+Second, k star: a column of n numbers, the kernel between the test point and each training point. It says how linked the test point is to each observation.
+
+Third, k star star: the kernel between the test point and itself, which is just the signal variance.
+
+Now the two big formulas. Listen to how closely they match the sibling formulas.
+
+The posterior mean at the test point equals the prior mean, plus k star transposed, times K inverse, times the training outputs minus the prior mean.
+
+The posterior variance at the test point equals k star star, minus k star transposed, times K inverse, times k star.
+
+That's it. That's the whole of Gaussian process regression. In the sibling case, K was just the variance of the observed sibling, k star was the covariance between the siblings, and K inverse was "divided by the variance". Here it's the same thing with matrices.
+
+Let me give you three ways to understand the mean formula, because an interviewer may ask.
+
+The first way: it's a weighted average of the surprises. The quantity "training outputs minus prior mean" is how surprising each observation was. K inverse untangles the fact that the observations are correlated with each other, so two observations right next to each other don't get double counted. And k star weights each observation by how linked it is to the test point.
+
+The second way: it's a sum of bumps. Multiply out K inverse times the residuals first. That gives you one number per training point, often called alpha. Then the mean at any test point is the prior mean, plus the sum over training points of alpha i times the kernel between the test point and training point i. So the predicted function is a constant plus a weighted sum of kernel-shaped bumps, one bump centred on each data point. In the code, alpha is computed once and stored, and predicting the mean is a single multiplication. That's in the predict method of surrogate slash g p dot py.
+
+The third way: the posterior mean is exactly the same as kernel ridge regression, a method from machine learning that has no probability in it at all. The Gaussian process adds the variance on top for free.
+
+Now the variance formula. Start with the prior variance, the signal variance. Subtract an amount that measures how well the observations explain the test point. If the test point sits right on top of a training point, the subtracted amount nearly equals the full prior variance, so the posterior variance is nearly zero: we know the answer there. If the test point is far from every training point, k star is nearly all zeros, nothing is subtracted, and the posterior variance goes back up to the full prior variance: we're back to knowing nothing. That's your country road. Confident near the posts, uncertain far away. The model has reproduced your intuition, from first principles.
+
+And now the property I told you to hold on to. Look at the variance formula. The training outputs do not appear in it. Only the training inputs appear, through K and k star. That means the uncertainty depends on where you sampled, not on what you saw. If you fix the hyperparameters, you can compute the uncertainty map of a sampling plan before running a single simulation.
+
+That property has a practical consequence for this project. A strategy that picks the next point where the variance is highest, the one called max variance, is really a space-filling strategy in disguise. It spreads points out according to the kernel's notion of distance, and, with hyperparameters held fixed, it would ignore the outputs entirely. The outputs only enter through refitting the hyperparameters. That's a good thing to say out loud in an interview, because it explains why max variance often behaves like Latin hypercube sampling.
+
+A caveat in the other direction. Because the variance ignores the observed values, a Gaussian process won't become more uncertain just because the data looked surprising. If the function has a sudden jump that the kernel's length scale cannot represent, the model can be confidently wrong near it. The uncertainty is honest only relative to the assumptions in the kernel.
+
+
+Part eight. Noise.
+
+So far the posterior passes exactly through every data point. That's called interpolation. It's right when the observations are exact.
+
+But simulation outputs are not exact. A CFD run stopped by a convergence rule still has some drift in its last iterations. Change the mesh slightly and the drag moves a little. Treat the output as true value plus a small random error.
+
+In a Gaussian process, you handle that by adding a noise variance to the diagonal of K. Every place K appeared, you use K plus noise variance times the identity matrix. Now the posterior mean no longer has to pass exactly through every point. It passes near them, smoothing out the jitter. And the posterior variance at a training point no longer drops to zero; it drops to roughly the noise level.
+
+In the code, the noise variance is a hyperparameter learned from the data, with a tiny floor of one in a million, in standardized units, so it can never be exactly zero. There's also a separate even tinier number, called jitter, added to the diagonal before every matrix factorization. Jitter is not a model of the physics. It's a numerical safety net, because a covariance matrix with two nearly identical points is nearly singular, and the computer can fail to factor it. Know the difference: noise is a modeling choice, jitter is a numerical one.
+
+There's one more subtlety that comes up in the code, and it's a good interview point. When you predict, do you want the uncertainty of the underlying smooth function, or the uncertainty of a new run? A new run includes its own noise. So the predict method has a switch called noise. Without it, you get the variance of the function. With it, the noise variance is added, giving the spread you'd expect if you actually ran the simulation there. When you're checking whether the model's error bars cover real held-out runs, you want the second one, because you're comparing against real runs, noise and all.
+
+
+Part nine. Learning the hyperparameters.
+
+We've been pretending we know the signal variance, the length scales, the noise variance and the mean. We don't. We learn them from the data. The standard way is called maximizing the marginal likelihood, sometimes called type two maximum likelihood, or empirical Bayes.
+
+The marginal likelihood answers a simple question: if the hyperparameters were these values, how probable would the data we actually observed be? We pick the values that make the observed data most probable.
+
+The log of the marginal likelihood has three terms, and each one tells a story. In words:
+
+The first term is minus one half times the residuals transposed, times K-plus-noise inverse, times the residuals. That's the data fit term. It rewards hyperparameters under which the data look typical rather than surprising.
+
+The second term is minus one half times the log of the determinant of K plus noise. That's the complexity penalty. The determinant measures, roughly, the volume of the space of functions the model considers plausible. A model with a tiny length scale can fit almost anything, so it spreads its belief thinly over a huge variety of functions, and it gets penalized for that.
+
+The third term is minus n over two times the log of two pi. That's a constant; it doesn't affect the optimum.
+
+The tug of war between the first two terms is a built-in version of Occam's razor. A model that is too simple can't fit the data, so the first term punishes it. A model that is too flexible fits the data but wastes probability on countless other datasets it could have fit, so the second term punishes it. The best hyperparameters are just flexible enough. This is one of the most elegant features of Gaussian processes: you get a principled answer to "how wiggly should my model be" without holding out any data.
+
+A few practical details, all visible in surrogate slash g p dot py.
+
+One: the hyperparameters are optimized in log space. You optimize the log of the length scale, not the length scale itself. That keeps them positive automatically, and it treats a length scale of point one versus point two the same as ten versus twenty, which matches how they actually behave.
+
+Two: the optimization uses gradient ascent, with an optimizer called Adam, for a fixed number of steps.
+
+Three: the marginal likelihood surface is not convex. It can have several hills. A classic case is two explanations of the same data: one with a short length scale and small noise, saying "the function is wiggly and the data are precise", and another with a long length scale and large noise, saying "the function is smooth and the data are noisy". Both can be local optima. So the code starts from three different initial guesses, called restarts, and keeps the best. It even runs the three in a batch at once for speed.
+
+Four: the inputs are scaled to the box zero to one, and the outputs are standardized, meaning you subtract their mean and divide by their standard deviation. That way the same starting guesses and the same noise floor make sense for any problem, whether the output is drag in counts or endurance in hours. Predictions are transformed back to original units at the end. For a variance, you multiply by the standard deviation squared, not by the standard deviation. That little detail is in the Standardizer class, in a method called inverse var.
+
+Five, the computation. Every formula has K inverse in it. You never actually compute an inverse; it's slow and numerically fragile. Instead you compute a Cholesky factorization, which writes the positive definite matrix K as a lower triangular matrix L times its transpose. Solving with triangular matrices is fast and stable. As a bonus, the log determinant you need for the complexity term is simply twice the sum of the logs of the diagonal of L. So one factorization gives you everything.
+
+The Cholesky factorization costs on the order of n cubed operations, where n is the number of training points. Memory costs n squared. For a few dozen or a few hundred points, that's trivial. For a million points it is impossible without approximations, which we'll touch on later. In this project, runs cost an hour each, so n is always small, and exact Gaussian processes are the right tool. The code even sets torch to one thread, because with matrices this tiny, threading overhead made it thirty times slower. That's a nice detail to mention: the bottleneck here is not the model, it's the simulation.
+
+A closing point on hyperparameters. Maximizing the marginal likelihood gives one best setting and then treats it as known. That ignores uncertainty about the hyperparameters themselves, so with very little data the error bars can be a bit too narrow. A fully Bayesian alternative averages over hyperparameters, for example with Markov chain Monte Carlo. It's more honest with very few points, but slower and more complicated. The plain choice is defensible; know that the alternative exists.
+
+
+Part ten. Is the uncertainty any good? Checking calibration.
+
+A Gaussian process will always give you error bars. The question is whether to believe them. You check that against data the model did not see.
+
+The two standard checks are simple.
+
+Accuracy: the root mean square error of the posterior mean on held-out points. That's how wrong the best guess is, on average.
+
+Calibration: the fraction of held-out points that fall inside the model's stated interval. If the model claims eighty percent intervals, then about eighty percent of held-out points should fall inside them. In the replay code in this repository, that metric is called cov eighty, coverage at eighty percent. If the coverage is much lower than eighty, the model is overconfident. If it's much higher, the model is underconfident, giving error bars wider than needed.
+
+A related check is the standardized residual: the error divided by the predicted standard deviation. If the model is well calibrated, these should look like draws from a standard bell curve, mean zero and standard deviation one. Values of five or ten mean the model was badly surprised.
+
+With very few points, leave-one-out cross-validation is the classic tool: remove one point, predict it from the rest, repeat for every point. For Gaussian processes there's a neat shortcut that gives every leave-one-out prediction from a single fit, using the diagonal of K inverse, though simple loops are fine at this size. In this study's multi-fidelity check, analysis slash m f underscore drone dot py, the model is fitted on a random subset of the expensive designs and scored on all the others, and it reports coverage of a ninety percent interval, called cov ninety, using the variance of a new run, noise included.
+
+The deeper message: an error bar is a claim, and claims get tested. That's the same spirit as the rest of this pipeline.
+
+
+Part eleven. Using the uncertainty to choose the next simulation.
+
+Now the payoff. Why did we work so hard to get honest uncertainty? Because uncertainty tells you where to look next.
+
+This is called active learning, or, when the goal is to find a best design rather than just learn the function, Bayesian optimization. The loop goes: fit the Gaussian process to the runs so far. Use its mean and variance to score every candidate point with an acquisition function. Run the expensive simulation at the best-scoring candidate. Add the result. Refit. Repeat.
+
+The acquisition function balances two urges. Exploitation: go where the mean looks best. Exploration: go where the variance is large, because something great might be hiding there. A fitted curve without uncertainty can only exploit. That's why a Gaussian process, rather than any old regression, is the classic engine of this loop.
+
+Let me describe the common acquisition functions in words, for a problem where we want to minimize something.
+
+Probability of improvement. At each candidate, the model gives a bell curve. Ask: what fraction of that bell curve lies below the best value found so far? Pick the candidate with the highest probability. It's simple, but it's greedy: it happily takes a tiny, near-certain improvement over a large, uncertain one.
+
+Expected improvement. Instead of the probability of beating the best, compute the average amount by which you'd beat it, counting zero when you don't. That rewards both a good mean and a large variance. There's a closed-form formula. Let the improvement gap be the best value so far minus the predicted mean, and let z be that gap divided by the predicted standard deviation. Then expected improvement equals the gap times the standard normal cumulative distribution at z, plus the standard deviation times the standard normal density at z. The first term rewards a good mean. The second term rewards uncertainty. Expected improvement is the workhorse of Bayesian optimization.
+
+Upper or lower confidence bound. Score each candidate by the mean minus some multiple of the standard deviation, an optimistic guess. The multiple is a dial: turn it up to explore more. There's theory that tells you how to grow that multiple over time to guarantee you eventually find the optimum.
+
+Maximum variance. Ignore the mean entirely and go where the model is least sure. It's pure exploration, aimed at learning the whole function evenly rather than finding a best point. As I said earlier, with fixed hyperparameters it depends only on where you've already sampled. In this repository it's called al underscore max var, and it's one of the strategies compared in the replay.
+
+Now this project has two objectives, not one: maximize endurance and minimize take-off mass, for the drone. There isn't one best design; there's a Pareto front, the set of designs where you can't improve one objective without worsening the other. How do you score a candidate against a front?
+
+The measure used here is the hypervolume. Picture a two-dimensional plot with one objective on each axis, both arranged so smaller is better. Pick a reference point that's worse than everything, in the corner. The hypervolume of a front is the area of the region that the front dominates, between the front and the reference point. It looks like a staircase. A better front pushes the staircase down and left and covers more area. The function hypervolume underscore two d in surrogate slash acquisition dot py computes it exactly by sweeping left to right.
+
+The acquisition is expected hypervolume improvement, E H V I. For a candidate, ask: if I ran it, how much would the dominated area grow? Since the model gives a bell curve for each objective, the answer is uncertain, so you take the average. The code does it the simplest honest way, by Monte Carlo. It draws a hundred and twenty-eight random pairs of objective values from the two bell curves, computes the hypervolume improvement for each draw, and averages. That's the function E H V I underscore M C. It assumes the two objectives' predictions are independent, because each objective has its own Gaussian process.
+
+One more piece. Some candidate designs make the solver fail. A separate model, in surrogate slash feasibility dot py, estimates the probability that a run will converge, using logistic regression, not a Gaussian process. The acquisition multiplies expected hypervolume improvement by that probability, so a promising point that will probably crash gets marked down. And, the rule of this project: a language model never chooses the sampling point. The surrogate and the acquisition function do. The language model can operate the tools, but the decision of where to sample is made by this arithmetic, which can be inspected and reproduced.
+
+And the honest caveat that the project rules insist on. Active learning does not always beat random sampling or Latin hypercube sampling. With few dimensions, smooth functions, or a model whose hyperparameters are poorly identified early on, a space-filling plan can do just as well. That's why the repository compares the strategies offline, by replaying them against a pool of runs already done, and reports whichever wins, including when active learning doesn't.
+
+
+Part twelve. Two levels of fidelity.
+
+Here's a situation this project lives in. You have two ways to evaluate a design. One is cheap and rough. The other is expensive and accurate. In the drone study, the cheap level is the vortex-lattice closure, run at a hundred and ninety-two pool points, and the expensive level uses the SU2 section polar. You can afford hundreds of cheap runs and a handful of expensive ones. Can the cheap runs help the expensive model?
+
+Yes, if the two are related. The classic approach is from Kennedy and O'Hagan, published in two thousand. It's called the autoregressive multi-fidelity model, or co-kriging. The word kriging, by the way, is the geostatistics name for Gaussian process regression, after Danie Krige, a South African mining engineer who used it to estimate gold deposits from boreholes. Same thing, different field.
+
+The model says, in words: the high-fidelity output equals rho times the low-fidelity output, plus a discrepancy function. Rho is a single scaling number. The discrepancy is a function that captures everything the cheap model gets wrong that isn't just a scale factor. Both the low-fidelity function and the discrepancy get their own Gaussian process.
+
+Why does this help? Because the cheap model, with hundreds of runs, can capture the overall shape of the response in great detail. The discrepancy is often much simpler, smoother, and smaller than the response itself, so a handful of expensive runs is enough to learn it. You're using the expensive runs to learn a correction, not the whole function.
+
+Here's how the code in surrogate slash m f underscore g p dot py fits it, step by step, and it's deliberately plain.
+
+The design is nested: every expensive run also has a cheap run at the same point. So at each expensive point, you know the cheap value exactly; you don't have to predict it.
+
+Step one: fit a Gaussian process to all the cheap runs.
+
+Step two: estimate rho by ordinary least squares, regressing the expensive values on the cheap values plus a constant, at the expensive points. Fit a Gaussian process to what's left over, the discrepancy.
+
+Step three: re-estimate rho by generalized least squares. That's the same regression, but weighted by the discrepancy Gaussian process's covariance, so that correlated residuals are not double counted. Refit the discrepancy Gaussian process with the new rho.
+
+To predict at a new point, the mean is rho times the cheap model's mean, plus the discrepancy mean. The variance is rho squared times the cheap model's variance, plus the discrepancy's variance. Those add because the two levels are treated as independent. Both levels are standardized with the same scale, the cheap data's, so that rho is near one when the two models agree.
+
+How to read rho: if rho is near one, the expensive model is the cheap model plus a correction. If rho is far from one, the cheap model has the right shape but the wrong amplitude. If rho is near zero, the cheap model isn't helping, and the two-level model has to learn almost everything from the discrepancy, which means from the expensive runs alone.
+
+And when does this approach fail? When the cheap and expensive models disagree in a way that isn't a scale factor plus a smooth correction. For example, if the cheap model misses a physical effect, like laminar separation or transition, that switches on in only part of the design space, then the discrepancy has a sharp feature, and you're back to needing many expensive runs to learn it. Another failure: if the cheap model's errors aren't smooth, the discrepancy Gaussian process will be poorly identified. The test of whether two levels help is not theory, it's a held-out comparison: the two-level model against a single Gaussian process fitted only to the expensive runs, at the same budget. That's exactly what analysis slash m f underscore drone dot py runs, over several budgets and ten seeds. Whatever the answer, it's the measured answer.
+
+
+Part thirteen. Graduate level, part one: two views of the same model.
+
+We've built Gaussian processes as distributions over functions. That's called the function-space view. There's an equivalent view, called the weight-space view, and seeing both is the mark of real understanding.
+
+Start with ordinary linear regression, but Bayesian. You choose some features of the input, call them basis functions: maybe one, x, x squared, or some bumps. The output is a weighted sum of those features. Instead of finding single best weights, put a bell-curve prior on the weights, say each weight is independent with mean zero and some variance. Because the output is a linear combination of Gaussian weights, the output at any set of inputs is jointly Gaussian. That's a Gaussian process! Its kernel is the sum over features of the feature at one point times the feature at the other point, times the weight variance.
+
+So every Bayesian linear regression is a Gaussian process, with a kernel built from its features. The reverse is the surprising part. A kernel like the squared exponential corresponds to infinitely many features: you can derive it by placing Gaussian bumps everywhere along the input axis, infinitely densely, and letting their number go to infinity with the variance scaled down. The kernel lets you work with that infinite set of features while only ever computing an n by n matrix. That's called the kernel trick. Mercer's theorem is the formal statement: a valid kernel can be written as a sum over infinitely many features weighted by eigenvalues.
+
+This tells you what a valid kernel is. It must be symmetric, and positive semi-definite, meaning any covariance matrix you build from it, for any set of points, has no negative eigenvalues. Equivalently, no linear combination of function values can have a negative variance. You can't just invent any similarity function. But you can build new valid kernels from old ones: the sum of two kernels is valid, which models a function as the sum of two independent parts; the product of two kernels is valid, which models interactions; and a kernel times a positive constant is valid.
+
+A connection that comes up at graduate level: a neural network with one hidden layer and random weights, in the limit of infinitely many hidden units, becomes a Gaussian process. That's Radford Neal's result from the nineteen nineties. The same idea extends to deep networks, the neural network Gaussian process, and to training dynamics, through what's called the neural tangent kernel. In other words, very wide neural networks behave like kernel methods. That's a nice bridge if the interviewer leans toward machine learning: the multilayer perceptron ensemble in surrogate slash m l p dot py and the Gaussian process in g p dot py are more related than they look.
+
+And a third connection: the posterior mean of a Gaussian process is the minimum-norm interpolant in something called the reproducing kernel Hilbert space of the kernel, the R K H S. You don't need the definition. The idea is that each kernel defines a notion of how complex a function is, and the posterior mean is the least complex function, by that measure, that fits the data, with noise playing the role of a regularization strength. That's why the posterior mean equals kernel ridge regression. It's also why smoothing splines are a special case of Gaussian processes: a cubic smoothing spline is the posterior mean under a particular kernel.
+
+
+Part fourteen. Graduate level, part two: what the kernel assumes, and when it's wrong.
+
+Every kernel we've discussed is stationary. That means the covariance depends only on the difference between two points, not on where they are. Stationarity assumes the function is equally wiggly everywhere. Physics often disagrees. Lift is smooth and nearly linear at low angle of attack, then changes character near stall. A response can be flat over most of the design space and change sharply near a boundary, like a transition front moving on an airfoil.
+
+A stationary Gaussian process facing a function like that has to compromise on a single length scale. Too long, and it smooths through the sharp region and is overconfident there. Too short, and it becomes needlessly uncertain and wiggly everywhere else. Remedies include: transform the inputs or outputs so the function looks more uniform, which is why this code models the log of take-off mass rather than the mass itself; split the domain; use a non-stationary kernel whose length scale varies with position; or warp the input space, which is the idea behind deep kernel learning and deep Gaussian processes.
+
+Second assumption: the noise is the same everywhere. That's called homoscedastic noise. In CFD, it isn't really: a run near stall drifts more than a run at low angle. A heteroscedastic Gaussian process gives the noise its own model. A simpler practical route is to feed the measured drift of each run as a known, per-point noise variance on the diagonal of K, instead of one learned noise level.
+
+Third assumption: the output is Gaussian. If the output is a yes or no, like whether the solver converged, a Gaussian likelihood is wrong. A Gaussian process classifier keeps a Gaussian process underneath but passes it through a squashing function, and then the posterior is no longer exactly Gaussian, so you need approximations, like the Laplace approximation or expectation propagation. This project chose logistic regression for feasibility instead, which is simpler and easier to explain line by line. That's a defensible trade, and good to articulate.
+
+Fourth: extrapolation. Far from data, a Gaussian process reverts to its prior mean, a constant. It won't extrapolate a trend unless the mean function or the kernel encodes one. With a constant mean, outside the data it says: "probably average, and I'm very unsure". That's honest, but it's not physics. If you know a trend, put it in the mean function, for example a linear mean, or use the cheap model as the mean, which is essentially what the two-level model does.
+
+Fifth: dimension. Gaussian processes work very well up to roughly ten to twenty inputs with a few hundred points. In high dimensions, points are far apart in every direction, distance-based kernels lose contrast, and the length scales become hard to identify. With six inputs and a few dozen expensive runs, this project is comfortably inside the sweet spot, but only if the length scales are reasonably identified, which is another reason for the restarts and for checking coverage.
+
+Sixth: scaling to many points. When n grows to many thousands, the n cubed cost bites. Approaches include sparse Gaussian processes with inducing points, where a small set of m pseudo-points summarizes the data and the cost drops to n times m squared; the variational version of that from Michalis Titsias; structured methods that exploit grids; and iterative solvers using conjugate gradients, as in the library GPyTorch. None of this is needed here, because simulations, not matrices, are the bottleneck. Say that clearly if asked about scaling.
+
+
+Part fifteen. Graduate level, part three: how a Gaussian process connects to the rest of this repository.
+
+A few connections that will make your answers sound integrated rather than memorized.
+
+Gaussian process versus the multilayer perceptron ensemble. The ensemble, in surrogate slash m l p dot py, gets uncertainty from disagreement among independently trained networks. That's often called a deep ensemble. Its uncertainty is a heuristic, not a posterior: it can be too narrow away from data, because all the networks may extrapolate in the same direction. The Gaussian process uncertainty comes from a stated probabilistic model and grows back to the prior far from data by construction. With few, expensive points, the Gaussian process is the natural default; with many cheap points and high dimension, neural networks earn their keep. The replay harness swaps one for the other with the same interface, so the comparison is about the model, nothing else.
+
+Gaussian process versus a Fourier neural operator. The note docs slash specs slash task eleven underscore f n o underscore exploration dot md makes the point that the pipeline needs two numbers per run, lift and drag coefficients, as functions of a handful of inputs, and that a Gaussian process on those scalars is the right baseline that any field-learning model must beat first.
+
+The P C A Gaussian process, in surrogate slash p c a underscore g p dot py, is a standard trick for outputs that are whole curves or fields: compress the outputs with principal component analysis, fit one Gaussian process per retained component, and reconstruct. You'd use it when the thing you predict is a profile, not a single number.
+
+And the theme that ties everything: a Gaussian process is a model that states its assumptions, the kernel, the mean and the noise; that learns its settings by a single principled objective, the marginal likelihood; that tells you how sure it is; and whose claims of sureness can be checked against held-out runs. That's the same philosophy as the gates in this pipeline. Nothing is accepted because it looks plausible; it's accepted because it was checked.
+
+
+Part sixteen. Practice questions for the interview.
+
+I'll read each question, pause, then give a short answer. Try answering out loud before the answer comes.
+
+Question one. In one sentence, what is a Gaussian process?
+
+Answer. A probability distribution over functions, defined so that the function values at any finite set of inputs are jointly Gaussian, and fully specified by a mean function and a covariance function, the kernel.
+
+Question two. What does the length scale do?
+
+Answer. It sets how far apart two inputs can be and still have strongly correlated outputs. Long length scale, slowly varying function; short, rapidly varying. With A R D there's one per input, so a long fitted length scale flags an input the output barely depends on.
+
+Question three. Why Matérn five halves rather than the squared exponential?
+
+Answer. The squared exponential assumes infinitely smooth functions, which is unrealistic for physical responses and tends to make the model overconfident. Matérn five halves gives twice-differentiable functions, a common and defensible default for engineering responses.
+
+Question four. Does the posterior variance depend on the observed outputs?
+
+Answer. Not for fixed hyperparameters. It depends only on where the training points are. The outputs enter only through the fitted hyperparameters. So maximum-variance sampling behaves like a space-filling design.
+
+Question five. How are the hyperparameters chosen, and why restarts?
+
+Answer. By maximizing the log marginal likelihood, which balances data fit against model complexity, a built-in Occam's razor. The surface isn't convex; for example, short length scale with low noise and long length scale with high noise can both be local optima. So the code starts from three initial guesses and keeps the best.
+
+Question six. What is the difference between noise and jitter?
+
+Answer. Noise is a modeling assumption that observations scatter around the true function, and it's learned. Jitter is a tiny fixed number added to the diagonal so the Cholesky factorization doesn't fail on a nearly singular matrix. One is statistics, the other is numerics.
+
+Question seven. Why Cholesky instead of a matrix inverse?
+
+Answer. It's faster and numerically stable for positive definite matrices, and the log determinant comes free as twice the sum of the logs of its diagonal.
+
+Question eight. What does it cost, and does it matter here?
+
+Answer. Order n cubed time and n squared memory, from the factorization. With dozens to hundreds of points it's negligible. Here each point is an hour of CFD, so the simulation is the bottleneck, not the model.
+
+Question nine. How do you know the error bars are right?
+
+Answer. Check them on held-out data. Compute coverage: an eighty percent interval should contain about eighty percent of held-out points. Look at standardized residuals: they should look like a standard bell curve. In the replay this is the cov eighty metric.
+
+Question ten. Explain expected improvement.
+
+Answer. The average amount a candidate would beat the best value so far, counting zero if it doesn't. It has a closed form combining a term that rewards a good mean and a term that rewards high uncertainty, so it balances exploitation and exploration automatically.
+
+Question eleven. How does the two-objective acquisition work?
+
+Answer. Each objective has its own Gaussian process. For each candidate, draw a hundred and twenty-eight samples of the two objectives from their predicted bell curves, compute how much each sample would grow the hypervolume dominated by the current Pareto front, and average. That's Monte Carlo expected hypervolume improvement. It's multiplied by the predicted probability that the solver converges.
+
+Question twelve. Explain the two-level model and rho.
+
+Answer. High fidelity equals rho times low fidelity plus a discrepancy, with a Gaussian process for each. Many cheap runs learn the shape; a few expensive runs learn the correction, which is usually simpler. Rho is fitted by least squares, then generalized least squares. Near one means the cheap model has the right scale; near zero means the cheap model isn't helping.
+
+Question thirteen. When would a two-level model not help?
+
+Answer. When the cheap model misses physics that turns on in part of the space, so the discrepancy is sharp rather than smooth, or when the cheap model's errors are noisy. Then the correction needs as many expensive runs as the function itself. The test is a held-out comparison against a single-level Gaussian process at the same budget.
+
+Question fourteen. What are the main limitations of a Gaussian process?
+
+Answer. Stationarity, one notion of wiggliness everywhere; constant noise; Gaussian outputs; reversion to the prior mean when extrapolating; cubic cost in the number of points; and difficulty in high dimensions. Each has a known remedy, and none is binding at this project's size, except possibly stationarity near sharp physics like stall or transition.
+
+Question fifteen. Why does the language model not choose sampling points?
+
+Answer. Because the choice should be inspectable and reproducible. The Gaussian process and the acquisition function make that choice by arithmetic that can be rerun with the same seed and explained line by line. The language model operates the tools; it doesn't make the statistical decision.
+
+Question sixteen. If active learning didn't beat random sampling, what would you say?
+
+Answer. That it's a legitimate result and I'd report it. With smooth responses, few dimensions, or poorly identified hyperparameters early on, a good space-filling plan can match active learning. The replay against a pool of completed runs exists precisely to measure that rather than assume it.
+
+
+Closing summary.
+
+Let's end where we started, on the country road.
+
+You had a few thermometers and needed the temperature everywhere, with an honest sense of doubt. A Gaussian process says: assume nearby points have similar values, with "nearby" defined by a kernel. Treat every set of points as jointly bell-shaped. Condition on what you measured. You get a mean, which is your best guess, a weighted sum of bumps centred on your data, and a variance, which shrinks near your data and grows back to the prior far away, and which depends only on where you measured, not on what you saw.
+
+You learn the kernel's settings by maximizing the marginal likelihood, which balances fit against complexity. You compute everything with one Cholesky factorization. You check the error bars on held-out runs. You use the error bars to decide where to run the next simulation, balancing exploitation and exploration. And when you have a cheap model and an expensive one, you let the cheap model learn the shape and the expensive runs learn the correction.
+
+If you can explain those sentences, and say why each design choice in the code was made, you understand Gaussian processes at the level the interview needs.
+
+End of lecture.
