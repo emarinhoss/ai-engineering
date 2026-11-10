@@ -1,0 +1,13 @@
+case_id,batch,kind,mesh_level,alpha_deg,restart_from,cold_twin
+airfoil2d-5554b0da0a,e0_cold,cold,coarse,2.0,,
+airfoil2d-f94ff4a147,e0_cold,cold,coarse,6.0,,
+airfoil2d-ba0e84362c,e0_cold,cold,coarse,10.0,,
+airfoil2d-32d362298f,e0_cold,cold,medium,2.0,,
+airfoil2d-40a2443d6b,e0_cold,cold,medium,6.0,,
+airfoil2d-65e07d2111,e0_cold,cold,medium,10.0,,
+airfoil2d-e469d47de2,e0_warm,angle_step,coarse,6.0,airfoil2d-5554b0da0a,airfoil2d-f94ff4a147
+airfoil2d-15e6c5ea48,e0_warm,angle_step,coarse,10.0,airfoil2d-f94ff4a147,airfoil2d-ba0e84362c
+airfoil2d-c5db1f46b1,e0_warm,angle_step,coarse,2.0,airfoil2d-f94ff4a147,airfoil2d-5554b0da0a
+airfoil2d-dc77636c0f,e0_warm,mesh_step,medium,2.0,airfoil2d-5554b0da0a,airfoil2d-32d362298f
+airfoil2d-febfbba144,e0_warm,mesh_step,medium,6.0,airfoil2d-f94ff4a147,airfoil2d-40a2443d6b
+airfoil2d-3cc8c16ed8,e0_warm,mesh_step,medium,10.0,airfoil2d-ba0e84362c,airfoil2d-65e07d2111
