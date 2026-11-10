@@ -732,6 +732,33 @@ and a serial (one-rank) or end-only volume write. The corrupt files are kept out
 as evidence and nothing from them is plotted; D24 shows the 14 deg case and says why the 6 deg one
 is missing. The local-disk change stays: it removes one cause and costs nothing.
 
+### The pool queue is empty: final readings on 30 designs (Opus, 2026-11-10 01:10 UTC, commits `bf7816c`, `8488919`)
+
+All 160 coarse pool cases and both viz cases have landed. **30 of 32 designs are complete; designs 8
+and 28 are incomplete**, each with 2 of 5 angles kept (2 and 6 deg) because the other three exhausted
+the 6,000-iteration budget and the aggregator drops budget-exhausted runs; whether to admit them is
+the open budget-exhausted ruling, and every reading below is on the 30 and is re-run if the ruling
+admits the two.
+- **Question 3, final** (`runs/drone_mf/2026-11-09/mf.csv`, held out 22 / 18 / 14 / 6): held-out
+  endurance RMSE two-level against SU2-only **0.732 / 1.301 h at n = 8 (10 of 10 seeds), 0.687 /
+  0.922 at 12 (8 of 10), 0.566 / 0.944 at 16 (9 of 10), 0.583 / 0.702 at 24 (8 of 10)**; raw low
+  2.192 h. SU2 alone first reaches the two-level error at 8 designs at n = 24. 90 % coverage on
+  endurance two-level 0.46 / 0.48 / 0.75 / 0.75 against SU2-only 0.54 / 0.58 / 0.62 / 0.72: under 0.9
+  everywhere, ordering not settled. MTOW relative RMSE two-level 0.0020 to 0.0024 against 0.0068 to
+  0.0751; raw low 0.0030. ρ_endurance 0.85 to 0.88 per budget.
+- **Question 4 at the high level** (`runs/drone_inverse_hf/2026-11-09/inverse.json`): span 3.0 m,
+  aspect ratio 11, taper 0.3, battery fraction 0.45, camber 4.2 %, thickness 8 %: 9.334 h [8.596,
+  10.073] at 2.953 kg [2.919, 2.988], P(mtow <= 4 kg) = 1.000. Aspect ratio and camber leave their
+  bounds; four inputs stay at a bound. The low model gives 12.195 h, 2.961 kg at the same design.
+- **Bias sweep at that design** (`runs/drone_bias_hf/2026-11-09/`): same top three as at the
+  low-fidelity answer (skin areal density +15.70 / -19.41 %, propulsive efficiency +/-17.03 %, pack
+  specific energy -16.73 / +16.70 %), then depth of discharge and payload.
+- **Confirmation staged** (`designs/make_confirm_drone.py`): five coarse cases at Re 180,145, tag
+  `confirm`, batch `ff9ffcf26d`, through the MCP queue; pass condition fixed beforehand.
+- **Question 1 at the high level**: `analysis.pareto --family drone` was killed for memory in the
+  15 GB sandbox (exit 137, and once silently with exit 0 and no files); it is being run on the 50 GB
+  Colab runtime instead.
+
 ## Questions for Éder (answered above; kept as the record)
 
 1. **Airfoil family.** The spec varies the NACA four-digit section per design, which is what makes
