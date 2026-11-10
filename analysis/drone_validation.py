@@ -199,10 +199,16 @@ def v6e(rows, polars, su2):
             row(rows, f"V6e cl_max Re {tag}", s.cl_max, t_clmax, TOL_V6E_CLMAX)
 
 
-def v6e_mesh(rows, medium_records, fine_records):
+def v6e_mesh(rows, medium_records, fine_records, old_medium_records=None):
+    """Gated: smoothed medium against fine, same mesher (decision 11). Reported, not gated: the
+    medium polar before and after the mesher's tangent smoothing, which is what the fix moved."""
     cds = [float(drone_polar.polar(r).cd_of_cl(0.6)) for r in (medium_records, fine_records)]
     row(rows, "V6e mesh medium vs fine, cd at cl 0.6", cds[1], cds[0], TOL_V6E_MESH,
-        note="measured = fine, reference = medium")
+        note="measured = fine, reference = medium; both on the smoothed mesher (decision 11)")
+    if old_medium_records:
+        old = float(drone_polar.polar(old_medium_records).cd_of_cl(0.6))
+        row(rows, "V6e mesher fix, medium before vs after smoothing, cd at cl 0.6", cds[0], old,
+            None, note="measured = smoothed medium, reference = recorded medium (runs/e387)")
 
 
 def v6f(rows, polars, fixed):
@@ -287,6 +293,8 @@ def main(argv=None):
     ap.add_argument("--doc", required=True)
     ap.add_argument("--date", default="2026-11-08")
     ap.add_argument("--su2-dir", default="runs/e387")
+    ap.add_argument("--smooth-dir", default="runs/e387_smooth",
+                    help="medium cases rerun on the smoothed mesher, the V6e mesh row's medium side")
     a = ap.parse_args(argv)
     t0 = time.time()
     rows = []
@@ -298,17 +306,20 @@ def main(argv=None):
     for fpath in sorted(Path(a.su2_dir).glob("**/result.json")):
         rec_ = json.loads(fpath.read_text())
         if rec_["params"].get("airfoil") == "e387":
-            groups.setdefault(rec_["params"]["reynolds"], []).append(rec_)
+            groups.setdefault(rec_["params"].get("mesh_level"), {}).setdefault(
+                rec_["params"]["reynolds"], []).append(rec_)
+    smooth = [json.loads(p.read_text()) for p in sorted(Path(a.smooth_dir).glob("**/result.json"))]
+    smooth = [r for r in smooth if r["params"].get("airfoil") == "e387"
+              and r["params"].get("mesh_level") == "medium" and r["params"]["reynolds"] == 203800.0]
     not_run = []
-    if groups:
-        v6e(rows, polars, groups)
-        by_mesh = {m: [r for r in groups.get(203800.0, []) if r["params"].get("mesh_level") == m]
-                   for m in ("medium", "fine")}
-        if by_mesh["medium"] and by_mesh["fine"]:
-            v6e_mesh(rows, by_mesh["medium"], by_mesh["fine"])
+    if groups.get("medium"):
+        v6e(rows, polars, groups["medium"])             # the tunnel rows use the medium level only
+        fine = groups.get("fine", {}).get(203800.0, [])
+        if smooth and fine:
+            v6e_mesh(rows, smooth, fine, groups["medium"].get(203800.0))
         else:
             not_run.append(("V6e mesh", "medium vs fine mesh at Re 203800",
-                            "no medium and fine pair of records at Re 203800"))
+                            "no smoothed-medium and fine pair of records at Re 203800"))
     else:
         not_run.append(NOT_RUN_V6E)
     not_run.append(NOT_RUN_V6G)

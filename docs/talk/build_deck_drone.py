@@ -117,7 +117,7 @@ def e387_points(re=203800.0):
     out = []
     for f in sorted((ROOT / "runs/e387").glob("*/result.json")):
         r = json.loads(f.read_text())
-        if r["params"]["reynolds"] != re:
+        if r["params"]["reynolds"] != re or r["params"].get("mesh_level") != "medium":
             continue
         a = r["params"]["alpha_deg"]
         i = int(np.argmin(np.abs(np.array(tun["alpha_deg"]) - a)))

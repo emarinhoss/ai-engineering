@@ -233,7 +233,8 @@ def e387_section(reynolds=203800.0):
     x, y, _ = airfoils.load("e387")
     c = airfoils.camber_thickness(*airfoils.dense_loop(x, y, 801))
     res = [json.loads(f.read_text()) for f in sorted((ROOT / "runs/e387").glob("*/result.json"))]
-    res = [r for r in res if r["params"]["reynolds"] == reynolds]
+    res = [r for r in res if r["params"]["reynolds"] == reynolds
+           and r["params"].get("mesh_level") == "medium"]       # fine cases (decision 11) are V6e mesh only
     return res, 100.0 * c["max_camber"], 100.0 * c["max_thickness"]
 
 

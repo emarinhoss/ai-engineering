@@ -155,6 +155,44 @@ def test_v6e_mesh_check_compares_cd_at_cl_0_6():
     assert r["deviation"] == pytest.approx(0.03, abs=1e-6) and r["verdict"] == "pass"
 
 
+
+def test_v6e_mesh_reports_the_mesher_fix_beside_the_gated_row():
+    rows = []
+    smooth = synthetic_su2(RUN_213, 203800.0, 1.0, 1.0)
+    fine = synthetic_su2(RUN_213, 203800.0, 1.0, 1.03)
+    old = synthetic_su2(RUN_213, 203800.0, 1.0, 0.98)
+    drone_validation.v6e_mesh(rows, smooth, fine, old)
+    gated, fix = rows
+    assert gated["deviation"] == pytest.approx(0.03, abs=1e-6) and gated["tolerance"] == 0.05
+    assert fix["name"].startswith("V6e mesher fix") and fix["tolerance"] is None
+    assert fix["verdict"] == "report" and fix["deviation"] == pytest.approx(1 / 0.98 - 1, abs=1e-6)
+
+
+def _write(root, recs, level):
+    for r in recs:
+        r["params"]["mesh_level"] = level
+        r["case_id"] = f"airfoil2d-{abs(hash((level, r['params']['reynolds'], r['params']['alpha_deg']))) % 10**10:010d}"
+        d = root / r["case_id"]
+        d.mkdir(parents=True)
+        (d / "result.json").write_text(json.dumps(r))
+
+
+def test_main_keeps_fine_records_out_of_the_tunnel_rows(tmp_path):
+    """The tunnel rows read the medium level only; fine records feed the mesh row and nothing else."""
+    e387, smooth_dir = tmp_path / "e387", tmp_path / "smooth"
+    _write(e387, synthetic_su2(RUN_213, 203800.0, 1.0, 1.0), "medium")
+    _write(e387, synthetic_su2(RUN_215, 305200.0, 1.0, 1.0), "medium")
+    _write(e387, synthetic_su2(RUN_213, 203800.0, 1.0, 3.0), "fine")
+    _write(smooth_dir, synthetic_su2(RUN_213, 203800.0, 1.0, 1.0), "medium")
+    out = tmp_path / "out"
+    drone_validation.main(["--out", str(out), "--doc", str(tmp_path / "v6.md"),
+                           "--su2-dir", str(e387), "--smooth-dir", str(smooth_dir)])
+    checks = {c["name"]: c for c in json.loads((out / "v6.json").read_text())["checks"]}
+    assert checks["V6e cl_alpha Re 203800"]["deviation"] == pytest.approx(0.0, abs=1e-9)
+    assert checks["V6e cd ratio Re 203800"]["measured"] == pytest.approx(0.0, abs=1e-9)
+    assert checks["V6e mesh medium vs fine, cd at cl 0.6"]["deviation"] == pytest.approx(2.0, abs=1e-6)
+
+
 # ---- V6f ----
 
 def test_v6f_reports_the_closed_forms_against_each_nominal_reynolds(fixed):

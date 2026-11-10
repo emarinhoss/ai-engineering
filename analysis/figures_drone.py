@@ -149,6 +149,8 @@ def fig_e387_comparison(root=ROOT, out_dir=OUT_DIR):
     for f in files:
         with open(f) as fh:
             r = json.load(fh)
+        if r["params"].get("mesh_level") != "medium":   # fine cases (decision 11) are V6e mesh only
+            continue
         nom = _nominal_re(r["params"]["reynolds"], list(by_nom))
         if nom is not None:
             su2_re[nom] = r["params"]["reynolds"]
