@@ -775,6 +775,38 @@ accepted at 6.9 % and 6.8 %. Their SU2 endurance is 5.019 h and 4.238 h against 
 8.087 h and 8.180 h. Every reading recorded on 30 designs is re-run on 32 below; the 30-design blocks
 stay as the record.
 
+### Readings on 32 designs after decision 9 (Opus, 2026-11-10 01:50 UTC, commit `eef90a6` inputs)
+
+The 30-design readings above stay as the record; these replace them as the study's answers.
+- **Question 3** (`runs/drone_mf/2026-11-09/mf.csv`, held out 24 / 20 / 16 / 8): held-out endurance
+  RMSE two-level against SU2-only **0.824 / 1.525 h at n = 8 (8 of 10 seeds), 0.808 / 1.112 at 12
+  (6 of 10), 0.747 / 0.865 at 16 (5 of 10), 0.726 / 0.704 at 24 (5 of 10)**; raw low 2.299 h. 90 %
+  coverage on endurance two-level 0.61 / 0.60 / 0.68 / 0.69 against SU2-only 0.43 / 0.62 / 0.71 /
+  0.78. MTOW relative RMSE two-level 0.0021 to 0.0024 against 0.0071 to 0.0869 (10 of 10 at every
+  budget); raw low 0.0030. ρ_endurance 0.866 to 0.890. **What changed with designs 8 and 28**: the
+  two-level advantage on the mean now holds at small budgets only; at n = 24 SU2 alone is slightly
+  better (0.704 against 0.726 h) and at 16 the seeds split 5 to 5. SU2 alone still first reaches the
+  two-level error at 8 designs at n = 24. Adding designs 8 and 28 is the only difference from the
+  30-design reading; their SU2 endurance is 37.9 % and 48.2 % below the low model (design 28's gap
+  is the fourth largest of the 32, after designs 30, 19 and 17 at 65.5, 59.5 and 58.0 %; the pool's
+  range is now 15.8 to 65.5 % below), and design 8's polar rests on runs drifting up to 54 % in cl.
+- **Question 4** (`runs/drone_inverse_hf/2026-11-09/inverse.json`; the 30-design record is kept in
+  `runs/drone_inverse_hf/2026-11-09_30designs/`): span 3.0 m, **aspect ratio 7**, taper 0.3, battery
+  fraction 0.45, **camber 3.9 %, thickness 10.8 %**: **10.139 h [9.116, 11.163] at a median 3.918 kg
+  [3.862, 3.975], P(mtow <= 4 kg) = 0.991**. With the two added designs the answer moves from aspect
+  ratio 11 to 7 and the median mass rises from 2.953 kg to 2.0 % below the cap: **the cap now nearly
+  binds**, which the low model never showed. The low model at this design gives 10.311 h, 3.933 kg.
+- **Bias sweep at that design** (`runs/drone_bias_hf/2026-11-09/`; the 30-design sweep in
+  `2026-11-09_30designs/`): skin areal density +19.67 / -22.04 % endurance and -34.00 / +77.44 %
+  mass, whose low end fails gate 4 (wing loading 19.8 N/m^2 below 20) and whose high end gives
+  6.98 kg, above the cap; then propulsive efficiency, pack specific energy, depth of discharge,
+  payload. So the answer's place under the cap rests on the assumed skin areal density band.
+- **Confirmation**: the run in flight tests the 30-design answer and is kept as that test (it is
+  compared only with `2026-11-09_30designs/inverse.json`). The 32-design answer has its own five
+  cases (`designs/confirm_drone_cases_32.csv`, Re 264,252, batch `675f8ab3ae`, staged with
+  `--batch-name confirm_drone_32` so the first batch stays visible to the workers).
+- **Question 1**: the Pareto run on 32 designs is running on the Colab runtime.
+
 ## Questions for Éder (answered above; kept as the record)
 
 1. **Airfoil family.** The spec varies the NACA four-digit section per design, which is what makes

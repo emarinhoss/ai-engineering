@@ -43,6 +43,9 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--params", default=DEFAULT_PARAMS)
     ap.add_argument("--out", default=str(HERE / "confirm_drone_cases.csv"))
+    ap.add_argument("--batch-name", default="confirm_drone",
+                    help="batch file name; a second confirmation needs its own name, or its batch "
+                         "file would replace the first one's in the queue and hide those jobs")
     a = ap.parse_args(argv)
     p = json.loads(Path(a.params).read_text())
     design = {k: float(p[k]) for k in INPUTS}
@@ -60,7 +63,7 @@ def main(argv=None):
         w = csv.DictWriter(f, fieldnames=list(rows[0]))
         w.writeheader()
         w.writerows(rows)
-    text = queue.export_batch(ids, path=str(queue.queue_dir() / "batches" / "confirm_drone.batch.json"))
+    text = queue.export_batch(ids, path=str(queue.queue_dir() / "batches" / f"{a.batch_name}.batch.json"))
     print(f"design {design}: Re {re:.0f}, {len(ids)} coarse cases; batch bytes {len(text)}")
     for r in rows:
         print(r["case_id"], r["alpha_deg"])
