@@ -54,6 +54,8 @@ class CaseParams(BaseModel):
     aspect_ratio: float | None = Field(None, allow_inf_nan=False)     # drone only
     taper_ratio: float | None = Field(None, allow_inf_nan=False)      # drone only
     battery_fraction: float | None = Field(None, allow_inf_nan=False) # drone only
+    save_restart: bool | None = None                                  # airfoil2d only: write restart_flow.csv
+    restart_from: str | None = Field(None, pattern=r"^airfoil2d-[0-9a-f]{10}$")  # airfoil2d only: donor case id
     fidelity: Literal["low", "high"] | None = None                    # drone only, default low
     mesh_level: Literal["coarse", "medium", "fine"] | None = None     # default medium; not for drone
     save_volume: bool = False
@@ -78,7 +80,7 @@ class CaseParams(BaseModel):
 
         if fam == "drone":
             for name in ("theta1_deg", "theta2_deg", "theta3_deg", "radius_m", "mesh_level", "max_iter",
-                         *SUPERSONIC_DEFAULTS, "reynolds", "alpha_deg", "transition", "airfoil"):
+                         *SUPERSONIC_DEFAULTS, "reynolds", "alpha_deg", "transition", "airfoil", "save_restart", "restart_from"):
                 forbid(name)
             for name, bounds in DRONE_BOUNDS.items():
                 need(name, bounds)
@@ -111,7 +113,7 @@ class CaseParams(BaseModel):
             if errs:
                 raise ValueError("\n".join(errs))
             return self
-        for name in (*AIRFOIL_FIELDS, "airfoil"):
+        for name in (*AIRFOIL_FIELDS, "airfoil", "save_restart", "restart_from"):
             forbid(name)
         for name, value in SUPERSONIC_DEFAULTS.items():
             if getattr(self, name) is None:

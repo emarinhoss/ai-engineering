@@ -123,9 +123,22 @@ def render(params, geometry, markers):
 
 
 def _output_files(params):
-    """SU2's CSV writers keep only conservative variables, so the output is Tecplot ASCII."""
-    return ("( SURFACE_TECPLOT_ASCII, TECPLOT_ASCII )" if params.get("save_volume")
-            else "( SURFACE_TECPLOT_ASCII )")
+    """SU2's CSV writers keep only conservative variables, so the output is Tecplot ASCII.
+    save_restart adds RESTART_ASCII (SU2 writes restart_flow.csv)."""
+    files = ["SURFACE_TECPLOT_ASCII"]
+    if params.get("save_volume"):
+        files.append("TECPLOT_ASCII")
+    if params.get("save_restart"):
+        files.append("RESTART_ASCII")
+    return "( " + ", ".join(files) + " )"
+
+
+def _restart_lines(params):
+    """Config lines that start the case from solution_flow.csv; empty text when restart_from is
+    unset, so the rendered case.cfg of every case without it is unchanged."""
+    if not params.get("restart_from"):
+        return ""
+    return "RESTART_SOL= YES\nREAD_BINARY_RESTART= NO\n"
 
 
 def _render_airfoil(params, geometry, roles):
@@ -161,6 +174,7 @@ def _render_airfoil(params, geometry, roles):
         "plotting": _lst(walls),
         "monitoring": _lst(walls),
         "output_files": _output_files(params),
+        "restart": _restart_lines(params),
     }
     text = (TEMPLATES / AIRFOIL_TEMPLATE[transition]).read_text()
     return Template(text).substitute(values)

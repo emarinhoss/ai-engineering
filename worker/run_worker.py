@@ -42,6 +42,7 @@ from pathlib import Path
 from geometry.structured import mesh_bbox, mesh_fingerprint, mesh_fingerprint_nm
 from physics import gates
 from worker.make_case import REPO, StageError, case_id, config_sha256, git_commit, make, sha256_file
+from worker.restart import map_restart, read_su2_coords
 from worker.run_case import run
 
 JOB_KEYS = ("case_id", "params", "created_at", "mesh_fingerprint", "config_sha256", "code_commit")
@@ -299,10 +300,25 @@ def git_dirty():
         return None
 
 
-def run_record(job, run_dir, result, worker_id):
+def write_warm_start(queue, run_dir, params):
+    """For a job with restart_from: write solution_flow.csv into run_dir from the donor's
+    restart_flow.csv. Returns the record for result["run"]["restart"]; raises FileNotFoundError
+    when the donor's restart file is missing."""
+    donor = Path(queue) / "runs" / params["restart_from"] / "restart_flow.csv"
+    if not donor.is_file():
+        raise FileNotFoundError(f"donor restart file {donor} does not exist")
+    text, max_dist = map_restart(donor.read_text(), read_su2_coords(run_dir / "mesh.su2"))
+    (run_dir / "solution_flow.csv").write_text(text)
+    return {"restart_from": params["restart_from"], "donor_restart_sha256": sha256_file(donor),
+            "max_nn_distance_m": max_dist}
+
+
+def run_record(job, run_dir, result, worker_id, restart=None):
     """The run record of 01_interfaces.md: run_case's result plus params, geometry, mesh, code, job."""
     record = {k: v for k, v in result.items() if k != "history_summary"}
     record["run"]["worker_id"] = worker_id
+    if restart:                                       # only a warm-started case carries this block
+        record["run"]["restart"] = restart
     markers = read_json(run_dir / "mesh_markers.json")
     record.update(
         case_id=job["case_id"], params=job["params"], geometry=read_json(run_dir / "geometry.json"),
@@ -367,19 +383,27 @@ def process(job, args):
     left = stop_leftover_solvers(run_dir)
     if left:
         say(f"{cid}: stopped {left} leftover solver process(es) still running in the run folder")
+    restart = None
+    if job["params"].get("restart_from"):
+        try:
+            restart = write_warm_start(queue, run_dir, job["params"])
+        except FileNotFoundError as err:
+            return fail(queue, run_dir, job, "donor_missing", str(err))
     set_flag(run_dir, "1-running")
     say(f"{cid}: running {args.su2_cmd}")
     box, timeout_s = run_with_heartbeat(run_dir, job, args)
     if "error" in box:
         return fail(queue, run_dir, job, "postprocess_error", box["error"])
     result = box["result"]
-    record = run_record(job, run_dir, result, args.worker_id)
+    record = run_record(job, run_dir, result, args.worker_id, restart)
     write_json(run_dir / "result_partial.json", record)
     if "metrics" in record:
         write_json(run_dir / "result.json", record)
     problem = failure_of(result, run_dir, timeout_s)
     if problem:
         return fail(queue, run_dir, job, *problem)
+    if job["params"].get("save_restart") and not (run_dir / "restart_flow.csv").is_file():
+        return fail(queue, run_dir, job, "restart_missing", "save_restart is true but SU2 wrote no restart_flow.csv")
     write_json(queue / "runs" / f"{cid}.result.json", record)
     write_digest(queue / "runs" / f"{cid}.result.json", queue / "runs" / f"{cid}.result.sha256")
     set_flag(run_dir, "2-done")

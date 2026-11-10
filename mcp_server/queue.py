@@ -80,6 +80,32 @@ def build_case(params, staging_dir):
     return make(params, staging_dir)
 
 
+DONOR_SAME = ("airfoil", "camber_pct", "thickness_pct", "reynolds", "transition")
+
+
+def donor_errors(params):
+    """Why params["restart_from"] is not a usable donor in the local queue (empty list if usable).
+    The donor must be a staged airfoil2d job with save_restart true, of the same section, Reynolds
+    number and transition setting. Angle of attack and mesh level may differ."""
+    donor_id = params.get("restart_from")
+    if donor_id is None:
+        return []
+    path = queue_dir() / "jobs" / donor_id / "params.json"
+    if not path.exists():
+        return [f"restart_from: donor {donor_id} is not a staged job in the local queue"]
+    donor = _read(path)
+    errors = []
+    if donor.get("family") != "airfoil2d":
+        errors.append(f"restart_from: donor {donor_id} is not an airfoil2d job")
+    if not donor.get("save_restart"):
+        errors.append(f"restart_from: donor {donor_id} was not made with save_restart true")
+    for key in DONOR_SAME:
+        if donor.get(key) != params.get(key):
+            errors.append(f"restart_from: {key} differs from the donor ({params.get(key)!r} against "
+                          f"{donor.get(key)!r})")
+    return errors
+
+
 def _fail(stage, errors, warnings=()):
     return {"ok": False, "stage": stage, "errors": list(errors), "warnings": list(warnings)}
 
@@ -93,6 +119,9 @@ def _pipeline(raw, out_dir):
     errors = gates.check(params)
     if errors:
         return _fail("gates", errors, warnings)
+    errors = donor_errors(params)
+    if errors:
+        return _fail("donor", errors, warnings)
     try:
         job = build_case(params, out_dir)
     except StageError as exc:
