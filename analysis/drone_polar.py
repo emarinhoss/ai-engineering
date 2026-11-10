@@ -26,7 +26,16 @@ def _cauchy_stopped(r):
             and conv["iterations"] < r["params"]["max_iter"])
 
 
-def polar(records, bias=v6e_flags):
+def _budget_exhausted(r):
+    """Ran to the end of its iteration budget: exit 0, no timeout, iterations at max_iter."""
+    run, conv = r.get("run"), r["convergence"]
+    if conv["status"] in GOOD or run is None or "iterations" not in conv:
+        return False
+    return (run["exit_code"] == 0 and not run["timeout"]
+            and conv["iterations"] >= r["params"]["max_iter"])
+
+
+def polar(records, bias=v6e_flags, accept_exhausted=frozenset()):
     """SectionData from the result.json records of one design at several angles of attack.
 
     `bias` is a callable returning the flags that record the high level's validated miss; it is a
@@ -39,7 +48,10 @@ def polar(records, bias=v6e_flags):
         if {k: r["params"].get(k) for k in DESIGN_KEYS} != design:
             raise ValueError(f"records mix designs: {design} and "
                              f"{ {k: r['params'].get(k) for k in DESIGN_KEYS} }")
-    kept = [r for r in records if r["convergence"]["status"] in GOOD or _cauchy_stopped(r)]
+    # accept_exhausted: case ids whose budget-exhausted run is accepted by an explicit ruling
+    # (decision 9, 2026-11-10: designs 8 and 28 of the SU2 pool); flagged, never silent.
+    kept = [r for r in records if r["convergence"]["status"] in GOOD or _cauchy_stopped(r)
+            or (r.get("case_id") in accept_exhausted and _budget_exhausted(r))]
     if len(kept) < 3:
         raise ValueError(f"{len(kept)} converged angles of {len(records)}; need at least 3")
     kept.sort(key=lambda r: r["params"]["alpha_deg"])
@@ -57,5 +69,12 @@ def polar(records, bias=v6e_flags):
         s.flags.append("cauchy_stopped")
         s.flags.append(f"cl_drift_max_pct={max(r['convergence']['drift_pct']['cl'] for r in stopped):.1f}")
         s.flags.append(f"cd_drift_max_pct={max(r['convergence']['drift_pct']['cd'] for r in stopped):.1f}")
+    exhausted = [r for r in kept if r.get("case_id") in accept_exhausted and _budget_exhausted(r)]
+    if exhausted:
+        s.flags.append(f"budget_exhausted_accepted={len(exhausted)}")
+        s.flags.append("exhausted_cl_drift_max_pct="
+                       f"{max(r['convergence']['drift_pct']['cl'] for r in exhausted):.1f}")
+        s.flags.append("exhausted_cd_drift_max_pct="
+                       f"{max(r['convergence']['drift_pct']['cd'] for r in exhausted):.1f}")
     s.flags.extend(bias())
     return s

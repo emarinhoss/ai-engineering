@@ -1,7 +1,12 @@
 """The SU2 pool's per-design records and results table (T10.9d).
 
     python -m analysis.pool_af_results --cases designs/pool_af_cases.csv \
-        --designs designs/pool_drone96.csv --runs runs --out runs/pool_af/<date> [--tag pool_af ...]
+        --designs designs/pool_drone96.csv --runs runs --out runs/pool_af/<date> [--tag pool_af ...] \
+        [--accept-budget-exhausted INDEX ...]
+
+--accept-budget-exhausted (decision 9, 2026-11-10: designs 8 and 28): that design's runs that used
+their whole iteration budget (exit 0, no timeout, iterations at max_iter) are kept as well, and its
+section carries the flags budget_exhausted_accepted=k and the largest cl and cd drift among them.
 
 For every design index of the cases table under the FIRST --tag (default pool_af) this collects the
 case records that have landed at <runs>/<tag>/<case_id>/result.json (where
@@ -35,10 +40,12 @@ BIAS_COLUMNS = ("index", "alpha_deg", "cl_coarse", "cl_medium", "cd_coarse", "cd
 MIN_KEPT = 3                       # drone_polar.polar refuses fewer
 
 
-def kept(records):
-    """The records drone_polar.polar keeps (same rule as drone_validation._usable), by alpha."""
+def kept(records, accept_exhausted=frozenset()):
+    """The records drone_polar.polar keeps (same rule as drone_validation._usable), by alpha;
+    plus the budget-exhausted runs of the case ids in accept_exhausted (an explicit ruling)."""
     out = [r for r in records if r["convergence"]["status"] in drone_polar.GOOD
-           or drone_polar._cauchy_stopped(r)]
+           or drone_polar._cauchy_stopped(r)
+           or (r.get("case_id") in accept_exhausted and drone_polar._budget_exhausted(r))]
     return sorted(out, key=lambda r: r["params"]["alpha_deg"])
 
 
@@ -62,9 +69,9 @@ def landed(runs, tag, case_ids):
     return out
 
 
-def design_row(index, params, case_ids, records):
+def design_row(index, params, case_ids, records, accept_exhausted=frozenset()):
     """One results.csv row (dict keyed by COLUMNS + EXTRA) and the design record or None."""
-    good = kept(records)
+    good = kept(records, accept_exhausted)
     row = {"index": index, **params, "gates": "", "error": "",
            "n_cases": len(records), "n_kept": len(good),
            "angles_kept": ";".join(str(float(r["params"]["alpha_deg"])) for r in good),
@@ -74,7 +81,7 @@ def design_row(index, params, case_ids, records):
         row["status"] = "incomplete"
         return row, None
     try:
-        rec = design_record(params, records)
+        rec = design_record(params, records, accept_exhausted=accept_exhausted)
     # a bad polar, a closure that fails or a record missing a field is a recorded row; any other
     # exception is a bug in this code and is allowed to stop the run
     except (ValueError, ArithmeticError, KeyError, TypeError) as exc:
@@ -116,6 +123,9 @@ def main(argv=None):
     ap.add_argument("--out", required=True)
     ap.add_argument("--tag", action="append", default=None,
                     help="case tag, repeatable (default pool_af); the first is tabulated")
+    ap.add_argument("--accept-budget-exhausted", type=int, action="append", default=[],
+                    metavar="INDEX", help="design index whose budget-exhausted runs are accepted "
+                    "(a ruling; repeatable; flagged in the design's section flags)")
     a = ap.parse_args(argv)
     tags = a.tag or ["pool_af"]
 
@@ -131,7 +141,8 @@ def main(argv=None):
     for index in sorted(cases):
         params = dict(zip(drone_grid.INPUTS, designs[index]))
         records = landed(a.runs, tags[0], cases[index])
-        row, rec = design_row(index, params, cases[index], records)
+        accept = frozenset(cases[index]) if index in a.accept_budget_exhausted else frozenset()
+        row, rec = design_row(index, params, cases[index], records, accept)
         rows.append(row)
         counts[row["status"]] += 1
         if rec is not None:
@@ -153,6 +164,7 @@ def main(argv=None):
         "commit": drone_grid.git_commit(),
         "cases": a.cases, "designs_table": a.designs, "runs": a.runs, "tags": tags,
         "designs": len(rows), **counts,
+        "accept_budget_exhausted": sorted(a.accept_budget_exhausted),
         "inputs_sha256": {a.cases: drone_grid.sha256(a.cases),
                           a.designs: drone_grid.sha256(a.designs)},
         "sha256": sha,

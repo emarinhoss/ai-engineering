@@ -17,8 +17,8 @@ def design_id(params):
     return "drone-" + hashlib.sha256(make_case.canonical_json(params).encode()).hexdigest()[:10]
 
 
-def design_record(params, case_records, fixed=None):
-    section = polar(case_records)
+def design_record(params, case_records, fixed=None, accept_exhausted=frozenset()):
+    section = polar(case_records, accept_exhausted=accept_exhausted)
     result = evaluate.evaluate({**params, "fidelity": "high"}, fixed or ledger.load_all(),
                                section=section)
     return {"params": params, "cases": [r["case_id"] for r in case_records],

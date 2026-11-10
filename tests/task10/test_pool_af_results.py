@@ -189,3 +189,69 @@ def test_the_recorded_nominal_runs_form_a_complete_design(tmp_path):
     # two of the six nominal runs exhausted their budget (alpha 0 and 10) and are dropped
     assert row["n_cases"] == "6" and row["n_kept"] == "4" and "missing_angles" in row["flags"]
     assert 0.0 < float(row["endurance_h"]) < 24.0 and 0.5 < float(row["mtow_kg"]) < 10.0
+
+
+# ---- decision 9 (Eder, 2026-11-10): accept the budget-exhausted runs of designs 8 and 28 ----
+
+def _two_good_three_exhausted(runs, rows, design, **exhausted_kw):
+    for i, cid, a in rows:
+        if i != design:
+            continue
+        if a in (2.0, 6.0):
+            _land(runs, "pool_af", cid, a, *_polar(a))
+        else:
+            kw = {"iterations": 6000, "cl_drift": 7.5, "cd_drift": 19.0, **exhausted_kw}
+            _land(runs, "pool_af", cid, a, *_polar(a), **kw)
+
+
+def _run(tmp_path, cases, designs, runs, *extra):
+    out = tmp_path / "out"
+    pool_af_results.main(["--cases", str(cases), "--designs", str(designs), "--runs", str(runs),
+                          "--out", str(out), *extra])
+    return out
+
+
+def test_without_the_ruling_two_kept_angles_stay_incomplete(tmp_path):
+    designs, cases, rows = _tables(tmp_path, n_designs=1)
+    runs = tmp_path / "runs"
+    _two_good_three_exhausted(runs, rows, 0)
+    row = _rows(_run(tmp_path, cases, designs, runs) / "results.csv")[0]
+    assert row["status"] == "incomplete" and row["n_kept"] == "2"
+
+
+def test_the_ruling_keeps_that_designs_exhausted_runs_and_flags_them(tmp_path):
+    designs, cases, rows = _tables(tmp_path, n_designs=2)
+    runs = tmp_path / "runs"
+    _two_good_three_exhausted(runs, rows, 0)
+    _two_good_three_exhausted(runs, rows, 1)
+    out = _run(tmp_path, cases, designs, runs, "--accept-budget-exhausted", "0")
+    r0, r1 = _rows(out / "results.csv")
+    assert r0["status"] == "complete" and r0["n_kept"] == "5"
+    flags = r0["flags"].split(";")
+    assert "budget_exhausted_accepted=3" in flags
+    assert "exhausted_cl_drift_max_pct=7.5" in flags and "exhausted_cd_drift_max_pct=19.0" in flags
+    assert r1["status"] == "incomplete" and r1["n_kept"] == "2"     # not named: rule unchanged
+    assert json.loads((out / "record.json").read_text())["accept_budget_exhausted"] == [0]
+
+
+def test_the_ruling_never_accepts_a_timeout_or_a_failed_run(tmp_path):
+    designs, cases, rows = _tables(tmp_path, n_designs=1)
+    runs = tmp_path / "runs"
+    for i, cid, a in rows:
+        if a in (2.0, 6.0):
+            _land(runs, "pool_af", cid, a, *_polar(a))
+        elif a == -2.0:                                # timed out at the budget
+            _land(runs, "pool_af", cid, a, *_polar(a), iterations=6000)
+            p = runs / "pool_af" / cid / "result.json"
+            rec = json.loads(p.read_text())
+            rec["run"]["timeout"] = True
+            p.write_text(json.dumps(rec))
+        else:                                          # non-zero exit at the budget
+            _land(runs, "pool_af", cid, a, *_polar(a), iterations=6000)
+            p = runs / "pool_af" / cid / "result.json"
+            rec = json.loads(p.read_text())
+            rec["run"]["exit_code"] = 1
+            p.write_text(json.dumps(rec))
+    row = _rows(_run(tmp_path, cases, designs, runs, "--accept-budget-exhausted", "0")
+                / "results.csv")[0]
+    assert row["status"] == "incomplete" and row["n_kept"] == "2"

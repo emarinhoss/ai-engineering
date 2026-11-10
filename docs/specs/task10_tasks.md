@@ -759,6 +759,22 @@ admits the two.
   15 GB sandbox (exit 137, and once silently with exit 0 and no files); it is being run on the 50 GB
   Colab runtime instead.
 
+### Decision 9 (Éder, 2026-11-10 01:35 UTC): "accept the budget-exhausted runs for designs 8 and 28"
+
+The ruling is scoped to the two designs named; the aggregator's rule for every other design is
+unchanged. Implemented as an explicit, per-design exception (`analysis/pool_af_results.py
+--accept-budget-exhausted 8 --accept-budget-exhausted 28`, passed through `analysis/drone_design`
+to `analysis/drone_polar.polar(accept_exhausted=...)`): a run counts as budget-exhausted only with
+exit 0, no timeout and iterations at `max_iter`; a timed-out or failed run is never accepted. Each
+accepted design's section carries `budget_exhausted_accepted=k` and the largest cl and cd drift among
+the accepted runs, and `record.json` lists the accepted designs. Three tests in
+`tests/task10/test_pool_af_results.py` pin it. Result: **32 of 32 designs complete**. Design 8 keeps
+5 angles with 3 accepted, whose drift reaches **54.1 % in cl and 44.8 % in cd** over the last fifth
+of their history, so its polar rests on runs that were still moving; design 28 keeps 5 with 3
+accepted at 6.9 % and 6.8 %. Their SU2 endurance is 5.019 h and 4.238 h against the low model's
+8.087 h and 8.180 h. Every reading recorded on 30 designs is re-run on 32 below; the 30-design blocks
+stay as the record.
+
 ## Questions for Éder (answered above; kept as the record)
 
 1. **Airfoil family.** The spec varies the NACA four-digit section per design, which is what makes
