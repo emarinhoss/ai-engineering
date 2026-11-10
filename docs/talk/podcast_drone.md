@@ -1,7 +1,7 @@
 # Podcast script: an automated, gated pipeline for aircraft design
 
 Two voices, about eight minutes. HOST asks; ÉDER explains. Rewritten 2026-11-10 from the final
-records (all 32 SU2 pool designs, both confirmation runs, the SU2-level front), with the pipeline as
+records (all 32 SU2 pool designs, both confirmation runs, the SU2-level front, decisions 9 and 10), with the pipeline as
 the subject and the aircraft as the problem it was built for. Every number comes from the records
 named in the source table at the end. For text-to-speech each line is voiced sentence by sentence,
 because the Chatterbox Space takes at most 300 characters per call.
@@ -68,6 +68,10 @@ because the Chatterbox Space takes at most 300 characters per call.
 
 **ÉDER:** It's the point. The uncertainty was too narrow, which the held-out tests had already shown. The pipeline caught that with one confirmation run, before anyone built anything.
 
+**HOST:** Did you ever overrule the checks?
+
+**ÉDER:** Twice, by name, and on the record. Thirty-six pool cases ran out of iterations, and the pipeline drops those by default. I accepted the runs of two designs, and later one angle of the 30-design confirmation, each carrying its drift as a flag. That angle didn't change the confirmation's pass. Everything else stays dropped, and two other questions I was asked to rule on are still open.
+
 **HOST:** If you had to sum it up?
 
 **ÉDER:** Put the checks after the solver, not just before it. Let the agent drive tools, never choose the data. Make every number on a slide computable from a record. And report the losses, because that's what makes the wins believable.
@@ -94,6 +98,7 @@ because the Chatterbox Space takes at most 300 characters per call.
 | Two-level: 0.824 h against 1.525 h at n = 8; SU2 alone reaches it at 24; at 24 SU2 alone 0.704 against 0.726 | `runs/drone_mf/2026-11-09/mf.csv` (32 designs) |
 | SU2 endurance 15.8 to 65.5 % below the low model on all 32 designs | `runs/pool_af/2026-11-09/results.csv` against `runs/drone_pool_lf/2026-11-08/grid.csv` |
 | Inverse at SU2 level: aspect ratio 7, 10.139 h at 3.918 kg | `runs/drone_inverse_hf/2026-11-09/inverse.json` |
+| 36 budget-exhausted pool cases; decision 9 accepts designs 8 and 28, decision 10 the 30-design confirmation's 14° case, C2 pass unchanged; two rulings open | `runs/pool_af/2026-11-09/record.json`; `docs/specs/task10_tasks.md` (decisions 9 and 10); deck version 1, DB5 and DB16 |
 | Confirmations: 30-design answer pass; final answer 8.955 h below [9.116, 11.163], mass 3.936 kg inside | `runs/drone_confirm/2026-11-09_30designs/confirm.json`, `runs/drone_confirm/2026-11-09/confirm.json` |
 
 Rounded for speech: 12 min (11.6), 5.5 % (5.49), 0.32 / 0.29 / 0.09, "under five hours" (4.7),
