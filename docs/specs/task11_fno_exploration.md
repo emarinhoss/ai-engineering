@@ -259,6 +259,50 @@ baseline, 40.7 s at 1E-4, 31.3 s at 1E-2, 56.7 s and 57.4 s at ceilings 100 and 
 unconverged smoke runs and take no part in any verdict. The 40 cases were staged after it
 (`designs/s12_cases.csv`).
 
+**Result (2026-11-11): every setting FAILS.** All 40 runs exited 0 (records `runs/s12_*`; analysis
+`python -m analysis.s12_numerics --out runs/s12_analysis/2026-11-11`, output `s12.json`). The rule
+above was applied unchanged; nothing in this block was edited after the first case started.
+
+*References.* Four are valid (pool design 1 coarse 2, 6 and 10 deg, medium 6 deg; cd drift
+0.138 to 0.162 %). The E387 reference stopped on its rule at 14,937 iterations but its cd drift is
+0.245 %, above 0.2 %, so the E387 case is reported and takes no part. Four valid cases meet the
+minimum.
+
+| Setting | 1. runs | 2. answer | 3. median saving | Verdict |
+|---|---|---|---|---|
+| CFL 50 | fail: 10 deg hits the 6,000 budget | holds | 29.2 % (below 30 %) | fail |
+| CFL 100 | fail: 10 deg hits the budget | fail: 10 deg cd 4.1 % off (allowed 1.6 %) | 45.4 % | fail |
+| CFL 250 | fail: 10 deg hits the budget | fail: 10 deg cd 31.9 % off, cl 4.6 % | 54.5 % | fail |
+| tol 1E-4 | holds | fail: coarse 6 deg cl 0.52059 % vs allowed 0.52058 %; medium 6 deg cd 1.04752 % vs 1.04744 % | 22.8 % | fail |
+| tol 1E-2 | holds | fail: coarse 10 deg cd 1.655 % vs 1.639 %; medium 6 deg cd 1.070 % vs 1.047 % | 47.3 % | fail |
+
+What the numbers show, beside the verdict (none of this changes it):
+
+- *S1 is two different results.* At 2 and 6 deg every ceiling stops in 1,087 to 2,381 iterations
+  against 3,447 to 4,999 for the baseline, with cl within 0.35 % and cd within 0.61 % of the
+  reference. At 10 deg no ceiling stops inside 6,000 iterations (the baseline stops at 4,077), and
+  at 250 the answer is wrong by 32 % in cd. So a higher ceiling helps attached flow at low angle and
+  breaks the one case nearer separation. The tested range does not support it.
+- *S2 at 1E-2 gives the baseline's answer at lower cost per iteration.* Its iteration counts equal
+  the baseline's within 2 %, and its cl and cd distances from the reference equal the baseline's own:
+  coarse 10 deg cd 1.655 % against an allowance of 1.639 %, medium 6 deg cd 1.070 % against 1.047 %. It
+  fails condition 2 because the allowance is the baseline's distance and the two are nearly equal; the
+  baseline itself is about 1 % from the reference in cd at those two cases. This is a fail as the
+  rule is written, and it is recorded as one.
+- *The wall-time noise is a machine difference, not run-to-run scatter.* The two runtimes were the
+  same requested shape but not the same speed: the s12b runtime (`...-1of2`) took about 1.5 times as
+  long per iteration as s12a. Repeats on one runtime agree to 0.6 % (coarse 2 deg 689 and 685 s;
+  E387 1,666 and 1,667 s); repeats split across the two disagree by 47 % (coarse 6 deg 738 and
+  457 s) and 40 % (medium 6 deg 2,050 and 1,366 s). The "same runtime shape" step of "How it runs"
+  did not give comparable machines. Because the noise term is the largest spread (0.471), no saving
+  is "resolved" under the rule, and the 30 % test in condition 3 is made on mixed machines.
+
+**What would come next, not done.** A test of S2 at 1E-2 with all runs of a case on one runtime,
+and with an answer tolerance that does not require a setting to beat the baseline's own distance,
+is the only line these runs point to. That is a new rule; it needs Éder's approval before any run,
+and these 40 runs cannot be re-judged under it. Measured cost: 10.8 hours of summed solver wall time over the 40 runs;
+balance 473.43 before, 470.32 after (3.1 compute units).
+
 ## 5. Pros and cons
 
 | For | Against |
