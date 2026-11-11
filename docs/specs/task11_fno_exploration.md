@@ -126,6 +126,42 @@ mesh step (a coarse run is needed first) and not to the angle step (the donor is
 needs anyway). The restart feature this needs (`save_restart`, `restart_from`) is new worker code
 and is smoke-tested on one short case before the batch is staged.
 
+### E0 result (2026-11-11): FAIL for both kinds of start
+
+Record: `runs/e0/` (twelve cases), `runs/e0_analysis/2026-11-11/e0.json`, made by
+`python -m analysis.e0_warmstart --out runs/e0_analysis/2026-11-11` with the rule above, unchanged.
+All twelve runs exited 0 and stopped on the Cauchy rule inside the 6,000 budget, so no pair counts as
+"no saving" by exhaustion. Each runtime ran two 4-rank jobs at a time, for cold and warm alike.
+
+| Kind | Warm case | Iterations warm / cold | Saving | cl diff / allowed | cd diff / allowed |
+|---|---|---|---|---|---|
+| angle step | 6 deg from 2 | 2,562 / 3,654 | 29.9 % | 0.59 / 1.59 % | 1.66 / 4.37 % |
+| angle step | 10 deg from 6 | 3,935 / 4,077 | 3.5 % | 0.03 / 1.21 % | 0.12 / 3.80 % |
+| angle step | 2 deg from 6 | 3,498 / 3,447 | -1.5 % | 0.25 / 1.44 % | **4.24 / 2.29 %** |
+| mesh step | medium 2 deg from coarse 2 | 932 / 5,040 | 81.5 % | 1.21 / 1.51 % | **2.23 / 1.60 %** |
+| mesh step | medium 6 deg from coarse 6 | 1,045 / 4,999 | 79.1 % | 0.99 / 2.20 % | 3.63 / 5.47 % |
+| mesh step | medium 10 deg from coarse 10 | 837 / 4,429 | 81.1 % | 0.56 / 1.57 % | 2.51 / 4.41 % |
+
+- **Angle step: fail on both halves.** Median iteration saving 3.5 % against 30 %, and the 2-degree
+  warm drag is 4.24 % from its cold twin against that twin's 2.29 % drift.
+- **Mesh step: fail on the force half only.** Median iteration saving 81.1 %, far above 30 %, but the
+  2-degree warm drag is 2.23 % from its cold twin against that twin's 1.60 % drift. The rule says
+  "every", so one miss fails the kind. Wall time with the donor charged falls by a median 29.5 %.
+- **Observations, reported and not used to change the verdict.** The warm runs end with far smaller
+  drift of their own (cd 0.1 to 0.5 % on the mesh step, against 1.6 to 5.5 % for the cold twins), so
+  the two answers of a pair are not equally settled, and the rule compares the warm value against the
+  cold run's drift only. Every mesh-step warm cd is below its cold twin (2.2 to 3.6 %). Wall times were
+  measured with two jobs per 8-core runtime and are noisier than the iteration counts; the 2-degree
+  angle step ran more iterations than its twin yet reports a 40 % shorter wall time.
+- **What the result does not show.** Three angles of one section, at one Reynolds number. A rule that
+  compared both runs against a common converged reference, or allowed the warm run's own drift, is a
+  different test and would have to be fixed before any new run; it is not applied here.
+- **By section 4, the line stops:** E1 to E3 are not run. The ruling to open a new test, if any, is
+  Éder's.
+
+Cost: the two Colab CPU runtimes that ran the decision 11 E387 cases and E0 used 5.50 compute units
+(balance 478.94 before, 473.44 after); both were stopped on 2026-11-11.
+
 ## 5. Pros and cons
 
 | For | Against |
