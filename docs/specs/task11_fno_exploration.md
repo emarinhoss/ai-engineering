@@ -303,10 +303,10 @@ is the only line these runs point to. That is a new rule; it needs Éder's appro
 and these 40 runs cannot be re-judged under it. Measured cost: 10.8 hours of summed solver wall time over the 40 runs;
 balance 473.43 before, 470.32 after (3.1 compute units).
 
-### Experiment S2R: linear tolerance 1E-2, re-tested on one machine. DRAFT, NOT APPROVED
+### Experiment S2R: linear tolerance 1E-2, re-tested on one machine. APPROVED 2026-11-11
 
-Drafted 2026-11-11 at Éder's request ("draft the new rule for linear tolerance 1E-2"). Nothing is
-staged or run until Éder approves it. On approval the block is frozen in the way the S1/S2 block was:
+Drafted 2026-11-11 at Éder's request ("draft the new rule for linear tolerance 1E-2") and approved by
+Éder the same day: "approved as written, go ahead". From that approval the block is frozen in the way the S1/S2 block was:
 a later change is recorded beside the original with its date and reason, and never replaces it.
 
 **Why a new test, and what it cannot do.** S1/S2 failed 1E-2 under its rule, and that verdict stands.
