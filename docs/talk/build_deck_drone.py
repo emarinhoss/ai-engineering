@@ -2397,7 +2397,7 @@ def body_study_guide(slide, v):
         part = html[html.index(f'id="{bid}"'):]
         part = part[:part.index("<h2", 10)]
         title = re.search(r'>([^<]+)</h2>', part).group(1)
-        labels = re.findall(r'<label for="k\d+">(\d+)\. ([^<]+)</label>', part)
+        labels = re.findall(r'<label for="k\w+">(\d+A?)\. ([^<]+)</label>', part)
         rows.append([title, f"{labels[0][0]} to {labels[-1][0]}",
                      "; ".join(t.split(":")[0] for _, t in labels)])
     n = len(re.findall(r'data-id="', html))
