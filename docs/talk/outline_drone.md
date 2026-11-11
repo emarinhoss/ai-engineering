@@ -88,7 +88,7 @@ Backup slides DB1 to DB17 follow D45 and are not timed.
 
 - **Message:** Six problems were stopped by the earliest check that could see them; two of them were found by reading the records rather than by a gate.
 - **Figure or table:** Table: the problem, the check that caught it, what would have reached a result without it, and the record.
-- **Source:** `runs/smoke/airfoil2d-96a9dd0f51/error.json`; `runs/mesh/airfoil2d-e161fb7e6b.first_attempt/error.json`; `docs/validation/2026-11-08_task10_report.md`; `runs/e387/airfoil2d-498b156761/result.json`; `runs/drone/validation/2026-11-08/v6.json`; `docs/specs/task10_tasks.md` (decision 8)
+- **Source:** `runs/smoke/airfoil2d-96a9dd0f51/error.json`; `runs/mesh/airfoil2d-e161fb7e6b.first_attempt/error.json`; `docs/validation/2026-11-08_task10_report.md`; `runs/e387/airfoil2d-498b156761/result.json`; `runs/drone/validation/2026-11-10/v6.json`; `docs/specs/task10_tasks.md` (decision 8)
 - **Speaker notes:** The fingerprint refusal is the worker declining to run a mesh it could not reproduce bit for bit, even though the bounding boxes agreed to {fp_bbox_diff} m. The drag claim was a sentence in the task ledger that the deck builder contradicted when it read the E387 records directly. The lift-slope miss was caught by a tolerance fixed before any case ran, and decision 8 kept it a fail.
 
 ### D4. Why MCP tools, and what they do not add (2:30, 0.5 min)
@@ -119,7 +119,7 @@ Backup slides DB1 to DB17 follow D45 and are not timed.
 - **Message:** Six inputs span the box; {n_ledger} fixed quantities come from the ledger, {n_assumed} of them assumed with a band, and the cruise speed is set by a rule rather than chosen.
 - **Figure or table:** Table of the six inputs with their ranges and the nominal design; the ledger counts by set and grade; the cruise-speed rule.
 - **Equations:** $V_{\mathrm{cr}}=\max\left(V_{\mathrm{minP}},\ k_s\,V_{\mathrm{stall}}\right),\quad V_{\mathrm{stall}}=\sqrt{\dfrac{2W}{\rho\,S\,C_{L,\max}}}$
-- **Source:** `mcp_server/schemas.py` (DRONE_BOUNDS); `runs/drone/validation/2026-11-08/v6.json`; `data/drone/air.yaml`; `data/drone/battery.yaml`; `data/drone/propulsion.yaml`; `data/drone/structure.yaml`; `data/drone/rules.yaml`; `drone/mission.py`
+- **Source:** `mcp_server/schemas.py` (DRONE_BOUNDS); `runs/drone/validation/2026-11-10/v6.json`; `data/drone/air.yaml`; `data/drone/battery.yaml`; `data/drone/propulsion.yaml`; `data/drone/structure.yaml`; `data/drone/rules.yaml`; `drone/mission.py`
 - **Speaker notes:** Cruise speed is not an input because an optimizer would always drive it to the same place. The fixed quantities' bands are not surrogate inputs; their effect is measured once by the one-at-a-time sweep on the results section. Sea-level ISA air is the only flight condition.
 
 ### D8. Two fidelity levels, and what each costs (6:00, 1 min)
@@ -143,7 +143,7 @@ Backup slides DB1 to DB17 follow D45 and are not timed.
 
 - **Message:** The nominal design has a {nom_span} m span, aspect ratio {nom_ar} and taper {nom_taper}: {nom_area} m^2 of wing and a closed take-off mass of {nom_mtow} kg; tail and fuselage follow from the wing by rule.
 - **Figure or table:** Top view drawn by `drone.geometry.build`, with the six inputs labeled and the NACA section inset.
-- **Source:** `drone/geometry.py`; `drone/naca.py`; `drone/evaluate.py`; `runs/drone/validation/2026-11-08/v6.json`; `docs/talk/build_deck_drone.py`
+- **Source:** `drone/geometry.py`; `drone/naca.py`; `drone/evaluate.py`; `runs/drone/validation/2026-11-10/v6.json`; `docs/talk/build_deck_drone.py`
 - **Speaker notes:** Span and aspect ratio fix the wing area, taper fixes the chords, and the tail is sized by volume coefficients with a fixed arm. The fuselage is a body of revolution holding the payload and the battery; its position along the wing is schematic.
 
 ### D11. What V6a checks: the vortex lattice (8:15, 0.75 min)
@@ -151,7 +151,7 @@ Backup slides DB1 to DB17 follow D45 and are not timed.
 - **Message:** The lattice puts one horseshoe vortex on each panel; V6a checks its span efficiency ({v6a_e_dev} against 1) and lift slope ({v6a_cla_dev} against Helmbold) on an elliptic wing of aspect ratio 8.
 - **Figure or table:** The medium lattice on the nominal planform with one horseshoe highlighted, and the spanwise cl at 4 degrees.
 - **Equations:** $\vec v_{\mathrm{seg}}=\dfrac{\Gamma}{4\pi}\ \dfrac{\vec r_1\times\vec r_2}{|\vec r_1\times\vec r_2|^{2}}\ \vec r_0\cdot\left(\dfrac{\vec r_1}{|\vec r_1|}-\dfrac{\vec r_2}{|\vec r_2|}\right)$; $\left(\vec V_\infty+\sum_j A_{ij}\,\Gamma_j\right)\cdot\hat n_i=0$; $C_{Di}=\pi\,AR\sum_{n\ \mathrm{odd}}n\,A_n^{2},\quad e=\dfrac{C_L^{2}}{\pi\,AR\,C_{Di}}$
-- **Source:** `drone/vlm.py`; `drone/geometry.py`; `runs/drone/validation/2026-11-08/v6.json`; `docs/talk/build_deck_drone.py`
+- **Source:** `drone/vlm.py`; `drone/geometry.py`; `runs/drone/validation/2026-11-10/v6.json`; `docs/talk/build_deck_drone.py`
 - **Speaker notes:** Bound vortices sit on the quarter chord and control points on the three-quarter chord of each panel. The nominal wing's own span efficiency and lift slope are in the figure beside the V6a values.
 
 ### D12. Validation V6a to V6d (9:00, 0.75 min)
@@ -159,7 +159,7 @@ Backup slides DB1 to DB17 follow D45 and are not timed.
 - **Message:** The solver's own checks pass: {n_pass} toleranced rows pass, {n_pending} is pending a source, {n_fail} fails.
 - **Figure or table:** Table of V6a to V6d: row, deviation, tolerance and verdict for every toleranced row.
 - **Equations:** $C_{L\alpha}=\dfrac{2\pi\,AR}{2+\sqrt{AR^{2}+4}}$; $C_{Di}=\dfrac{C_L^{2}}{\pi\,AR\,e}$; $\mathrm{dev}=\dfrac{M}{R}-1\quad\mathrm{or}\quad\mathrm{dev}=M-R$
-- **Source:** `runs/drone/validation/2026-11-08/v6.json`
+- **Source:** `runs/drone/validation/2026-11-10/v6.json`
 - **Speaker notes:** These rows check the vortex lattice against Helmbold's slope and lifting-line theory, the Warren-12 benchmark, the lattice convergence and the mass and energy closure. The one pending row waits on the source of the benchmark's moment reference point; it is not tuned to agree.
 
 ### D13. Mass closure and the endurance balance (9:45, 0.5 min)
@@ -167,7 +167,7 @@ Backup slides DB1 to DB17 follow D45 and are not timed.
 - **Message:** Take-off mass is a fixed point and endurance is an energy balance: at the nominal design the closure takes {nom_iters} iterations and the balance gives {nom_endurance} h.
 - **Figure or table:** The closure loop, the nominal mass breakdown and the energy chain with its nominal values.
 - **Equations:** $m_{k{+}1}=m_{\mathrm{pay}}+f_b\,m_k+m_{\mathrm{skin}}+m_{\mathrm{spar}}+m_{\mathrm{tail}}+m_{\mathrm{fus}}+P_{\mathrm{inst}}/\sigma_P$; $P_{\mathrm{cr}}=\dfrac{D\,V}{\eta_p}$; $P_{\mathrm{inst}}=\max\!\left(k_P\,P_{\mathrm{cr}},\ \dfrac{W\,\dot h}{\eta_p}+P_{\mathrm{cr}}\right)$; $t=\dfrac{\mathrm{DoD}\,E_{\mathrm{spec}}\,3600\,m_b-P_{\mathrm{inst}}\,t_{\mathrm{climb}}}{3600\,P_{\mathrm{cr}}}$
-- **Source:** `drone/evaluate.py`; `drone/mission.py`; `runs/drone/validation/2026-11-08/v6.json`; `docs/talk/build_deck_drone.py`
+- **Source:** `drone/evaluate.py`; `drone/mission.py`; `runs/drone/validation/2026-11-10/v6.json`; `docs/talk/build_deck_drone.py`
 - **Speaker notes:** Battery mass is the battery fraction times take-off mass, so the loop has to be iterated. V6d checks that the loop and the energy balance close to 1e-9.
 
 ### D14. The airfoil RANS family: the mesh (10:15, 0.5 min)
@@ -205,7 +205,7 @@ Backup slides DB1 to DB17 follow D45 and are not timed.
 - **Message:** The closed-form section is {f_clalpha_range} low in lift slope, misses profile drag by {f_cd_range} and overpredicts cl_max by {f_clmax_range}; nothing was tuned.
 - **Figure or table:** Table of the twelve V6f rows by Reynolds number.
 - **Equations:** $c_{l,\max}=k_{\mathrm{eff}}\,2\pi\,(\alpha_{\mathrm{stall}}-\alpha_{L0})$; $c_{d0}=2\,C_f\,FF,\quad FF=1+k_1\,(t/c)+k_2\,(t/c)^{4}$; $\mathrm{mean}_{\,0.3\leq c_{l,\mathrm{tun}}\leq0.9}\left|\dfrac{c_d}{c_{d,\mathrm{tun}}}-1\right|$
-- **Source:** `runs/drone/validation/2026-11-08/v6.json`; `data/validation/e387_uiuc.yaml`
+- **Source:** `runs/drone/validation/2026-11-10/v6.json`; `data/validation/e387_uiuc.yaml`
 - **Speaker notes:** These are the sizes of the errors the two-level model has to learn. The lift effectiveness the ledger assumes does not contain the value the tunnel implies; that is a ledger ruling and not a number to move here.
 
 ### D19. V6e: SU2 against the tunnel, and decision 8 (13:15, 1 min)
@@ -213,7 +213,7 @@ Backup slides DB1 to DB17 follow D45 and are not timed.
 - **Message:** SU2's lift slope misses the tunnel by {v6e_dev} against a {v6e_tol} tolerance: a fail, kept as a fail, and accepted as the high level with the bias recorded.
 - **Figure or table:** Figure d (SU2 cl and cd against the UIUC E387 data at the same angles) and the V6e rows.
 - **Equations:** $a_{\mathrm{fit}}=\dfrac{\sum(\alpha_i-\bar\alpha)(c_{l,i}-\bar c_l)}{\sum(\alpha_i-\bar\alpha)^{2}},\quad \mathrm{dev}=\dfrac{a_{\mathrm{SU2}}}{a_{\mathrm{tun}}}-1$; $\mathrm{mean}_{\,0.3\leq c_{l,\mathrm{tun}}\leq0.9}\left|\dfrac{c_d}{c_{d,\mathrm{tun}}}-1\right|$
-- **Source:** `docs/validation/figures/task10/d_e387_comparison.png`; `runs/drone/validation/2026-11-08/v6.json`; `runs/e387/airfoil2d-498b156761/result.json`; `docs/specs/task10_tasks.md` (V6e and decision 8)
+- **Source:** `docs/validation/figures/task10/d_e387_comparison.png`; `runs/drone/validation/2026-11-10/v6.json`; `runs/e387/airfoil2d-498b156761/result.json`; `docs/specs/task10_tasks.md` (V6e and decision 8)
 - **Speaker notes:** The tolerance was fixed before any case ran, and the miss is reported as a fail. Decision 8 accepts the medium-mesh polar as the high level and attaches the miss to every record it produces. The figure draws whatever E387 points exist at build time.
 
 ### D20. The E387 pressure distributions (14:15, 0.5 min)
@@ -319,7 +319,7 @@ Backup slides DB1 to DB17 follow D45 and are not timed.
 - **Message:** Does the two-level model reach a given held-out error with fewer SU2 designs than SU2 alone? {mf_answer}
 - **Figure or table:** Sketch of y_H = rho y_L + d beside the E387 lift-slope values at Re 203,800 that d has to absorb; when the analysis exists, a table of held-out error against the number of SU2 designs for both models.
 - **Equations:** $y_H(x)=\rho\,y_L(x)+d(x),\quad d\sim\mathcal{GP}$; $\mu_H=\rho\,\mu_L+\mu_d,\quad \sigma_H^{2}=\rho^{2}\sigma_L^{2}+\sigma_d^{2}$; $(\rho,c)^{T}=(A^{T}K^{-1}A)^{-1}A^{T}K^{-1}y_H$
-- **Source:** `runs/drone/validation/2026-11-08/v6.json`; `docs/talk/build_deck_drone.py`; `surrogate/mf_gp.py`; PENDING: `runs/drone_mf/2026-11-09/mf.csv` (multi-fidelity analysis, T10.10c)
+- **Source:** `runs/drone/validation/2026-11-10/v6.json`; `docs/talk/build_deck_drone.py`; `surrogate/mf_gp.py`; PENDING: `runs/drone_mf/2026-11-09/mf.csv` (multi-fidelity analysis, T10.10c)
 - **Speaker notes:** The known bias of the high level is recorded beside every SU2 number, so the correction term absorbs a known offset. The inlet's Task 9 found that a cheap level helps most at small budgets, and this is the same measurement on a new problem. Whether that pays here is the measurement this slide is waiting for, if it says PENDING.
 
 ## Section 5: Results and the inverse query (6 minutes)
@@ -380,21 +380,21 @@ Backup slides DB1 to DB17 follow D45 and are not timed.
 
 - **Message:** The model's named biases stay beside every figure; the high level carries the V6e miss (at Re {e387_re} SU2's cl is {su2_cl_range} and its cd {su2_cd_range}) and a drift band of {pool_cl_drift} in cl and {pool_cd_drift} in cd over the kept pool cases.
 - **Figure or table:** Two lists: section 13 of the spec with the drift band and the open ledger finding, and the decision-8 flags read from the validation record.
-- **Source:** `docs/specs/task10_drone_sizing.md` (section 13); `runs/drone/validation/2026-11-08/v6.json`; `runs/e387/airfoil2d-498b156761/result.json`; `analysis/high_level_bias.py`; `runs/pool_af/2026-11-09/results.csv`
+- **Source:** `docs/specs/task10_drone_sizing.md` (section 13); `runs/drone/validation/2026-11-10/v6.json`; `runs/e387/airfoil2d-498b156761/result.json`; `analysis/high_level_bias.py`; `runs/pool_af/2026-11-09/results.csv`
 - **Speaker notes:** The flags are generated from the validation record, so they cannot drift from it. A reader of any single design record sees the miss without opening this deck. The drift band is the size of the movement the stopping rule tolerates, which is the floor of what the pool can resolve.
 
 ### D42. What the record keeps that was wrong first (36:30, 1 min)
 
 - **Message:** Each of these was wrong at its first recording and is kept on the record beside its correction: the corrections were made on evidence, and none moved a tolerance after a verdict.
 - **Figure or table:** Table: what was first recorded, what the record now says, and what found it.
-- **Source:** `docs/specs/task10_tasks.md`; `docs/specs/task10_drone_sizing.md` (addendum 2); `runs/drone/validation/2026-11-08/v6.json`; `runs/replay_drone_online/2026-11-08/online.csv`; `runs/mesh/airfoil2d-e161fb7e6b.first_attempt/error.json`; `runs/drone_inverse_lf/2026-11-09/inverse.json`
+- **Source:** `docs/specs/task10_tasks.md`; `docs/specs/task10_drone_sizing.md` (addendum 2); `runs/drone/validation/2026-11-10/v6.json`; `runs/replay_drone_online/2026-11-08/online.csv`; `runs/mesh/airfoil2d-e161fb7e6b.first_attempt/error.json`; `runs/drone_inverse_lf/2026-11-09/inverse.json`
 - **Speaker notes:** The first online replay is the most useful entry, because it is the result the plan asked to publish if active learning lost. Two of the corrections were references and not the solver, which the solver's own convergence study showed. Any row the builder adds itself is a statement in the task file that the record contradicts.
 
 ### D43. Limits of the model (37:30, 1 min)
 
 - **Message:** The study sizes one cruise point at sea level with a fixed propeller efficiency and closed-form structure; what the spec puts out of scope bounds what the front means.
 - **Figure or table:** List of what is out of scope, read from section 13 of the spec, and the open ledger and validation items.
-- **Source:** `docs/specs/task10_drone_sizing.md` (section 13); `docs/validation/2026-11-08_task10_report.md` (section 9); `runs/drone/validation/2026-11-08/v6.json`
+- **Source:** `docs/specs/task10_drone_sizing.md` (section 13); `docs/validation/2026-11-08_task10_report.md` (section 9); `runs/drone/validation/2026-11-10/v6.json`
 - **Speaker notes:** Wind, altitude and the take-off phase are the first things a real sizing study would add, and the inlet's Task 9 shows the form an envelope study takes. Nothing here claims more than one cruise point.
 
 ### D44. Conclusions: the four questions as far as the records go (38:30, 1.5 min)
@@ -419,14 +419,14 @@ Backup slides DB1 to DB17 follow D45 and are not timed.
 
 - **Message:** Every V6a to V6d row of the validation record, report rows included.
 - **Figure or table:** Table: row, measured, reference, deviation, tolerance, verdict.
-- **Source:** `runs/drone/validation/2026-11-08/v6.json`
+- **Source:** `runs/drone/validation/2026-11-10/v6.json`
 - **Speaker notes:** Report rows have no tolerance and show the lattice convergence the toleranced rows rest on. The Warren-12 moment row stays pending until the benchmark's reference point is sourced.
 
 ### DB2. Backup: the V6 table, part 2 (V6e to V6g)
 
 - **Message:** Every V6e and V6f row, and the rows not run with their reason.
 - **Figure or table:** Table: row, measured, reference, deviation, tolerance, verdict; then the not-run list.
-- **Source:** `runs/drone/validation/2026-11-08/v6.json`
+- **Source:** `runs/drone/validation/2026-11-10/v6.json`
 - **Speaker notes:** The V6e fails are kept as fails under decision 8. The not-run rows are shown, not hidden.
 
 ### DB3. Backup: E387 point by point at both Reynolds numbers
@@ -480,7 +480,7 @@ Backup slides DB1 to DB17 follow D45 and are not timed.
 
 ### DB10. Backup: the decision log
 
-- **Message:** The three rulings that shaped the SU2 level, as recorded with their dates.
+- **Message:** The four rulings that shaped the SU2 level, as recorded with their dates.
 - **Figure or table:** Table: decision, who and when, the ruling as recorded, and what it changed.
 - **Source:** `docs/specs/task10_tasks.md` (decisions 6, 7 and 8)
 - **Speaker notes:** Each ruling was put with a recommendation and its evidence, and each is recorded verbatim where the person gave words. Decision 8 is also why no SST with Langtry-Menter attempt was run.
@@ -524,14 +524,14 @@ Backup slides DB1 to DB17 follow D45 and are not timed.
 
 - **Message:** Of the three rulings put to Éder, one is ruled and two stay open, each with the evidence that frames it.
 - **Figure or table:** Table: the ruling, the evidence, and its status or what changes either way.
-- **Source:** `docs/validation/2026-11-08_task10_report.md` (section 9); `runs/drone/validation/2026-11-08/v6.json`; `data/drone/rules.yaml`
+- **Source:** `docs/validation/2026-11-08_task10_report.md` (section 9); `runs/drone/validation/2026-11-10/v6.json`; `data/drone/rules.yaml`
 - **Speaker notes:** None of these is decided by the deck. Accepting the budget-exhausted runs changed no verdict, and the record keeps both states.
 
 ### DB17. Backup: record status, what exists and what is pending
 
 - **Message:** Every file this deck reads or waits for, with whether it exists at build time.
 - **Figure or table:** Status table: file, what writes it, exists or PENDING.
-- **Source:** `runs/pool_af/2026-11-09/record.json`; `runs/drone/validation/2026-11-08/v6.json`; PENDING: `runs/drone_mf/2026-11-09/mf.csv`, `runs/drone_pareto_hf/2026-11-09/pareto.csv`, `runs/drone_inverse_hf/2026-11-09/inverse.json`, `runs/drone_confirm/2026-11-09/confirm.json`, `runs/drone_bias_hf/2026-11-09/bias_sweep.csv` (pool analyses)
+- **Source:** `runs/pool_af/2026-11-09/record.json`; `runs/drone/validation/2026-11-10/v6.json`; PENDING: `runs/drone_mf/2026-11-09/mf.csv`, `runs/drone_pareto_hf/2026-11-09/pareto.csv`, `runs/drone_inverse_hf/2026-11-09/inverse.json`, `runs/drone_confirm/2026-11-09/confirm.json`, `runs/drone_bias_hf/2026-11-09/bias_sweep.csv` (pool analyses)
 - **Speaker notes:** The status column is computed when the deck is built. The talk claims nothing beyond what the existing files show.
 
 ## Coverage of the inlet deck

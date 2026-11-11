@@ -1,0 +1,422 @@
+{
+  "date": "2026-11-10",
+  "commit": "59c0fcdd93b0be0b07c534ae3684aa00e8c0ccc9",
+  "lattice_levels": {
+    "coarse": [
+      8,
+      20
+    ],
+    "medium": [
+      12,
+      30
+    ],
+    "fine": [
+      16,
+      40
+    ]
+  },
+  "nominal_params": {
+    "family": "drone",
+    "span_m": 2.0,
+    "aspect_ratio": 10.0,
+    "taper_ratio": 0.6,
+    "battery_fraction": 0.3,
+    "camber_pct": 4.0,
+    "thickness_pct": 12.0,
+    "fidelity": "low",
+    "tag": "v6"
+  },
+  "ledger_hashes": {
+    "data/drone/air.yaml": "28d6df40109e060e088d3e1be3d26e1b2ba10111d376b9882cd0065210cb00e7",
+    "data/drone/battery.yaml": "1ee0bbfe8aa029fe1496145fd5d6677c24d20ead7b99dedc4eb8efdc7b3b4a0c",
+    "data/drone/propulsion.yaml": "495d0f5a001eab88d8d64f80d20aa571b13f77925167a24a14b55c670b30adb9",
+    "data/drone/rules.yaml": "a23d325a6e2e52d8fd9c9f6de37f47b1b8c17d41f82065ef204a1adf23269a09",
+    "data/drone/structure.yaml": "49a077b62fa9d831704d5226693207caf0aad12da40d12c204685d6f91ace941",
+    "data/validation/warren12.yaml": "514d991feb3b2b25ec4215e3a2bb95710feac6c4882a626a62c2cf0b6108b6dc",
+    "data/validation/e387_uiuc.yaml": "3660614052ba7d699c8d1e30e3fb98015f5991e8bce6ccb5e7c1b0af820b4a0b"
+  },
+  "checks": [
+    {
+      "name": "V6a elliptic AR 8 fine: e at 4 deg vs 1",
+      "measured": 0.9973715009767127,
+      "reference": 1.0,
+      "deviation": -0.002628499023287323,
+      "tolerance": 0.01,
+      "verdict": "pass",
+      "note": ""
+    },
+    {
+      "name": "V6a elliptic AR 8 fine: CL_alpha vs Helmbold",
+      "measured": 4.810010669945385,
+      "reference": 4.905762844912698,
+      "deviation": -0.019518304898617167,
+      "tolerance": 0.03,
+      "verdict": "pass",
+      "note": ""
+    },
+    {
+      "name": "V6a elliptic AR 8 fine: CDi vs CL^2/(pi AR_planform e)",
+      "measured": 0.004480233391987623,
+      "reference": 0.004480233391987623,
+      "deviation": 0.0,
+      "tolerance": 1e-09,
+      "verdict": "pass",
+      "note": "absolute difference"
+    },
+    {
+      "name": "V6a elliptic AR 100 fine: CL_alpha vs 2 pi AR/(AR+2)",
+      "measured": 6.154209900362259,
+      "reference": 6.1599855952741045,
+      "deviation": -0.0009376150029111185,
+      "tolerance": 0.01,
+      "verdict": "pass",
+      "note": ""
+    },
+    {
+      "name": "V6a (report) rectangular AR 100 fine: CL_alpha vs 2 pi AR/(AR+2)",
+      "measured": 6.071524360921105,
+      "reference": 6.1599855952741045,
+      "deviation": -0.01436062357367629,
+      "tolerance": null,
+      "verdict": "report",
+      "note": ""
+    },
+    {
+      "name": "V6a (report) elliptic AR 8 coarse: CL_alpha vs Helmbold",
+      "measured": 4.829034369455911,
+      "reference": 4.905762844912698,
+      "deviation": -0.015640477920035423,
+      "tolerance": null,
+      "verdict": "report",
+      "note": ""
+    },
+    {
+      "name": "V6a (report) elliptic AR 8 coarse: e vs 1",
+      "measured": 0.9993705037052918,
+      "reference": 1.0,
+      "deviation": -0.0006294962947082094,
+      "tolerance": null,
+      "verdict": "report",
+      "note": ""
+    },
+    {
+      "name": "V6a (report) elliptic AR 8 medium: CL_alpha vs Helmbold",
+      "measured": 4.816549293934541,
+      "reference": 4.905762844912698,
+      "deviation": -0.018185459386947822,
+      "tolerance": null,
+      "verdict": "report",
+      "note": ""
+    },
+    {
+      "name": "V6a (report) elliptic AR 8 medium: e vs 1",
+      "measured": 0.9980727477625485,
+      "reference": 1.0,
+      "deviation": -0.0019272522374514933,
+      "tolerance": null,
+      "verdict": "report",
+      "note": ""
+    },
+    {
+      "name": "V6b Warren-12 fine: CL_alpha vs benchmark",
+      "measured": 2.7707678865856105,
+      "reference": 2.743,
+      "deviation": 0.010123181401972436,
+      "tolerance": 0.02,
+      "verdict": "pass",
+      "note": ""
+    },
+    {
+      "name": "V6b Warren-12 fine: Cm_alpha (about root LE, reference chord 1.0) vs benchmark",
+      "measured": -3.1368204577036742,
+      "reference": -3.1,
+      "deviation": 0.011877567001185252,
+      "tolerance": 0.02,
+      "verdict": "pending (reference point not yet sourced)",
+      "note": "not counted as pass or fail"
+    },
+    {
+      "name": "V6c nominal: CL_alpha, medium vs fine",
+      "measured": 4.991360906368031,
+      "reference": 4.982660164767528,
+      "deviation": 0.0017462040983702298,
+      "tolerance": 0.01,
+      "verdict": "pass",
+      "note": ""
+    },
+    {
+      "name": "V6c nominal: e at 4 deg, medium vs fine",
+      "measured": 0.9775441101626141,
+      "reference": 0.9801100481995879,
+      "deviation": -0.00261801013231866,
+      "tolerance": 0.01,
+      "verdict": "pass",
+      "note": ""
+    },
+    {
+      "name": "V6c nominal: endurance_h, medium vs fine",
+      "measured": 6.748446154602705,
+      "reference": 6.757425829183767,
+      "deviation": -0.0013288602506417169,
+      "tolerance": 0.02,
+      "verdict": "pass",
+      "note": ""
+    },
+    {
+      "name": "V6c (report) nominal: CL_alpha, coarse vs medium",
+      "measured": 5.008306802621928,
+      "reference": 4.991360906368031,
+      "deviation": 0.003395045273580255,
+      "tolerance": null,
+      "verdict": "report",
+      "note": ""
+    },
+    {
+      "name": "V6c (report) nominal: e at 4 deg, coarse vs medium",
+      "measured": 0.9728004769295792,
+      "reference": 0.9775441101626141,
+      "deviation": -0.004852602745717416,
+      "tolerance": null,
+      "verdict": "report",
+      "note": ""
+    },
+    {
+      "name": "V6c (report) nominal: endurance_h, coarse vs medium",
+      "measured": 6.733530403817563,
+      "reference": 6.748446154602705,
+      "deviation": -0.002210249655021479,
+      "tolerance": null,
+      "verdict": "report",
+      "note": ""
+    },
+    {
+      "name": "V6d closure_residual below 1e-9",
+      "measured": 5.605905516643828e-10,
+      "reference": 0.0,
+      "deviation": 5.605905516643828e-10,
+      "tolerance": 1e-09,
+      "verdict": "pass",
+      "note": "absolute; the residual is relative by construction"
+    },
+    {
+      "name": "V6d energy balance: spent vs usable battery energy",
+      "measured": 235044.7106261589,
+      "reference": 235044.71062615886,
+      "deviation": 2.220446049250313e-16,
+      "tolerance": 1e-09,
+      "verdict": "pass",
+      "note": ""
+    },
+    {
+      "name": "V6d endurance_h vs closed form",
+      "measured": 6.748446154602705,
+      "reference": 6.748446154602705,
+      "deviation": 0.0,
+      "tolerance": 1e-06,
+      "verdict": "pass",
+      "note": ""
+    },
+    {
+      "name": "V6d sum of masses vs mtow",
+      "measured": 1.5113471627952848,
+      "reference": 1.5113471627952848,
+      "deviation": 0.0,
+      "tolerance": 1e-09,
+      "verdict": "pass",
+      "note": ""
+    },
+    {
+      "name": "V6f cl_alpha Re 101800",
+      "measured": 0.08224670334241131,
+      "reference": 0.10632556973591907,
+      "deviation": -0.22646355390629425,
+      "tolerance": null,
+      "verdict": "report",
+      "note": "per degree; E387 measured camber 3.8 % at 40 %, thickness 9.1 %"
+    },
+    {
+      "name": "V6f alpha_L0 Re 101800",
+      "measured": -3.9606083245116617,
+      "reference": -3.0630088825152253,
+      "deviation": -0.8975994419964364,
+      "tolerance": null,
+      "verdict": "report",
+      "note": "degrees; model alpha_L0 uses the measured camber position, whereas low_fidelity hard-codes 40 % inside naca.zero_lift_angle; E387 measured camber 3.8 % at 40 %, thickness 9.1 %"
+    },
+    {
+      "name": "V6f cd ratio Re 101800",
+      "measured": 0.5199124083893636,
+      "reference": 0.0,
+      "deviation": 0.5199124083893636,
+      "tolerance": null,
+      "verdict": "report",
+      "note": "5 tunnel points with cl in [0.3, 0.9]; model cd is a constant; E387 measured camber 3.8 % at 40 %, thickness 9.1 %"
+    },
+    {
+      "name": "V6f cl_max Re 101800",
+      "measured": 1.3115227023327032,
+      "reference": 1.169,
+      "deviation": 0.12191847932652111,
+      "tolerance": null,
+      "verdict": "report",
+      "note": "E387 measured camber 3.8 % at 40 %, thickness 9.1 %"
+    },
+    {
+      "name": "V6f cl_alpha Re 203800",
+      "measured": 0.08224670334241131,
+      "reference": 0.10172624219382732,
+      "deviation": -0.1914898106065891,
+      "tolerance": null,
+      "verdict": "report",
+      "note": "per degree; E387 measured camber 3.8 % at 40 %, thickness 9.1 %"
+    },
+    {
+      "name": "V6f alpha_L0 Re 203800",
+      "measured": -3.9606083245116617,
+      "reference": -3.2023401674607994,
+      "deviation": -0.7582681570508623,
+      "tolerance": null,
+      "verdict": "report",
+      "note": "degrees; model alpha_L0 uses the measured camber position, whereas low_fidelity hard-codes 40 % inside naca.zero_lift_angle; E387 measured camber 3.8 % at 40 %, thickness 9.1 %"
+    },
+    {
+      "name": "V6f cd ratio Re 203800",
+      "measured": 0.47454641406043696,
+      "reference": 0.0,
+      "deviation": 0.47454641406043696,
+      "tolerance": null,
+      "verdict": "report",
+      "note": "4 tunnel points with cl in [0.3, 0.9]; model cd is a constant; E387 measured camber 3.8 % at 40 %, thickness 9.1 %"
+    },
+    {
+      "name": "V6f cl_max Re 203800",
+      "measured": 1.3115227023327032,
+      "reference": 1.164,
+      "deviation": 0.12673771678067292,
+      "tolerance": null,
+      "verdict": "report",
+      "note": "E387 measured camber 3.8 % at 40 %, thickness 9.1 %"
+    },
+    {
+      "name": "V6f cl_alpha Re 305200",
+      "measured": 0.08224670334241131,
+      "reference": 0.10300839736261155,
+      "deviation": -0.20155341265153992,
+      "tolerance": null,
+      "verdict": "report",
+      "note": "per degree; E387 measured camber 3.8 % at 40 %, thickness 9.1 %"
+    },
+    {
+      "name": "V6f alpha_L0 Re 305200",
+      "measured": -3.9606083245116617,
+      "reference": -3.130601026941974,
+      "deviation": -0.8300072975696877,
+      "tolerance": null,
+      "verdict": "report",
+      "note": "degrees; model alpha_L0 uses the measured camber position, whereas low_fidelity hard-codes 40 % inside naca.zero_lift_angle; E387 measured camber 3.8 % at 40 %, thickness 9.1 %"
+    },
+    {
+      "name": "V6f cd ratio Re 305200",
+      "measured": 0.4341077877363007,
+      "reference": 0.0,
+      "deviation": 0.4341077877363007,
+      "tolerance": null,
+      "verdict": "report",
+      "note": "3 tunnel points with cl in [0.3, 0.9]; model cd is a constant; E387 measured camber 3.8 % at 40 %, thickness 9.1 %"
+    },
+    {
+      "name": "V6f cl_max Re 305200",
+      "measured": 1.3115227023327032,
+      "reference": 1.156,
+      "deviation": 0.13453520963036625,
+      "tolerance": null,
+      "verdict": "report",
+      "note": "E387 measured camber 3.8 % at 40 %, thickness 9.1 %"
+    },
+    {
+      "name": "V6e cl_alpha Re 203800",
+      "measured": 0.10444932562601722,
+      "reference": 0.09901087493103347,
+      "deviation": 0.05492781170524874,
+      "tolerance": 0.05,
+      "verdict": "fail",
+      "note": "slope over 5 matched angles, SU2 and tunnel at the same angles; flags ['not_peaked', 'cauchy_stopped', 'cl_drift_max_pct=2.0', 'cd_drift_max_pct=6.9', 'v6e:cl_alpha:Re203800=+5.5%:fail', 'v6e:cd_ratio:Re203800=+8.0%:pass', 'v6e:cl_alpha:Re305200=+6.4%:fail', 'v6e:cd_ratio:Re305200=+5.7%:pass', 'v6e_ruling=decision8_accepted_with_bias']"
+    },
+    {
+      "name": "V6e cd ratio Re 203800",
+      "measured": 0.07992225958465743,
+      "reference": 0.0,
+      "deviation": 0.07992225958465743,
+      "tolerance": 0.2,
+      "verdict": "pass",
+      "note": "4 points with tunnel cl in [0.3, 0.9] of 5 matched"
+    },
+    {
+      "name": "V6e cl_max Re 203800",
+      "measured": 1.1290296520776892,
+      "reference": 1.164,
+      "deviation": -0.030043254228789285,
+      "tolerance": null,
+      "verdict": "report",
+      "note": "SU2 angles stop below stall, so its cl_max is the largest computed cl, not a maximum"
+    },
+    {
+      "name": "V6e cl_alpha Re 305200",
+      "measured": 0.10621107259765558,
+      "reference": 0.09978565760419544,
+      "deviation": 0.06439216965374772,
+      "tolerance": 0.05,
+      "verdict": "fail",
+      "note": "slope over 5 matched angles, SU2 and tunnel at the same angles; flags ['not_peaked', 'cauchy_stopped', 'cl_drift_max_pct=1.3', 'cd_drift_max_pct=7.9', 'v6e:cl_alpha:Re203800=+5.5%:fail', 'v6e:cd_ratio:Re203800=+8.0%:pass', 'v6e:cl_alpha:Re305200=+6.4%:fail', 'v6e:cd_ratio:Re305200=+5.7%:pass', 'v6e_ruling=decision8_accepted_with_bias']"
+    },
+    {
+      "name": "V6e cd ratio Re 305200",
+      "measured": 0.05740106692522825,
+      "reference": 0.0,
+      "deviation": 0.05740106692522825,
+      "tolerance": 0.2,
+      "verdict": "pass",
+      "note": "3 points with tunnel cl in [0.3, 0.9] of 5 matched"
+    },
+    {
+      "name": "V6e cl_max Re 305200",
+      "measured": 1.1107136442857142,
+      "reference": 1.156,
+      "deviation": -0.03917504819574891,
+      "tolerance": null,
+      "verdict": "report",
+      "note": "SU2 angles stop below stall, so its cl_max is the largest computed cl, not a maximum"
+    },
+    {
+      "name": "V6e mesh medium vs fine, cd at cl 0.6",
+      "measured": 0.011235400538469104,
+      "reference": 0.011196546348438705,
+      "deviation": 0.003470194184996833,
+      "tolerance": 0.05,
+      "verdict": "pass",
+      "note": "measured = fine, reference = medium; both on the smoothed mesher (decision 11)"
+    },
+    {
+      "name": "V6e mesher fix, medium before vs after smoothing, cd at cl 0.6",
+      "measured": 0.011196546348438705,
+      "reference": 0.011196570023300233,
+      "deviation": -2.1144744755119405e-06,
+      "tolerance": null,
+      "verdict": "report",
+      "note": "measured = smoothed medium, reference = recorded medium (runs/e387)"
+    }
+  ],
+  "not_run": [
+    {
+      "id": "V6g",
+      "what": "Ultra Stick 25e CL_alpha and CD0",
+      "reason": "Ultra Stick data not retrieved"
+    }
+  ],
+  "overall": "FAIL",
+  "failed": [
+    "V6e cl_alpha Re 203800",
+    "V6e cl_alpha Re 305200"
+  ],
+  "wall_time_s": 7.4
+}

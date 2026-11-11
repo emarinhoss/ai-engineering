@@ -176,7 +176,7 @@ The drag ratio passes at both: 7.99 and 5.74 percent against a 20 percent tolera
 
 In the figure, at the five angles of Reynolds 203,800, SU2's lift is 8.0 to 11.6 percent high, and its drag 10.3 percent low to 1.6 percent high.
 
-So what did I do with a fail? Decision 8: I accepted the medium-mesh polar as the high level, with the miss recorded beside every number it produces. It stays a fail. The tolerance did not move. And the medium-against-fine row is not run; it is on backup DB2.
+So what did I do with a fail? Decision 8: I accepted the medium-mesh polar as the high level, with the miss recorded beside every number it produces. It stays a fail. The tolerance did not move. And the medium-against-fine row now has its answer: after the mesher fix of decision 11, the fine mesh's drag at a lift coefficient of 0.6 is 0.35 percent above the medium's, against a 5 percent tolerance. It passes.
 
 ## Slide 23 — D20: The E387 pressure distributions
 
@@ -248,7 +248,7 @@ On the right is ingestion. Each result comes back with its sha256 and is checked
 
 This list holds only items recorded in the task file, each found by a check or a recorded run before it reached a result.
 
-The postprocess looked for the compressible residual; it now reads rms of P, under decision 6. The first case drifted 5.6 percent in lift and 17.4 in drag; the budget became 6000 with a Cauchy stop. The fine-mesh case was refused at the 1 nanometer fingerprint, and the refused attempt is kept beside the rerun. The fine E387 mesh has 8 inverted cells; that is a strict expected failure, and the V6e fine row stays not run.
+The postprocess looked for the compressible residual; it now reads rms of P, under decision 6. The first case drifted 5.6 percent in lift and 17.4 in drag; the budget became 6000 with a Cauchy stop. The fine-mesh case was refused at the 1 nanometer fingerprint, and the refused attempt is kept beside the rerun. The fine E387 mesh had 8 inverted cells. Under decision 11 the mesher now smooths the wall tangents on every mesh, the fine cases ran, and the V6e fine row passes at 0.35 percent.
 
 The last two are in the lattice. The point-vortex induced drag under-counted by about one over N, which the elliptic-wing rows showed, so it was replaced with a Trefftz-plane Glauert series. And the V6a reference for the aspect-ratio-100 rectangular wing was wrong, not the solver. The reference was corrected before any formal verdict.
 
@@ -410,7 +410,7 @@ The most useful entry is the online replay. Plain EHVI at 0.317 against random's
 
 The study sizes one cruise point, at sea level, with a fixed propeller efficiency and a closed-form structure. On the left is what the spec puts out of scope: stability beyond the static margin, structure beyond the spar rule, propeller design, take-off and landing, wind and altitude, cost, and certification beyond the C2 cap. Wind and altitude come first; a candidate Task 11 would add them in the form of Task 9's envelope.
 
-On the right are the open items. The medium-against-fine mesh row of V6e at Reynolds 203800 is not run. V6g, the Ultra Stick 25e check, is not run, because the data were not retrieved. The Warren-12 moment row is pending its reference point. And the rulings. Decision 9, on 2026-11-10, accepted the budget-exhausted runs of designs 8 and 28, with a flag; every other one is still dropped. Still open is the lift-effectiveness band, where re-centring means a 4.6-hour re-run. Nothing here claims more than one cruise point.
+On the right are the open items. V6g, the Ultra Stick 25e check, is not run, because the data were not retrieved. The Warren-12 moment row is pending its reference point. And the rulings. Decision 9, on 2026-11-10, accepted the budget-exhausted runs of designs 8 and 28, with a flag; every other one is still dropped. Still open is the lift-effectiveness band, where re-centring means a 4.6-hour re-run. Nothing here claims more than one cruise point.
 
 ## Slide 51 — D44: Conclusions: the four questions as far as the records go
 
@@ -450,7 +450,7 @@ If you ask how converged the lattice is, or what the report rows show: this is e
 
 ## Slide 56 — DB2: Backup: the V6 table, part 2 (V6e to V6g)
 
-If you ask to see every SU2 and closed-form row against the tunnel: here they are. V6f gives the closed form's lift slope of 0.08225 against the tunnel's 0.1063 to 0.1017. V6e gives SU2's lift slope of 0.1044 against 0.09901 at Reynolds 203800, a fail, and 0.1062 against 0.09979 at 305200, also a fail, both kept as fails under decision 8. The two rows not run, the V6e mesh row and V6g, are shown, not hidden.
+If you ask to see every SU2 and closed-form row against the tunnel: here they are. V6f gives the closed form's lift slope of 0.08225 against the tunnel's 0.1063 to 0.1017. V6e gives SU2's lift slope of 0.1044 against 0.09901 at Reynolds 203800, a fail, and 0.1062 against 0.09979 at 305200, also a fail, both kept as fails under decision 8. The V6e mesh row passes: the fine mesh's drag at a lift coefficient of 0.6 is 0.35 percent above the medium's, against 5. Beside it, the mesher fix moved the medium answer by 0.0002 percent. The one row not run, V6g, is shown, not hidden.
 
 ## Slide 57 — DB3: Backup: E387 point by point at both Reynolds numbers
 

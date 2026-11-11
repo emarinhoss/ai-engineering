@@ -94,7 +94,7 @@ Validation came before any machine learning, and the tolerances were fixed befor
 
 Look at the top group. The solver's own checks: 12 rows pass and 0 fail. That is the vortex lattice against closed forms, a benchmark wing, lattice refinement, and the mass closure and energy balance. One row is pending, because its reference point is not yet sourced.
 
-Now the bottom group, SU2 against the wind tunnel. The drag ratio passes at both Reynolds numbers: 7.99 percent and 5.74 percent, against 20. The lift slope fails at both: 5.49 percent and 6.44 percent, against a 5 percent tolerance. Two rows were not run.
+Now the bottom group, SU2 against the wind tunnel. The drag ratio passes at both Reynolds numbers: 7.99 percent and 5.74 percent, against 20. The lift slope fails at both: 5.49 percent and 6.44 percent, against a 5 percent tolerance. The medium mesh against the fine one passes: drag at a lift coefficient of 0.6 differs by 0.35 percent, against 5. One row was not run.
 
 Decision 8 accepted the medium mesh as the high level, with the bias recorded. That is not a pass. The fail stays a fail. The miss was not tuned away: every SU2 result carries it as a flag in its own record.
 
@@ -130,7 +130,7 @@ A person is still needed in two places: to authorise a runtime's storage with a 
 
 Each row here was found by a check or a recorded run before it reached a result.
 
-The postprocess looked for the wrong residual, and the first case failed there. It was also unconverged, with lift drift 5.6 percent and drag drift 17.4 percent, which led to the budget of 6,000 with a Cauchy stop. A fine mesh did not reproduce at the 1 nanometer fingerprint, and the worker refused it. A fine mesh had 8 inverted cells, caught by the inversion gate. The point-vortex induced drag under-counted, caught by the elliptic-wing rows. A volume file declared 22,102 nodes and held more rows; one case is still unreadable, and nothing is drawn from it.
+The postprocess looked for the wrong residual, and the first case failed there. It was also unconverged, with lift drift 5.6 percent and drag drift 17.4 percent, which led to the budget of 6,000 with a Cauchy stop. A fine mesh did not reproduce at the 1 nanometer fingerprint, and the worker refused it. A fine mesh had 8 inverted cells, caught by the inversion gate; the mesher now smooths the wall tangents on every mesh, and the medium-against-fine check then passed at 0.35 percent. The point-vortex induced drag under-counted, caught by the elliptic-wing rows. A volume file declared 22,102 nodes and held more rows; one case is still unreadable, and nothing is drawn from it.
 
 The last row is my own claim: the pool was planned on one 4-rank worker. The records say 72 pool cases ran on 2 ranks and 100 on 4. None of these would have shown up as a solver error.
 

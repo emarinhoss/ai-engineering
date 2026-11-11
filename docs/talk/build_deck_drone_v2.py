@@ -773,7 +773,9 @@ def body_validation(slide, v):
     passed = [c for c in own if c["verdict"] == "pass"]
     pend = [c for c in own if c["verdict"].startswith("pending")]
     failed = [c for c in own if c["verdict"] == "fail"]
-    tunnel = [c for c in checks if c["name"].startswith("V6e ") and c["tolerance"] is not None]
+    tunnel = [c for c in checks if c["name"].startswith("V6e ") and c["tolerance"] is not None
+              and not c["name"].startswith("V6e mesh")]
+    mesh = [c for c in checks if c["name"].startswith("V6e mesh") and c["tolerance"] is not None]
     t_pass = [c for c in tunnel if c["verdict"] == "pass"]
     t_fail = [c for c in tunnel if c["verdict"] == "fail"]
 
@@ -789,9 +791,12 @@ def body_validation(slide, v):
                                               for c in pend)],
             ["SU2 against the wind tunnel", "pass", len(t_pass), "; ".join(dev(c) for c in t_pass)],
             ["", "FAIL", len(t_fail), "; ".join(dev(c) for c in t_fail)],
+            *[["SU2 medium against fine mesh", c["verdict"].upper() if c["verdict"] == "fail" else c["verdict"],
+               1, f"cd at cl 0.6: {100 * c['deviation']:+.2f} % against {100 * c['tolerance']:.0f} %"]
+              for c in mesh],
             ["Not run", "not run", len(v1.jload(v1.V6)["not_run"]),
              "; ".join(n["what"] for n in v1.jload(v1.V6)["not_run"])]]
-    bd.add_table(slide, LM, CT - 0.05, [2.6, 1.3, 0.8, 7.43], rows, size=13, row_h=0.55,
+    bd.add_table(slide, LM, CT - 0.05, [2.6, 1.3, 0.8, 7.43], rows, size=13, row_h=0.5,
                  flag=("FAIL", "PENDING", "not run"))
     d8 = re.search(r'### Decision 8 \(([^)]+)\): "([^"]+)"', (ROOT / v1.TASKS).read_text())
     bd.box(slide, LM, CT + 4.0, CW, 0.75, f'Decision 8 ({d8.group(1)}): "{d8.group(2)}". The fail stays '
@@ -834,7 +839,9 @@ def body_caught(slide, v):
             ["Fine mesh not reproduced at the 1 nm fingerprint", "the worker's mesh fingerprint check",
              "refused attempt kept beside the rerun"],
             [f"Fine E387 mesh has {inverted} inverted cells", "the mesh inversion gate",
-             "that row of the validation stays not run"],
+             ("wall-tangent smoothing on every mesh (a ruling); medium against fine "
+              + "; ".join(f"{100 * c['deviation']:+.2f} %, {c['verdict']}" for c in v6_checks()
+                          if c["name"].startswith("V6e mesh medium vs fine")))],
             ["Point-vortex induced drag under-counts", "the elliptic-wing validation rows",
              "Trefftz-plane drag from a Glauert series"],
             [f"Volume file unreadable: the zone declares {declared} nodes, the file holds more rows",
@@ -1150,18 +1157,20 @@ def body_v6e(slide, v):
     for c in checks:
         tol = "report" if c["tolerance"] is None else f"{100 * c['tolerance']:.0f} %"
         verdict = "FAIL" if c["verdict"] == "fail" else c["verdict"]
-        rows.append([c["name"][4:], f"{100 * c['deviation']:+.2f} %", tol, verdict])
-    bd.add_table(slide, LM + 7.0, CT, [2.1, 1.1, 0.9, 1.0], rows, size=11, row_h=0.42)
+        dev = (f"{100 * c['deviation']:+.4f} %" if abs(c["deviation"]) < 1e-4
+               else f"{100 * c['deviation']:+.2f} %")
+        rows.append([c["name"][4:], dev, tol, verdict])
+    bd.add_table(slide, LM + 7.0, CT - 0.1, [2.5, 1.0, 0.8, 0.8], rows, size=9, row_h=0.34)
     eq.add_equation(slide, v1.EQ_V6E_SLOPE, LM, CT + 3.9, 3.5, 0.75, fontsize=12)
     eq.add_equation(slide, v1.EQ_V6F_CDDEV, LM + 3.7, CT + 3.9, 3.4, 0.75, fontsize=12)
     nr = v1.jload(v1.V6)["not_run"]
     d8 = re.search(r'### Decision 8 \(([^)]+)\): "([^"]+)"', (ROOT / v1.TASKS).read_text())
-    bd.text_box(slide, LM + 7.0, CT + 3.1, 5.1, 1.7,
+    bd.text_box(slide, LM + 7.0, CT + 3.35, 5.1, 1.6,
                 [(f"Against the tunnel at the five angles of Re {v['e387_re']}: cl is "
                  f"{v['su2_cl_range']}; cd is {v['su2_cd_range']}."),
                  f'Decision 8 ({d8.group(1)}): "{d8.group(2)}".',
                  "Not run: " + "; ".join(f"{n['what']} ({n['reason']})" for n in nr) + "."],
-                size=11, bullets=True)
+                size=10, bullets=True)
 
 
 def body_bias_both(slide, v):

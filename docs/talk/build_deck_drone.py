@@ -45,7 +45,7 @@ plt = bd.plt
 
 OUTLINE = ROOT / "docs/talk/outline_drone.md"
 DEFAULT_OUT = ROOT / "docs/talk/deck_drone.pptx"
-V6 = "runs/drone/validation/2026-11-08/v6.json"
+V6 = "runs/drone/validation/2026-11-10/v6.json"
 SPEC = "docs/specs/task10_drone_sizing.md"
 TASKS = "docs/specs/task10_tasks.md"
 FIG = "docs/validation/figures/task10/"
@@ -1019,15 +1019,18 @@ def body_v6e(slide, v):
     for c in checks:
         tol = "report" if c["tolerance"] is None else f"{100 * c['tolerance']:.0f} %"
         verdict = "report" if c["verdict"] == "report" else c["verdict"].upper() if c["verdict"] == "fail" else c["verdict"]
-        rows.append([c["name"][4:], f"{100 * c['deviation']:+.2f} %", tol, verdict])
-    bd.add_table(slide, LM + 7.2, CT, [2.0, 1.1, 0.8, 0.9], rows, size=10, row_h=0.42)
+        dev = f"{100 * c['deviation']:+.4f} %" if abs(c["deviation"]) < 1e-4 else f"{100 * c['deviation']:+.2f} %"
+        rows.append([c["name"][4:], dev, tol, verdict])
+    bd.add_table(slide, LM + 7.2, CT - 0.1, [2.4, 1.0, 0.7, 0.8], rows, size=9, row_h=0.34)
     eq.add_equation(slide, EQ_V6E_SLOPE, LM, CT + h + 0.55, 3.5, 0.75, fontsize=12)
     eq.add_equation(slide, EQ_V6F_CDDEV, LM + 3.7, CT + h + 0.55, 3.4, 0.75, fontsize=12)
-    bd.text_box(slide, LM + 7.2, CT + 3.1, 4.9, 1.7,
+    mesh = next(c for c in checks if c["name"].startswith("V6e mesh medium vs fine"))
+    bd.text_box(slide, LM + 7.2, CT + 3.35, 4.9, 1.6,
                 [(f"Against the tunnel at the five angles of Re {v['e387_re']}: cl is {v['su2_cl_range']}; "
                   f"cd is {v['su2_cd_range']}."), "Decision 8: accepted as the high level with the miss recorded beside every number.",
-                 "The medium-against-fine row is not run (DB2); the figure draws what exists."],
-                size=11, bullets=True)
+                 (f"Decision 11: fine against smoothed medium, cd at cl 0.6 {100 * mesh['deviation']:+.2f} % "
+                  f"(tolerance {100 * mesh['tolerance']:.0f} %), {mesh['verdict']}.")],
+                size=10, bullets=True)
 
 
 def body_flow(name, record, max_h=4.6):
@@ -1112,7 +1115,9 @@ def body_gated_caught(slide, v):
             ["Fine-mesh case refused on the 1 nm fingerprint", "The worker's mesh fingerprint check",
              "Kept beside the rerun as .first_attempt"],
             [f"Fine E387 mesh has {inverted} inverted cells", "The mesh inversion gate",
-             "Strict xfail; the V6e fine row stays not run"],
+             (f"Wall-tangent smoothing on every mesh (decision 11); V6e fine row "
+              f"{100 * v6_check('V6e mesh medium vs fine, cd at cl 0.6')['deviation']:+.2f} %, "
+              f"{v6_check('V6e mesh medium vs fine, cd at cl 0.6')['verdict']}")],
             ["Point-vortex induced drag under-counts by about 1/N", "The V6a elliptic-wing rows on the first lattice run",
              "Trefftz-plane Glauert series (drone/vlm.py)"],
             ["V6a reference for the AR 100 rectangular wing was wrong, not the solver", "The same V6a rows",
@@ -2061,7 +2066,7 @@ def body_limits(slide, v):
                    if c["verdict"].startswith("pending")]
     report = (ROOT / REPORT).read_text()
     rulings = re.search(r"## 9\. Open rulings\n\n(.*)", report, re.DOTALL).group(1)
-    open_items += [" ".join(r.replace("`", "").split())[3:]
+    open_items += [" ".join(r.replace("`", "").replace("**", "").split())[3:]
                    for r in re.split(r"\n(?=\d\. )", rulings.strip())]
     bd.text_box(slide, LM + 6.4, CT - 0.05, 5.7, 0.4, "Open validation items and rulings", size=14,
                 bold=True, color=bd.BLUE)
@@ -2125,7 +2130,8 @@ def v6_rows(prefixes):
         if not c["name"].startswith(prefixes):
             continue
         small = c["tolerance"] is not None and c["tolerance"] < 1e-4
-        dev = f"{c['deviation']:.1e}" if small else f"{100 * c['deviation']:+.2f} %"
+        dev = (f"{c['deviation']:.1e}" if small else f"{100 * c['deviation']:+.4f} %"
+               if abs(c["deviation"]) < 1e-4 else f"{100 * c['deviation']:+.2f} %")
         tol = ("report" if c["tolerance"] is None else f"{c['tolerance']:.0e}" if small
                else f"{100 * c['tolerance']:.0f} %")
         verdict = c["verdict"].split(" (")[0]
@@ -2293,16 +2299,21 @@ def decision_rows():
     d7 = re.search(r'### Decision 7 \(([^,]+, [^,]+), "([^"]+)"\)', tasks)
     d8 = re.search(r'### Decision 8 \(([^)]+)\): "([^"]+)"', tasks)
     d6h = re.search(r"### Decision 6 \(([^)]+)\)", tasks).group(1)
+    d11h = re.search(r"### Decision 11 \(([^)]+)\)", tasks).group(1)
+    d11 = re.search(r'Éder: "[^"]*?(Can we run the fine cases now in Colab\?)"', flat).group(1)
+    mesh = v6_check("V6e mesh medium vs fine, cd at cl 0.6")
     return [["Decision", "Who and when", "As recorded", "What it changed"],
             ["6", d6h, d6, "budget 6,000 with a Cauchy stop on lift and drag"],
             ["7", d7.group(1), f'"{d7.group(2)}"', ("the SU2 pool staged: 32 designs at five "
              "angles on the coarse mesh, plus the medium bias check")],
             ["8", d8.group(1), f'"{d8.group(2)}"', ("the V6e fail kept, its flags written into "
-             "every SU2 polar; no SST-LM attempt")]]
+             "every SU2 polar; no SST-LM attempt")],
+            ["11", d11h, f'"{d11}"', ("the mesher smoothed for every mesh; ten fine E387 cases and "
+             f"five medium reruns; V6e fine row {100 * mesh['deviation']:+.2f} %, {mesh['verdict']}")]]
 
 
 def body_decisions(slide, v):
-    bd.add_table(slide, LM, CT - 0.05, [1.1, 2.7, 5.0, 3.3], decision_rows(), size=11, row_h=1.05,
+    bd.add_table(slide, LM, CT - 0.05, [1.1, 2.7, 5.0, 3.3], decision_rows(), size=11, row_h=0.88,
                  flag=())
 
 

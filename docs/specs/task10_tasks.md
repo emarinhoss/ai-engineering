@@ -905,6 +905,39 @@ smoothing, so the medium-against-fine row compares two mesh constructions as wel
 the E387 medium nodes moved up to 0.0097 chord. A like-for-like row needs the five medium cases at
 Re 203,800 re-run on the smoothed mesh (offered to Éder, not staged).
 
+**Staged after all** (Éder: "done, and yes add the medium reruns"): `designs/make_e387_fine.py
+--medium-rerun`, five cases, tag `e387_smooth`, budget 6,000, records in `runs/e387_smooth/`.
+
+**Result (2026-11-10, record `runs/drone/validation/2026-11-10/v6.json`, report
+`docs/validation/2026-11-10_task10_v6.md`).** All ten fine cases and all five medium reruns exited 0
+and stopped on the Cauchy rule before their budgets (fine 4,379 to 10,327 of 12,000 iterations;
+medium reruns 4,146 to 5,020 of 6,000). The drift classifier labels every one `not_converged`, as it
+did all ten recorded medium E387 cases; the Cauchy stop is what keeps them.
+
+- **V6e mesh row passes:** cd at cl 0.6 is 0.011235 on the fine mesh against 0.011197 on the smoothed
+  medium, +0.35 % against the 5 % tolerance fixed in the spec.
+- **The mesher fix moved the medium answer by nothing measurable:** the same row computed from the
+  recorded (unsmoothed) medium cases gives 0.011197 as well, a relative difference of -2e-6. Per
+  angle the reruns reproduce the originals' iteration counts (within one) and their cl and cd to
+  five or more significant figures; the medium mesh keeps its 43,008 cells and its first-cell height
+  to six figures. So the caveat recorded above, that the row would compare two mesh constructions,
+  had no measurable effect at the medium level. The row is reported (not gated) beside the gated one.
+- **Every other V6 row is unchanged** from the 2026-11-08 record to the last digit; V6e's tunnel rows
+  still read medium records only (the four readers of `runs/e387/` now filter on `mesh_level`). The
+  only text difference is the flag list in the two V6e cl_alpha notes, which now spells `cd_ratio`
+  and lists both Reynolds numbers. The overall verdict stays FAIL on the V6e cl_alpha rows (+5.5 % and
+  +6.4 % against 5 %), as decision 8 accepted.
+- **Records that read V6:** the deck now reads the 2026-11-10 record. `analysis/high_level_bias.py`
+  keeps reading 2026-11-08: the flags it writes into every SU2 polar come from the V6e tunnel rows,
+  which are identical in both records, and its parser takes every toleranced V6e row and requires a
+  name ending in "Re <number>", so the new mesh row would make it raise. Moving it is a code change
+  for no change in any number, and is not made. The flag-text difference above comes from the
+  2026-11-09 correction of that parser (`cd` to `cd_ratio`), not from new data.
+- **A scheduling fault, recorded:** two medium reruns (`af2803688e`, `ddc4b248b7`) were first killed
+  by the worker's timeout (2,560 s) while three 4-rank jobs shared one 8-core runtime; run one per
+  runtime they took 1,315 and 1,686 s. The killed attempts are kept on the queue as
+  `error.timeout1.json`.
+
 ## Questions for Éder (answered above; kept as the record)
 
 1. **Airfoil family.** The spec varies the NACA four-digit section per design, which is what makes
