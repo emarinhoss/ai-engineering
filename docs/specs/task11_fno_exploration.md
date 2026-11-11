@@ -182,6 +182,70 @@ tight linear tolerance. The stop rule is not what waits. This says where to test
 then the linear tolerance); it does not say what either change would save, or that the answer would
 be unchanged. Any such test needs its pass rule fixed first, against a tightly converged reference.
 
+### Experiment S1/S2: a larger CFL ceiling and a looser linear tolerance. DRAFT RULE, not approved
+
+Drafted 2026-11-11 at Éder's request ("yes, draft the rule"). **Nothing in this block runs until
+Éder approves it.** After approval the block is frozen: a change to it after the first case starts
+is recorded beside the original, with its date and reason, and never replaces it.
+
+**Question.** Do a higher `CFL_ADAPT_PARAM` ceiling (S1) or a looser `LINEAR_SOLVER_ERROR` (S2) cut
+the wall time of an airfoil2d run by at least 30 % without moving its lift and drag?
+
+**Cases (five, fixed).** Pool design 1 (Re 170,203.9, the E0 section) on the coarse mesh at 2, 6 and
+10 deg and on the medium mesh at 6 deg; the E387 at Re 203,800, 4.23 deg, medium mesh (a tunnel
+angle). All on the current mesher. Angles above 10 deg and stalled flow are not tested.
+
+**Settings.** One thing changes at a time; everything else is the recorded config.
+
+| Set | CFL ceiling | Linear tolerance | Runs |
+|---|---|---|---|
+| reference | 20 | 1E-6 | 5, with a tighter stop (below) |
+| baseline | 20 | 1E-6 | 5, each run twice |
+| S1 | 50, 100, 250 | 1E-6 | 15 |
+| S2 | 20 | 1E-4, 1E-2 | 10 |
+
+**Reference.** The same case with today's numerics and a stop that waits longer: budget 20,000 (the
+schema's maximum), Cauchy window 500 elements at 1E-7. A reference is valid only if it exits 0,
+stops on that rule inside its budget, and its own recorded drift of cl and of cd is below 0.2 %
+(`DRIFT_MAX` in `postprocess/history.py`, the classifier's existing limit). A case without a valid
+reference is reported and takes no part in a verdict; a verdict needs at least four valid cases.
+
+**Pass, per setting (each ceiling and each tolerance is judged on its own). All three must hold:**
+
+1. *It runs.* Every case exits 0 and stops on the standard Cauchy rule inside the standard budget
+   of 6,000. One diverged or budget-exhausted run fails the setting.
+2. *The answer does not move.* For every case, the distance of cl from the reference cl is no larger
+   than the larger of (the baseline's distance, 0.5 %); the same for cd with 1.0 %. The baseline's
+   distance is the larger of its two repeats. "Every" means one miss fails the setting.
+3. *It is faster.* The median over the cases of the wall-time saving against the mean of the two
+   baseline repeats is at least 30 %. Wall time is the measure, not iterations, because a looser
+   linear solve can need more iterations and still take less time; iterations and time per
+   iteration are reported beside it.
+
+**How it runs.** One job per runtime at a time, 4 ranks, the same runtime shape for every run, so
+that wall times compare. The spread between the two baseline repeats is reported as the noise of
+the measurement; a saving smaller than three times the largest spread is reported as not resolved,
+whatever its size.
+
+**If more than one setting passes.** The one with the largest median saving is the candidate; a tie
+(within the noise above) goes to the setting nearer today's. If an S1 and an S2 setting both pass,
+one more set of five runs tests the pair together, under the same three conditions.
+
+**What a pass allows, and what it does not.** A pass allows a proposal to change the default for
+future runs; adopting it is Éder's ruling. It does not change any recorded run, and runs at a new
+setting are never mixed with the recorded pool in one table without saying so: the config hash
+differs. Before a new setting is used for a study answer, the V6e tunnel rows are run again at that
+setting and reported, pass or fail. A pass is for the tested range only (attached flow, 2 to 10 deg,
+these two mesh levels).
+
+**New code this needs (smoke-tested on one short case before any batch is staged).** Three optional
+airfoil2d parameters, absent by default so that existing case ids and config hashes do not change
+(the pattern of `save_restart`): the CFL ceiling, the linear tolerance, and the Cauchy window and
+threshold for the reference runs.
+
+**Cost (a guess, not measured).** 40 runs. With one job per runtime, about 15 worker-hours, or
+about 8 hours of wall time on two runtimes and about 4 compute units.
+
 ## 5. Pros and cons
 
 | For | Against |
