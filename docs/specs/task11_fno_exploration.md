@@ -182,11 +182,13 @@ tight linear tolerance. The stop rule is not what waits. This says where to test
 then the linear tolerance); it does not say what either change would save, or that the answer would
 be unchanged. Any such test needs its pass rule fixed first, against a tightly converged reference.
 
-### Experiment S1/S2: a larger CFL ceiling and a looser linear tolerance. DRAFT RULE, not approved
+### Experiment S1/S2: a larger CFL ceiling and a looser linear tolerance. APPROVED 2026-11-11
 
-Drafted 2026-11-11 at Éder's request ("yes, draft the rule"). **Nothing in this block runs until
-Éder approves it.** After approval the block is frozen: a change to it after the first case starts
-is recorded beside the original, with its date and reason, and never replaces it.
+Drafted 2026-11-11 at Éder's request ("yes, draft the rule") and approved by Éder the same day:
+"approved as written, go ahead". The block is frozen from that approval: a change to it after the
+first case starts is recorded beside the original, with its date and reason, and never replaces it.
+The parameters are `cfl_max`, `linear_tol`, `cauchy_elems` and `cauchy_eps` (`mcp_server/schemas.py`,
+`cases/config.py`); the cases are staged by `designs/make_s12.py`.
 
 **Question.** Do a higher `CFL_ADAPT_PARAM` ceiling (S1) or a looser `LINEAR_SOLVER_ERROR` (S2) cut
 the wall time of an airfoil2d run by at least 30 % without moving its lift and drag?

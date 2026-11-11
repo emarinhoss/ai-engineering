@@ -141,6 +141,22 @@ def _restart_lines(params):
     return "RESTART_SOL= YES\nREAD_BINARY_RESTART= NO\n"
 
 
+# Solver-setting defaults of every recorded airfoil2d case, as the text the templates held. An
+# optional param (experiment S1/S2, docs/specs/task11_fno_exploration.md) replaces one of them; with
+# the param unset the rendered case.cfg is byte-identical to before.
+AIRFOIL_NUMERICS = {"cfl_max": "20.0", "linear_tol": "1E-6", "cauchy_elems": "200", "cauchy_eps": "1E-5"}
+
+
+def _numerics(params):
+    """Template values for the four optional solver settings: the recorded default text, or the
+    param's own value when it is given."""
+    out = dict(AIRFOIL_NUMERICS)
+    for name in out:
+        if params.get(name) is not None:
+            out[name] = repr(params[name])
+    return out
+
+
 def _render_airfoil(params, geometry, roles):
     """case.cfg text for family airfoil2d: incompressible RANS at the chord Reynolds number.
 
@@ -175,6 +191,7 @@ def _render_airfoil(params, geometry, roles):
         "monitoring": _lst(walls),
         "output_files": _output_files(params),
         "restart": _restart_lines(params),
+        **_numerics(params),
     }
     text = (TEMPLATES / AIRFOIL_TEMPLATE[transition]).read_text()
     return Template(text).substitute(values)
