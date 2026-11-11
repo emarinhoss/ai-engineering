@@ -20,6 +20,7 @@ import re
 import sys
 from collections import defaultdict
 from pathlib import Path
+from string import Template
 
 import numpy as np
 import yaml
@@ -33,6 +34,7 @@ if str(ROOT) not in sys.path:
 
 from analysis import figures_drone as fd
 from analysis.high_level_bias import v6e_flags
+from cases.config import AIRFOIL_NUMERICS
 from docs.talk import build_deck as bd  # sets matplotlib to Agg on import
 from docs.talk import equations as eq
 from drone import geometry, ledger, naca, vlm
@@ -954,7 +956,7 @@ def body_stopping(slide, v):
     eq.add_equation(slide, EQ_STOP_DRIFT, LM, CT + 2.12, 3.2, 0.75, fontsize=14)
     eq.add_equation(slide, EQ_STOP_WINDOW, LM + 3.3, CT + 2.3, 3.0, 0.4, fontsize=14)
     eq.add_equation(slide, EQ_STOP_CAUCHY, LM + 6.6, CT + 2.12, 5.4, 0.75, fontsize=14)
-    cfg = (ROOT / "cases/templates/inc_rans_airfoil.cfg").read_text()
+    cfg = template_cfg()
     keys = ("CONV_FIELD", "CONV_CAUCHY_ELEMS", "CONV_CAUCHY_EPS", "CONV_STARTITER")
     lines = [m.group(0).strip() for k in keys for m in re.finditer(rf"^{k}=.*$", cfg, re.MULTILINE)]
     bd.text_box(slide, LM, CT + 3.0, 5.5, 0.4, "Cauchy settings (cases/templates/inc_rans_airfoil.cfg)",
@@ -1188,12 +1190,26 @@ def pool_case_index():
             for r in csv_rows(CASES)}
 
 
+def task11_tag(tag):
+    """True for the Task 11 exploration runs (E0 warm starts, S1/S2 solver settings). They test
+    the solver itself, not the drone study, so no Task 10 count, cost or table includes them."""
+    return tag == "e0" or tag.startswith("s12_")
+
+
+def template_cfg():
+    """The airfoil case template with the default solver settings filled in, as every Task 10 case
+    renders it (cases.config.AIRFOIL_NUMERICS holds the defaults since the S1/S2 parameters)."""
+    text = (ROOT / "cases/templates/inc_rans_airfoil.cfg").read_text()
+    return Template(text).safe_substitute(AIRFOIL_NUMERICS)
+
+
 @functools.cache
 def all_su2_records():
-    """{(tag, case_id): result.json} for every airfoil2d record under runs/ (re-read per build)."""
+    """{(tag, case_id): result.json} for every Task 10 airfoil2d record under runs/ (re-read per
+    build); the Task 11 exploration runs are left out (task11_tag)."""
     out = {}
     for f in sorted((ROOT / "runs").glob("*/airfoil2d-*/result.json")):
-        if f.parent.name.endswith(".first_attempt"):
+        if f.parent.name.endswith(".first_attempt") or task11_tag(f.parent.parent.name):
             continue
         out[(f.parent.parent.name, f.parent.name)] = json.loads(f.read_text())
     return out

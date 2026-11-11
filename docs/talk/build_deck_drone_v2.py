@@ -1126,7 +1126,7 @@ def body_stopping(slide, v):
     eq.add_equation(slide, v1.EQ_STOP_DRIFT, LM, CT + 2.12, 3.2, 0.75, fontsize=14)
     eq.add_equation(slide, v1.EQ_STOP_WINDOW, LM + 3.3, CT + 2.3, 3.0, 0.4, fontsize=14)
     eq.add_equation(slide, v1.EQ_STOP_CAUCHY, LM + 6.6, CT + 2.12, 5.4, 0.75, fontsize=14)
-    cfg = (ROOT / "cases/templates/inc_rans_airfoil.cfg").read_text()
+    cfg = v1.template_cfg()
     keys = ("CONV_FIELD", "CONV_CAUCHY_ELEMS", "CONV_CAUCHY_EPS", "CONV_STARTITER")
     lines = [m.group(0).strip() for k in keys for m in re.finditer(rf"^{k}=.*$", cfg, re.MULTILINE)]
     bd.text_box(slide, LM, CT + 3.0, 5.5, 0.4, "Cauchy settings of the airfoil case template",
