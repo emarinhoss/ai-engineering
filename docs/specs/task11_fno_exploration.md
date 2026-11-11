@@ -303,6 +303,83 @@ is the only line these runs point to. That is a new rule; it needs Éder's appro
 and these 40 runs cannot be re-judged under it. Measured cost: 10.8 hours of summed solver wall time over the 40 runs;
 balance 473.43 before, 470.32 after (3.1 compute units).
 
+### Experiment S2R: linear tolerance 1E-2, re-tested on one machine. DRAFT, NOT APPROVED
+
+Drafted 2026-11-11 at Éder's request ("draft the new rule for linear tolerance 1E-2"). Nothing is
+staged or run until Éder approves it. On approval the block is frozen in the way the S1/S2 block was:
+a later change is recorded beside the original with its date and reason, and never replaces it.
+
+**Why a new test, and what it cannot do.** S1/S2 failed 1E-2 under its rule, and that verdict stands.
+Its 40 runs are not re-judged here. Two faults of S1/S2 are corrected: the timing mixed two machines
+of different speed, and the answer allowance asked a setting to be no further from the reference than
+the baseline is. The thresholds below were chosen **after** the S1/S2 numbers were seen, so on the
+five old cases this test can only confirm. Two new angles, not yet run at any setting, are added so
+that part of the verdict rests on cases nobody has looked at.
+
+**Question.** On one machine, does `LINEAR_SOLVER_ERROR` 1E-2 (S2R) cut the wall time of an airfoil2d
+run by at least 30 % against today's 1E-6, without moving its lift and drag?
+
+**Cases (seven, fixed).** The five S1/S2 cases (pool design 1 coarse at 2, 6 and 10 deg and medium at
+6 deg; the E387 at Re 203,800, 4.23 deg, medium), plus pool design 1 coarse at **4 and 8 deg** (new).
+The current mesher, the recorded config, CFL ceiling 20; only the linear tolerance changes.
+
+**Runs per case.** Four: baseline (1E-6) twice and S2R (1E-2) twice, staged in the order baseline,
+S2R, S2R, baseline, so that a slow drift in machine speed falls on both settings alike. The worker
+takes jobs in staging order (`created_at`), so the order is set at submission and recorded. New tags
+(`s2r_base_a`, `s2r_tol_a`, `s2r_tol_b`, `s2r_base_b`) give every run its own case id, so no
+recorded run is touched.
+
+**References.** The four valid S1/S2 references are reused for their cases: lift and drag do not
+depend on which machine ran them, and they were judged valid under the S1/S2 rule before this draft.
+The two new angles each get a new reference with the S1/S2 reference settings (budget 20,000, Cauchy
+window 500 at 1E-7), valid only if it exits 0, stops on that rule inside its budget, and its own
+drift of cl and of cd is below 0.2 %. The E387 has no valid reference (cd drift 0.245 %); it takes
+part in conditions 1, 2a and 3 and not in 2b. A verdict needs at least five cases with a valid
+reference.
+
+**One machine.** All runs go to a single runtime with one worker (`--shard 0/1`), one job at a time,
+4 ranks. Every result records `worker_id`; the analysis checks that all runs share one, and if any
+differs the timing result is void and is reported as void (conditions 1 and 2 still stand).
+
+**Pass. All of the following must hold:**
+
+1. *It runs.* Every S2R run exits 0 and stops on the standard Cauchy rule inside 6,000 iterations.
+2. *The answer does not move.*
+   a. *Against today's setting:* for every case, the cl of each S2R run is within 0.5 % of the
+      baseline's cl, and its cd within 1.0 % of the baseline's cd (the floors of the S1/S2 rule, now
+      measured from the baseline instead of from the reference).
+   b. *Against the reference:* for every case with a valid reference, the cl and cd of each S2R run
+      are within 2 % of the reference. 2 % is twice the cd floor of condition 2a and well inside the
+      5 % mesh gate. The worst S1/S2 value at 1E-2 was 1.655 %, close to it; that is why the new
+      angles matter.
+3. *It is faster, and the measurement resolves it.* For each case the saving is
+   1 − (mean S2R wall time) / (mean baseline wall time). The median over the seven cases is at least
+   30 %, **and** at least three times the noise. The noise is the largest relative spread between
+   the two repeats of one setting on one case, over both settings and all cases. (In S1/S2 the
+   resolution test was only reported; here it is part of the pass.)
+
+**Reported beside the verdict, not judged.** Iterations and time per iteration of every run; the
+saving per case; the S2R-to-baseline distance in cl and cd for every case; the spread of each pair of
+repeats.
+
+**What a pass allows, and what it does not.** The same as for S1/S2. A pass allows a proposal to make
+1E-2 the default for future airfoil2d runs; adopting it is Éder's ruling. No recorded run changes, and
+runs at 1E-2 are never mixed with the recorded pool in one table without saying so (the config hash
+differs). Before 1E-2 is used for a study answer, the V6e tunnel rows are run again at 1E-2 and
+reported, pass or fail. The pass covers the tested range only: attached flow, 2 to 10 deg, coarse and
+medium mesh, pool design 1 and the E387.
+
+**If it fails.** It is recorded as a fail with the condition that failed, and the line stops: no third
+rule for this setting is drafted unless Éder asks for one.
+
+**New code this needs.** `designs/make_s2r.py` (stages the 30 runs in the order above and writes
+`designs/s2r_cases.csv`) and `analysis/s2r_numerics.py` with tests, after the pattern of
+`designs/make_s12.py` and `analysis/s12_numerics.py`. No new solver parameter: `linear_tol` exists.
+
+**Cost (an estimate from S1/S2 wall times, not measured).** 30 runs: 28 timed runs and 2 new
+references. About 26,000 s, or about 7 hours of wall time on one runtime as slow as the slower S1/S2
+runtime, and about 5 hours on one as fast as the faster. At 0.26 units per hour, about 2 compute units.
+
 ## 5. Pros and cons
 
 | For | Against |
