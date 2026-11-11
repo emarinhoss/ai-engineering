@@ -1,4 +1,4 @@
-"""Where an airfoil2d run spends its iterations, from its recorded history.csv.gz.
+"""Where an airfoil2d run spends its iterations, from its recorded history.csv(.gz).
 
     python -m analysis.history_cost RUN_DIR [RUN_DIR ...] --out runs/history_cost/<date>
 
@@ -21,7 +21,8 @@ BANDS = (0.05, 0.02, 0.01, 0.005, 0.002)
 
 
 def read_history(run_dir):
-    with gzip.open(Path(run_dir) / "history.csv.gz", "rt") as f:
+    gz = Path(run_dir) / "history.csv.gz"          # the repo keeps .gz, the Drive queue keeps .csv
+    with (gzip.open(gz, "rt") if gz.exists() else open(Path(run_dir) / "history.csv", newline="")) as f:
         rows = list(csv.reader(f))
     names = [c.strip().strip('"') for c in rows[0]]
     data = np.array([[float(x) for x in r] for r in rows[1:]])
@@ -47,7 +48,9 @@ def analyse(run_dir):
     ceiling = float(cfg_value(run_dir, "CFL_ADAPT_PARAM").strip("() ").split(",")[3])
     at_ceiling = np.nonzero(h["Avg CFL"] >= 0.995 * ceiling)[0]
     return {
-        "case_id": res["case_id"], "mesh_level": res["params"]["mesh_level"],
+        "case_id": res["case_id"], "tag": res["params"].get("tag"),
+        "reynolds": res["params"]["reynolds"], "restart_from": res["params"].get("restart_from"),
+        "exit_code": res["run"]["exit_code"], "mesh_level": res["params"]["mesh_level"],
         "alpha_deg": res["params"]["alpha_deg"], "iterations": n, "max_iter": res["params"]["max_iter"],
         "wall_s": res["run"]["wall_time_s"],
         "linear": {"tolerance": cfg_value(run_dir, "LINEAR_SOLVER_ERROR"), "cap": cap,
@@ -70,9 +73,9 @@ def main(argv=None):
     ap.add_argument("--out", required=True)
     a = ap.parse_args(argv)
     out = [analyse(d) for d in a.run_dirs]
+    print(f"{len(out)} runs", flush=True)
     Path(a.out).mkdir(parents=True, exist_ok=True)
     (Path(a.out) / "history_cost.json").write_text(json.dumps(out, indent=1) + "\n")
-    print(json.dumps(out, indent=1))
     return 0
 
 
