@@ -248,6 +248,17 @@ threshold for the reference runs.
 **Cost (a guess, not measured).** 40 runs. With one job per runtime, about 15 worker-hours, or
 about 8 hours of wall time on two runtimes and about 4 compute units.
 
+**Smoke test (2026-11-11, before any batch was staged).** Six 400-iteration runs of pool design 1,
+coarse, 6 deg, on one runtime, alone. SU2 8.2.0 obeys each setting: the maximum CFL reaches 100 and
+250 where asked (20 otherwise); the mean linear residual stops near 10^-4.3 and 10^-2.3 for
+tolerances 1E-4 and 1E-2 (10^-6.3 otherwise), with 6.5 and 3.0 FGMRES iterations per step against
+10.0; the reference stop values appear in the config. Two things seen, not judged here: at ceilings
+100 and 250 the linear solve no longer reaches 1E-6 inside its 15 iterations (10^-5.0 and 10^-4.6),
+and at 250 the average CFL ended at 164, below the ceiling. Wall time for the 400 iterations: 50.9 s
+baseline, 40.7 s at 1E-4, 31.3 s at 1E-2, 56.7 s and 57.4 s at ceilings 100 and 250. These are
+unconverged smoke runs and take no part in any verdict. The 40 cases were staged after it
+(`designs/s12_cases.csv`).
+
 ## 5. Pros and cons
 
 | For | Against |
