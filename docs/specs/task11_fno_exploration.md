@@ -162,6 +162,26 @@ All twelve runs exited 0 and stopped on the Cauchy rule inside the 6,000 budget,
 Cost: the two Colab CPU runtimes that ran the decision 11 E387 cases and E0 used 5.50 compute units
 (balance 478.94 before, 473.44 after); both were stopped on 2026-11-11.
 
+### Where the iterations go (2026-11-11, analysis of recorded histories; nothing was re-run)
+
+`analysis/history_cost.py` over the 230 finished airfoil2d runs on the Drive queue (every one exit 0;
+record `runs/history_cost/2026-11-11/history_cost_pool.json`, sha256 `511a0731...`, computed on a
+Colab runtime from each run's `history.csv`, `case.cfg` and `result.json`). 224 cold starts (183
+stopped on the Cauchy rule, 41 used the whole budget) and the 6 warm starts of E0.
+
+- **CFL ceiling.** Every run has `CFL_ADAPT_PARAM` ceiling 20 and reaches it at iteration 61. The
+  Cauchy-stopped cold runs then sit at the ceiling for a median 98.4 % of the run (least 88.2 %).
+- **Linear solver.** Every run asks for 1E-6 with a cap of 15. No run reaches the cap on any step;
+  the mean is 9.8 to 11.7 FGMRES iterations per step (median 10.7), reaching about 10^-6.26.
+- **No tail to trim.** In the Cauchy-stopped cold runs, cd is still outside 1 % of its final value at
+  a median 87.5 % of the run (cl: 85.5 %); the run stops a median 582 iterations after cd enters that
+  band. The budget-exhausted runs are worse: a median 96.9 %.
+
+So the cost is a long transient marched at a capped pseudo-time step, with each step solved to a
+tight linear tolerance. The stop rule is not what waits. This says where to test (the CFL ceiling,
+then the linear tolerance); it does not say what either change would save, or that the answer would
+be unchanged. Any such test needs its pass rule fixed first, against a tightly converged reference.
+
 ## 5. Pros and cons
 
 | For | Against |
