@@ -82,7 +82,7 @@ These are cheap pure functions. In the low-fidelity grid, 72,009 of 531,441 desi
 
 There are two fidelity levels. The low level uses closed-form section data: thin-airfoil lift and flat-plate drag. It costs 0.25 seconds per design per core. The whole 531,441-point grid ran in 4.7 hours on 8 workers, and the 192-point pool in 669 seconds.
 
-The high level runs SU2 on the design's own section, at its cruise Reynolds number, on a cloud machine with 2 or 4 ranks. Per angle, the median is 11.8 minutes on the coarse mesh, over 173 cases, and 22.9 minutes on the medium mesh, over 30 cases. A design needs five angles. The SU2 pool itself is 172 cases.
+The high level runs SU2 on the design's own section, at its cruise Reynolds number, on a cloud machine with 2 or 4 ranks. Per angle, the median is 11.8 minutes on the coarse mesh, over 173 cases, and 23.2 minutes on the medium mesh, over 35 cases. A design needs five angles. The SU2 pool itself is 172 cases.
 
 The point of the table is the last line. Both levels share the geometry, the lattice, the closure and the mission. Only the section data differ. So the expensive level corrects the cheap one rather than replacing it. That is what makes the two-level model possible later in the talk.
 
@@ -196,7 +196,7 @@ The SU2 pool and its bias check: 172 cases, 37.0 worker-hours, over 24.9 hours o
 
 The two-level model: with 8 SU2 designs it reaches the endurance error that SU2 alone needs 24 designs for. Nothing manual; it is computed from the records.
 
-And the rulings: 10 recorded, each made when the data forced a judgment. A person read the evidence and decided.
+And the rulings: 11 recorded, each made when the data forced a judgment. A person read the evidence and decided.
 
 The runtimes are counted from the worker ids in the SU2 records, and the rulings from the decision headings of the task ledger, so this table is computed, not remembered.
 
@@ -398,7 +398,7 @@ These are the backup slides. I open one only when a question asks for it.
 
 ## Slide 51 — B25: The decision log
 
-"Who decided what, and when?" Every ruling is mine, and each is recorded with its time. Decision 6 set the budget to 6,000 with a Cauchy stop. Decision 7 staged the SU2 pool, 32 designs at five angles. Decision 8 accepted the medium mesh with the bias recorded. Decision 9 accepted the budget-exhausted runs for designs 8 and 28. Decision 10 admitted the 14 degree run; the confirmation result was unchanged.
+"Who decided what, and when?" Every ruling is mine, and each is recorded with its time. Decision 6 set the budget to 6,000 with a Cauchy stop. Decision 7 staged the SU2 pool, 32 designs at five angles. Decision 8 accepted the medium mesh with the bias recorded. Decision 9 accepted the budget-exhausted runs for designs 8 and 28. Decision 10 admitted the 14 degree run; the confirmation result was unchanged. Decision 11 smoothed the mesher on every mesh and ran the fine cases; the medium-against-fine check then passed at 0.35 percent.
 
 ## Slide 52 — B26: Ledger provenance
 
@@ -406,7 +406,7 @@ These are the backup slides. I open one only when a question asks for it.
 
 ## Slide 53 — B27: Cost ledger
 
-"What did it cost?" The coarse mesh: 173 cases, a median of 705 seconds, 35.7 worker-hours. The medium mesh: 30 cases, a median of 1,372 seconds, 11.5 worker-hours. One fine case took 3,162 seconds. The pool cases alone used 31.9 worker-hours. The low-fidelity grid took 4.65 hours on 8 workers, and the low pool 669 seconds.
+"What did it cost?" The coarse mesh: 173 cases, a median of 705 seconds, 35.7 worker-hours. The medium mesh: 35 cases, a median of 1,392 seconds, 13.8 worker-hours. The fine mesh: 11 cases, a median of 5,668 seconds, 17.5 worker-hours. The pool cases alone used 31.9 worker-hours. The low-fidelity grid took 4.65 hours on 8 workers, and the low pool 669 seconds.
 
 ## Slide 54 — B28: Equations
 

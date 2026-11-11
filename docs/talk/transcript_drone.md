@@ -84,7 +84,7 @@ There are two fidelity levels, and the cost difference between them shapes the w
 
 The low level runs in the container from closed-form section data. It costs 0.25 seconds per design on one core. That is why the full 531,441-point grid ran in 4.7 hours on 8 workers, and the 192-point pool in 669 seconds on 2.
 
-The high level runs on Colab, on 2 or 4 ranks. It takes an SU2 polar of the design's own section at its own cruise Reynolds number. One angle costs a median of 11.8 minutes on the coarse mesh, over 173 cases, and 22.9 minutes on the medium mesh, over 30 cases. A design needs five angles. The SU2 pool is 172 cases in the case table.
+The high level runs on Colab, on 2 or 4 ranks. It takes an SU2 polar of the design's own section at its own cruise Reynolds number. One angle costs a median of 11.8 minutes on the coarse mesh, over 173 cases, and 23.2 minutes on the medium mesh, over 35 cases. A design needs five angles. The SU2 pool is 172 cases in the case table.
 
 These are medians over every SU2 record at build time. The ratio between the levels is what makes the exact low-fidelity front possible and keeps the high-fidelity pool small.
 
@@ -482,7 +482,7 @@ If you ask to see the online loss in full: these are mean regret and gated picks
 
 ## Slide 64 — DB10: Backup: the decision log
 
-If you ask who made the calls on the SU2 level: I did, and these are the three rulings with their times. Decision 6, on 2026-11-08 at 06:50 UTC, set the budget to 6,000 with a Cauchy stop. Decision 7, at 20:45 UTC, staged the pool: 32 designs at five angles on the coarse mesh, plus the medium bias check. Decision 8, at 22:35 UTC, accepted the medium mesh as the high level with the bias recorded, which is also why no SST with Langtry-Menter was attempted.
+If you ask who made the calls on the SU2 level: I did, and these are the four rulings with their times. Decision 6, on 2026-11-08 at 06:50 UTC, set the budget to 6,000 with a Cauchy stop. Decision 7, at 20:45 UTC, staged the pool: 32 designs at five angles on the coarse mesh, plus the medium bias check. Decision 8, at 22:35 UTC, accepted the medium mesh as the high level with the bias recorded, which is also why no SST with Langtry-Menter was attempted. Decision 11, on 2026-11-10 at 15:00 UTC, smoothed the mesher on every mesh and ran ten fine E387 cases and five medium reruns; the medium-against-fine row passed at 0.35 percent.
 
 ## Slide 65 — DB11: Backup: the ledger provenance
 
@@ -490,7 +490,7 @@ If you ask where the fixed numbers come from: every one of the 46 fixed quantiti
 
 ## Slide 66 — DB12: Backup: the cost ledger
 
-If you ask what this cost in compute: SU2 cases took a median of 705 seconds on the coarse mesh over 173 cases, and 1,372 on the medium over 30. The single fine case took 3,162. The pool used 31.9 worker-hours, and the confirmation 3.4. The low-fidelity grid took 4.65 hours on 8 workers, and the low pool 669 seconds on 2.
+If you ask what this cost in compute: SU2 cases took a median of 705 seconds on the coarse mesh over 173 cases, and 1,392 on the medium over 35. The fine mesh took a median of 5,668 over 11 cases. The pool used 31.9 worker-hours, and the confirmation 3.4. The low-fidelity grid took 4.65 hours on 8 workers, and the low pool 669 seconds on 2.
 
 ## Slide 67 — DB13: Backup: the equations index
 

@@ -17,7 +17,7 @@ airfoils, and scored it against SU2 with one force integrator.
 | Inputs | Mach 0.30 to 0.80, alpha −2 to 6 deg, thickness, camber | camber, thickness, Reynolds number 87,400 to 269,000, alpha −2 to 14 deg |
 | Mesh | O-grid, 128×49 to 512×193 | C-mesh with a wake cut; first cell at y+ 0.5 |
 | What is needed from a run | the field | two numbers per run: cl and cd |
-| SU2 cost per case | 210 CPU-seconds | coarse 705 s and medium 1,372 s (medians), fine 3,162 s (one case), on 4 ranks (deck DB12) |
+| SU2 cost per case | 210 CPU-seconds | coarse 705 s, medium 1,392 s and fine 5,668 s (medians over 173, 35 and 11 cases), on 2 or 4 ranks (deck DB12; corrected 2026-11-11 from the earlier medium 1,372 s and one fine case of 3,162 s) |
 | Cases run | 896 for training | 172 in the pool, 37 worker-hours in total |
 
 Its findings that matter here:

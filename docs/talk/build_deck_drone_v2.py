@@ -1327,6 +1327,7 @@ def body_decisions(slide, v):
     for n, who, quote in re.findall(r'^### Decision (\d+) \(([^)]+)\): "([^"]+)"', tasks, re.MULTILINE):
         if int(n) >= 9:
             rows.append([n, who, f'"{quote}"', DECISION_EFFECT.get(n, "recorded in the task ledger")])
+    rows[1:] = sorted(rows[1:], key=lambda r: int(r[0]))      # decision 11 comes from v1's rows
     bd.add_table(slide, LM, CT - 0.1, [1.0, 2.7, 5.1, 3.33], rows, size=10.5,
                  row_h=min(0.95, 4.9 / len(rows)), flag=())
 
