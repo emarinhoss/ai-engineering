@@ -492,6 +492,27 @@ then about 20 hours of solver time, about 5 to 7 hours on two runtimes with two 
 references take 1 to 3 hours on one of those runtimes. The 42 timed runs take at most 7 hours on one
 runtime. In total about 5 compute units and about a day of elapsed time.
 
+### Experiment S2R result (2026-11-12): FAIL on condition 1
+
+Record: `runs/s2r_*` (30 runs, one worker `colab-5c81c51b4a3a-s2r-0of1`), `runs/s2r_ref/`, and
+`runs/s2r_analysis/2026-11-12/s2r.json`, made by `python -m analysis.s2r_numerics --out
+runs/s2r_analysis/2026-11-12` with the rule above, unchanged.
+
+- **Condition 1 (runs cleanly): FAIL.** Every run of pool design 1 at 8 deg, both settings and both
+  repeats, used all 6,000 iterations. The 8 deg reference used its 20,000 budget too. The other 26
+  timed runs were clean. The failure is the flow at 8 deg, not the setting: the 1E-2 runs did not
+  settle either.
+- **Condition 2a (answer against today's setting): pass.** Largest cl move 0.31 % and cd move
+  0.95 % at 8 deg, inside the 0.5 % and 1.0 % floors.
+- **Condition 2b (answer against the reference): pass** on the five valid references.
+- **Condition 3 (saving): pass.** Median saving 40.0 %, noise 2.1 %, one worker.
+- **Verdict: FAIL.** Under the rule, the 1E-2 line stops. A pass on the other three conditions does
+  not change this. No third rule is drafted.
+
+What this does and does not say: the 1E-2 setting roughly halved the wall time in the 29 clean cases
+and left their answers where the baseline put them. Whether it is safe at 8 deg, or at any angle where
+the steady solution is unstable, was not tested and is not claimed.
+
 ## 5. Pros and cons
 
 | For | Against |
