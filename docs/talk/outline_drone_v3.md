@@ -147,7 +147,7 @@ Version 3 of the drone talk: version 2 with the changes Éder asked for on 2026-
   The next group is SU2 against the wind tunnel. The drag ratio passes at both Reynolds numbers, {v6e_cd_lo} and {v6e_cd_hi} against 20 %.
   The lift slope fails at both Reynolds numbers, {v6e_dev} and {v6e_cla_hi} against {v6e_tol}.
   The fine-mesh row is on this slide. The medium mesh and the fine mesh agree on drag to {mesh_mf_dev}. Thus the lift-slope error is not a mesh error.
-  Decision 8 accepted the medium mesh with the bias recorded. The fail stays a fail. Each SU2 result carries it as a flag.
+  Decision 8 accepted the medium mesh with the bias recorded. Decision 11 then ran the fine cases, and the medium and fine meshes agree on drag. The fail stays a fail. Each SU2 result carries it as a flag.
 
 ### 12. The session runs the compute (11:00, 1.5 min)
 

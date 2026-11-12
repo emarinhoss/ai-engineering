@@ -344,6 +344,25 @@ def body_regret(slide, v):
                 size=11, bullets=True, space_after=2)
 
 
+def body_validation(slide, v):
+    """Version 2's validation slide, with the decision footnote updated: decision 8 accepted the
+    medium mesh before the fine cases ran; decision 11 ran them, and the medium-against-fine row
+    now passes. The lift-slope fail is unchanged."""
+    v2.body_validation(slide, v)
+    for sh in list(slide.shapes):
+        if sh.has_text_frame and sh.text_frame.text.startswith("Decision 8 ("):
+            sh._element.getparent().remove(sh._element)
+    tasks = (ROOT / v1.TASKS).read_text()
+    d8 = re.search(r'### Decision 8 \(([^)]+)\): "([^"]+)"', tasks)
+    d11 = re.search(r"### Decision 11 \(([^)]+)\): ([^\n]+)", tasks)
+    bd.box(slide, LM, CT + 4.05, CW, 0.85,
+           "\n".join([f'Decision 8 ({d8.group(1)}): "{d8.group(2)}".',
+                      (f"Decision 11 ({d11.group(1)}): {d11.group(2)}. The medium and fine meshes now "
+                       "agree on drag, so the medium row is no longer the only mesh evidence."),
+                      "The lift-slope fail stays a fail; every SU2 result carries it as a flag."]),
+           size=12, fill=bd.TINT)
+
+
 def body_caught(slide, v):
     v2.body_caught(slide, v)
     for sh in slide.shapes:
@@ -378,7 +397,7 @@ V2 = v2.BODIES
 BODIES = {
     2: body_problem, 3: V2["V3"], 4: V2["V4"], 5: V2["B1"], 6: V2["V5"], 7: V2["V6"], 8: V2["V7"],
     9: lambda slide, v: bd.add_figure(slide, FIG_V3 + "queue_gates.png", LM, CT - 0.1, CW, 4.8),
-    10: V2["V8"], 11: V2["V9"], 12: V2["V11"], 13: body_caught, 14: body_strategies,
+    10: V2["V8"], 11: body_validation, 12: V2["V11"], 13: body_caught, 14: body_strategies,
     15: body_why_gp, 16: V2["V14"], 17: V2["V15"], 18: V2["V16"], 19: V2["V17"], 20: V2["V18"],
     21: V2["V19"], 22: V2["V20"], 23: V2["V21"], 24: V2["V22"], 25: V2["V23"], 26: V2["V24"],
     27: body_questions,
