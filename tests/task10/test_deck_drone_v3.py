@@ -75,3 +75,35 @@ def test_regret_table_equals_the_pool_replay():
             if r["metric"] == "hv_regret" and r["strategy"] == "al_ehvi" and r["n"] == "16"]
     row16 = next(r for r in rows if r[0] == "16")
     assert row16[4] == f"{statistics.mean(vals):.3f}"
+
+
+SENTENCE = re.compile(r"(?<=[.!?])\s+(?=[A-Z{\"])")
+
+
+def sentences(text):
+    """Sentences of a note template; a {placeholder} counts as one word."""
+    return [s for p in text.split("\n") for s in SENTENCE.split(p) if s.strip()]
+
+
+def test_presenter_notes_follow_the_ste_length_rules():
+    """ASD-STE100: at most 25 words in a descriptive sentence, at most 6 sentences in a paragraph."""
+    for s in v3.read_outline():
+        assert s["notes"], s["number"]
+        for para in s["notes"].split("\n"):
+            assert len(sentences(para)) <= 6, (s["number"], para[:60])
+        for sent in sentences(s["notes"]):
+            assert len(sent.split()) <= 25, (s["number"], sent)
+
+
+def test_slide_notes_and_transcript_are_the_filled_presenter_notes(deck, tmp_path):
+    _, prs = deck
+    v = v3.values()
+    outline = v3.read_outline()
+    by_number = {s["number"]: s for s in outline}
+    for i, slide in enumerate(prs.slides, 1):
+        if i in by_number:
+            assert slide.notes_slide.notes_text_frame.text == v3.v2.fill(by_number[i]["notes"], v), i
+    out = tmp_path / "t.md"
+    v3.write_transcript(outline, v, out)
+    text = out.read_text()
+    assert text.count("\n## Slide ") == len(outline) + 1 and "{" not in text
