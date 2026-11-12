@@ -112,7 +112,7 @@ Version 3 of the drone talk: version 2 with the changes Éder asked for on 2026-
 - **Message:** A design passes {n_gates} gates before any solver runs, and an airfoil case passes a mesh-quality gate; a gated design costs nothing.
 - **Body:** From version 2, slide 7.
 - **Presenter notes:** A design must pass {n_gates} gates before a solver runs.
-  Read the table from top to bottom. Gate 1 checks the cruise Reynolds number. Gate 2 checks the stall margin. Gate 3 closes the mass. Gate 4 checks a manufacturing limit and the wing loading. Gate 5 checks the quality of the lattice.
+  Read the table from top to bottom. Gate 1 checks the cruise Reynolds number. Gate 2 checks the stall margin. Gate 3 closes the mass. Gate 4 checks the manufacturing floor, which is a study rule, and the wing loading. Gate 5 checks the quality of the lattice.
   An airfoil case also passes a mesh-quality gate.
   The gates are fast functions. In the low-fidelity grid, the gates stopped {gated_n} of {grid_n} designs.
   Each refusal gives the value that caused it. A gated design costs no solver time.

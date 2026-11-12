@@ -704,7 +704,7 @@ def gate_rows():
             f"{rules['cruise_cl_fraction_of_clmax']:g} CL_max"), "two checks on one margin"),
         3: (f"structure and propulsion at least {rules['structure_fraction_min']:g} of take-off mass",
             f"closure is a fixed point, at most {max_iter} iterations"),
-        4: ((f"manufacturing floor: tip chord >= {rules['tip_chord_min_m']:g} m, root thickness >= "
+        4: ((f"manufacturing floor (study rule): tip chord >= {rules['tip_chord_min_m']:g} m, root thickness >= "
             f"{rules['spar_depth_min_m']:g} m; wing loading in [{rules['wing_loading_min_N_m2']:g}, "
             f"{rules['wing_loading_max_N_m2']:g}] N/m^2"), "one gate, two checks"),
         5: (f"lattice tip panel aspect ratio <= {rules['lattice_panel_aspect_max']:g}",

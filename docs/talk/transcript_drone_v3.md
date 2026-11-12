@@ -108,7 +108,7 @@ The design points come from design tables and acquisition code, never from the l
 
 A design must pass 5 gates before a solver runs.
 
-Read the table from top to bottom. Gate 1 checks the cruise Reynolds number. Gate 2 checks the stall margin. Gate 3 closes the mass. Gate 4 checks a manufacturing limit and the wing loading. Gate 5 checks the quality of the lattice.
+Read the table from top to bottom. Gate 1 checks the cruise Reynolds number. Gate 2 checks the stall margin. Gate 3 closes the mass. Gate 4 checks the manufacturing floor, which is a study rule, and the wing loading. Gate 5 checks the quality of the lattice.
 
 An airfoil case also passes a mesh-quality gate.
 
