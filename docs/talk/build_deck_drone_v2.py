@@ -1416,6 +1416,85 @@ def body_rulings(slide, v):
     bd.add_table(slide, LM, CT, [3.6, 4.8, 3.7], rows, size=12, row_h=1.0, flag=())
 
 
+E0_ANALYSIS = "runs/e0_analysis/2026-11-11/e0.json"
+W1_FIELD_PLANNED = 120
+
+
+def latest(pattern):
+    """The newest record matching a glob under the repository, or None."""
+    found = sorted(ROOT.glob(pattern))
+    return found[-1] if found else None
+
+
+def w1_gate_a():
+    """Gate A of W1 from its records: both control runs against the E0 cold run they restart."""
+    from analysis.s12_numerics import distance, load
+    rows = v1.csv_rows("designs/w1_control_cases.csv") if (ROOT / "designs/w1_control_cases.csv").exists() else []
+    try:
+        runs = [load(r["case_id"], "w1_control") for r in rows]
+        cold = load(rows[0]["donor"], "e0")
+    except (FileNotFoundError, IndexError):
+        return "PENDING"
+    ok = all(r["exit_code"] == 0 and r["iterations"] < r["max_iter"]
+             and all(distance(r, cold, q) * 100 <= cold[f"drift_{q}_pct"] for q in ("cl", "cd"))
+             for r in runs)
+    same = len({(r["cl"], r["cd"]) for r in runs}) == 1
+    return ((f"pass: {', '.join(str(r['iterations']) for r in runs)} iterations; "
+             f"cl {distance(runs[0], cold, 'cl'):.2%}, cd {distance(runs[0], cold, 'cd'):.2%} from the "
+             f"cold run; {'identical' if same else 'different'} answers") if ok else "FAIL")
+
+
+def w1_rows():
+    fields = len(list((ROOT / "runs/w1_field").glob("airfoil2d-*/result.json")))
+    refs = len(list((ROOT / "runs/w1_ref").glob("airfoil2d-*/result.json")))
+    model = latest("runs/w1_model/*/model.json")
+    if model:
+        m = json.loads(model.read_text())
+        model_text = (f"frozen: {m['k']} components, {m['training_cases']} training fields, "
+                      f"leave-one-design-out error {m['leave_one_design_out'][str(m['k'])]['mean']:.3f}")
+    else:
+        model_text = "PENDING"
+    res = latest("runs/w1_analysis/*/w1.json")
+    if res:
+        r = json.loads(res.read_text())
+        if r.get("verdict") == "not evaluated":
+            near = learn = adds = "not evaluated (fewer than five valid references)"
+        else:
+            near = f"{r['near']['verdict']}: median saving {r['near']['median_saving']:.1%}"
+            learn = f"{r['learn']['verdict']}: median saving {r['learn']['median_saving']:.1%}"
+            adds = r["learning_adds"]["result"]
+    else:
+        near = learn = adds = "PENDING"
+    return [["Step", "Status from the records"],
+            ["Control: a converged case restarted through the new start files", w1_gate_a()],
+            ["Training fields (other pool designs, -2 to 10 deg)",
+             f"{fields} of {W1_FIELD_PLANNED} recorded" if fields else "PENDING"],
+            ["New references for the second test section", f"{refs} of 3 recorded" if refs else "PENDING"],
+            ["Field model", model_text],
+            ["Nearest stored case as the start", near],
+            ["Learned start", learn],
+            ["Learned start better than the nearest case?", adds]]
+
+
+def body_w1(slide, v):
+    e0 = v1.jload(E0_ANALYSIS)["verdict"]
+    rows = [["Restart, no model (E0)", "Median iteration saving", "Median wall saving", "cl and cd held",
+             "Verdict"]]
+    for kind, label in (("angle_step", "from the neighbouring angle"), ("mesh_step", "coarse to medium mesh")):
+        k = e0[kind]
+        rows.append([label, f"{k['median_iter_saving']:.1%}", f"{k['median_wall_saving']:.1%}",
+                     "yes" if k["forces_within_drift"] else "no", k["verdict"].upper()])
+    bd.add_table(slide, LM, CT - 0.2, [2.9, 2.3, 2.1, 1.7, 1.2], rows, size=11, row_h=0.36)
+    bd.add_table(slide, LM, CT + 1.05, [5.0, 7.13], w1_rows(), size=11, row_h=0.36)
+    bd.text_box(slide, LM, CT + 4.0, CW, 0.9,
+                [("Seven coarse cases on two sections the model never saw; cold, nearest-case and "
+                  "learned starts, two runs each, on one machine."),
+                 ("A start passes if every run stops cleanly, cl and cd stay within 2 % of a tightly "
+                  "converged reference, and the median wall-time saving is at least 30 % and three "
+                  "times the repeat noise.")],
+                size=11, bullets=True, space_after=2)
+
+
 def reuse(d_id):
     """A version-1 body, unchanged (its source captions are removed after it runs)."""
     return v1.BODIES[d_id]
@@ -1445,7 +1524,7 @@ BODIES = {
     "B15": figure_body("design_space.png", 4.5), "B16": reuse("D34"), "B17": body_bias_both,
     "B18": body_mesh_both, "B19": body_wrong_first, "B20": body_e387_points, "B21": body_budget,
     "B22": reuse("DB6"), "B23": reuse("DB7"), "B24": reuse("DB9"), "B25": body_decisions,
-    "B26": body_ledger, "B27": body_cost, "B28": body_equation_index, "B29": body_rulings,
+    "B26": body_ledger, "B27": body_cost, "B28": body_equation_index, "B29": body_rulings, "B30": body_w1,
 }
 
 

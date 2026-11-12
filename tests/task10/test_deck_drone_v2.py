@@ -58,9 +58,9 @@ def text_of(slide):
 def test_main_body_then_one_backup_divider_then_backups(deck):
     n, prs, order, _ = deck
     main = [f"V{i}" for i in range(1, 26)]
-    backup = [f"B{i}" for i in range(1, 30)]
+    backup = [f"B{i}" for i in range(1, 31)]
     assert order == main + [None] + backup
-    assert n == len(prs.slides) == 25 + 1 + 29
+    assert n == len(prs.slides) == 25 + 1 + 30
     divider = prs.slides[25]
     assert divider.background.fill.type == 1                      # solid blue fill
     assert divider.shapes.title.text_frame.text == "Backup"

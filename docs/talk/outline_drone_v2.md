@@ -230,3 +230,7 @@ mention of an earlier study. Version-1 DB14 (study guide) and DB15 (carried over
 - **Body:** version-1 DB13, without module paths.
 ### B29. Open rulings
 - **Body:** version-1 DB16.
+### B30. A learned warm start: the rule, and where it stands
+- **Message:** Fixed before any run: a start predicted from other sections must cut wall time by 30 % without moving cl or cd, and must beat restarting from the nearest stored case.
+- **Body:** The E0 verdicts (restart from a stored solution, no model); the W1 status read from its records (control, training fields, frozen model, verdict); the rule's conditions.
+- **Speaker notes:** This is exploratory work on the solver, not part of the drone answer, and none of its runs is in any count of this talk. E0 restarted cases from a neighbouring angle and from the coarse mesh; both failed their rule, the mesh step on one drag value. W1 asks whether a learned start does better. The model is principal components of the four solution fields with one Gaussian process each, fitted on the other pool designs and frozen before the first timed run. The control restarted a converged case through the new start-file code and reproduced it exactly. Any cell marked PENDING has no record yet; the verdict is reported as the rule gives it, including if the learned start is no better than the nearest stored case.

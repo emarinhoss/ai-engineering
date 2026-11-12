@@ -1191,9 +1191,10 @@ def pool_case_index():
 
 
 def task11_tag(tag):
-    """True for the Task 11 exploration runs (E0 warm starts, S1/S2 solver settings). They test
-    the solver itself, not the drone study, so no Task 10 count, cost or table includes them."""
-    return tag == "e0" or tag.startswith("s12_")
+    """True for the Task 11 exploration runs (E0 warm starts, S1/S2 and S2R solver settings, W1
+    learned warm starts). They test the solver itself, not the drone study, so no Task 10 count,
+    cost or table includes them."""
+    return tag == "e0" or tag.startswith(("s12_", "s2r_", "w1_"))
 
 
 def template_cfg():
