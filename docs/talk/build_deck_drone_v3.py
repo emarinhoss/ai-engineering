@@ -345,22 +345,11 @@ def body_regret(slide, v):
 
 
 def body_validation(slide, v):
-    """Version 2's validation slide, with the decision footnote updated: decision 8 accepted the
-    medium mesh before the fine cases ran; decision 11 ran them, and the medium-against-fine row
-    now passes. The lift-slope fail is unchanged."""
+    """Version 2's validation slide, without its decision footnote (version 3 drops it)."""
     v2.body_validation(slide, v)
     for sh in list(slide.shapes):
         if sh.has_text_frame and sh.text_frame.text.startswith("Decision 8 ("):
             sh._element.getparent().remove(sh._element)
-    tasks = (ROOT / v1.TASKS).read_text()
-    d8 = re.search(r'### Decision 8 \(([^)]+)\): "([^"]+)"', tasks)
-    d11 = re.search(r"### Decision 11 \(([^)]+)\): ([^\n]+)", tasks)
-    bd.box(slide, LM, CT + 4.05, CW, 0.85,
-           "\n".join([f'Decision 8 ({d8.group(1)}): "{d8.group(2)}".',
-                      (f"Decision 11 ({d11.group(1)}): {d11.group(2)}. The medium and fine meshes now "
-                       "agree on drag, so the medium row is no longer the only mesh evidence."),
-                      "The lift-slope fail stays a fail; every SU2 result carries it as a flag."]),
-           size=12, fill=bd.TINT)
 
 
 def body_caught(slide, v):

@@ -160,7 +160,7 @@ The lift slope fails at both Reynolds numbers, 5.49 % and 6.44 % against 5 %.
 
 The fine-mesh row is on this slide. The medium mesh and the fine mesh agree on drag to 0.35 %. Thus the lift-slope error is not a mesh error.
 
-Decision 8 accepted the medium mesh with the bias recorded. Decision 11 then ran the fine cases, and the medium and fine meshes agree on drag. The fail stays a fail. Each SU2 result carries it as a flag.
+The fail stays a fail. Each SU2 result carries it as a flag.
 
 ## Slide 12: The session runs the compute
 
