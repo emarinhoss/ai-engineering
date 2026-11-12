@@ -313,6 +313,21 @@ def write_warm_start(queue, run_dir, params):
             "max_nn_distance_m": max_dist}
 
 
+def copy_start_file(queue, run_dir, params):
+    """For a job with start_file (experiment W1): copy starts/<start_file> to run_dir/solution_flow.csv
+    unchanged. Returns the record for result["run"]["restart"]; raises FileNotFoundError when the
+    file is missing and ValueError when its row count differs from the mesh's node count."""
+    src = Path(queue) / "starts" / params["start_file"]
+    if not src.is_file():
+        raise FileNotFoundError(f"start file {src} does not exist")
+    text = src.read_text()
+    rows, nodes = len(text.strip().splitlines()) - 1, len(read_su2_coords(run_dir / "mesh.su2"))
+    if rows != nodes:
+        raise ValueError(f"start file {src.name} has {rows} rows, the mesh has {nodes} nodes")
+    (run_dir / "solution_flow.csv").write_text(text)
+    return {"start_file": params["start_file"], "start_sha256": sha256_file(src)}
+
+
 def run_record(job, run_dir, result, worker_id, restart=None):
     """The run record of 01_interfaces.md: run_case's result plus params, geometry, mesh, code, job."""
     record = {k: v for k, v in result.items() if k != "history_summary"}
@@ -389,6 +404,13 @@ def process(job, args):
             restart = write_warm_start(queue, run_dir, job["params"])
         except FileNotFoundError as err:
             return fail(queue, run_dir, job, "donor_missing", str(err))
+    if job["params"].get("start_file"):
+        try:
+            restart = copy_start_file(queue, run_dir, job["params"])
+        except FileNotFoundError as err:
+            return fail(queue, run_dir, job, "start_missing", str(err))
+        except ValueError as err:
+            return fail(queue, run_dir, job, "start_mismatch", str(err))
     set_flag(run_dir, "1-running")
     say(f"{cid}: running {args.su2_cmd}")
     box, timeout_s = run_with_heartbeat(run_dir, job, args)

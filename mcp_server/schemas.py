@@ -56,6 +56,8 @@ class CaseParams(BaseModel):
     battery_fraction: float | None = Field(None, allow_inf_nan=False) # drone only
     save_restart: bool | None = None                                  # airfoil2d only: write restart_flow.csv
     restart_from: str | None = Field(None, pattern=r"^airfoil2d-[0-9a-f]{10}$")  # airfoil2d only: donor case id
+    # airfoil2d only, experiment W1: a solution_flow.csv in the queue's starts/ folder to start from
+    start_file: str | None = Field(None, pattern=r"^[a-z0-9_.-]{1,64}\.csv$")
     # airfoil2d only, experiment S1/S2: unset means the recorded solver setting (cases/config.py)
     cfl_max: float | None = Field(None, ge=1.0, le=1000.0, allow_inf_nan=False)       # CFL ceiling
     linear_tol: float | None = Field(None, ge=1e-8, le=1e-1, allow_inf_nan=False)     # LINEAR_SOLVER_ERROR
@@ -85,7 +87,7 @@ class CaseParams(BaseModel):
 
         if fam == "drone":
             for name in ("theta1_deg", "theta2_deg", "theta3_deg", "radius_m", "mesh_level", "max_iter",
-                         *SUPERSONIC_DEFAULTS, "reynolds", "alpha_deg", "transition", "airfoil", "save_restart", "restart_from",
+                         *SUPERSONIC_DEFAULTS, "reynolds", "alpha_deg", "transition", "airfoil", "save_restart", "restart_from", "start_file",
                          "cfl_max", "linear_tol", "cauchy_elems", "cauchy_eps"):
                 forbid(name)
             for name, bounds in DRONE_BOUNDS.items():
@@ -116,10 +118,12 @@ class CaseParams(BaseModel):
                 need(name, bounds)
             if self.transition is None:
                 self.transition = "BCM"
+            if self.restart_from is not None and self.start_file is not None:
+                errs.append("start_file: give either restart_from or start_file, not both")
             if errs:
                 raise ValueError("\n".join(errs))
             return self
-        for name in (*AIRFOIL_FIELDS, "airfoil", "save_restart", "restart_from",
+        for name in (*AIRFOIL_FIELDS, "airfoil", "save_restart", "restart_from", "start_file",
                      "cfl_max", "linear_tol", "cauchy_elems", "cauchy_eps"):
             forbid(name)
         for name, value in SUPERSONIC_DEFAULTS.items():

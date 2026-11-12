@@ -134,9 +134,10 @@ def _output_files(params):
 
 
 def _restart_lines(params):
-    """Config lines that start the case from solution_flow.csv; empty text when restart_from is
-    unset, so the rendered case.cfg of every case without it is unchanged."""
-    if not params.get("restart_from"):
+    """Config lines that start the case from solution_flow.csv, which the worker writes from a donor
+    case (restart_from) or copies from a prepared file (start_file, experiment W1); empty text when
+    neither is set, so the rendered case.cfg of every case without them is unchanged."""
+    if not (params.get("restart_from") or params.get("start_file")):
         return ""
     return "RESTART_SOL= YES\nREAD_BINARY_RESTART= NO\n"
 

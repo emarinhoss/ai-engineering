@@ -47,6 +47,12 @@ reviewed; it does not wait for Gate A, because cold runs with `save_restart` use
   is copied to `solution_flow.csv`. It uses the restart config lines that `restart_from` already
   uses. A case without it renders the same `case.cfg` as today.
 
+Implementation note (2026-11-12, after reading an E0 restart file on Drive; not a change of the
+rule): with `INC_NONDIM= INITIAL_VALUES` SU2 stores velocity already divided by U∞, pressure by ρU∞²
+and ν̃ by U∞c. The rule's scaling is therefore the identity for velocity and pressure and a
+multiplication by the Reynolds number for ν̃. The far-field velocity of the 6 deg file is
+(0.9947, 0.1030).
+
 Closes: `tests/test_startfile.py`. Read then write returns the same text for a recorded E0 restart
 file; scale then unscale returns the fields; a row-count mismatch against the mesh raises; the
 rendered config of a case without `start_file` is byte-identical to the recorded one.
