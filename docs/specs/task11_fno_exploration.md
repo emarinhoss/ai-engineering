@@ -380,6 +380,117 @@ rule for this setting is drafted unless Éder asks for one.
 references. About 26,000 s, or about 7 hours of wall time on one runtime as slow as the slower S1/S2
 runtime, and about 5 hours on one as fast as the faster. At 0.26 units per hour, about 2 compute units.
 
+### Experiment W1: a learned warm start, against cold and nearest-case starts. DRAFT 2026-11-12, NOT APPROVED
+
+Drafted 2026-11-12 at Éder's request ("draft the rule for the warm-start experiment"). Nothing below
+has run. It becomes a rule only when Éder approves it; from then it is frozen in the way the S1/S2
+and S2R blocks are. The work breakdown is `docs/specs/task11_w1_tasks.md`.
+
+**Why a new test, and what it cannot do.** E0 failed both kinds of non-learned warm start under its
+rule, and that verdict stands; its twelve runs are not re-judged. E0 itself named the fault that this
+test corrects: it compared a warm answer with a cold answer that was less settled than the warm one.
+Here both are compared with a tightly converged reference, as in S1/S2. E0 also tested only starts
+from the same section. This test asks about a start **predicted** for a section that has no solution
+yet, which is step E3 of section 4, opened directly by Éder. The thresholds were chosen after the
+E0, S1/S2 and S2R numbers were seen. No warm run of either kind below has been made on any of the
+seven cases, and one of the two test sections has never been run on the current mesher.
+
+**Question.** On one machine, does starting an airfoil2d coarse run from a field predicted by a
+model trained on other sections cut its wall time by at least 30 % against the free-stream start,
+without moving its lift and drag? And is the predicted field a better start than the plainest
+alternative, the stored solution of the nearest other case?
+
+**Test cases (seven, fixed).** Coarse mesh, current mesher, recorded config, 6,000 budget.
+
+| Section | Angles | Why it is in |
+|---|---|---|
+| Pool design 1 (camber 3.55 %, thickness 9.85 %, Re 170,203.9) | 2, 4, 6, 10 deg | Four valid references already exist (S1/S2 and S2R). 4 deg is an angle no training case has. |
+| Pool design 4 (camber 5.86 %, thickness 10.88 %, Re 108,870.0) | 2, 6, 10 deg | The design at the median distance from design 1 among the other 31 pool designs, in (camber, thickness, Reynolds) each scaled to the pool's range. Chosen by that rule, computed on 2026-11-12 before any run. |
+
+Neither section, at any angle, is in the training set.
+
+**Training set (the field campaign).** The other 30 pool designs of `designs/pool_af_cases.csv`, each
+at −2, 2, 6 and 10 deg: 120 coarse cold runs with `save_restart`, new tag `w1_field`. 14 deg is left
+out because it is outside the tested range. A run enters the training set only if it exits 0 and
+stops on the standard Cauchy rule inside 6,000 iterations; the others are counted and reported. If
+fewer than 90 enter, the test is not run and that is the result.
+
+**The three starts.**
+
+- *Cold.* Free stream, as every recorded pool run.
+- *Nearest case.* The restart file of the training case nearest to the test case in (camber,
+  thickness, log Reynolds, angle), each scaled to the training range. No model.
+- *Learned.* The field predicted for the test case by one model fitted to the training set.
+
+Every pool mesh of one level has the same node count and ordering, so both warm starts are written
+node by node (index to index), not by nearest position. Fields are stored scaled by the free
+stream (velocity by U∞, pressure by ρU∞², ν̃ by ν) and rescaled to the test case, since U∞ changes
+with the Reynolds number. A negative predicted ν̃ is set to zero.
+
+**The model.** Principal components of the four scaled fields (pressure, two velocity components,
+ν̃) with one Gaussian process per component, over (camber, thickness, log Reynolds, angle): the
+method of `surrogate/pca_gp.py`, short enough to explain line by line. Its settings (number of
+components, kernel) may be tuned by leave-one-design-out on the training set only. The fitted model
+is committed and its hash recorded **before** the first timed run; after that it is not changed.
+A neural operator is not part of this test. If Éder wants one, it enters as a fourth start under the
+same conditions and must be named here before approval.
+
+**References.** Design 1 reuses the four valid references (S1/S2 at 2, 6, 10 deg; S2R at 4 deg).
+Design 4 gets three new ones with the S1/S2 reference settings (budget 20,000, Cauchy window 500 at
+1E-7), valid only if the run exits 0, stops on that rule inside its budget, and its own drift of cl
+and of cd is below 0.2 %. A case without a valid reference takes part in conditions 1 and 3 only. A
+verdict needs at least five cases with a valid reference.
+
+**Runs per case.** Six, staged in the order cold, nearest, learned, learned, nearest, cold, so a
+slow drift in machine speed falls on all three alike. 42 timed runs, new tags (`w1_cold_a`,
+`w1_near_a`, `w1_learn_a`, `w1_learn_b`, `w1_near_b`, `w1_cold_b`). One runtime, one worker
+(`--shard 0/1`), one job at a time, 4 ranks. If the timed runs do not share one `worker_id`, the
+timing result is void and reported as void.
+
+**Wall time of a warm run** is SU2's wall time plus the time to prepare its start file (model
+prediction or file copy), both recorded.
+
+**Pass, judged separately for the nearest-case start and for the learned start. All must hold:**
+
+1. *It runs.* Every run with that start exits 0 and stops on the standard Cauchy rule inside 6,000
+   iterations.
+2. *The answer does not move.* For every case with a valid reference, the cl and cd of each run
+   with that start are within 2 % of the reference (the S2R limit).
+3. *It is faster, and the measurement resolves it.* For each case the saving is
+   1 − (mean wall time with that start) / (mean cold wall time). The median over the seven cases is
+   at least 30 %, and at least three times the noise. The noise is the largest relative spread
+   between the two repeats of one start on one case, over all three starts and all cases.
+
+**Does the learning add anything?** Judged only if the learned start passes. For each case,
+(mean nearest-case wall time − mean learned wall time) / (mean cold wall time). If the median over
+the seven cases is at least 10 points and at least three times the noise, the learned start is
+better than the nearest case. Otherwise the result is stated as: the learned start is no better
+than restarting from the nearest stored case.
+
+**Reported beside the verdicts, not judged.** Iterations and time per iteration of every run. The
+cold runs' own distance from the reference. The distance of each warm answer from the cold answer.
+The leave-one-design-out field error of the model. The cost of the campaign and of the fit, and the
+number of later runs at the measured saving that would repay it. The least iterations any restart
+can take here, from the control run below (the Cauchy rule cannot stop before iteration 500).
+
+**Control, before the batch.** One case from E0 (pool design 1, coarse, 6 deg, which has a recorded
+restart file) is restarted from its own restart file, once read back unchanged and once passed
+through the new start-file writer. Both must give the E0 cold cl and cd within that run's recorded
+drift. If not, the writer is wrong and nothing else is staged.
+
+**What a pass allows, and what it does not.** A pass allows a proposal that the worker start new
+coarse pool cases from that kind of start; adopting it is Éder's ruling. No recorded run changes.
+The pass covers the tested range only: coarse mesh, 2 to 10 deg, sections inside the pool's range.
+Every reported number stays SU2's own.
+
+**If it fails.** It is recorded as a fail with the condition that failed, for each start, and the
+line stops: no further warm-start rule is drafted unless Éder asks for one.
+
+**Cost (estimates, not measured).** A coarse run took about 10 minutes in S2R's log. The campaign is
+then about 20 hours of solver time, about 5 to 7 hours on two runtimes with two jobs each. The three
+references take 1 to 3 hours on one of those runtimes. The 42 timed runs take at most 7 hours on one
+runtime. In total about 5 compute units and about a day of elapsed time.
+
 ## 5. Pros and cons
 
 | For | Against |
