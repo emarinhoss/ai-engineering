@@ -1,8 +1,8 @@
-# Task 11, experiment W1: work breakdown (DRAFT 2026-11-12, not approved)
+# Task 11, experiment W1: work breakdown (approved with the rule, 2026-11-12)
 
 Companion to the W1 block of `docs/specs/task11_fno_exploration.md` (the rule; read it first). This
 file turns the rule into tasks, names what closes each one, and gives the order. Nothing here
-changes the rule. Nothing here has run. No task starts before Éder approves the rule.
+changes the rule. Éder approved the rule on 2026-11-12 ("approved as written, go ahead").
 
 ## Roles (CLAUDE.md allocation)
 

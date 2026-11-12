@@ -380,11 +380,12 @@ rule for this setting is drafted unless Éder asks for one.
 references. About 26,000 s, or about 7 hours of wall time on one runtime as slow as the slower S1/S2
 runtime, and about 5 hours on one as fast as the faster. At 0.26 units per hour, about 2 compute units.
 
-### Experiment W1: a learned warm start, against cold and nearest-case starts. DRAFT 2026-11-12, NOT APPROVED
+### Experiment W1: a learned warm start, against cold and nearest-case starts. APPROVED 2026-11-12
 
-Drafted 2026-11-12 at Éder's request ("draft the rule for the warm-start experiment"). Nothing below
-has run. It becomes a rule only when Éder approves it; from then it is frozen in the way the S1/S2
-and S2R blocks are. The work breakdown is `docs/specs/task11_w1_tasks.md`.
+Drafted 2026-11-12 at Éder's request ("draft the rule for the warm-start experiment") and approved by
+Éder the same day: "approved as written, go ahead". From that approval the block is frozen in the way
+the S1/S2 and S2R blocks are: a later change is recorded beside the original with its date and
+reason, and never replaces it. The work breakdown is `docs/specs/task11_w1_tasks.md`.
 
 **Why a new test, and what it cannot do.** E0 failed both kinds of non-learned warm start under its
 rule, and that verdict stands; its twelve runs are not re-judged. E0 itself named the fault that this
