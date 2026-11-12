@@ -1,0 +1,387 @@
+"""Build docs/talk/deck_drone_v3.pptx (version 3 of the drone talk) from docs/talk/outline_drone_v3.md.
+
+Run from the repository root with:
+    python -m docs.talk.build_deck_drone_v3
+
+Version 3 is version 2 with the changes listed at the top of its outline. Version 2
+(docs/talk/build_deck_drone_v2.py) is imported, never modified: its values, figures, checks and
+slide bodies are reused wherever the outline says "From version 2".
+
+Rules, as in version 2: every number is computed from a record at build time; no source footers,
+repository paths, module names or case ids, and no mention of an earlier study, on any slide, note
+or figure. Slides are named only by their number: no slide shows a V or B id, and no text points to
+another slide except by its number.
+"""
+import contextlib
+import re
+import statistics
+import sys
+from collections import defaultdict
+from pathlib import Path
+
+import numpy as np
+
+ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from docs.talk import build_deck as bd
+from docs.talk import build_deck_drone as v1
+from docs.talk import build_deck_drone_v2 as v2
+from docs.talk import equations as eq
+
+plt = bd.plt
+LM, CW, CT = bd.LM, bd.CW, bd.CT
+OUTLINE = ROOT / "docs/talk/outline_drone_v3.md"
+DEFAULT_OUT = ROOT / "docs/talk/deck_drone_v3.pptx"
+FIG_V3 = "docs/talk/figures/drone_v3/"            # the two drawings new in this version
+MF_JSON = "runs/drone_mf/2026-11-09/mf.json"
+POOL_DESIGN = "designs/pool_drone_lf192.csv"
+POOL_GRID = "runs/drone_pool_lf/2026-11-08/grid.csv"
+ID_RE = re.compile(r"\b[VBSD]B?\d{1,2}\b(?![a-z])")    # a slide id of an earlier version (V13, B21, D26)
+
+
+# ---- reading the outline ----------------------------------------------------------------------
+SLIDE_HEAD = re.compile(r"^### (\d+)\. (.+?)(?: \((\d+:\d\d)(?: onward)?(?:, ([\d.]+) min)?\))?$")
+FIELDS = (("message", "Message"), ("body", "Body"), ("notes", "Speaker notes"))
+
+
+def read_outline():
+    """[{number, title, minutes, main, message, body, notes}] in outline order."""
+    slides, cur, main = [], None, True
+    for line in OUTLINE.read_text(encoding="utf-8").splitlines():
+        head = SLIDE_HEAD.match(line)
+        if head:
+            cur = {"number": int(head.group(1)), "title": head.group(2), "main": main,
+                   "minutes": float(head.group(4)) if head.group(4) else None,
+                   "message": "", "body": "", "notes": ""}
+            slides.append(cur)
+        elif line.startswith("## "):
+            cur = None
+            main = main and not line.startswith("## Backup")
+        elif cur is not None:
+            for key, tag in FIELDS:
+                if line.startswith(f"- **{tag}:** "):
+                    cur[key] = line[len(f"- **{tag}:** "):].strip()
+    return slides
+
+
+# ---- values -----------------------------------------------------------------------------------
+def values():
+    v = dict(v2.values())
+    v["mf_usable_high"] = v1.jload(MF_JSON)["usable_high"]
+    v["mf_two_best"] = two_level_best()
+    return v
+
+
+def two_level_best():
+    """Where the two-level GP has a lower mean endurance error than the GP on SU2 alone, in words."""
+    m = v1.mf_means()
+    ns = sorted({n for (model, n, _) in m if model == "two"})
+    wins = [m[("two", n, "rmse_endurance")] < m[("single", n, "rmse_endurance")] for n in ns]
+    if all(wins):
+        return f"at every budget from {ns[0]} to {ns[-1]} SU2 designs"
+    k = wins.index(False)
+    if k == 0:
+        return f"at no budget from {ns[0]} to {ns[-1]} SU2 designs"
+    return f"up to {ns[k - 1]} SU2 designs (at {ns[k]} the GP on SU2 alone is lower)"
+
+
+# ---- the two drawings new in this version -------------------------------------------------------
+V2_FIGURE_FIXES = v2.figure_fixes                 # kept: v3_drawing() swaps the module's name
+
+
+def figure_fixes_v3():
+    """Version 2's figure-text fixes, except that the D26 drawing keeps its own labels (Claude Code,
+    the Drive queue folder, the Colab worker); the upload is now done by the session, not by hand."""
+    keep = {"Local: Claude Code and the MCP tools", "Drive queue folder", "Colab worker",
+            "upload job.json\nto Drive (by hand)"}
+    return ([p for p in V2_FIGURE_FIXES() if p[0] not in keep]
+            + [("upload job.json\nto Drive (by hand)", "job file\nto Drive")])
+
+
+@contextlib.contextmanager
+def v3_drawing():
+    """Draw into this version's folder with this version's figure-text fixes."""
+    saved_fix, saved_dir = v2.figure_fixes, v1.FIG_DRONE
+    v2.figure_fixes, v1.FIG_DRONE = figure_fixes_v3, FIG_V3
+    try:
+        yield
+    finally:
+        v2.figure_fixes, v1.FIG_DRONE = saved_fix, saved_dir
+
+
+def pool():
+    """The 192-point low pool as surrogate.replay prepares it for the pool replay."""
+    from surrogate import replay
+    return replay.Pool(replay.load_pool(ROOT / POOL_DESIGN, ROOT / POOL_GRID, family="drone"),
+                       family="drone")
+
+
+def draw_regret(path_name="regret.png"):
+    """The pool's points, its true front, the reference point and the area the front dominates.
+    Axes: take-off mass (log scale, as the objective is its logarithm) and endurance."""
+    from surrogate.acquisition import pareto_front
+    P = pool()
+    t, m = -P.F[:, 0], np.exp(P.F[:, 1])
+    front = pareto_front(P.F)
+    order = front[np.argsort(m[front])]
+    t_ref, m_ref = -P.ref[0], float(np.exp(P.ref[1]))
+    fig = plt.figure(figsize=(7.2, 4.2), dpi=200)
+    ax = fig.add_axes([0.11, 0.14, 0.86, 0.82])
+    ax.scatter(m, t, s=10, color="#B8C2D1", label=f"pool designs ({P.N})", zorder=2)
+    level = t_ref
+    for i in order:                                    # lightest first: each adds a strip
+        if t[i] > level:
+            ax.fill_between([m[i], m_ref], level, t[i], color="#C9D8EC", lw=0, zorder=1,
+                            label="hypervolume of the true front" if level == t_ref else None)
+            level = t[i]
+    ax.step(m[order], t[order], where="post", color=v1.BLUE_H, lw=1.2, zorder=3)
+    ax.scatter(m[order], t[order], s=22, color=v1.BLUE_H, label=f"true front ({len(front)} designs)",
+               zorder=4)
+    ax.scatter([m_ref], [t_ref], marker="x", s=60, color=v1.ACCENT_H, label="reference point",
+               zorder=5)
+    ax.set_xscale("log")
+    ax.set_xlabel("take-off mass (kg), log scale")
+    ax.set_ylabel("endurance (h)")
+    ax.legend(loc="upper left", fontsize=8, frameon=False)
+    return v1.save(fig, path_name)
+
+
+def ensure_figures():
+    v2.ensure_figures()
+    with v3_drawing():
+        (ROOT / FIG_V3).mkdir(parents=True, exist_ok=True)
+        v1.draw_queue()
+        draw_regret()
+
+
+# ---- new slide bodies ---------------------------------------------------------------------------
+def body_problem(slide, v):
+    bd.box(slide, LM, CT - 0.15, 5.9, 1.55,
+           (f"The design question: the longest endurance at a fixed {v['payload_kg']} kg payload, "
+            f"with the take-off mass under the {v['cap_kg']} kg cap of the EASA open category, class C2."),
+           size=15, fill=bd.TINT)
+    bd.box(slide, LM + 6.2, CT - 0.15, 5.93, 1.55,
+           ("Six inputs: span, aspect ratio, taper, battery fraction, camber and thickness. "
+            f"Everything else is fixed in a graded ledger of {v['n_ledger']} quantities."),
+           size=15, fill=bd.TINT)
+    cols = [("Slow", (f"One SU2 angle costs a median {v['hf_coarse_min']} min on the coarse mesh; "
+                      "a design needs five angles.")),
+            ("Manual", "Each case needs a mesh, a configuration and a check written for it."),
+            ("Silent", (f"The first SU2 case exited with code {v['smoke_exit']} and its lift and drag "
+                        f"were {v['smoke_cl_off']} and {v['smoke_cd_off']} off (slide 3)."))]
+    w, gap = 3.85, 0.29
+    for i, (head, text) in enumerate(cols):
+        x = LM + i * (w + gap)
+        bd.box(slide, x, CT + 1.6, w, 0.6, head, size=20, bold=True, fill=bd.BLUE, color=bd.WHITE)
+        bd.text_box(slide, x, CT + 2.3, w, 1.3, text, size=15)
+    bd.text_box(slide, LM, CT + 3.75, CW, 0.8, "So the loop of propose, simulate, check, decide has "
+                "to run unattended and check every result before anyone sees it.", size=16,
+                color=bd.BLUE, bold=True)
+
+
+STRATEGIES = [
+    ["random", "A uniform random draw among the designs not run yet.", "no model"],
+    ["Latin hypercube", ("A space-filling plan of the whole budget: each input's range is cut into "
+                         "equal slices and every slice gets one design."), "no model"],
+    ["maximum variance", ("Fits both GPs and runs the design where the two scaled predictive "
+                          "variances add up to the most: it explores where the model is least sure, "
+                          "whether the design is good or not."), "both GPs"],
+    ["expected hypervolume improvement", ("Fits both GPs, draws 128 samples of endurance and mass "
+                                          "at each candidate and averages how much each would grow "
+                                          "the area of the current front: good and uncertain "
+                                          "designs both score."), "both GPs"],
+    ["the same, times P(feasible)", ("Multiplies that score by the probability that the design "
+                                     "passes the gates, from a logistic regression on the gate "
+                                     "outcomes so far; used on the open box (slide 17)."),
+     "both GPs + a classifier"]]
+
+
+def body_strategies(slide, v):
+    rows = [["Strategy", "How it picks the next design", "Uses"]] + STRATEGIES
+    bd.add_table(slide, LM, CT - 0.15, [2.6, 7.5, 2.03], rows, size=12, row_h=0.62, flag=())
+    y = CT - 0.15 + 0.62 * len(rows) + 0.15
+    x = LM
+    for latex, w in ((v1.EQ_GP_HVI, 3.6), (v1.EQ_GP_EHVI, 4.4), (v1.EQ_GP_VARIANCE, 3.6)):
+        eq.add_equation(slide, latex, x, y, w, 0.6, fontsize=14)
+        x += w + 0.25
+    bd.text_box(slide, LM, y + 0.75, CW, 0.4, "Every strategy starts from the same 8 designs per "
+                "seed; the language model calls tools and never picks a point.", size=13,
+                color=bd.GREY)
+
+
+def model_comparison_rows():
+    """Every model fitted on this study's endurance data, from the two-level record (ten seeds)."""
+    m = v1.mf_means()
+    lf = [float(r["value"]) for r in v1.csv_rows(v1.MF)
+          if r["model"] == "lf_raw" and r["metric"] == "rmse_endurance"]
+    ns = sorted({n for (model, n, _) in m if model == "two"})
+    rows = [["Model, fitted on", "Endurance RMSE (h) at " + ", ".join(f"n = {n}" for n in ns),
+             "90 % interval covers (n = " + str(ns[0]) + ")"]]
+    rows.append(["Low model alone, no SU2", f"{statistics.mean(lf):.3f} (no fit)", "no interval"])
+    for model, label in (("single", "GP on SU2 designs only"),
+                         ("two", "GP on SU2 with the low model as its trend (two-level)")):
+        rows.append([label, ", ".join(f"{m[(model, n, 'rmse_endurance')]:.3f}" for n in ns),
+                     f"{m[(model, ns[0], 'cov90_endurance')]:.2f}"])
+    return rows
+
+
+def body_why_gp(slide, v):
+    rows = model_comparison_rows()
+    bd.text_box(slide, LM, CT - 0.15, 6.4, 2.5,
+                [(f"Few expensive points: {v['mf_usable_high']} SU2 designs; an exact GP fits them "
+                  "in seconds."),
+                 ("The acquisition and the confirmation test both need an interval, not only a mean; "
+                  "a GP gives one at every design."),
+                 ("Nine numbers per GP (six length scales, two variances, a mean), fitted by marginal "
+                  "likelihood: nothing is tuned by hand."),
+                 "The length scales say which inputs matter (backup slide 40)."],
+                size=13, bullets=True, space_after=3)
+    y = CT - 0.15
+    for latex, h in ((v1.EQ_GP_KERNEL, 0.62), (v1.EQ_GP_MEAN, 0.4), (v1.EQ_GP_VAR, 0.4)):
+        _, used = eq.add_equation(slide, latex, LM + 6.7, y, 5.4, h, fontsize=14)
+        y += used + 0.12
+    bd.add_table(slide, LM, CT + 2.55, [5.2, 4.4, 2.53], rows, size=12, row_h=0.45, flag=())
+    bd.text_box(slide, LM, CT + 2.55 + 0.45 * len(rows) + 0.1, CW, 0.5,
+                "Means over ten seeds on held-out designs. No neural network or tree model was fitted "
+                "on this study's data; this table is the whole comparison in the record.", size=12,
+                color=bd.GREY)
+
+
+def regret_rows():
+    rows = defaultdict(list)
+    for r in v1.csv_rows(v1.fd.POOL_REPLAY):
+        if r["metric"] == "hv_regret":
+            rows[(r["strategy"], int(r["n"]))].append(float(r["value"]))
+    ns = sorted({n for _, n in rows})
+    order = ("random", "lhs", "al_maxvar", "al_ehvi")
+    names = {"random": "random", "lhs": "Latin hypercube", "al_maxvar": "max. variance",
+             "al_ehvi": "EHVI"}
+    table = [["n"] + [names[s] for s in order]]
+    for n in ns:
+        table.append([str(n)] + [f"{statistics.mean(rows[(s, n)]):.3f}" for s in order])
+    return table
+
+
+EQ_HV = r"HV(P)=\mathrm{area}\left\{y:\ p\preceq y\preceq r\ \mathrm{for\ some}\ p\in P\right\}"
+EQ_REGRET = r"\mathrm{regret}(n)=\dfrac{HV(P^{*})-HV(P_n)}{HV(P^{*})}"
+
+
+def body_regret(slide, v):
+    _, h = bd.add_figure(slide, FIG_V3 + "regret.png", LM, CT - 0.15, 6.6, 4.0)
+    eq.add_equation(slide, EQ_HV, LM, CT - 0.05 + h, 6.6, 0.45, fontsize=13)
+    eq.add_equation(slide, EQ_REGRET, LM, CT + 0.45 + h, 4.0, 0.6, fontsize=14)
+    rows = regret_rows()
+    bd.add_table(slide, LM + 6.9, CT - 0.15, [0.8, 1.15, 1.35, 1.0, 0.93], rows, size=11,
+                 row_h=0.36, flag=())
+    bd.text_box(slide, LM + 6.9, CT - 0.05 + 0.36 * len(rows), 5.23, 1.6,
+                ["Objectives: endurance (maximised) and the logarithm of take-off mass (minimised).",
+                 "r: the worst value of each objective over the pool plus a tenth of its range.",
+                 "P*: the true front of the pool; P_n: the front of the n designs run so far.",
+                 "Mean over ten seeds, from the pool replay."],
+                size=11, bullets=True, space_after=2)
+
+
+def body_caught(slide, v):
+    v2.body_caught(slide, v)
+    for sh in slide.shapes:
+        if sh.has_table:
+            for row in sh.table.rows:
+                for c in row.cells:
+                    for p in c.text_frame.paragraphs:
+                        for r in p.runs:
+                            r.text = r.text.replace("First case unconverged", "First case not converged")
+
+
+QUESTIONS = [("How was the SU2 solver validated, row by row?", (30, 37, 38)),
+             ("How do you know a run converged?", (33, 34)),
+             ("What does the mesh do to the answer?", (32, 35)),
+             ("How good is the low-fidelity model?", (36, 39, 42)),
+             ("Why a Gaussian process, and what does it learn?", (15, 40)),
+             ("What is regret?", (41, 43)),
+             ("How do the workers share the queue?", (44, 9)),
+             ("Where do the equations come from?", (31, 29)),
+             ("What did it cost?", (45, 19))]
+
+
+def body_questions(slide, v):
+    titles = {s["number"]: s["title"] for s in read_outline()}
+    rows = [["Likely question", "Slides"]]
+    for q, numbers in QUESTIONS:
+        rows.append([q, "; ".join(f"{n} {titles[n]}" for n in numbers)])
+    bd.add_table(slide, LM, CT - 0.1, [4.6, 7.53], rows, size=13, row_h=0.5, flag=())
+
+
+V2 = v2.BODIES
+BODIES = {
+    2: body_problem, 3: V2["V3"], 4: V2["V4"], 5: V2["B1"], 6: V2["V5"], 7: V2["V6"], 8: V2["V7"],
+    9: lambda slide, v: bd.add_figure(slide, FIG_V3 + "queue_gates.png", LM, CT - 0.1, CW, 4.8),
+    10: V2["V8"], 11: V2["V9"], 12: V2["V11"], 13: body_caught, 14: body_strategies,
+    15: body_why_gp, 16: V2["V14"], 17: V2["V15"], 18: V2["V16"], 19: V2["V17"], 20: V2["V18"],
+    21: V2["V19"], 22: V2["V20"], 23: V2["V21"], 24: V2["V22"], 25: V2["V23"], 26: V2["V24"],
+    27: body_questions,
+    29: V2["B2"], 30: V2["B3"], 31: V2["B4"], 32: V2["B5"], 33: V2["B6"], 34: V2["B7"],
+    35: V2["B8"], 36: V2["B9"], 37: V2["B10"], 38: V2["B20"], 39: V2["B13"], 40: V2["B15"],
+    41: body_regret, 42: V2["B16"], 43: V2["B24"], 44: V2["V10"], 45: V2["B27"],
+}
+
+
+# ---- checks -----------------------------------------------------------------------------------
+FOOTER_RE = re.compile(r"^\S+  \|  (\d+)$")
+
+
+def number_only_footer(slide, number):
+    """The shared slide helper writes '<id>  |  <n>'; this version shows the number only."""
+    for sh in slide.shapes:
+        if sh.has_text_frame and FOOTER_RE.match(sh.text_frame.text.strip()):
+            sh.text_frame.paragraphs[0].runs[0].text = str(number)
+            for r in sh.text_frame.paragraphs[0].runs[1:]:
+                r.text = ""
+
+
+def check_slide(slide, number, main):
+    v2.check_slide(slide, f"V{number}", main)
+    texts = [t for t in v2.slide_texts(slide) if not FOOTER_RE.match(t.strip())]
+    ids = [m.group(0) for t in texts for m in ID_RE.finditer(t)]
+    if ids:
+        raise ValueError(f"slide {number}: names an earlier slide id {sorted(set(ids))}")
+    if any("unconverged" in t.lower() for t in texts):
+        raise ValueError(f"slide {number}: says unconverged")
+
+
+# ---- the deck ---------------------------------------------------------------------------------
+def build(out_path=DEFAULT_OUT):
+    """Build the deck and save it. Returns the number of slides."""
+    v1.all_su2_records.cache_clear()
+    v2.values.cache_clear()
+    slides = read_outline()
+    numbers = [s["number"] for s in slides]
+    main = [s for s in slides if s["main"]]
+    assert numbers == list(range(1, len(main) + 1)) + list(range(len(main) + 2, len(slides) + 2)), \
+        "outline numbers must run 1.. through the main body, skip the divider, then continue"
+    with v2.clean_figures(), v2.v2_figure_dirs():
+        ensure_figures()
+        v = values()
+        prs = bd.new_deck()
+        for s in slides:
+            if s["number"] == len(main) + 2:
+                bd.add_divider_slide(prs, "Backup", "Opened only on a question")
+            n = len(prs.slides) + 1
+            assert n == s["number"], (n, s["number"])
+            if n == 1:
+                slide = v2.title_slide(prs, {"id": "V1", "message": s["message"], "notes": s["notes"]}, v)
+            else:
+                slide = bd.start_slide(prs, n, f"V{n}", s["title"], v2.fill(s["message"], v), [],
+                                       v2.fill(s["notes"], v))
+                BODIES[n](slide, v)
+                v2.remove_source_captions(slide)
+            check_slide(slide, n, s["main"])                # before the footer loses its id
+            number_only_footer(slide, n)
+    prs.save(str(out_path))
+    return len(prs.slides)
+
+
+if __name__ == "__main__":
+    n = build()
+    print(f"wrote {DEFAULT_OUT.relative_to(ROOT)} with {n} slides")
