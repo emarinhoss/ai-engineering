@@ -65,6 +65,15 @@ with `start_file` made by W1.1 from the same restart file.
 Closes: both give the E0 cold cl and cd within that run's recorded drift. The iteration counts are
 recorded as the least a restart can take here. Record: `runs/w1_control/`.
 
+**Gate A result (2026-11-12): PASS.** Record: `runs/w1_control/`, `designs/w1_control_cases.csv`.
+Both control runs exited 0 and stopped on the Cauchy rule at iteration 501, the first iteration
+the rule allows, with identical cl and cd to every printed digit (0.987521, 0.0163647). Against
+the E0 cold run (airfoil2d-f94ff4a147): cl 0.43 % away against its drift of 1.59 %, cd 1.31 % away
+against its drift of 4.37 %. The donor's coordinates match this mesh to 5.3e-15 m. The two start
+files differ in the last digits only, because the writer uses this mesh's coordinates and rescales
+ν̃. The control ran with 2 ranks on a runtime that was also running two campaign jobs, so its wall
+times (185 and 186 s) are not comparable with the timed runs.
+
 ### W1.3 Campaign staging (Sonnet)
 
 `designs/make_w1_field.py`, after the pattern of `designs/make_s2r.py`. The 30 pool designs other
