@@ -2480,6 +2480,12 @@ def body_status(slide, v):
                  row_h=min(0.36, 4.95 / len(rows)))
 
 
+def body_w1(slide, v):
+    """The W1 backup of version 2 (imported here, at call time, because version 2 imports this module)."""
+    from docs.talk import build_deck_drone_v2 as v2
+    v2.body_w1(slide, v)
+
+
 BODIES = {
     "D2": body_clean_exit, "D3": body_caught, "D4": body_mcp,
     "D5": body_questions, "D6": body_c2, "D7": body_inputs, "D8": body_costs,
@@ -2508,7 +2514,7 @@ BODIES = {
     "DB5": body_budget, "DB6": body_pareto_lf, "DB7": body_inverse_record, "DB8": body_bias_full,
     "DB9": body_online_full, "DB10": body_decisions, "DB11": body_ledger, "DB12": body_cost,
     "DB13": body_equation_index, "DB14": body_study_guide, "DB15": body_carried,
-    "DB16": body_rulings, "DB17": body_status,
+    "DB16": body_rulings, "DB17": body_status, "DB18": body_w1,
 }
 
 

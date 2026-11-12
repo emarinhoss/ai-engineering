@@ -534,6 +534,13 @@ Backup slides DB1 to DB17 follow D45 and are not timed.
 - **Source:** `runs/pool_af/2026-11-09/record.json`; `runs/drone/validation/2026-11-10/v6.json`; PENDING: `runs/drone_mf/2026-11-09/mf.csv`, `runs/drone_pareto_hf/2026-11-09/pareto.csv`, `runs/drone_inverse_hf/2026-11-09/inverse.json`, `runs/drone_confirm/2026-11-09/confirm.json`, `runs/drone_bias_hf/2026-11-09/bias_sweep.csv` (pool analyses)
 - **Speaker notes:** The status column is computed when the deck is built. The talk claims nothing beyond what the existing files show.
 
+### DB18. Backup: a learned warm start, the rule and where it stands
+
+- **Message:** Fixed before any run: a start predicted from other sections must cut wall time by 30 % without moving cl or cd, and must beat restarting from the nearest stored case.
+- **Figure or table:** The E0 verdicts (restart from a stored solution, no model); the W1 status read from its records (control, training fields, frozen model, verdict); the rule's conditions.
+- **Source:** `docs/specs/task11_fno_exploration.md` (experiments E0 and W1); `runs/e0_analysis/2026-11-11/e0.json`; `designs/w1_control_cases.csv`; PENDING: training fields, field model and verdict (W1 analysis)
+- **Speaker notes:** This is exploratory work on the solver, not part of the drone answer, and none of its runs is in any count of this talk. The model is principal components of the four solution fields with one Gaussian process each, fitted on the other pool designs and frozen before the first timed run. A cell marked PENDING has no record yet, and the verdict is reported as the rule gives it, including if the learned start is no better than the nearest stored case.
+
 ## Coverage of the inlet deck
 
 Every slide id of `docs/talk/outline.md` and where its role is covered in this deck. "not applicable"
