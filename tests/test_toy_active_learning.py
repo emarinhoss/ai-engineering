@@ -67,3 +67,34 @@ def test_document_is_current_and_follows_the_ste_limits(tmp_path):
         assert len(sentences) <= 6, line[:60]
         for s in sentences:
             assert len(s.split()) <= 25, s
+
+
+# ---- study guide entry 19A ------------------------------------------------------------------------
+def guide_entry():
+    from docs.talk import make_toy_guide_entry as guide
+    text = guide.GUIDE.read_text()
+    start, end = text.index(guide.START), text.index(guide.END)
+    return guide, text, re.sub(r"data:image/[^\"]+", "DATA", text[start:end])
+
+
+def test_guide_entry_is_current_and_carries_the_recorded_numbers():
+    guide, text, entry = guide_entry()
+    assert guide.inject(res=RES) == text                  # the committed guide holds the generated entry
+    for value in (RES["hv_run"], RES["hv_true"], RES["regret_now"], RES["hvi_F"], RES["hand"]["mean"],
+                  RES["candidates"]["F"]["ehvi"], RES["candidates"]["H"]["ehvi"],
+                  RES["random_expected_regret"]):
+        assert f"{value:.3f}" in entry, value
+    assert text.count('<section class="entry" id="g19a"') == 1 and text.count('data-id="g19a"') == 1
+    assert "entry 19A" in text                            # entry 19 and the run-through point at it
+
+
+def test_guide_entry_follows_the_ste_limits():
+    _, _, entry = guide_entry()
+    paragraphs = re.findall(r"<(?:p|summary)[^>]*>(.*?)</(?:p|summary)>", entry, re.DOTALL)
+    assert len(paragraphs) > 20
+    for html in paragraphs:
+        plain = re.sub(r"<[^>]+>", "", html).strip()
+        sentences = SENTENCE.split(plain)
+        assert len(sentences) <= 6, plain[:60]
+        for s in sentences:
+            assert len(s.split()) <= 25, s
