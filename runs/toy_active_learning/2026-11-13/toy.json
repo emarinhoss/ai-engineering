@@ -1,0 +1,136 @@
+{
+ "ref": {
+  "endurance": 3.6,
+  "mass": 2.98
+ },
+ "run_front": [
+  "A",
+  "B",
+  "C"
+ ],
+ "dominated": {
+  "D": "B",
+  "E": "C"
+ },
+ "strips": [
+  {
+   "design": "C",
+   "endurance_span": 4.4,
+   "mass_from": 2.4,
+   "mass_to": 2.98,
+   "mass_span": 0.5800000000000001,
+   "area": 2.5520000000000005
+  },
+  {
+   "design": "B",
+   "endurance_span": 2.4,
+   "mass_from": 1.6,
+   "mass_to": 2.4,
+   "mass_span": 0.7999999999999998,
+   "area": 1.9199999999999995
+  },
+  {
+   "design": "A",
+   "endurance_span": 0.3999999999999999,
+   "mass_from": 1.0,
+   "mass_to": 1.6,
+   "mass_span": 0.6000000000000001,
+   "area": 0.24
+  }
+ ],
+ "hv_run": 4.712,
+ "true_front": [
+  "A",
+  "B",
+  "C",
+  "F"
+ ],
+ "hv_true": 5.312,
+ "regret_now": 0.11295180722891573,
+ "hvi_F": 0.5999999999999999,
+ "hand": {
+  "draws": [
+   {
+    "endurance": 6.592649484761128,
+    "mass": 1.998594177220139,
+    "hvi": 0.23789295405060118
+   },
+   {
+    "endurance": 6.601737754289967,
+    "mass": 1.7436211322074766,
+    "hvi": 0.39496794586886436
+   },
+   {
+    "endurance": 6.256786479996129,
+    "mass": 1.9535649486836812,
+    "hvi": 0.1146384853744087
+   },
+   {
+    "endurance": 7.122171941216171,
+    "mass": 1.9697341725035622,
+    "hvi": 0.4828322388806595
+   }
+  ],
+  "mean": 0.3075829060436335
+ },
+ "candidates": {
+  "F": {
+   "ehvi": 0.46010300554350336,
+   "ehvi_long": 0.4193889995877815,
+   "maxvar": 0.21688524590163935,
+   "p_feasible": 0.9,
+   "ehvi_times_p": 0.414092704989153
+  },
+  "G": {
+   "ehvi": 0.0,
+   "ehvi_long": 1.2998134927155413e-05,
+   "maxvar": 0.05422131147540984,
+   "p_feasible": 0.9,
+   "ehvi_times_p": 0.0
+  },
+  "H": {
+   "ehvi": 1.7669263426302804,
+   "ehvi_long": 1.8115355017374037,
+   "maxvar": 0.42245901639344274,
+   "p_feasible": 0.05,
+   "ehvi_times_p": 0.08834631713151403
+  },
+  "I": {
+   "ehvi": 0.13709154637330842,
+   "ehvi_long": 0.20472616834758028,
+   "maxvar": 2.9221311475409837,
+   "p_feasible": 0.9,
+   "ehvi_times_p": 0.12338239173597758
+  }
+ },
+ "picks": {
+  "plain EHVI": "H",
+  "maximum variance": "I",
+  "EHVI times P(feasible)": "F"
+ },
+ "outcomes": {
+  "F": {
+   "result": "7 h at 1.8 kg",
+   "regret": 0.0
+  },
+  "G": {
+   "result": "5.2 h at 2.2 kg",
+   "regret": 0.11295180722891573
+  },
+  "H": {
+   "result": "fails a gate: no result",
+   "regret": 0.11295180722891573
+  },
+  "I": {
+   "result": "5.4 h at 2.5 kg",
+   "regret": 0.11295180722891573
+  }
+ },
+ "random_expected_regret": 0.0847138554216868,
+ "settings": {
+  "study_samples": 128,
+  "long_samples": 20000,
+  "hand_draws": 4,
+  "hand_seed": 1
+ }
+}
