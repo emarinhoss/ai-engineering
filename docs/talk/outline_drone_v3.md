@@ -247,7 +247,7 @@ Version 3 of the drone talk: version 2 with the changes Éder asked for on 2026-
   {hf_front_answer}
   The band comes from the Gaussian processes. It is a model band, not a measurement. Backup slide 40 shows that these intervals are too narrow.
   Beside it is the low-fidelity front. That front is exact, because the cheap model ran on the full grid of {grid_n} points.
-  Each point on the SU2 front has the decision-8 bias: the lift-slope error against the tunnel.
+  Each point on the SU2 front carries the lift-slope error against the tunnel.
 
 ### 21. The inverse query under the 4 kg cap (22:30, 1.5 min)
 
@@ -255,7 +255,7 @@ Version 3 of the drone talk: version 2 with the changes Éder asked for on 2026-
 - **Body:** From version 2, slide 20.
 - **Presenter notes:** The inverse query asks for the longest endurance below the {cap_kg} kg limit, with a high probability to stay below it.
   On the low model, the answer is a corner of the box. It predicts {inv_end} hours at a median mass of {inv_mtow} kg. The probability to stay below the limit is {inv_p}. The limit does not bind.
-  On the SU2 pool, the answer moves away from the corner. {hf_inverse_answer}
+  On the SU2 pool, the answer moves away from the corner, and the cap now binds. The table gives the numbers.
   Thus the limit now binds. The cheap model never showed that.
   This is the value of the second level, in one slide.
 

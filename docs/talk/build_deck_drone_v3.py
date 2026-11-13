@@ -97,6 +97,7 @@ def values():
     v = dict(v2.values())
     v["mf_usable_high"] = v1.jload(MF_JSON)["usable_high"]
     v["mf_two_best"] = two_level_best()
+    v["hf_front_answer"] = v["hf_front_answer"].replace("the decision-8 bias", "the lift-slope bias against the tunnel")
     v.update(note_values())
     return v
 

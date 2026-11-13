@@ -296,13 +296,13 @@ A difference with one sign is easy for a scale and a correction to learn. That i
 
 This is the front on the SU2 pool: endurance against take-off mass. Up and to the left is better.
 
-On the SU2 pool the observed front has 13 designs, from 2.95 h at 1.09 kg to 8.40 h at 3.14 kg; the band is the GPs' posterior, and every point carries the decision-8 bias.
+On the SU2 pool the observed front has 13 designs, from 2.95 h at 1.09 kg to 8.40 h at 3.14 kg; the band is the GPs' posterior, and every point carries the lift-slope bias against the tunnel.
 
 The band comes from the Gaussian processes. It is a model band, not a measurement. Backup slide 40 shows that these intervals are too narrow.
 
 Beside it is the low-fidelity front. That front is exact, because the cheap model ran on the full grid of 531,441 points.
 
-Each point on the SU2 front has the decision-8 bias: the lift-slope error against the tunnel.
+Each point on the SU2 front carries the lift-slope error against the tunnel.
 
 ## Slide 21: The inverse query under the 4 kg cap
 
@@ -312,7 +312,7 @@ The inverse query asks for the longest endurance below the 4 kg limit, with a hi
 
 On the low model, the answer is a corner of the box. It predicts 13.31 hours at a median mass of 2.43 kg. The probability to stay below the limit is 1.000. The limit does not bind.
 
-On the SU2 pool, the answer moves away from the corner. on the SU2 pool the answer is 10.14 h at 3.92 kg with P = 0.991.
+On the SU2 pool, the answer moves away from the corner, and the cap now binds. The table gives the numbers.
 
 Thus the limit now binds. The cheap model never showed that.
 
