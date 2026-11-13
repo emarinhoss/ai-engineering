@@ -175,7 +175,8 @@ Version 3 of the drone talk: version 2 with the changes Éder asked for on 2026-
 
 - **Message:** One Gaussian process on endurance and one on log take-off mass give a mean and an interval everywhere; five strategies use them differently to pick the next design, and the language model chooses nothing.
 - **Body:** New, extending version-2 slide 13: a table of the five strategies (how each picks a point, and what it uses), the hypervolume and acquisition relations below it.
-- **Presenter notes:** Two Gaussian processes make the surrogate. One models endurance. The other models the logarithm of take-off mass.
+- **Presenter notes:** The checks decide which results count. Now we decide which design to run next, using only those results.
+  Two Gaussian processes make the surrogate. One models endurance. The other models the logarithm of take-off mass.
   Each process gives a mean and an interval at each design in the box. Five strategies use them in different ways.
   Random selects a design that has not run yet. The Latin hypercube spreads the full budget over the range of each input. These two use no model. They are the baselines.
   Maximum variance runs the design where the model is least sure. It does not ask if the design is good.

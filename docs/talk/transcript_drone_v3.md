@@ -198,6 +198,8 @@ The solver reported none of these problems as an error.
 
 *13:30, 1.5 min*
 
+The checks decide which results count. Now we decide which design to run next, using only those results.
+
 Two Gaussian processes make the surrogate. One models endurance. The other models the logarithm of take-off mass.
 
 Each process gives a mean and an interval at each design in the box. Five strategies use them in different ways.
