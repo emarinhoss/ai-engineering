@@ -118,3 +118,22 @@ def test_slide_7_names_every_registered_tool_and_the_session_and_worker_roles(de
     for phrase in ("Colab command-line tool", "shard", "physics gates again", "heartbeat",
                    "SHA-256", "selects no design point"):
         assert phrase in text, phrase
+
+
+def test_moved_slides_and_the_endurance_backup(deck):
+    _, prs = deck
+    titles = {i: s.shapes.title.text_frame.text for i, s in enumerate(prs.slides, 1) if s.shapes.title is not None}
+    assert titles[22].startswith("Limits") and titles[23] == "Conclusions" and titles[24] == "Questions"
+    assert titles[26].startswith("Confirmation") and titles[27].startswith("What the flow")
+    assert titles[46] == "The endurance calculation, step by step"
+    assert all("Backup" not in titles[i] for i in (22, 23, 24, 26, 27))
+    text = " ".join(texts(prs.slides[45]))
+    from drone import evaluate as ev
+    from drone import ledger
+    rows = {r["index"]: r for r in v1.csv_rows("runs/drone_pool_lf/2026-11-08/grid.csv")}
+    row = rows["48"]
+    params = {k: float(row[k]) for k in ("span_m", "aspect_ratio", "taper_ratio", "battery_fraction",
+                                         "camber_pct", "thickness_pct")}
+    out = ev.evaluate(params, ledger.load_all())
+    assert f"{out['endurance_h']:.3f} h (recorded {float(row['endurance_h']):.3f} h)" in text
+    assert f"{out['mtow_kg']:.3f} kg after {out['closure_iterations']} iterations" in text

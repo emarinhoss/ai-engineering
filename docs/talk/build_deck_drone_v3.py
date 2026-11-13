@@ -436,6 +436,49 @@ def body_validation(slide, v):
     assert dropped == 1, f"expected one medium-against-fine row to drop, found {dropped}"
 
 
+EQ_ENDURANCE = (r"E=\frac{\mathrm{DoD}\,e_{s}\,m_{b}\,3600-P_{\mathrm{inst}}\,t_{\mathrm{climb}}}"
+                r"{3600\,P_{\mathrm{cruise}}}")
+
+
+def body_endurance(slide, v):
+    """The endurance of one low-pool design, step by step. Every value is computed by the model's own
+    code (drone/evaluate.py) from the design's inputs in the low-pool record, at build time, and the
+    endurance is checked against the value that record holds."""
+    from drone import evaluate as ev
+    from drone import ledger
+    grid = {r["index"]: r for r in v1.csv_rows(POOL_GRID)}
+    row = grid["48"]
+    params = {k: float(row[k]) for k in ("span_m", "aspect_ratio", "taper_ratio", "battery_fraction",
+                                         "camber_pct", "thickness_pct")}
+    fixed = ledger.load_all()
+    out = ev.evaluate(params, fixed)
+    recorded = float(row["endurance_h"])
+    assert abs(out["endurance_h"] - recorded) < 5e-4, (out["endurance_h"], recorded)
+    d, m = out["diagnostics"], out["masses"]
+    bat, rules = fixed["battery"], fixed["rules"]
+    usable = (bat["depth_of_discharge"] * bat["pack_specific_energy_Wh_per_kg"] * 3600.0 * m["battery"]
+              - d["P_installed_W"] * rules["climb_allowance_s"])
+    eq.add_equation(slide, EQ_ENDURANCE, LM, CT - 0.1, 7.0, 0.7, fontsize=16)
+    rows = [["Step", "What the model does", "Design 48 of the low pool"],
+            ["1. Take-off mass", "adds the masses of the parts until the total stops changing",
+             (f"{out['mtow_kg']:.3f} kg after {out['closure_iterations']} iterations; battery "
+              f"{m['battery']:.3f} kg")],
+            ["2. Cruise point", "finds the lift with the least power, P = D V / efficiency",
+             (f"C_L {d['CL_cruise']:.3f}, V {out['v_cruise']:.2f} m/s, C_D {d['CD_cruise']:.4f}, "
+              f"P {d['P_cruise_W']:.2f} W")],
+            ["3. Installed power", "the larger of twice the cruise power and the climb power",
+             f"{d['P_installed_W']:.2f} W"],
+            ["4. Usable energy",
+             (f"{bat['depth_of_discharge']:g} × {bat['pack_specific_energy_Wh_per_kg']:g} Wh/kg "
+              f"× battery, less {rules['climb_allowance_s']:g} s of climb at installed power"),
+             f"{usable:,.0f} J"],
+            ["5. Endurance", "usable energy ÷ cruise power ÷ 3600",
+             f"{out['endurance_h']:.3f} h (recorded {recorded:.3f} h)"]]
+    bd.add_table(slide, LM, CT + 0.75, [2.3, 5.4, 4.43], rows, size=13, row_h=0.55, flag=())
+    bd.text_box(slide, LM, CT + 4.2, CW, 0.5, "No reserve and no descent are included, so the endurance "
+                "is an upper bound for this design.", size=12, color=bd.GREY)
+
+
 def body_caught(slide, v):
     v2.body_caught(slide, v)
     for sh in slide.shapes:
@@ -454,7 +497,7 @@ QUESTIONS = [("How was the SU2 solver validated, row by row?", (29, 36, 37)),
              ("Why a Gaussian process, and what does it learn?", (40, 39)),
              ("What is regret?", (41, 43)),
              ("How do the workers share the queue?", (44, 9)),
-             ("Where do the equations come from?", (30, 28)),
+             ("Where do the equations come from? How is endurance calculated?", (30, 46, 28)),
              ("What did it cost?", (45, 18))]
 
 
@@ -472,10 +515,11 @@ BODIES = {
     9: lambda slide, v: bd.add_figure(slide, FIG_V3 + "queue_gates.png", LM, CT - 0.1, CW, 4.8),
     10: body_costs, 11: body_validation, 12: V2["V11"], 13: body_caught, 14: body_strategies,
     15: V2["V14"], 16: V2["V15"], 17: V2["V16"], 18: V2["V17"], 19: V2["V18"], 20: V2["V19"],
-    21: V2["V20"], 22: V2["V21"], 23: V2["V22"], 24: V2["V23"], 25: V2["V24"], 26: body_questions,
+    21: V2["V20"], 22: V2["V23"], 23: V2["V24"], 24: body_questions,
     28: V2["B2"], 29: V2["B3"], 30: V2["B4"], 31: V2["B5"], 32: V2["B6"], 33: V2["B7"],
     34: V2["B8"], 35: V2["B9"], 36: V2["B10"], 37: V2["B20"], 38: V2["B13"], 39: V2["B15"],
     40: body_why_gp, 41: body_regret, 42: V2["B16"], 43: V2["B24"], 44: V2["V10"], 45: V2["B27"],
+    26: V2["V21"], 27: V2["V22"], 46: body_endurance,
 }
 
 

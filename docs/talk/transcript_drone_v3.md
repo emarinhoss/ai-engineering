@@ -318,35 +318,9 @@ Thus the limit now binds. The cheap model never showed that.
 
 This is the value of the second level, in one slide.
 
-## Slide 22: Confirmation: does the prediction hold?
+## Slide 22: Limits that travel with every number
 
 *24:00, 1.5 min*
-
-A prediction has value only when we test it. Each confirmation run is one SU2 polar of five angles, at the answer of the inverse query. It goes through the same queue and checks as the pool.
-
-We set the pass condition before the run. Endurance and mass must both be inside their 90 % intervals, and the mass must be below the limit.
-
-There are two runs, because we calculated the answer twice. At the answer on 30 designs SU2 gives 9.95 h, inside [8.60, 10.07], and 2.963 kg, inside [2.919, 2.988]: pass; at the answer on 32 designs SU2 gives 8.95 h, below [9.12, 11.16], and 3.936 kg, inside [3.862, 3.975]: FAIL.
-
-Thus the final confirmation failed on endurance. The design flies for less time than the surrogate predicted.
-
-This agrees with the coverage results: the intervals are too narrow. I report it as a fail, with its direction.
-
-## Slide 23: What the flow looks like at stall
-
-*25:30, 0.5 min*
-
-This picture shows the flow: pressure contours and streamlines.
-
-At 14 degrees, the flow on the upper surface of pool design 0 is separated over most of the chord. Look at the streamlines behind the leading edge.
-
-The cheap section model cannot show this stall.
-
-The picture agrees with the numbers: after 10 degrees, lift decreases and drag increases.
-
-## Slide 24: Limits that travel with every number
-
-*26:00, 1.5 min*
 
 Each number in this talk depends on these limits.
 
@@ -360,9 +334,9 @@ The most important limit is on the right. The SU2 lift slope has a bias of 5.49 
 
 The records contain these limits. I do not only say them here.
 
-## Slide 25: Conclusions
+## Slide 23: Conclusions
 
-*27:30, 2 min*
+*25:30, 2 min*
 
 Four questions, and the records answer each one.
 
@@ -378,9 +352,9 @@ Thus the pipeline runs the loop without a person, refuses what it cannot check, 
 
 One idea to keep: put the checks after the solver, not only before it. And make each claim calculable from the records.
 
-## Slide 26: Questions
+## Slide 24: Questions
 
-*29:30 onward*
+*27:30 onward*
 
 Thank you. I am glad to answer your questions.
 
@@ -388,9 +362,31 @@ This table gives the questions that I expect, and the slide number that answers 
 
 When you ask a question, I open that slide. I do not describe it from memory.
 
-## Slide 27: Backup
+## Slide 25: Backup
 
 These are the backup slides. I open one only when a question needs it.
+
+## Slide 26: Confirmation: does the prediction hold?
+
+A prediction has value only when we test it. Each confirmation run is one SU2 polar of five angles, at the answer of the inverse query. It goes through the same queue and checks as the pool.
+
+We set the pass condition before the run. Endurance and mass must both be inside their 90 % intervals, and the mass must be below the limit.
+
+There are two runs, because we calculated the answer twice. At the answer on 30 designs SU2 gives 9.95 h, inside [8.60, 10.07], and 2.963 kg, inside [2.919, 2.988]: pass; at the answer on 32 designs SU2 gives 8.95 h, below [9.12, 11.16], and 3.936 kg, inside [3.862, 3.975]: FAIL.
+
+Thus the final confirmation failed on endurance. The design flies for less time than the surrogate predicted.
+
+This agrees with the coverage results: the intervals are too narrow. I report it as a fail, with its direction.
+
+## Slide 27: What the flow looks like at stall
+
+This picture shows the flow: pressure contours and streamlines.
+
+At 14 degrees, the flow on the upper surface of pool design 0 is separated over most of the chord. Look at the streamlines behind the leading edge.
+
+The cheap section model cannot show this stall.
+
+The picture agrees with the numbers: after 10 degrees, lift decreases and drag increases.
 
 ## Slide 28: The vortex lattice and its checks
 
@@ -577,3 +573,15 @@ What did it cost? The table gives the wall time of each mesh level, from the run
 The SU2 pool used 37.0 worker-hours. The low-fidelity grid took 4.7 hours on 8 workers.
 
 The run records give the wall time of each SU2 case. The table does not use estimates.
+
+## Slide 46: The endurance calculation, step by step
+
+This slide shows how the model works out endurance for one design. The design is number 48 of the low pool. Read the table from top to bottom. Each row uses the result of the row above it.
+
+The model first finds the take-off mass. It adds the masses of the parts until the total no longer changes. The battery is a fixed fraction of that total.
+
+Next the model finds the cruise point. It tries many lift values and keeps the one that needs the least power. The power is drag times speed, divided by the propulsive efficiency.
+
+The installed power is the larger of two values: twice the cruise power, or the power to climb. The climb takes one minute, and that energy is taken away from the battery first.
+
+The endurance is the usable energy divided by the cruise power. The last row matches the recorded value of the design. The model has no reserve and no descent, so the value is an upper bound.

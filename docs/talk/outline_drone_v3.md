@@ -27,6 +27,8 @@ Version 3 of the drone talk: version 2 with the changes Éder asked for on 2026-
    is gone.
 5. The queue, workers and shards slide moved to the backups.
 6. New backup slide 40: why a Gaussian process, with every model compared on this study's data.
+12. The endurance calculation is a new backup slide (46), with the steps for one low-pool design. The
+   confirmation and the stall slides move to the backups (26 and 27), so the main body is 24 slides.
 7. New backup: what hypervolume regret is.
 8. Version-1 D26 (what runs in Claude Code, on Drive and on Colab) is in the main body, with its
    original labels.
@@ -34,7 +36,7 @@ Version 3 of the drone talk: version 2 with the changes Éder asked for on 2026-
 10. Slide 14 explains each sampling strategy in more detail.
 11. Version-2 backups 11, 12, 14, 17, 18, 19, 21, 22, 23, 25, 26, 28, 29 and 30 are left out.
 
-## Main body (about 30 minutes)
+## Main body (about 27.5 minutes)
 
 ### 1. Title (0:00, 0.5 min)
 
@@ -257,26 +259,7 @@ Version 3 of the drone talk: version 2 with the changes Éder asked for on 2026-
   Thus the limit now binds. The cheap model never showed that.
   This is the value of the second level, in one slide.
 
-### 22. Confirmation: does the prediction hold? (24:00, 1.5 min)
-
-- **Message:** {confirm_v2_answer}
-- **Body:** From version 2, slide 21.
-- **Presenter notes:** A prediction has value only when we test it. Each confirmation run is one SU2 polar of five angles, at the answer of the inverse query. It goes through the same queue and checks as the pool.
-  We set the pass condition before the run. Endurance and mass must both be inside their 90 % intervals, and the mass must be below the limit.
-  There are two runs, because we calculated the answer twice. {confirm_v2_answer}
-  Thus the final confirmation failed on endurance. The design flies for less time than the surrogate predicted.
-  This agrees with the coverage results: the intervals are too narrow. I report it as a fail, with its direction.
-
-### 23. What the flow looks like at stall (25:30, 0.5 min)
-
-- **Message:** At 14 degrees the upper surface of pool design 0 is separated over most of the chord; this is the stall the cheap section model cannot show.
-- **Body:** From version 2, slide 22.
-- **Presenter notes:** This picture shows the flow: pressure contours and streamlines.
-  At 14 degrees, the flow on the upper surface of pool design 0 is separated over most of the chord. Look at the streamlines behind the leading edge.
-  The cheap section model cannot show this stall.
-  The picture agrees with the numbers: after 10 degrees, lift decreases and drag increases.
-
-### 24. Limits that travel with every number (26:00, 1.5 min)
+### 22. Limits that travel with every number (24:00, 1.5 min)
 
 - **Message:** One cruise point at sea level, a fixed propeller efficiency, a closed-form structure, and an SU2 lift-slope bias of {v6e_dev}: these bound what the front and the answer mean.
 - **Body:** From version 2, slide 23.
@@ -287,7 +270,7 @@ Version 3 of the drone talk: version 2 with the changes Éder asked for on 2026-
   The most important limit is on the right. The SU2 lift slope has a bias of {v6e_dev} against the tunnel. Each SU2 polar carries this flag.
   The records contain these limits. I do not only say them here.
 
-### 25. Conclusions (27:30, 2 min)
+### 23. Conclusions (25:30, 2 min)
 
 - **Message:** The pipeline runs the design loop unattended, refuses what it cannot check, and asks a person only for rulings; on this problem it cut the expensive runs at small budgets and answered the capped design question; one confirmation run passed and the final one found the endurance below its predicted interval, which is the honest limit of the surrogate.
 - **Body:** From version 2, slide 24.
@@ -299,7 +282,7 @@ Version 3 of the drone talk: version 2 with the changes Éder asked for on 2026-
   Thus the pipeline runs the loop without a person, refuses what it cannot check, and asks a person only for rulings.
   One idea to keep: put the checks after the solver, not only before it. And make each claim calculable from the records.
 
-### 26. Questions (29:30 onward)
+### 24. Questions (27:30 onward)
 
 - **Message:** Discussion; the backup slides hold the detail behind every number.
 - **Body:** New: likely questions and the slide that answers each, by number.
@@ -309,7 +292,26 @@ Version 3 of the drone talk: version 2 with the changes Éder asked for on 2026-
 
 ## Backup slides (not timed)
 
-Slide 27 is the "Backup" divider.
+### 26. Confirmation: does the prediction hold?
+
+- **Message:** {confirm_v2_answer}
+- **Body:** From version 2, slide 21.
+- **Presenter notes:** A prediction has value only when we test it. Each confirmation run is one SU2 polar of five angles, at the answer of the inverse query. It goes through the same queue and checks as the pool.
+  We set the pass condition before the run. Endurance and mass must both be inside their 90 % intervals, and the mass must be below the limit.
+  There are two runs, because we calculated the answer twice. {confirm_v2_answer}
+  Thus the final confirmation failed on endurance. The design flies for less time than the surrogate predicted.
+  This agrees with the coverage results: the intervals are too narrow. I report it as a fail, with its direction.
+
+### 27. What the flow looks like at stall
+
+- **Message:** At 14 degrees the upper surface of pool design 0 is separated over most of the chord; this is the stall the cheap section model cannot show.
+- **Body:** From version 2, slide 22.
+- **Presenter notes:** This picture shows the flow: pressure contours and streamlines.
+  At 14 degrees, the flow on the upper surface of pool design 0 is separated over most of the chord. Look at the streamlines behind the leading edge.
+  The cheap section model cannot show this stall.
+  The picture agrees with the numbers: after 10 degrees, lift decreases and drag increases.
+
+Slide 25 is the "Backup" divider.
 
 ### 28. The vortex lattice and its checks
 - **Body:** From version 2, backup 2.
@@ -443,3 +445,13 @@ Slide 27 is the "Backup" divider.
 - **Presenter notes:** What did it cost? The table gives the wall time of each mesh level, from the run records.
   The SU2 pool used {su2_worker_h} worker-hours. The low-fidelity grid took {grid_hours} hours on {grid_workers} workers.
   The run records give the wall time of each SU2 case. The table does not use estimates.
+
+### 46. The endurance calculation, step by step
+
+- **Message:** Endurance is the usable battery energy divided by the cruise power; for one low-pool design the model finds the take-off mass, the cruise point and the installed power, then divides.
+- **Body:** New. The endurance relation at the top. A table with one row per step: the mass, the cruise point, the installed power, the usable energy and the endurance. The values are computed by the model's own code at build time, for design 48 of the low pool, and checked against its recorded endurance.
+- **Presenter notes:** This slide shows how the model works out endurance for one design. The design is number 48 of the low pool. Read the table from top to bottom. Each row uses the result of the row above it.
+  The model first finds the take-off mass. It adds the masses of the parts until the total no longer changes. The battery is a fixed fraction of that total.
+  Next the model finds the cruise point. It tries many lift values and keeps the one that needs the least power. The power is drag times speed, divided by the propulsive efficiency.
+  The installed power is the larger of two values: twice the cruise power, or the power to climb. The climb takes one minute, and that energy is taken away from the battery first.
+  The endurance is the usable energy divided by the cruise power. The last row matches the recorded value of the design. The model has no reserve and no descent, so the value is an upper bound.
