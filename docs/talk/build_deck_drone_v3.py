@@ -119,6 +119,8 @@ def note_values():
         "v6e_cd_lo": dev("V6e cd ratio Re 203800"), "v6e_cd_hi": dev("V6e cd ratio Re 305200"),
         "v6e_cla_hi": dev("V6e cl_alpha Re 305200"),
         "mesh_mf_dev": dev("V6e mesh medium vs fine, cd at cl 0.6"),
+        "hf_fine_min": f"{np.median(v1.wall_minutes('fine')):.1f}",
+        "fine_x": f"{np.median(v1.wall_minutes('fine')) / np.median(v1.wall_minutes('coarse')):.1f}",
         "gp_lf": f"{lf:.3f}", "gp_n_lo": ns[0], "gp_n_hi": ns[-1],
         "gp_single_lo": f"{m[('single', ns[0], 'rmse_endurance')]:.3f}",
         "gp_two_lo": f"{m[('two', ns[0], 'rmse_endurance')]:.3f}",
@@ -393,6 +395,31 @@ def body_interface(slide, v):
                 "tables and acquisition code do.", size=14, bold=True, color=bd.BLUE)
 
 
+def body_costs(slide, v):
+    """Version 2's cost table with the fine mesh added. The fine runs are the tunnel and mesh checks;
+    the design pool runs on the coarse mesh (plus a medium check), so the table says so."""
+    grid = v1.jload(v2.GRID_RECORD)
+    pool = v1.jload("runs/drone_pool_lf/2026-11-08/record.json")
+    co, me, fi = (v1.wall_minutes(level) for level in ("coarse", "medium", "fine"))
+    rows = [["Level", "Section data", "Measured cost", "Used for"],
+            ["Low (container)", "closed-form thin-airfoil lift and flat-plate drag",
+             (f"{v['lf_s_core']} s per design per core: the {grid['points_evaluated']:,}-point grid "
+              f"in {grid['wall_seconds'] / 3600:.1f} h on {grid['workers']} workers; the "
+              f"{pool['points_evaluated']}-point pool in {pool['wall_seconds']:.0f} s"),
+             "exact front, low pool, replays, the low level of the two-level model"],
+            [f"High (cloud, {v2.su2_ranks()} ranks)", ("SU2 polar of the design's own section at "
+             "its cruise Reynolds number"),
+             (f"per angle, median: {np.median(co):.1f} min coarse ({len(co)} cases); "
+              f"{np.median(me):.1f} min medium ({len(me)}); {np.median(fi):.1f} min fine "
+              f"({len(fi)}, range {min(fi):.1f} to {max(fi):.1f}). Five angles per design."),
+             (f"the SU2 pool: {v['pool_cases']} cases, on the coarse mesh with a medium-mesh check; "
+              "the fine mesh is for the tunnel and mesh checks")]]
+    bd.add_table(slide, LM, CT + 0.1, [2.0, 2.7, 4.6, 2.83], rows, size=14, row_h=1.2, flag=())
+    bd.text_box(slide, LM, CT + 3.9, CW, 0.6, "Medians over every SU2 run record at build time, by "
+                "mesh level. Both levels share geometry, lattice, closure and mission.", size=13,
+                color=bd.GREY)
+
+
 def body_validation(slide, v):
     """Version 2's validation slide, without its decision footnote (version 3 drops it)."""
     v2.body_validation(slide, v)
@@ -435,7 +462,7 @@ V2 = v2.BODIES
 BODIES = {
     2: body_problem, 3: V2["V3"], 4: V2["V4"], 5: V2["B1"], 6: V2["V5"], 7: body_interface, 8: V2["V7"],
     9: lambda slide, v: bd.add_figure(slide, FIG_V3 + "queue_gates.png", LM, CT - 0.1, CW, 4.8),
-    10: V2["V8"], 11: body_validation, 12: V2["V11"], 13: body_caught, 14: body_strategies,
+    10: body_costs, 11: body_validation, 12: V2["V11"], 13: body_caught, 14: body_strategies,
     15: body_why_gp, 16: V2["V14"], 17: V2["V15"], 18: V2["V16"], 19: V2["V17"], 20: V2["V18"],
     21: V2["V19"], 22: V2["V20"], 23: V2["V21"], 24: V2["V22"], 25: V2["V23"], 26: V2["V24"],
     27: body_questions,

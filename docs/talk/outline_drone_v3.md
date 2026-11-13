@@ -130,11 +130,12 @@ Version 3 of the drone talk: version 2 with the changes Éder asked for on 2026-
 
 ### 10. Two fidelity levels (9:00, 1 min)
 
-- **Message:** A low-fidelity design costs {lf_s_core} s of one core; one SU2 angle costs a median {hf_coarse_min} min on the coarse mesh and {hf_medium_min} min on the medium mesh, and a design needs five angles.
+- **Message:** A low-fidelity design costs {lf_s_core} s of one core; one SU2 angle costs a median {hf_coarse_min} min on the coarse mesh, {hf_medium_min} min on the medium mesh and {hf_fine_min} min on the fine mesh, and a design needs five angles.
 - **Body:** From version 2, slide 8.
 - **Presenter notes:** There are two fidelity levels.
   The low level uses closed-form section data. It costs {lf_s_core} seconds of one core for each design.
-  The high level runs SU2 on the design's own section, at its cruise Reynolds number. One angle costs a median of {hf_coarse_min} minutes on the coarse mesh and {hf_medium_min} minutes on the medium mesh. A design needs five angles.
+  The high level runs SU2 on the design's own section, at its cruise Reynolds number. One angle costs a median of {hf_coarse_min} minutes on the coarse mesh, {hf_medium_min} minutes on the medium mesh and {hf_fine_min} minutes on the fine mesh. A design needs five angles.
+  The pool runs on the coarse mesh. The fine mesh is for the tunnel and mesh checks, and its median cost is {fine_x} times the coarse mesh.
   Look at the last line of the table. The two levels use the same geometry, lattice, closure and mission. Only the section data are different.
   Thus the expensive level corrects the cheap level. It does not replace it. Slide 18 uses this fact.
 

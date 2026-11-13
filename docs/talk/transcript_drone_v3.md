@@ -140,7 +140,9 @@ There are two fidelity levels.
 
 The low level uses closed-form section data. It costs 0.25 seconds of one core for each design.
 
-The high level runs SU2 on the design's own section, at its cruise Reynolds number. One angle costs a median of 11.8 minutes on the coarse mesh and 23.2 minutes on the medium mesh. A design needs five angles.
+The high level runs SU2 on the design's own section, at its cruise Reynolds number. One angle costs a median of 11.8 minutes on the coarse mesh, 23.2 minutes on the medium mesh and 94.5 minutes on the fine mesh. A design needs five angles.
+
+The pool runs on the coarse mesh. The fine mesh is for the tunnel and mesh checks, and its median cost is 8.0 times the coarse mesh.
 
 Look at the last line of the table. The two levels use the same geometry, lattice, closure and mission. Only the section data are different.
 
