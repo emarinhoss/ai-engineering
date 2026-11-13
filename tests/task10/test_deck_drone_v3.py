@@ -46,10 +46,11 @@ def test_the_requested_moves_and_removals():
     main = {k: s for k, s in outline.items() if s["main"]}
     assert "nominal design" in main[5]["title"]                         # version-2 backup 1
     assert "Claude Code" in main[9]["title"]                            # version-1 D26
-    assert "Gaussian process" in main[15]["title"]
+    assert not any("Gaussian process" in s["title"] for s in main.values())   # moved to the backups
     assert not any("Queue" in s["title"] for s in main.values())
     backup_titles = [s["title"] for s in outline.values() if not s["main"]]
     assert any("regret" in t for t in backup_titles) and any("Queue" in t for t in backup_titles)
+    assert any("Gaussian process" in t for t in backup_titles)
     for gone in ("Open rulings", "Equations", "Ledger provenance", "The decision log",
                  "inverse query record", "low-fidelity Pareto record", "Budget-exhausted",
                  "What the record keeps", "Coarse against medium", "Bias sweep",

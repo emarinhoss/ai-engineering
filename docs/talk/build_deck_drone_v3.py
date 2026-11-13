@@ -256,7 +256,7 @@ STRATEGIES = [
                                           "designs both score."), "both GPs"],
     ["the same, times P(feasible)", ("Multiplies that score by the probability that the design "
                                      "passes the gates, from a logistic regression on the gate "
-                                     "outcomes so far; used on the open box (slide 17)."),
+                                     "outcomes so far; used on the open box (slide 16)."),
      "both GPs + a classifier"]]
 
 
@@ -298,7 +298,7 @@ def body_why_gp(slide, v):
                   "a GP gives one at every design."),
                  ("Nine numbers per GP (six length scales, two variances, a mean), fitted by marginal "
                   "likelihood: nothing is tuned by hand."),
-                 "The length scales say which inputs matter (backup slide 40)."],
+                 "The length scales say which inputs matter (backup slide 39)."],
                 size=13, bullets=True, space_after=3)
     y = CT - 0.15
     for latex, h in ((v1.EQ_GP_KERNEL, 0.62), (v1.EQ_GP_MEAN, 0.4), (v1.EQ_GP_VAR, 0.4)):
@@ -447,15 +447,15 @@ def body_caught(slide, v):
                             r.text = r.text.replace("First case unconverged", "First case not converged")
 
 
-QUESTIONS = [("How was the SU2 solver validated, row by row?", (30, 37, 38)),
-             ("How do you know a run converged?", (33, 34)),
-             ("What does the mesh do to the answer?", (32, 35)),
-             ("How good is the low-fidelity model?", (36, 39, 42)),
-             ("Why a Gaussian process, and what does it learn?", (15, 40)),
+QUESTIONS = [("How was the SU2 solver validated, row by row?", (29, 36, 37)),
+             ("How do you know a run converged?", (32, 33)),
+             ("What does the mesh do to the answer?", (31, 34)),
+             ("How good is the low-fidelity model?", (35, 38, 42)),
+             ("Why a Gaussian process, and what does it learn?", (40, 39)),
              ("What is regret?", (41, 43)),
              ("How do the workers share the queue?", (44, 9)),
-             ("Where do the equations come from?", (31, 29)),
-             ("What did it cost?", (45, 19))]
+             ("Where do the equations come from?", (30, 28)),
+             ("What did it cost?", (45, 18))]
 
 
 def body_questions(slide, v):
@@ -471,12 +471,11 @@ BODIES = {
     2: body_problem, 3: V2["V3"], 4: V2["V4"], 5: V2["B1"], 6: V2["V5"], 7: body_interface, 8: V2["V7"],
     9: lambda slide, v: bd.add_figure(slide, FIG_V3 + "queue_gates.png", LM, CT - 0.1, CW, 4.8),
     10: body_costs, 11: body_validation, 12: V2["V11"], 13: body_caught, 14: body_strategies,
-    15: body_why_gp, 16: V2["V14"], 17: V2["V15"], 18: V2["V16"], 19: V2["V17"], 20: V2["V18"],
-    21: V2["V19"], 22: V2["V20"], 23: V2["V21"], 24: V2["V22"], 25: V2["V23"], 26: V2["V24"],
-    27: body_questions,
-    29: V2["B2"], 30: V2["B3"], 31: V2["B4"], 32: V2["B5"], 33: V2["B6"], 34: V2["B7"],
-    35: V2["B8"], 36: V2["B9"], 37: V2["B10"], 38: V2["B20"], 39: V2["B13"], 40: V2["B15"],
-    41: body_regret, 42: V2["B16"], 43: V2["B24"], 44: V2["V10"], 45: V2["B27"],
+    15: V2["V14"], 16: V2["V15"], 17: V2["V16"], 18: V2["V17"], 19: V2["V18"], 20: V2["V19"],
+    21: V2["V20"], 22: V2["V21"], 23: V2["V22"], 24: V2["V23"], 25: V2["V24"], 26: body_questions,
+    28: V2["B2"], 29: V2["B3"], 30: V2["B4"], 31: V2["B5"], 32: V2["B6"], 33: V2["B7"],
+    34: V2["B8"], 35: V2["B9"], 36: V2["B10"], 37: V2["B20"], 38: V2["B13"], 39: V2["B15"],
+    40: body_why_gp, 41: body_regret, 42: V2["B16"], 43: V2["B24"], 44: V2["V10"], 45: V2["B27"],
 }
 
 

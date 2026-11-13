@@ -146,7 +146,7 @@ The pool runs on the coarse mesh. The fine mesh is for the tunnel and mesh check
 
 Look at the last line of the table. The two levels use the same geometry, lattice, closure and mission. Only the section data are different.
 
-Thus the expensive level corrects the cheap level. It does not replace it. Slide 18 uses this fact.
+Thus the expensive level corrects the cheap level. It does not replace it. Slide 17 uses this fact.
 
 ## Slide 11: Validation before any machine learning
 
@@ -208,37 +208,13 @@ Maximum variance runs the design where the model is least sure. It does not ask 
 
 Expected hypervolume improvement draws 128 samples at each candidate. It measures how much each sample increases the area of the current front. Good designs and uncertain designs both get a high score.
 
-The last strategy multiplies that score by the probability to pass the gates. Slide 17 shows why we need it.
+The last strategy multiplies that score by the probability to pass the gates. Slide 16 shows why we need it.
 
 The language model calls tools. It never selects a point.
 
-## Slide 15: Why a Gaussian process, and against what
+## Slide 15: Active learning on a fixed pool
 
-*15:00, 1.5 min*
-
-Why a Gaussian process? There are four reasons, and each comes from how the study uses the model.
-
-First, the SU2 data are small. We have 32 SU2 designs. An exact Gaussian process fits this quantity in seconds.
-
-Second, the acquisition and the confirmation test need an interval, not only a mean. A Gaussian process gives an interval at each design.
-
-Third, each process has nine numbers: six length scales, two variances and a mean. The marginal likelihood sets them. Nobody tunes them by hand.
-
-Fourth, the length scales show which inputs are important. Backup slide 40 shows them.
-
-The table shows each model that we fitted on this data. The low model alone has an endurance error of 2.299 hours.
-
-With 8 SU2 designs, the Gaussian process on SU2 alone has an error of 1.525 hours. The two-level model has 0.824 hours.
-
-At 24 designs, the order changes: 0.704 hours for SU2 alone and 0.726 for the two-level model.
-
-We did not fit a neural network or a tree model on this data. This table is the full comparison in the record.
-
-The intervals cover less than 90 % of the held-out designs. Thus I use the mean, not the interval.
-
-## Slide 16: Active learning on a fixed pool
-
-*16:30, 1 min*
+*15:00, 1 min*
 
 First, the easy case: a fixed pool of 192 points. The response is smooth, and no design fails a gate.
 
@@ -252,9 +228,9 @@ Random is at 0.118 after 40 evaluations. The Latin hypercube is at 0.107, and ma
 
 On a smooth pool, active learning is clearly better. But this is the easy case.
 
-## Slide 17: Active learning on the open box, honestly
+## Slide 16: Active learning on the open box, honestly
 
-*17:30, 1.5 min*
+*16:00, 1.5 min*
 
 This is the result that I show first, because it includes a loss.
 
@@ -268,9 +244,9 @@ The correction is a small feasibility model. It gives the probability to pass th
 
 We keep both results on the record. Without the feasibility model, the method is worse than chance.
 
-## Slide 18: Two levels: fewer expensive runs
+## Slide 17: Two levels: fewer expensive runs
 
-*19:00, 1.5 min*
+*17:30, 1.5 min*
 
 This is the two-level model. The cheap model runs at each design. SU2 must learn only a scale and a correction.
 
@@ -282,9 +258,9 @@ Thus the benefit is real at small budgets. That is where it is important.
 
 Look at the coverage columns. Coverage is the part of the held-out designs inside the 90 % interval. It is below 0.9 for both models. Thus I use the mean, not the interval.
 
-## Slide 19: How much engineering time this saves
+## Slide 18: How much engineering time this saves
 
-*20:30, 1.5 min*
+*19:00, 1.5 min*
 
 This slide shows the engineering time that the pipeline saves. Read the last column: what a person had to do.
 
@@ -298,9 +274,9 @@ We recorded 11 rulings. A person made each ruling when the data needed a judgmen
 
 The important point is not the speed of the computer. The loop runs at night, checks itself, and gives a person only the decisions that need judgment.
 
-## Slide 20: The expensive level against the cheap one
+## Slide 19: The expensive level against the cheap one
 
-*22:00, 1 min*
+*20:30, 1 min*
 
 This slide compares the expensive level with the cheap level on the SU2 pool. All 32 of 32 designs are complete.
 
@@ -312,23 +288,23 @@ That is a large difference, and I do not hide it. But the difference has the sam
 
 A difference with one sign is easy for a scale and a correction to learn. That is why the two-level model works.
 
-## Slide 21: The front
+## Slide 20: The front
 
-*23:00, 1 min*
+*21:30, 1 min*
 
 This is the front on the SU2 pool: endurance against take-off mass. Up and to the left is better.
 
 On the SU2 pool the observed front has 13 designs, from 2.95 h at 1.09 kg to 8.40 h at 3.14 kg; the band is the GPs' posterior, and every point carries the decision-8 bias.
 
-The band comes from the Gaussian processes. It is a model band, not a measurement. Slide 15 showed that these intervals are too narrow.
+The band comes from the Gaussian processes. It is a model band, not a measurement. Backup slide 40 shows that these intervals are too narrow.
 
 Beside it is the low-fidelity front. That front is exact, because the cheap model ran on the full grid of 531,441 points.
 
 Each point on the SU2 front has the decision-8 bias: the lift-slope error against the tunnel.
 
-## Slide 22: The inverse query under the 4 kg cap
+## Slide 21: The inverse query under the 4 kg cap
 
-*24:00, 1.5 min*
+*22:30, 1.5 min*
 
 The inverse query asks for the longest endurance below the 4 kg limit, with a high probability to stay below it.
 
@@ -340,9 +316,9 @@ Thus the limit now binds. The cheap model never showed that.
 
 This is the value of the second level, in one slide.
 
-## Slide 23: Confirmation: does the prediction hold?
+## Slide 22: Confirmation: does the prediction hold?
 
-*25:30, 1.5 min*
+*24:00, 1.5 min*
 
 A prediction has value only when we test it. Each confirmation run is one SU2 polar of five angles, at the answer of the inverse query. It goes through the same queue and checks as the pool.
 
@@ -354,9 +330,9 @@ Thus the final confirmation failed on endurance. The design flies for less time 
 
 This agrees with the coverage results: the intervals are too narrow. I report it as a fail, with its direction.
 
-## Slide 24: What the flow looks like at stall
+## Slide 23: What the flow looks like at stall
 
-*27:00, 0.5 min*
+*25:30, 0.5 min*
 
 This picture shows the flow: pressure contours and streamlines.
 
@@ -366,9 +342,9 @@ The cheap section model cannot show this stall.
 
 The picture agrees with the numbers: after 10 degrees, lift decreases and drag increases.
 
-## Slide 25: Limits that travel with every number
+## Slide 24: Limits that travel with every number
 
-*27:30, 1.5 min*
+*26:00, 1.5 min*
 
 Each number in this talk depends on these limits.
 
@@ -382,9 +358,9 @@ The most important limit is on the right. The SU2 lift slope has a bias of 5.49 
 
 The records contain these limits. I do not only say them here.
 
-## Slide 26: Conclusions
+## Slide 25: Conclusions
 
-*29:00, 2 min*
+*27:30, 2 min*
 
 Four questions, and the records answer each one.
 
@@ -400,9 +376,9 @@ Thus the pipeline runs the loop without a person, refuses what it cannot check, 
 
 One idea to keep: put the checks after the solver, not only before it. And make each claim calculable from the records.
 
-## Slide 27: Questions
+## Slide 26: Questions
 
-*31:00 onward*
+*29:30 onward*
 
 Thank you. I am glad to answer your questions.
 
@@ -410,11 +386,11 @@ This table gives the questions that I expect, and the slide number that answers 
 
 When you ask a question, I open that slide. I do not describe it from memory.
 
-## Slide 28: Backup
+## Slide 27: Backup
 
 These are the backup slides. I open one only when a question needs it.
 
-## Slide 29: The vortex lattice and its checks
+## Slide 28: The vortex lattice and its checks
 
 This slide shows how we calculate the low-fidelity aerodynamics: a vortex lattice.
 
@@ -424,7 +400,7 @@ The Biot-Savart law gives the velocity of each segment. The condition of no flow
 
 We calculate the induced drag in the Trefftz plane. An earlier method under-counted it, and the elliptic-wing checks found the error.
 
-## Slide 30: Validation table, solver checks
+## Slide 29: Validation table, solver checks
 
 This table gives each validation row of the method itself.
 
@@ -432,7 +408,7 @@ For the elliptic wing of aspect ratio 8, the span-efficiency error is -0.26 %, a
 
 The moment row of the benchmark wing stays pending. Its reference point has no source yet.
 
-## Slide 31: Mass closure and the endurance balance
+## Slide 30: Mass closure and the endurance balance
 
 Two parts give the endurance number.
 
@@ -442,7 +418,7 @@ The second part is the energy balance. The usable battery energy, less the climb
 
 The nominal design closes in 18 iterations, at 6.75 hours.
 
-## Slide 32: The airfoil mesh
+## Slide 31: The airfoil mesh
 
 This is the airfoil mesh. It is a structured C-mesh around the section.
 
@@ -452,7 +428,7 @@ The first cell height comes from the chord Reynolds number. On this mesh it is 6
 
 Each mesh passes the quality gate before we stage a case. The worker checks its fingerprint before the run.
 
-## Slide 33: Two stopping rules: Cauchy stop and drift
+## Slide 32: Two stopping rules: Cauchy stop and drift
 
 How do we know that a run converged? We use two rules, and they measure different things.
 
@@ -464,7 +440,7 @@ The first smoke case drifted 5.6 % in lift and 17.4 % in drag. The rerun stopped
 
 A run that stops at its budget gets a flag.
 
-## Slide 34: A solver history
+## Slide 33: A solver history
 
 This is one solver history.
 
@@ -474,7 +450,7 @@ But look at the shaded window, the last fifth of the run. Lift and drag still ch
 
 A run that still changes gets a flag, also when the solver stopped correctly.
 
-## Slide 35: What the mesh does to the pressure distribution
+## Slide 34: What the mesh does to the pressure distribution
 
 This figure shows three meshes on one axis, on the nominal section: coarse, medium and fine.
 
@@ -484,7 +460,7 @@ The peak pressure coefficient is -1.726 on the coarse mesh, -1.731 on the medium
 
 One caution: the drift rule flags all three runs. Thus these differences include a convergence effect, not only a mesh effect.
 
-## Slide 36: The low-fidelity section against the tunnel
+## Slide 35: The low-fidelity section against the tunnel
 
 How good is the cheap section model? Against the tunnel it is not good, and I say so.
 
@@ -492,7 +468,7 @@ Its lift slope is 19 to 23 % low. Its profile drag is 43 to 52 % high. Its maxim
 
 The ledger lift effectiveness does not contain the tunnel value. That is a ruling. It is not a number to change here.
 
-## Slide 37: SU2 against the tunnel, and the decision to accept the bias
+## Slide 36: SU2 against the tunnel, and the decision to accept the bias
 
 Why did we accept a failed validation? Because the other option was to tune the error away.
 
@@ -502,7 +478,7 @@ The drag ratio passes at both: 7.99 % and 5.74 %, against 20 %.
 
 Decision 8 accepted the medium mesh with the bias recorded. The fail stays a fail.
 
-## Slide 38: Tunnel points at both Reynolds numbers
+## Slide 37: Tunnel points at both Reynolds numbers
 
 This table compares the tunnel and SU2 at each point.
 
@@ -510,7 +486,7 @@ At a Reynolds number of 203,800, the SU2 lift is 8.0 to 11.6 % high. The SU2 dra
 
 The second table gives the same comparison at the higher Reynolds number.
 
-## Slide 39: Section polars
+## Slide 38: Section polars
 
 These are the section polars. The left plot is lift against angle. The right plot is drag against lift.
 
@@ -520,7 +496,7 @@ SU2 shows the stall at the top of the angle range.
 
 Open circles are cases that the pool did not keep.
 
-## Slide 40: What the surrogate learned about the box
+## Slide 39: What the surrogate learned about the box
 
 Which inputs does the surrogate think are important?
 
@@ -529,6 +505,28 @@ The left plot ranks the six inputs by the length scale of the endurance model. A
 The right map shows the region that passes the gates, over those two inputs, with the observed front.
 
 The map is a projection: it holds the other four inputs at one point. In this view, 2 of the 15 front designs are within one cell of a gated cell.
+
+## Slide 40: Why a Gaussian process, and against what
+
+Why a Gaussian process? There are four reasons, and each comes from how the study uses the model.
+
+First, the SU2 data are small. We have 32 SU2 designs. An exact Gaussian process fits this quantity in seconds.
+
+Second, the acquisition and the confirmation test need an interval, not only a mean. A Gaussian process gives an interval at each design.
+
+Third, each process has nine numbers: six length scales, two variances and a mean. The marginal likelihood sets them. Nobody tunes them by hand.
+
+Fourth, the length scales show which inputs are important. Backup slide 39 shows them.
+
+The table shows each model that we fitted on this data. The low model alone has an endurance error of 2.299 hours.
+
+With 8 SU2 designs, the Gaussian process on SU2 alone has an error of 1.525 hours. The two-level model has 0.824 hours.
+
+At 24 designs, the order changes: 0.704 hours for SU2 alone and 0.726 for the two-level model.
+
+We did not fit a neural network or a tree model on this data. This table is the full comparison in the record.
+
+The intervals cover less than 90 % of the held-out designs. Thus I use the mean, not the interval.
 
 ## Slide 41: Hypervolume regret: what the replay slides measure
 

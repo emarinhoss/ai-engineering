@@ -26,7 +26,7 @@ Version 3 of the drone talk: version 2 with the changes Éder asked for on 2026-
 4. The validation slide no longer shows the medium-against-fine mesh row, and its decision footnote
    is gone.
 5. The queue, workers and shards slide moved to the backups.
-6. New slide 15: why a Gaussian process, with every model compared on this study's data.
+6. New backup slide 40: why a Gaussian process, with every model compared on this study's data.
 7. New backup: what hypervolume regret is.
 8. Version-1 D26 (what runs in Claude Code, on Drive and on Colab) is in the main body, with its
    original labels.
@@ -34,7 +34,7 @@ Version 3 of the drone talk: version 2 with the changes Éder asked for on 2026-
 10. Slide 14 explains each sampling strategy in more detail.
 11. Version-2 backups 11, 12, 14, 17, 18, 19, 21, 22, 23, 25, 26, 28, 29 and 30 are left out.
 
-## Main body (about 32 minutes)
+## Main body (about 30 minutes)
 
 ### 1. Title (0:00, 0.5 min)
 
@@ -137,7 +137,7 @@ Version 3 of the drone talk: version 2 with the changes Éder asked for on 2026-
   The high level runs SU2 on the design's own section, at its cruise Reynolds number. One angle costs a median of {hf_coarse_min} minutes on the coarse mesh, {hf_medium_min} minutes on the medium mesh and {hf_fine_min} minutes on the fine mesh. A design needs five angles.
   The pool runs on the coarse mesh. The fine mesh is for the tunnel and mesh checks, and its median cost is {fine_x} times the coarse mesh.
   Look at the last line of the table. The two levels use the same geometry, lattice, closure and mission. Only the section data are different.
-  Thus the expensive level corrects the cheap level. It does not replace it. Slide 18 uses this fact.
+  Thus the expensive level corrects the cheap level. It does not replace it. Slide 17 uses this fact.
 
 ### 11. Validation before any machine learning (10:00, 1 min)
 
@@ -180,25 +180,10 @@ Version 3 of the drone talk: version 2 with the changes Éder asked for on 2026-
   Random selects a design that has not run yet. The Latin hypercube spreads the full budget over the range of each input. These two use no model. They are the baselines.
   Maximum variance runs the design where the model is least sure. It does not ask if the design is good.
   Expected hypervolume improvement draws 128 samples at each candidate. It measures how much each sample increases the area of the current front. Good designs and uncertain designs both get a high score.
-  The last strategy multiplies that score by the probability to pass the gates. Slide 17 shows why we need it.
+  The last strategy multiplies that score by the probability to pass the gates. Slide 16 shows why we need it.
   The language model calls tools. It never selects a point.
 
-### 15. Why a Gaussian process, and against what (15:00, 1.5 min)
-
-- **Message:** With {mf_usable_high} SU2 designs a model must give an interval, not only a mean; on this data the GP corrected by the low model has the lowest endurance error {mf_two_best}.
-- **Body:** New. Left: the reasons, each tied to how the study uses the model. Right: the GP relations. Below: every model compared on this study's data, from the two-level record, means over ten seeds.
-- **Presenter notes:** Why a Gaussian process? There are four reasons, and each comes from how the study uses the model.
-  First, the SU2 data are small. We have {mf_usable_high} SU2 designs. An exact Gaussian process fits this quantity in seconds.
-  Second, the acquisition and the confirmation test need an interval, not only a mean. A Gaussian process gives an interval at each design.
-  Third, each process has nine numbers: six length scales, two variances and a mean. The marginal likelihood sets them. Nobody tunes them by hand.
-  Fourth, the length scales show which inputs are important. Backup slide 40 shows them.
-  The table shows each model that we fitted on this data. The low model alone has an endurance error of {gp_lf} hours.
-  With {gp_n_lo} SU2 designs, the Gaussian process on SU2 alone has an error of {gp_single_lo} hours. The two-level model has {gp_two_lo} hours.
-  At {gp_n_hi} designs, the order changes: {gp_single_hi} hours for SU2 alone and {gp_two_hi} for the two-level model.
-  We did not fit a neural network or a tree model on this data. This table is the full comparison in the record.
-  The intervals cover less than 90 % of the held-out designs. Thus I use the mean, not the interval.
-
-### 16. Active learning on a fixed pool (16:30, 1 min)
+### 15. Active learning on a fixed pool (15:00, 1 min)
 
 - **Message:** On a 192-point pool, expected hypervolume improvement reaches regret {ehvi_32} at 32 evaluations, while random sampling is still at {rand_40} after 40.
 - **Body:** From version 2, slide 14.
@@ -209,7 +194,7 @@ Version 3 of the drone talk: version 2 with the changes Éder asked for on 2026-
   Random is at {rand_40} after 40 evaluations. The Latin hypercube is at {lhs_40}, and maximum variance at {maxvar_40}.
   On a smooth pool, active learning is clearly better. But this is the easy case.
 
-### 17. Active learning on the open box, honestly (17:30, 1.5 min)
+### 16. Active learning on the open box, honestly (16:00, 1.5 min)
 
 - **Message:** On the open box plain expected improvement loses to random ({ehvi_on_40} against {rand_on_40}) because it keeps picking designs the gates reject; weighted by the probability of passing the gates it reaches {feas_on_40}.
 - **Body:** From version 2, slide 15.
@@ -220,7 +205,7 @@ Version 3 of the drone talk: version 2 with the changes Éder asked for on 2026-
   The correction is a small feasibility model. It gives the probability to pass the gates, and the acquisition multiplies by it. Then EHVI gets a regret of {feas_on_40}, with {feas_gated} gated picks.
   We keep both results on the record. Without the feasibility model, the method is worse than chance.
 
-### 18. Two levels: fewer expensive runs (19:00, 1.5 min)
+### 17. Two levels: fewer expensive runs (17:30, 1.5 min)
 
 - **Message:** {mf_answer}
 - **Body:** From version 2, slide 16.
@@ -230,7 +215,7 @@ Version 3 of the drone talk: version 2 with the changes Éder asked for on 2026-
   Thus the benefit is real at small budgets. That is where it is important.
   Look at the coverage columns. Coverage is the part of the held-out designs inside the 90 % interval. It is below 0.9 for both models. Thus I use the mean, not the interval.
 
-### 19. How much engineering time this saves (20:30, 1.5 min)
+### 18. How much engineering time this saves (19:00, 1.5 min)
 
 - **Message:** {grid_n} low-fidelity designs ran in {grid_hours} h; {su2_cases} SU2 cases ran in {su2_worker_h} worker-hours over {pool_wall_h} h of elapsed time; the two-level model reaches with 8 SU2 designs the error SU2 alone needs {mf_n_match} for.
 - **Body:** From version 2, slide 17.
@@ -241,7 +226,7 @@ Version 3 of the drone talk: version 2 with the changes Éder asked for on 2026-
   We recorded {n_rulings} rulings. A person made each ruling when the data needed a judgment.
   The important point is not the speed of the computer. The loop runs at night, checks itself, and gives a person only the decisions that need judgment.
 
-### 20. The expensive level against the cheap one (22:00, 1 min)
+### 19. The expensive level against the cheap one (20:30, 1 min)
 
 - **Message:** Of the {pool_designs} SU2 designs, {pool_complete} are complete; on every one the SU2 endurance is {hf_lf_end_range} against the low model's.
 - **Body:** From version 2, slide 18.
@@ -251,17 +236,17 @@ Version 3 of the drone talk: version 2 with the changes Éder asked for on 2026-
   That is a large difference, and I do not hide it. But the difference has the same sign on each design.
   A difference with one sign is easy for a scale and a correction to learn. That is why the two-level model works.
 
-### 21. The front (23:00, 1 min)
+### 20. The front (21:30, 1 min)
 
 - **Message:** {hf_front_answer}
 - **Body:** From version 2, slide 19.
 - **Presenter notes:** This is the front on the SU2 pool: endurance against take-off mass. Up and to the left is better.
   {hf_front_answer}
-  The band comes from the Gaussian processes. It is a model band, not a measurement. Slide 15 showed that these intervals are too narrow.
+  The band comes from the Gaussian processes. It is a model band, not a measurement. Backup slide 40 shows that these intervals are too narrow.
   Beside it is the low-fidelity front. That front is exact, because the cheap model ran on the full grid of {grid_n} points.
   Each point on the SU2 front has the decision-8 bias: the lift-slope error against the tunnel.
 
-### 22. The inverse query under the 4 kg cap (24:00, 1.5 min)
+### 21. The inverse query under the 4 kg cap (22:30, 1.5 min)
 
 - **Message:** On the low model the answer is a box corner and the cap never binds; {hf_inverse_answer}
 - **Body:** From version 2, slide 20.
@@ -271,7 +256,7 @@ Version 3 of the drone talk: version 2 with the changes Éder asked for on 2026-
   Thus the limit now binds. The cheap model never showed that.
   This is the value of the second level, in one slide.
 
-### 23. Confirmation: does the prediction hold? (25:30, 1.5 min)
+### 22. Confirmation: does the prediction hold? (24:00, 1.5 min)
 
 - **Message:** {confirm_v2_answer}
 - **Body:** From version 2, slide 21.
@@ -281,7 +266,7 @@ Version 3 of the drone talk: version 2 with the changes Éder asked for on 2026-
   Thus the final confirmation failed on endurance. The design flies for less time than the surrogate predicted.
   This agrees with the coverage results: the intervals are too narrow. I report it as a fail, with its direction.
 
-### 24. What the flow looks like at stall (27:00, 0.5 min)
+### 23. What the flow looks like at stall (25:30, 0.5 min)
 
 - **Message:** At 14 degrees the upper surface of pool design 0 is separated over most of the chord; this is the stall the cheap section model cannot show.
 - **Body:** From version 2, slide 22.
@@ -290,7 +275,7 @@ Version 3 of the drone talk: version 2 with the changes Éder asked for on 2026-
   The cheap section model cannot show this stall.
   The picture agrees with the numbers: after 10 degrees, lift decreases and drag increases.
 
-### 25. Limits that travel with every number (27:30, 1.5 min)
+### 24. Limits that travel with every number (26:00, 1.5 min)
 
 - **Message:** One cruise point at sea level, a fixed propeller efficiency, a closed-form structure, and an SU2 lift-slope bias of {v6e_dev}: these bound what the front and the answer mean.
 - **Body:** From version 2, slide 23.
@@ -301,7 +286,7 @@ Version 3 of the drone talk: version 2 with the changes Éder asked for on 2026-
   The most important limit is on the right. The SU2 lift slope has a bias of {v6e_dev} against the tunnel. Each SU2 polar carries this flag.
   The records contain these limits. I do not only say them here.
 
-### 26. Conclusions (29:00, 2 min)
+### 25. Conclusions (27:30, 2 min)
 
 - **Message:** The pipeline runs the design loop unattended, refuses what it cannot check, and asks a person only for rulings; on this problem it cut the expensive runs at small budgets and answered the capped design question; one confirmation run passed and the final one found the endurance below its predicted interval, which is the honest limit of the surrogate.
 - **Body:** From version 2, slide 24.
@@ -313,7 +298,7 @@ Version 3 of the drone talk: version 2 with the changes Éder asked for on 2026-
   Thus the pipeline runs the loop without a person, refuses what it cannot check, and asks a person only for rulings.
   One idea to keep: put the checks after the solver, not only before it. And make each claim calculable from the records.
 
-### 27. Questions (31:00 onward)
+### 26. Questions (29:30 onward)
 
 - **Message:** Discussion; the backup slides hold the detail behind every number.
 - **Body:** New: likely questions and the slide that answers each, by number.
@@ -323,36 +308,36 @@ Version 3 of the drone talk: version 2 with the changes Éder asked for on 2026-
 
 ## Backup slides (not timed)
 
-Slide 28 is the "Backup" divider.
+Slide 27 is the "Backup" divider.
 
-### 29. The vortex lattice and its checks
+### 28. The vortex lattice and its checks
 - **Body:** From version 2, backup 2.
 - **Presenter notes:** This slide shows how we calculate the low-fidelity aerodynamics: a vortex lattice.
   Each panel has one horseshoe vortex. The bound vortex is on the quarter chord. The control point is on the three-quarter chord.
   The Biot-Savart law gives the velocity of each segment. The condition of no flow through the control points gives the circulations.
   We calculate the induced drag in the Trefftz plane. An earlier method under-counted it, and the elliptic-wing checks found the error.
 
-### 30. Validation table, solver checks
+### 29. Validation table, solver checks
 - **Body:** From version 2, backup 3.
 - **Presenter notes:** This table gives each validation row of the method itself.
   For the elliptic wing of aspect ratio 8, the span-efficiency error is {v6a_e_dev}, and the lift-slope error is {v6a_cla_dev}. Both are inside their tolerances.
   The moment row of the benchmark wing stays pending. Its reference point has no source yet.
 
-### 31. Mass closure and the endurance balance
+### 30. Mass closure and the endurance balance
 - **Body:** From version 2, backup 4.
 - **Presenter notes:** Two parts give the endurance number.
   The first part is the mass closure. The battery mass is the battery fraction times the take-off mass. Thus the mass sum depends on itself. We solve it as a fixed point.
   The second part is the energy balance. The usable battery energy, less the climb energy, divided by the cruise power, gives the endurance.
   The nominal design closes in {nom_iters} iterations, at {nom_endurance} hours.
 
-### 32. The airfoil mesh
+### 31. The airfoil mesh
 - **Body:** From version 2, backup 5.
 - **Presenter notes:** This is the airfoil mesh. It is a structured C-mesh around the section.
   The coarse mesh has {mesh_coarse_cells} cells, the medium mesh {mesh_medium_cells} and the fine mesh {mesh_fine_cells}.
   The first cell height comes from the chord Reynolds number. On this mesh it is {mesh_first_cell} m.
   Each mesh passes the quality gate before we stage a case. The worker checks its fingerprint before the run.
 
-### 33. Two stopping rules: Cauchy stop and drift
+### 32. Two stopping rules: Cauchy stop and drift
 - **Body:** From version 2, backup 6.
 - **Presenter notes:** How do we know that a run converged? We use two rules, and they measure different things.
   The SU2 Cauchy stop examines lift and drag over a window of iterations, from iteration 500.
@@ -360,52 +345,67 @@ Slide 28 is the "Backup" divider.
   The first smoke case drifted {smoke_cl_drift} in lift and {smoke_cd_drift} in drag. The rerun stopped at iteration {smoke2_iters}.
   A run that stops at its budget gets a flag.
 
-### 34. A solver history
+### 33. A solver history
 - **Body:** From version 2, backup 7.
 - **Presenter notes:** This is one solver history.
   The residual decreases by many orders of magnitude. If you look only at the residual, the run seems converged.
   But look at the shaded window, the last fifth of the run. Lift and drag still change there. The drift rule reads that window.
   A run that still changes gets a flag, also when the solver stopped correctly.
 
-### 35. What the mesh does to the pressure distribution
+### 34. What the mesh does to the pressure distribution
 - **Body:** From version 2, backup 8.
 - **Presenter notes:** This figure shows three meshes on one axis, on the nominal section: coarse, medium and fine.
   The curves agree away from the leading edge. The differences are at the suction peak.
   The peak pressure coefficient is {mesh_coarse_peak} on the coarse mesh, {mesh_medium_peak} on the medium mesh and {mesh_fine_peak} on the fine mesh.
   One caution: the drift rule flags all three runs. Thus these differences include a convergence effect, not only a mesh effect.
 
-### 36. The low-fidelity section against the tunnel
+### 35. The low-fidelity section against the tunnel
 - **Body:** From version 2, backup 9.
 - **Presenter notes:** How good is the cheap section model? Against the tunnel it is not good, and I say so.
   Its lift slope is {f_clalpha_range} low. Its profile drag is {f_cd_range} high. Its maximum lift is {f_clmax_range} high.
   The ledger lift effectiveness does not contain the tunnel value. That is a ruling. It is not a number to change here.
 
-### 37. SU2 against the tunnel, and the decision to accept the bias
+### 36. SU2 against the tunnel, and the decision to accept the bias
 - **Body:** From version 2, backup 10.
 - **Presenter notes:** Why did we accept a failed validation? Because the other option was to tune the error away.
   The lift slope fails at both Reynolds numbers: {v6e_dev} and {v6e_cla_hi}, against {v6e_tol}.
   The drag ratio passes at both: {v6e_cd_lo} and {v6e_cd_hi}, against 20 %.
   Decision 8 accepted the medium mesh with the bias recorded. The fail stays a fail.
 
-### 38. Tunnel points at both Reynolds numbers
+### 37. Tunnel points at both Reynolds numbers
 - **Body:** From version 2, backup 20.
 - **Presenter notes:** This table compares the tunnel and SU2 at each point.
   At a Reynolds number of {e387_re}, the SU2 lift is {su2_cl_range}. The SU2 drag is from {su2_cd_range}.
   The second table gives the same comparison at the higher Reynolds number.
 
-### 39. Section polars
+### 38. Section polars
 - **Body:** From version 2, backup 13.
 - **Presenter notes:** These are the section polars. The left plot is lift against angle. The right plot is drag against lift.
   The closed form is a straight line to a limit, with constant drag. It has no stall and no drag increase.
   SU2 shows the stall at the top of the angle range.
   Open circles are cases that the pool did not keep.
 
-### 40. What the surrogate learned about the box
+### 39. What the surrogate learned about the box
 - **Body:** From version 2, backup 15.
 - **Presenter notes:** Which inputs does the surrogate think are important?
   The left plot ranks the six inputs by the length scale of the endurance model. A short length scale means that endurance changes quickly along that input. Aspect ratio and span are first.
   The right map shows the region that passes the gates, over those two inputs, with the observed front.
   The map is a projection: it holds the other four inputs at one point. In this view, {n_front_edge} of the {n_front} front designs are within one cell of a gated cell.
+
+### 40. Why a Gaussian process, and against what
+
+- **Message:** With {mf_usable_high} SU2 designs a model must give an interval, not only a mean; on this data the GP corrected by the low model has the lowest endurance error {mf_two_best}.
+- **Body:** New. Left: the reasons, each tied to how the study uses the model. Right: the GP relations. Below: every model compared on this study's data, from the two-level record, means over ten seeds.
+- **Presenter notes:** Why a Gaussian process? There are four reasons, and each comes from how the study uses the model.
+  First, the SU2 data are small. We have {mf_usable_high} SU2 designs. An exact Gaussian process fits this quantity in seconds.
+  Second, the acquisition and the confirmation test need an interval, not only a mean. A Gaussian process gives an interval at each design.
+  Third, each process has nine numbers: six length scales, two variances and a mean. The marginal likelihood sets them. Nobody tunes them by hand.
+  Fourth, the length scales show which inputs are important. Backup slide 39 shows them.
+  The table shows each model that we fitted on this data. The low model alone has an endurance error of {gp_lf} hours.
+  With {gp_n_lo} SU2 designs, the Gaussian process on SU2 alone has an error of {gp_single_lo} hours. The two-level model has {gp_two_lo} hours.
+  At {gp_n_hi} designs, the order changes: {gp_single_hi} hours for SU2 alone and {gp_two_hi} for the two-level model.
+  We did not fit a neural network or a tree model on this data. This table is the full comparison in the record.
+  The intervals cover less than 90 % of the held-out designs. Thus I use the mean, not the interval.
 
 ### 41. Hypervolume regret: what the replay slides measure
 - **Message:** Regret is the share of the true front's hypervolume that the designs found so far do not cover: 0 when the whole front has been found, 1 when nothing of it has.

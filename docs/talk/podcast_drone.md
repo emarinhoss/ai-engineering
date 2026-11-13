@@ -116,11 +116,11 @@ accepts a maximum of 300 characters in each call.
 | First case: exit 0, lift −10.5 %, drag +24.7 % against its rerun; drift 5.6 % and 17.4 %, not converged | `runs/smoke/`, `runs/smoke2/` result records |
 | SU2 lift slope +5.49 % against 5 % (fail), drag ratio 7.99 % against 20 % (pass), decision 8 | `runs/drone/validation/2026-11-10/v6.json`; `docs/specs/task10_tasks.md` |
 | Cheap model 0.25 s per design; SU2 median 11.8 min per coarse angle | `runs/drone_grid/2026-11-08/record.json`; SU2 run records (deck version 3, slide 10) |
-| 32 usable SU2 designs; endurance RMSE at n = 8: low model alone 2.299 h, GP on SU2 alone 1.525 h, two-level 0.824 h; no other model family fitted | `runs/drone_mf/2026-11-09/mf.json`, `mf.csv` (deck version 3, slide 15) |
+| 32 usable SU2 designs; endurance RMSE at n = 8: low model alone 2.299 h, GP on SU2 alone 1.525 h, two-level 0.824 h; no other model family fitted | `runs/drone_mf/2026-11-09/mf.json`, `mf.csv` (deck version 3, backup slide 40) |
 | Pool replay: whole front at 32 evaluations; random 0.118 at 40 | `runs/replay_drone_pool/2026-11-08/replay.csv` |
 | Regret definition | `surrogate/replay.py`, `analysis/replay_drone_online.py` (deck version 3, slide 41) |
 | Online replay at 40: plain 0.317, random 0.294, feasibility-weighted 0.092 | `runs/replay_drone_online/2026-11-08/online.csv`, `2026-11-08_feas/online.csv` |
-| 172 SU2 cases, 37.0 worker-hours over 24.9 h elapsed; 531,441 designs in 4.7 h | SU2 run records; `runs/drone_grid/2026-11-08/record.json` (deck version 3, slide 19) |
+| 172 SU2 cases, 37.0 worker-hours over 24.9 h elapsed; 531,441 designs in 4.7 h | SU2 run records; `runs/drone_grid/2026-11-08/record.json` (deck version 3, slide 18) |
 | Both runtimes ended 14:10 UTC, nothing ran until 15:50 | runtime operations log, `docs/specs/task10_tasks.md` |
 | Two-level: SU2 alone reaches the n = 8 error at 24; at 24 SU2 alone 0.704 against 0.726 | `runs/drone_mf/2026-11-09/mf.csv` (32 designs) |
 | SU2 endurance 15.8 to 65.5 % below the low model on all 32 designs | `runs/pool_af/2026-11-09/results.csv` against `runs/drone_pool_lf/2026-11-08/grid.csv` |
