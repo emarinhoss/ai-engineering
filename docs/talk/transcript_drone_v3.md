@@ -86,21 +86,21 @@ The surrogate learns from the records. An acquisition function selects the next 
 
 A person must act at two marked points only: a ruling on the data, and a sign-in for a cloud runtime.
 
-## Slide 7: The agent's interface: typed tools, not free text
+## Slide 7: The agent's interface, and what runs behind it
 
 *6:00, 1 min*
 
-The agent gets to the solver only through 11 typed tools. Each tool has a strict schema.
+The agent reaches the pipeline only through 11 typed tools. Each tool has a strict schema, and an unknown field or a wrong type gets a refusal.
 
-The left column lists the tools. They stage, submit, ingest and report. They never run the solver.
+The left column groups the tools by task: check, stage, move and log, bring back, and look. None of them runs the solver.
 
-A typed interface lets an agent operate engineering software safely. The tool rejects a request with an unknown field or an incorrect type. It gives a message and stages nothing.
+The tools only stage, submit, ingest and report. The session does the rest. It starts and restarts the Colab runtimes with the Colab command-line tool, and it moves the files to and from the Drive folder.
 
-Each call writes a line to an audit log.
+Each Colab worker checks every job again. It takes only the jobs in its own shard, and it makes the mesh and the configuration again from the job parameters.
 
-The right column shows what does not depend on this interface. The worker does the physics gates again. It checks the mesh fingerprint and the configuration hash again.
+It runs the physics gates again before SU2 starts. After SU2, it checks the exit code, NaN values and the time limit. A heartbeat shows that the worker is alive, and an old heartbeat means that the job runs again.
 
-The design points come from design tables and acquisition code, never from the language model.
+The language model never selects a design point. Design tables and acquisition code select them.
 
 ## Slide 8: Gates before any solver
 

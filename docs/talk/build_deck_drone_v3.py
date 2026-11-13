@@ -344,6 +344,55 @@ def body_regret(slide, v):
                 size=11, bullets=True, space_after=2)
 
 
+TOOL_GROUPS = (("Check", ("validate_config",)),
+               ("Stage", ("create_case", "submit", "queue_batch", "export_batch")),
+               ("Move and log", ("record_transfer",)),
+               ("Bring back", ("ingest_result", "ingest_error", "postprocess")),
+               ("Look", ("status", "list_results")))
+
+
+def body_interface(slide, v):
+    """What the pipeline is now: the typed tools, what the session does outside them, and what each
+    worker does with a job. Every claim is guarded against the code, and the tool groups against
+    the tools the server registers, so a new or removed tool fails the build."""
+    registered = {name for name, _ in v1.mcp_tools()}
+    grouped = {t for _, tools in TOOL_GROUPS for t in tools}
+    assert registered == grouped, f"tool groups differ from the server: {registered ^ grouped}"
+    v1.need((ROOT / "mcp_server/schemas.py").read_text(), 'extra="forbid", strict=True')
+    v1.need((ROOT / "mcp_server/queue.py").read_text(), "mcp_log.jsonl", "_digest_mismatch")
+    v1.need((ROOT / "worker/run_worker.py").read_text(), "def in_shard", "gates.check",
+            "check_regenerated", "heartbeat_age_s", "failure_of", "write_digest")
+    w, gap, y0 = 3.83, 0.32, CT - 0.1
+    heads = (f"{len(registered)} typed tools", "The session, outside the tools",
+             "Each Colab worker, for each job")
+    for i, head in enumerate(heads):
+        bd.box(slide, LM + i * (w + gap), y0, w, 0.5, head, size=15, bold=True, fill=bd.BLUE,
+               color=bd.WHITE)
+    x0, top = LM, y0 + 0.6
+    bd.text_box(slide, x0, top, w, 2.2, [f"{g}: {', '.join(t)}" for g, t in TOOL_GROUPS], size=12,
+                font="Consolas", space_after=3)
+    bd.text_box(slide, x0, top + 2.05, w, 1.9,
+                ["A strict schema for each case type: unknown fields and wrong types are refused.",
+                 "Nothing is staged when a check fails.", "Each call writes one audit line."],
+                size=13, bullets=True, space_after=4)
+    bd.text_box(slide, x0 + w + gap, top, w, 4.0,
+                ["Starts, restarts and watches the Colab runtimes with the Colab command-line tool.",
+                 "Moves the job files to the shared Drive folder and brings the result files back.",
+                 "Divides the queue again when one runtime has no more jobs.",
+                 "Asks a person only for a Drive sign-in and for rulings."],
+                size=13, bullets=True, space_after=6)
+    bd.text_box(slide, x0 + 2 * (w + gap), top, w, 4.0,
+                ["Takes only the jobs in its shard: the case id hash, modulo N, equals K.",
+                 "Makes the mesh and the configuration again, and refuses a mismatch.",
+                 "Runs the physics gates again before SU2 starts.",
+                 "Writes a heartbeat. An old heartbeat marks a crash, and the job runs again.",
+                 ("After SU2, checks the exit code, NaN values and the time limit, then writes the "
+                  "result with its SHA-256 digest.")],
+                size=13, bullets=True, space_after=5)
+    bd.text_box(slide, LM, top + 4.0, CW, 0.4, "The language model selects no design point: design "
+                "tables and acquisition code do.", size=14, bold=True, color=bd.BLUE)
+
+
 def body_validation(slide, v):
     """Version 2's validation slide, without its decision footnote (version 3 drops it)."""
     v2.body_validation(slide, v)
@@ -384,7 +433,7 @@ def body_questions(slide, v):
 
 V2 = v2.BODIES
 BODIES = {
-    2: body_problem, 3: V2["V3"], 4: V2["V4"], 5: V2["B1"], 6: V2["V5"], 7: V2["V6"], 8: V2["V7"],
+    2: body_problem, 3: V2["V3"], 4: V2["V4"], 5: V2["B1"], 6: V2["V5"], 7: body_interface, 8: V2["V7"],
     9: lambda slide, v: bd.add_figure(slide, FIG_V3 + "queue_gates.png", LM, CT - 0.1, CW, 4.8),
     10: V2["V8"], 11: body_validation, 12: V2["V11"], 13: body_caught, 14: body_strategies,
     15: body_why_gp, 16: V2["V14"], 17: V2["V15"], 18: V2["V16"], 19: V2["V17"], 20: V2["V18"],

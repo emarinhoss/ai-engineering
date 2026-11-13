@@ -107,3 +107,13 @@ def test_slide_notes_and_transcript_are_the_filled_presenter_notes(deck, tmp_pat
     v3.write_transcript(outline, v, out)
     text = out.read_text()
     assert text.count("\n## Slide ") == len(outline) + 1 and "{" not in text
+
+
+def test_slide_7_names_every_registered_tool_and_the_session_and_worker_roles(deck):
+    _, prs = deck
+    text = " ".join(texts(prs.slides[6]))
+    for name, _doc in v1.mcp_tools():
+        assert name in text, name
+    for phrase in ("Colab command-line tool", "shard", "physics gates again", "heartbeat",
+                   "SHA-256", "selects no design point"):
+        assert phrase in text, phrase

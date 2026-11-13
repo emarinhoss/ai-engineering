@@ -96,16 +96,16 @@ Version 3 of the drone talk: version 2 with the changes Éder asked for on 2026-
   The surrogate learns from the records. An acquisition function selects the next batch. The language model never selects a design point.
   A person must act at two marked points only: a ruling on the data, and a sign-in for a cloud runtime.
 
-### 7. The agent's interface: typed tools, not free text (6:00, 1 min)
+### 7. The agent's interface, and what runs behind it (6:00, 1 min)
 
-- **Message:** The agent reaches the solver only through {n_tools} typed tools with strict schemas; the tools never run the solver, and every call is logged.
-- **Body:** From version 2, slide 6.
-- **Presenter notes:** The agent gets to the solver only through {n_tools} typed tools. Each tool has a strict schema.
-  The left column lists the tools. They stage, submit, ingest and report. They never run the solver.
-  A typed interface lets an agent operate engineering software safely. The tool rejects a request with an unknown field or an incorrect type. It gives a message and stages nothing.
-  Each call writes a line to an audit log.
-  The right column shows what does not depend on this interface. The worker does the physics gates again. It checks the mesh fingerprint and the configuration hash again.
-  The design points come from design tables and acquisition code, never from the language model.
+- **Message:** The agent reaches the pipeline only through {n_tools} typed tools; the session starts the Colab runtimes and moves the files, and each worker checks every job again before SU2 runs.
+- **Body:** New, three columns. The typed tools, grouped by task, with the schema, the refusal and the audit line. What the session does outside the tools. What each Colab worker does with a job.
+- **Presenter notes:** The agent reaches the pipeline only through {n_tools} typed tools. Each tool has a strict schema, and an unknown field or a wrong type gets a refusal.
+  The left column groups the tools by task: check, stage, move and log, bring back, and look. None of them runs the solver.
+  The tools only stage, submit, ingest and report. The session does the rest. It starts and restarts the Colab runtimes with the Colab command-line tool, and it moves the files to and from the Drive folder.
+  Each Colab worker checks every job again. It takes only the jobs in its own shard, and it makes the mesh and the configuration again from the job parameters.
+  It runs the physics gates again before SU2 starts. After SU2, it checks the exit code, NaN values and the time limit. A heartbeat shows that the worker is alive, and an old heartbeat means that the job runs again.
+  The language model never selects a design point. Design tables and acquisition code select them.
 
 ### 8. Gates before any solver (7:00, 1 min)
 
