@@ -118,7 +118,6 @@ def note_values():
         "smoke_cl_drift": f"{smoke['cl_drift_pct']:.1f} %", "smoke_cd_drift": f"{smoke['cd_drift_pct']:.1f} %",
         "v6e_cd_lo": dev("V6e cd ratio Re 203800"), "v6e_cd_hi": dev("V6e cd ratio Re 305200"),
         "v6e_cla_hi": dev("V6e cl_alpha Re 305200"),
-        "mesh_mf_dev": dev("V6e mesh medium vs fine, cd at cl 0.6"),
         "hf_fine_min": f"{np.median(v1.wall_minutes('fine')):.1f}",
         "fine_x": f"{np.median(v1.wall_minutes('fine')) / np.median(v1.wall_minutes('coarse')):.1f}",
         "gp_lf": f"{lf:.3f}", "gp_n_lo": ns[0], "gp_n_hi": ns[-1],
@@ -421,11 +420,20 @@ def body_costs(slide, v):
 
 
 def body_validation(slide, v):
-    """Version 2's validation slide, without its decision footnote (version 3 drops it)."""
+    """Version 2's validation slide, without its decision footnote and without the medium-against-fine
+    mesh row (version 3 drops both)."""
     v2.body_validation(slide, v)
     for sh in list(slide.shapes):
         if sh.has_text_frame and sh.text_frame.text.startswith("Decision 8 ("):
             sh._element.getparent().remove(sh._element)
+    dropped = 0
+    for sh in slide.shapes:
+        if sh.has_table:
+            for tr in list(sh.table._tbl.tr_lst):
+                if tr.tc_lst[0].txBody.xpath("string(.)").startswith("SU2 medium against fine mesh"):
+                    sh.table._tbl.remove(tr)
+                    dropped += 1
+    assert dropped == 1, f"expected one medium-against-fine row to drop, found {dropped}"
 
 
 def body_caught(slide, v):

@@ -23,8 +23,8 @@ Version 3 of the drone talk: version 2 with the changes Éder asked for on 2026-
 1. Slides are named by number only.
 2. The nominal design (version-2 backup 1) is in the main body, after the test problem.
 3. Slide 2 sets up the problem and the motivation together.
-4. The validation slide already carries the fine-mesh row (medium against fine, cd at cl 0.6); no
-   other fine-mesh validation row is in the record, so the slide body is unchanged.
+4. The validation slide no longer shows the medium-against-fine mesh row, and its decision footnote
+   is gone.
 5. The queue, workers and shards slide moved to the backups.
 6. New slide 15: why a Gaussian process, with every model compared on this study's data.
 7. New backup: what hypervolume regret is.
@@ -142,12 +142,11 @@ Version 3 of the drone talk: version 2 with the changes Éder asked for on 2026-
 ### 11. Validation before any machine learning (10:00, 1 min)
 
 - **Message:** The solver's own checks pass ({n_pass} rows pass, {n_fail} fail); against the wind tunnel SU2's lift slope misses by {v6e_dev} against a {v6e_tol} tolerance, a fail that is kept and travels with every result.
-- **Body:** From version 2, slide 9, which already carries the fine-mesh row.
+- **Body:** From version 2, slide 9, without the medium-against-fine mesh row and without the decision footnote.
 - **Presenter notes:** We did the validation before any machine learning. We set the tolerances before the runs.
   The top group is the checks of the method itself. {n_pass} rows pass and {n_fail} fail. {n_pending} row is pending, because its reference point has no source yet.
   The next group is SU2 against the wind tunnel. The drag ratio passes at both Reynolds numbers, {v6e_cd_lo} and {v6e_cd_hi} against 20 %.
   The lift slope fails at both Reynolds numbers, {v6e_dev} and {v6e_cla_hi} against {v6e_tol}.
-  The fine-mesh row is on this slide. The medium mesh and the fine mesh agree on drag to {mesh_mf_dev}. Thus the lift-slope error is not a mesh error.
   The fail stays a fail. Each SU2 result carries it as a flag.
 
 ### 12. The session runs the compute (11:00, 1.5 min)
