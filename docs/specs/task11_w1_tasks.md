@@ -173,3 +173,15 @@ not as ours.
 - **The medium mesh.** E0's coarse-to-medium start already saved about 80 % of the iterations; a
   learned start for the medium mesh is a different test.
 - **14 deg.** Outside the tested range. The 8 deg reference of S2R (design 1) did not settle, so 8 deg is not a test angle either.
+
+## Status at close (2026-11-17): stopped, not finished
+
+The W1 campaign stopped at 50 of 123 jobs done, none failed (last check 2026-11-13 05:30 UTC). Its
+Colab runtimes (w1a, w1b) have since ended, so the unfinished jobs are not running. Gate A passed
+(`runs/w1_control/`). The training fields, the frozen model and the W1 verdict were never produced.
+Nothing in this record should be read as a W1 result. Restarting needs a new runtime and a fresh
+check of the queue (`designs/w1_field_cases.csv`). Its jobs are still staged in the Drive queue
+`su2queue_w1`, which was not deleted.
+
+S2R is closed: FAIL on condition 1 (the 8 deg case never settles at either setting). Recorded in
+`docs/specs/task11_fno_exploration.md` and `runs/s2r_analysis/2026-11-12/s2r.json`.
