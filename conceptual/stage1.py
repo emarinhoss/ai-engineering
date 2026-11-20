@@ -109,8 +109,12 @@ def constraint_diagram(d, L, engine):
     W0 = d["W0"]
     for i in range(41):
         W_S = 6.0 + 0.5 * i
-        b = uav._build(W0, d["concept"], W_S, d["A"], d["ledger_used"], d["fuel"], engine)
-        rows.append({"W_S": W_S, **{k: v / W0 for k, v in b["power_req"].items()}})
+        try:
+            b = uav._build(W0, d["concept"], W_S, d["A"], d["ledger_used"], d["fuel"], engine)
+        except ValueError:          # the fixed engine cannot fly a mission leg at this wing loading
+            rows.append({"W_S": W_S, "mission_flyable": False})
+            continue
+        rows.append({"W_S": W_S, "mission_flyable": True, **{k: v / W0 for k, v in b["power_req"].items()}})
     alt = isa(L["mission_altitude_ft"])
     q_c = 0.5 * alt["rho"] * d["mission"][2][3] ** 2
     q_l = 0.5 * alt["rho"] * d["mission"][3][3] ** 2
@@ -311,6 +315,42 @@ def compliance(d, L, lay, per, need, avail, eng_raw):
     return out
 
 
+def first_compliant(concept, rows, ws_max, L, engine, eng_raw, max_tries=80):
+    """The lightest carpet point that still meets every checked requirement after the rotation
+    tail resize and layout (the carpet itself holds the Table 6.4 tail). Candidates are taken in
+    order of carpet W0; if none of them meets everything, the one with fewest failures is returned
+    and marked. Returns (analysis, compliance rows, candidates tried)."""
+    cands = sorted((r for r in rows if r.get("W0") and r["W_S"] <= ws_max and r["fuel_fits"]
+                    and r.get("power_ok", True)), key=lambda r: r["W0"])
+    tried = []
+    for r in cands[:max_tries]:
+        try:
+            a = analyse(concept, r["W_S"], r["A"], L, engine)
+        except ValueError as ex:
+            tried.append({"W_S": r["W_S"], "A": r["A"], "carpet_W0": r["W0"], "failed": [str(ex)]})
+            continue
+        comp = compliance(a["design"], a["design"]["ledger_used"], a["layout"], a["performance"],
+                          *a["fuel_volume"], eng_raw)
+        failed = [c["requirement"] for c in comp if c["met"] is False]
+        tried.append({"W_S": r["W_S"], "A": r["A"], "carpet_W0": r["W0"], "W0": a["design"]["W0"],
+                      "failed": failed})
+        tried[-1]["analysis"] = a
+        if not failed:
+            break
+    ok = [t for t in tried if "analysis" in t]
+    if not ok:
+        raise ValueError(f"no design among the {len(tried)} lightest carpet points could be analysed")
+    # the first with no failure; if there is none, the one with fewest failures (recorded)
+    best = min(ok, key=lambda t: (len(t["failed"]), t["W0"]))
+    a = best.pop("analysis")
+    for t in tried:
+        t.pop("analysis", None)
+    best["chosen"] = True
+    comp = compliance(a["design"], a["design"]["ledger_used"], a["layout"], a["performance"],
+                      *a["fuel_volume"], eng_raw)
+    return a, comp, tried
+
+
 def analyse(concept, W_S, A, L, engine):
     """Size the tail for rotation, lay out and analyse one design."""
     d, lay, scale = uav.size_tail_for_rotation(concept, W_S, A, L, engine=engine)
@@ -388,9 +428,9 @@ def main(argv=None):
 
     res = {}
     for c in ("tractor", "pusher"):
-        opt = feasible_optimum([r for r in rows if r["concept"] == c and r["engine"] == CHOSEN_ENGINE],
-                               stall_ws)
-        res[c] = analyse(c, opt["W_S"], opt["A"], L, eng)
+        crows = [r for r in rows if r["concept"] == c and r["engine"] == CHOSEN_ENGINE]
+        res[c], _, tried = first_compliant(c, crows, stall_ws, L, eng, eng_raw[CHOSEN_ENGINE])
+        (out / f"selection_{c}.json").write_text(json.dumps(tried, indent=2, default=float))
         (out / f"design_{c}.json").write_text(json.dumps(design_record(res[c], L, eng_raw[CHOSEN_ENGINE]),
                                                          indent=2, default=float))
         Lu = res[c]["design"]["ledger_used"]
