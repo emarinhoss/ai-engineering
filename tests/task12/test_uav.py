@@ -76,3 +76,20 @@ def test_gust_checked_at_zero_fuel_weight(design):
 def test_ceiling_is_last_passing_altitude(design, ledger):
     h = uav.ceiling(design, ledger)
     assert h >= ledger["ceiling_ft"] - 50.0    # the rubber engine is sized to the ceiling
+
+
+def test_rotation_needs_a_tail_download(design, ledger):
+    # Gate A round 2, N1: with the main wheels aft of the CG the wheel reaction and friction pitch
+    # the nose down, so lifting the nose needs a tail download (negative tail CL)
+    lay = uav.layout(design, ledger)
+    assert lay["x_main"] > max(lay["cg_full"], lay["cg_empty"])
+    assert lay["rotation"]["Cm_without_tail"] < 0.0
+    assert lay["rotation"]["CL_tail_needed"] < 0.0
+
+
+def test_overturn_track_meets_63_degrees():
+    import math
+    half = uav.overturn_track(10.0, 2.0, 8.0, 4.0, 63.0)
+    delta = math.atan(half / 8.0)
+    d = 6.0 * math.sin(delta)
+    assert math.degrees(math.atan(4.0 / d)) == pytest.approx(63.0)

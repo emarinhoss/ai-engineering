@@ -190,45 +190,37 @@ def trades(concept, W_S, A, L, engine):
     return out
 
 
+ROUND1_WEIGHTS = (("take-off weight W0 (computed)", 0.40, None, None),
+                  ("sensor field of view: nose free of propeller and exhaust (judgement)", 0.25, 2, 5),
+                  ("propeller wash and exhaust on the sensor and airframe (judgement)", 0.10, 2, 4),
+                  ("turboprop exhaust impinging on a pusher propeller, p. 222 (judgement)", 0.10, 5, 2),
+                  ("ground clearance and gear length (judgement; pusher needs longer gear, p. 222)", 0.15, 5, 3))
+
+
 def concept_scores(res, L):
-    """Step 2 scoring, rerun at Gate A round 1 with computed rows. Weights and the qualitative
-    grades are stated judgements; W0, nose-wheel load and gear length are computed. Raymer 10.4,
-    p. 221-223, gives the qualitative pros and cons; 11.2, p. 232-233, the nose-load rule."""
-    t, p = res["tractor"], res["pusher"]
-
-    def nose_grade(r):
-        n = max(r["layout"]["nose_load"].values())
-        return 5.0 if L["nose_load_min"] <= n <= L["nose_load_max"] else (3.0 if n <= 0.20 else 1.0)
-
-    def gear_grade(r):
-        return 5.0 * min(t["design"]["gear_length_in"], p["design"]["gear_length_in"]) / r["design"]["gear_length_in"]
-
-    rows = [
-        ("take-off weight W0 (computed)", 0.35, t["design"]["W0"], p["design"]["W0"], "W0"),
-        ("sensor field of view: nose free of propeller and exhaust (judgement)", 0.20, 2, 5, None),
-        ("propeller wash and exhaust on the sensor and airframe (judgement)", 0.10, 2, 4, None),
-        ("turboprop exhaust impinging on a pusher propeller, p. 222 (judgement)", 0.05, 5, 2, None),
-        ("main-gear length for propeller clearance (computed, shorter is better)", 0.15,
-         t["design"]["gear_length_in"], p["design"]["gear_length_in"], "gear"),
-        ("nose-wheel load in Raymer's 8-15 % band (computed)", 0.15,
-         max(t["layout"]["nose_load"].values()), max(p["layout"]["nose_load"].values()), "nose"),
-    ]
+    """Step 2 scoring with the round-1 criteria and weights unchanged (Gate A round 2, reviewer
+    section 4): only the W0 row is computed. Layout limits are applied as feasibility constraints,
+    not as extra scored rows: nose-wheel load within Raymer's 5-20 % (p. 232-233), nose rotation
+    within the tail's available lift after the resize (p. 432-433), and the main gear stowable."""
+    t, p = res["tractor"]["design"]["W0"], res["pusher"]["design"]["W0"]
     score = {"tractor": 0.0, "pusher": 0.0}
     table = []
-    for label, w, tv, pv, kind in rows:
-        if kind == "W0":
-            st, sp = 5.0 * min(tv, pv) / tv, 5.0 * min(tv, pv) / pv
-        elif kind == "gear":
-            st, sp = gear_grade(t), gear_grade(p)
-        elif kind == "nose":
-            st, sp = nose_grade(t), nose_grade(p)
+    for label, w, gt, gp in ROUND1_WEIGHTS:
+        if gt is None:
+            st, sp, vt, vp = 5.0 * min(t, p) / t, 5.0 * min(t, p) / p, t, p
         else:
-            st, sp = float(tv), float(pv)
+            st, sp, vt, vp = float(gt), float(gp), gt, gp
         score["tractor"] += w * st
         score["pusher"] += w * sp
-        table.append({"criterion": label, "weight": w, "tractor": tv, "pusher": pv,
+        table.append({"criterion": label, "weight": w, "tractor": vt, "pusher": vp,
                       "tractor_grade": round(st, 2), "pusher_grade": round(sp, 2)})
-    return table, score
+    feas = {}
+    for c, r in res.items():
+        lay = r["layout"]
+        feas[c] = {"nose_load_within_5_20": 0.05 <= max(lay["nose_load"].values()) <= 0.20,
+                   "nose_load_within_8_15_optimum": L["nose_load_min"] - 1e-9 <= max(lay["nose_load"].values()) <= L["nose_load_max"] + 1e-9,
+                   "rotation_ok": lay["rotation_ok"], "gear_stows": lay["gear_track"]["fits"]}
+    return table, score, feas
 
 
 def _write_csv(path, rows):
@@ -270,19 +262,21 @@ def compliance(d, L, lay, per, need, avail, eng_raw):
         ("R10 6 % reserve and trapped fuel", "-", sizing.RESERVE_FACTOR, 1.06, "by construction"),
         ("R12 sea-level rate of climb", "ft/min", per["roc_sl_fpm"], L["climb_rate_sl_fpm"], ">="),
         ("R12 service ceiling (last altitude with 100 ft/min)", "ft", per["service_ceiling_ft"],
-         L["ceiling_ft"] - 1.0, ">="),
-        ("R13 static margin, full fuel", "MAC", lay["sm_full"], L["static_margin_min"], "in band"),
-        ("R13 static margin, empty fuel", "MAC", lay["sm_empty"], L["static_margin_min"], "in band"),
+         L["ceiling_ft"], "ceiling"),
+        ("R13 static margin, full fuel", "MAC", lay["sm_full"], "0.05-0.15", "in band"),
+        ("R13 static margin, empty fuel", "MAC", lay["sm_empty"], "0.05-0.15", "in band"),
         ("R14 no crew items in the weights", "-", "yes", "", "by construction"),
         ("R15 flight avionics 60 lb uninstalled", "lb", L["avionics_uninstalled_lb"], 60.0, "by construction"),
         ("R16 sustained 30 deg bank at loiter (power)", "hp", d["power_req"]["turn_at_loiter"], d["bhp"], "<="),
         ("engine power meets every requirement", "hp", max(d["power_req"].values()), d["bhp"], "<="),
         ("fuel fits integral wing tanks", "ft^3", need, avail, "<="),
-        ("nose-wheel load, full fuel (p. 232-233)", "-", lay["nose_load"]["full"], L["nose_load_max"], "nose"),
-        ("nose-wheel load, empty fuel", "-", lay["nose_load"]["empty"], L["nose_load_max"], "nose"),
+        ("nose-wheel load, full fuel (p. 232-233; optimum 0.08-0.15)", "-", lay["nose_load"]["full"], "0.05-0.20", "nose"),
+        ("nose-wheel load, empty fuel", "-", lay["nose_load"]["empty"], "0.05-0.20", "nose"),
+        ("main gear stows (overturn 63 deg sets the track, p. 232)", "in", lay["gear_track"]["wing_depth_at_wheel_in"],
+         lay["gear_track"]["tyre_diameter_in"], "stow"),
         ("propeller clearance at rotation (p. 222)", "in", lay["prop_clearance_in"], L["prop_clearance_in"] - 0.05, ">="),
         ("trim within tail CL limit, all mission legs", "-", "yes" if lay["trim_ok"] else "no", "", "flag"),
-        ("nose rotation at 0.8 V_TO (p. 432-433)", "tail CL", abs(lay["rotation"]["CL_tail_needed"]),
+        ("nose rotation at 0.8 V_TO (p. 432-433), tail download", "tail CL", abs(lay["rotation"]["CL_tail_needed"]),
          L["tail_cl_max_rotation"], "<="),
     ]
     out = []
@@ -292,9 +286,13 @@ def compliance(d, L, lay, per, need, avail, eng_raw):
         elif rule == ">=":
             ok = value is not None and value >= limit
         elif rule == "in band":
-            ok = L["static_margin_min"] <= value <= L["static_margin_max"]
+            ok = L["static_margin_min"] - 1e-9 <= value <= L["static_margin_max"] + 1e-9
         elif rule == "nose":
-            ok = L["nose_load_min"] - 0.03 <= value <= 0.20          # Raymer's 5-20 % limits
+            ok = 0.05 <= value <= 0.20                               # Raymer's 5-20 % limits
+        elif rule == "ceiling":
+            ok = value >= limit - 1.0                                # bisection tolerance
+        elif rule == "stow":
+            ok = lay["gear_track"]["fits"]
         elif rule == "flag":
             ok = value == "yes"
         else:
@@ -343,7 +341,8 @@ def design_record(r, L, eng_raw):
         "layout": {k: lay[k] for k in ("x_le", "x_ac", "x_np", "cg_full", "cg_empty", "sm_full",
                                        "sm_empty", "x_ht", "x_vt", "x_main", "h_cg", "dah_da",
                                        "Cma_fus", "CLa_h", "trim", "trim_ok", "rotation",
-                                       "rotation_ok", "nose_load", "prop_clearance_in")},
+                                       "rotation_ok", "nose_load", "prop_clearance_in", "gear_track",
+                                       "nose_station", "cm_wing")},
         "stations": {k: {"weight": m, "x": x} for k, (m, x) in lay["items"].items()},
         "performance": per, "fuel_volume_ft3": {"needed": r["fuel_volume"][0], "available": r["fuel_volume"][1]},
         "empty_fraction_comparison": r["stat"], "vn": r["vn"],
@@ -388,13 +387,14 @@ def main(argv=None):
         _write_csv(out / f"compliance_{c}.csv",
                    compliance(res[c]["design"], Lu, res[c]["layout"], res[c]["performance"],
                               *res[c]["fuel_volume"], eng_raw[CHOSEN_ENGINE]))
-    table, score = concept_scores(res, L)
+    table, score, feas = concept_scores(res, L)
     recommended = max(score, key=score.get)
     rubber_opt = {c: feasible_optimum([r for r in rows if r["concept"] == c and r["engine"] == "rubber"],
                                       stall_ws) for c in ("tractor", "pusher")}
     (out / "concept_scores.json").write_text(json.dumps(
-        {"table": table, "score": score, "recommended": recommended,
-         "frozen_at_round1": "pusher", "rubber_optimum": rubber_opt}, indent=2, default=float))
+        {"table": table, "score": score, "feasibility": feas, "recommended": recommended,
+         "frozen_at_round1": "pusher", "ruled_at_round2_on_flawed_rotation": "tractor",
+         "rubber_optimum": rubber_opt}, indent=2, default=float))
 
     d = res[recommended]["design"]
     cd_rows, limits = constraint_diagram(d, L, eng)
@@ -402,7 +402,10 @@ def main(argv=None):
     (out / "constraint_limits.json").write_text(json.dumps(limits, indent=2))
 
     alt_rows = []
-    for name, e in [("rubber", None)] + list(engines.items()):
+    tp_table34 = {k: v for k, v in engines[CHOSEN_ENGINE].items() if not k.startswith("cbhp")}
+    tp_table34["name"] = CHOSEN_ENGINE + " at Table 3.4 consumption"
+    for name, e in ([("rubber", None)] + list(engines.items())
+                    + [(tp_table34["name"], tp_table34)]):
         try:
             f = uav.evaluate(recommended, d["W_S"], d["A"], dict(L, ht_volume_scale=res[recommended]["ht_scale"]),
                              engine=e)

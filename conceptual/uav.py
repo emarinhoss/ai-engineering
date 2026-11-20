@@ -122,7 +122,7 @@ def _gear_length_in(geom, L, D_prop, concept):
     if concept == "tractor":
         need_ft = r + clear - geom["d_f"] / 2.0
     else:
-        th = math.radians(L["rotation_angle_deg"])
+        th = math.radians(L["rotation_angle_deg_pusher"])
         dx = geom["L_f"] * (1.0 - L["main_gear_station_guess"])
         # centreline height h above ground at the wheel; after rotation the propeller hub sits at
         # h cos(th) - dx sin(th); its lowest tip must clear by 9 in
@@ -309,6 +309,8 @@ def _build(W0, concept, W_S, A, L, fuel_guess, engine=None):
                                     bhp * prop.piston_power_lapse(atm["sigma"]), L["eta_p"],
                                     lo, 1200.0)
         v_c_eas[label] = (vmax or lo) * math.sqrt(atm["sigma"])
+        if L.get("vc_placard_kt_eas"):                           # Gate A: optional V_C placard
+            v_c_eas[label] = min(v_c_eas[label], L["vc_placard_kt_eas"] * KT)
     W_zf = W0 - fuel_guess
     gusts = {}
     for label, atm in (("sea_level", sl), ("mission_altitude", alt)):
@@ -448,11 +450,31 @@ def _stations(concept, L):
     }
 
 
+def wing_moment_coefficient(L, A):
+    """Wing moment about its a.c. from the airfoil's, Cm_w = Cm0 A cos^2 L/(A + 2 cos L) (16.16),
+    p. 422, unswept."""
+    return L["airfoil_cm0"] * A / (A + 2.0)
+
+
+def overturn_track(x_main, x_nose, x_cg, h_cg, max_deg):
+    """Main-gear half-track for an overturn angle of at most max_deg (Raymer p. 232: at most 63 deg,
+    measured from the CG to the line through the nose and main wheels, viewed along that line). In
+    plan the CG lies a distance d from that line, d = (x_cg - x_nose) sin(delta), with
+    tan(delta) = half-track/(x_main - x_nose); the overturn angle is atan(h_cg/d)."""
+    d_req = h_cg / math.tan(math.radians(max_deg))
+    if d_req >= x_cg - x_nose:
+        return float("inf")
+    delta = math.asin(d_req / (x_cg - x_nose))
+    return (x_main - x_nose) * math.tan(delta)
+
+
 def layout(d, L):
     """Place the components (stations from the ledger), the main gear by the tipback rule (Raymer
     p. 232) and the wing so that the static margin range (full and empty fuel) is centred in R13.
-    Then check nose-wheel load (p. 232-233), propeller clearance at rotation (p. 222), trim at
-    cruise and loiter (16.7) and nose rotation at 0.8 V_TO (p. 432-433)."""
+    Then: nose-wheel load (p. 232-233), moving the nose wheel forward inside its band when the load
+    is above the 8-15 % optimum; main-gear track for the overturn limit (p. 232) and where the
+    wheels retract; propeller clearance (p. 222); trim on every leg (16.7); nose rotation at
+    0.8 V_TO with the forward CG (p. 432-433)."""
     g, w = d["geom"], d["geom"]["wing"]
     L_f, comp = g["L_f"], d["components"]
     fixed = _stations(d["concept"], L)
@@ -463,13 +485,15 @@ def layout(d, L):
     Cma_fus = stab.fuselage_cm_alpha_per_deg(L["fuselage_kf"], g["d_f"], L_f, mac, g["S"]) * 180 / math.pi
     h_cg = d["gear_length_in"] / 12.0 + g["d_f"] / 2.0          # CG height above ground (ft)
     tb = math.tan(math.radians(L["tipback_angle_deg"]))
+    cm_w = wing_moment_coefficient(L, d["A"])
 
-    def state(x_le):
+    def state(x_le, nose_station):
         x_ac = x_le + 0.25 * mac
         x_wing = x_le + 0.40 * mac
         x_ht = x_ac + g["arm"] + 0.15 * g["ht"].mac                # tail 40 % MAC = ac + 0.15 MAC
         x_vt = x_ac + g["arm"] + 0.15 * g["vt_mac"]
         items = {k: (comp[k], fixed[k] * L_f) for k in comp if k in fixed}
+        items["nose_gear"] = (comp["nose_gear"], nose_station * L_f)
         items["payload"] = (L["payload_lb"], fixed["payload"] * L_f)
         items["wing"] = (comp["wing"], x_wing)
         items["horizontal_tail"] = (comp["horizontal_tail"], x_ht)
@@ -485,42 +509,72 @@ def layout(d, L):
             x_main = max(cg_full, cg_empty) + h_cg * tb
         x_np = stab.neutral_point(CLa_w, x_ac / mac, Cma_fus, L["tail_eta_h"],
                                   g["ht"].area / g["S"], CLa_h, dah, (x_ac + g["arm"]) / mac) * mac
+        x_nose = nose_station * L_f
         return {"x_le": x_le, "x_ac": x_ac, "x_np": x_np, "cg_full": cg_full, "cg_empty": cg_empty,
                 "sm_full": (x_np - cg_full) / mac, "sm_empty": (x_np - cg_empty) / mac,
                 "items": items, "x_ht": x_ht, "x_vt": x_vt, "x_main": x_main, "x_wing": x_wing,
-                "W_empty_items": W_e}
+                "W_empty_items": W_e, "x_nose": x_nose,
+                "nose_load": {k: (x_main - cg) / (x_main - x_nose)
+                              for k, cg in (("full", cg_full), ("empty", cg_empty))}}
 
-    target = 0.5 * (L["static_margin_min"] + L["static_margin_max"])
-    lo, hi = 0.05 * L_f, 0.75 * L_f
-    for _ in range(80):
-        mid = 0.5 * (lo + hi)
-        s = state(mid)
-        lo, hi = (mid, hi) if 0.5 * (s["sm_full"] + s["sm_empty"]) < target else (lo, mid)
-    s = state(0.5 * (lo + hi))
-    s.update({"dah_da": dah, "Cma_fus": Cma_fus, "CLa_h": CLa_h, "h_cg": h_cg})
-    x_nose = fixed["nose_gear"] * L_f
-    s["nose_load"] = {k: (s["x_main"] - cg) / (s["x_main"] - x_nose)
-                      for k, cg in (("full", s["cg_full"]), ("empty", s["cg_empty"]))}
-    th = math.radians(L["rotation_angle_deg"])
+    def placed(nose_station):
+        target = 0.5 * (L["static_margin_min"] + L["static_margin_max"])
+        lo, hi = 0.05 * L_f, 0.75 * L_f
+        for _ in range(80):
+            mid = 0.5 * (lo + hi)
+            st = state(mid, nose_station)
+            lo, hi = (mid, hi) if 0.5 * (st["sm_full"] + st["sm_empty"]) < target else (lo, mid)
+        return state(0.5 * (lo + hi), nose_station)
+
+    nose_station = L["station_nose_gear"]
+    s = placed(nose_station)
+    if max(s["nose_load"].values()) > L["nose_load_max"]:        # move the nose wheel forward
+        for _ in range(20):
+            cand = max(L["station_nose_gear_min"], nose_station - 0.01)
+            if cand == nose_station:
+                break
+            nose_station = cand
+            s = placed(nose_station)
+            if max(s["nose_load"].values()) <= L["nose_load_max"]:
+                break
+    s.update({"dah_da": dah, "Cma_fus": Cma_fus, "CLa_h": CLa_h, "h_cg": h_cg,
+              "nose_station": nose_station, "cm_wing": cm_w})
+    # track for the overturn limit, and where the main wheels retract
+    half = overturn_track(s["x_main"], s["x_nose"], max(s["cg_full"], s["cg_empty"]), h_cg,
+                          L["overturn_max_deg"])
+    tyre = geo.main_tyre_in(0.45 * d["W0"])
+    y = min(half, w.span / 2.0)
+    chord_y = w.root_chord * (1.0 - (1.0 - w.taper) * y / (w.span / 2.0))
+    x_le_root = s["x_le"]                                         # unswept leading edge
+    s["gear_track"] = {
+        "half_track_ft": half, "fuselage_half_width_ft": g["d_f"] / 2.0,
+        "retracts_into": "fuselage" if half <= g["d_f"] / 2.0 else "wing",
+        "wing_depth_at_wheel_in": 12.0 * L["wing_t_c"] * chord_y,
+        "tyre_diameter_in": tyre["diameter"],
+        "wheel_under_wing_chord": x_le_root <= s["x_main"] <= x_le_root + chord_y,
+    }
+    s["gear_track"]["fits"] = (s["gear_track"]["retracts_into"] == "fuselage"
+                               or (s["gear_track"]["wing_depth_at_wheel_in"] >= tyre["diameter"]
+                                   and s["gear_track"]["wheel_under_wing_chord"]))
+    # propeller clearance: pusher rotated about the main wheel by its rotation angle; tractor with
+    # the nose strut compressed (nose-down pitch about the main wheel)
+    r = d["D_prop"] / 2.0
     if d["concept"] == "pusher":
-        dx = L_f - s["x_main"]
-        hub = h_cg * math.cos(th) - dx * math.sin(th)
+        th = math.radians(L["rotation_angle_deg_pusher"])
+        hub = h_cg * math.cos(th) - (L_f - s["x_main"]) * math.sin(th)
     else:
-        hub = h_cg
-    s["prop_clearance_in"] = 12.0 * (hub - d["D_prop"] / 2.0)
-    # trim: tail lift coefficient from (16.7) without thrust terms
+        th = math.radians(L["nose_down_deg"])
+        hub = h_cg * math.cos(th) - s["x_main"] * math.sin(th)
+    s["prop_clearance_in"] = 12.0 * (hub - r)
+    # trim: tail lift coefficient from (16.7) without thrust terms, wing moment by (16.16)
     S, S_h = g["S"], g["ht"].area
     alt = isa(L["mission_altitude_ft"])
     x_h = s["x_ac"] + g["arm"]
-
-    def tail_cl(CL_w, cg, cm0, extra=0.0):
-        num = CL_w * (cg - s["x_ac"]) / mac + cm0 + extra
-        den = L["tail_eta_h"] * S_h / S * (x_h - cg) / mac
-        return num / den
+    den_of = lambda cg: L["tail_eta_h"] * S_h / S * (x_h - cg) / mac
 
     def cg_at(fuel_left):
         W_e = s["W_empty_items"]
-        return (s["cg_empty"] * W_e + fuel_left * s["x_wing"]) / (W_e + fuel_left), W_e + fuel_left
+        return (s["cg_empty"] * W_e + fuel_left * s["x_wing"]) / (W_e + fuel_left)
 
     trims = {}
     W_ld = d["W0"] - d["fuel"]
@@ -529,23 +583,32 @@ def layout(d, L):
         if V <= 0.0:
             continue
         for tag, W in (("start", W_in), ("end", W_out)):
-            cg, _ = cg_at(W - W_ld)
+            cg = cg_at(W - W_ld)
             CL = W / (0.5 * alt["rho"] * V ** 2 * S)
-            trims[f"{name}_{tag}"] = {"CL_wing": CL, "CL_tail": tail_cl(CL, cg, L["airfoil_cm0"])}
+            trims[f"{name}_{tag}"] = {"CL_wing": CL,
+                                      "CL_tail": (CL * (cg - s["x_ac"]) / mac + cm_w) / den_of(cg)}
     s["trim"] = trims
     s["trim_ok"] = all(abs(t["CL_tail"]) <= L["tail_cl_max_trim"] for t in trims.values())
-    # rotation at 0.8 V_TO, most-forward CG, sea level (p. 432-433): moments about the CG of wing
-    # lift and moment, main-wheel load and its rolling friction, balanced by the tail
-    cg_fwd = min(s["cg_full"], s["cg_empty"])
+    # rotation at 0.8 V_TO, most-forward CG, sea level (p. 432-433). Moments about the CG, nose-up
+    # positive: wing lift at its a.c., wing moment (16.16), the flap lift increment at its centre of
+    # pressure (16.17; 0.44 of the chord for slotted flaps, Fig. 16.9), the main-wheel reaction and
+    # its rolling friction (both nose-down: the reaction acts aft of the CG, the friction below it),
+    # and the tail. Ground effect is not modelled (stated). A negative tail CL is a download.
+    cg = min(s["cg_full"], s["cg_empty"])
     W = d["W0"]
     V_r = 0.8 * 1.1 * perf.stall_speed(d["W_S"], RHO0, d["clmax"]["takeoff"])
     q = 0.5 * RHO0 * V_r ** 2
-    CL_w = L["cl_ground"] + L["takeoff_flap_fraction"] * L["flap_delta_cl_max"] * L["flap_span_fraction"]
-    N_main = W - q * S * CL_w
-    gear = (N_main * (s["x_main"] - cg_fwd) - L["rolling_mu"] * N_main * h_cg) / (q * S * mac)
-    s["rotation"] = {"V_kt": V_r / KT, "CL_wing": CL_w,
-                     "CL_tail_needed": tail_cl(CL_w, cg_fwd, L["airfoil_cm0"], gear)}
-    s["rotation_ok"] = abs(s["rotation"]["CL_tail_needed"]) <= L["tail_cl_max_rotation"]
+    dCL_flap = L["takeoff_flap_fraction"] * L["flap_delta_cl_max"] * L["flap_span_fraction"]
+    CL_w = L["cl_ground"] + dCL_flap
+    x_cp = s["x_le"] + L["flap_cp_fraction"] * mac
+    N_main = max(0.0, W - q * S * CL_w)
+    cm = (L["cl_ground"] * (cg - s["x_ac"]) / mac + cm_w + dCL_flap * (cg - x_cp) / mac
+          - (N_main * (s["x_main"] - cg) + L["rolling_mu"] * N_main * h_cg) / (q * S * mac))
+    # tail term: -eta (S_h/S) CL_h (x_h - cg)/c balances cm, so CL_h = cm / [eta (S_h/S)(x_h - cg)/c]
+    CL_tail = cm / den_of(cg)
+    s["rotation"] = {"V_kt": V_r / KT, "CL_wing": CL_w, "Cm_without_tail": cm,
+                     "CL_tail_needed": CL_tail}
+    s["rotation_ok"] = abs(CL_tail) <= L["tail_cl_max_rotation"]
     return s
 
 

@@ -76,7 +76,7 @@ assumptions:
   climb_speed_over_stall: {value: 1.2, units: "-", confidence: published, source: "Raymer p. 489: climb at 1.2 V_stall in (17.110); used here as the lowest climb speed"}
   flap_deflection_takeoff_deg: {value: 30.0, units: deg, confidence: published, band: [20.0, 40.0], source: "Raymer p. 288: take-off flap deflection typically 20-40 deg"}
   flap_deflection_landing_deg: {value: 60.0, units: deg, confidence: published, band: [60.0, 70.0], source: "Raymer p. 288: landing flap deflection typically 60-70 deg; flap drag by (12.37) p. 288"}
-  tyre_drag_per_area:    {value: 0.13, units: "-", confidence: published, source: "D/q per ft^2 of tyre frontal area, Raymer gear-drag table as read in DR-1 p. 572"}
+  tyre_drag_per_area:    {value: 0.25, units: "-", confidence: published, source: "Raymer Table 12.5 p. 287: regular wheel and tyre D/q per ft^2 of frontal area (0.13 is the faired value DR-1 used; Gate A round 2 finding)"}
   strut_drag_per_area:   {value: 0.05, units: "-", confidence: published, source: "D/q per ft^2 of strut frontal area, Raymer gear-drag table as read in DR-1 p. 572"}
   strut_width_in:        {value: 3.0, units: in, confidence: assumed, band: [2.0, 4.0], source: "Gear strut frontal width; a judgement"}
   gear_interference:     {value: 1.284, units: "-", confidence: published, source: "Raymer p. 286-288: gear drag sum x 1.2 for mutual interference, plus about 7 % for a retractable gear with open wells (1.2 x 1.07)"}
@@ -100,3 +100,10 @@ assumptions:
   station_systems:         {value: 0.45, units: "-", confidence: published, band: [0.40, 0.50], source: "Raymer Table 15.2 p. 398: all-else at 40-50 % of length (hydraulics, electrical)"}
   station_flight_controls: {value: 0.55, units: "-", confidence: assumed, band: [0.45, 0.65], source: "Servos and runs spread between wing and tail; layout judgement"}
   station_nose_gear:       {value: 0.10, units: "-", confidence: assumed, band: [0.06, 0.15], source: "Nose-gear station; layout judgement, checked by the nose-load rule"}
+  # --- added at Gate A round 2 ---
+  rotation_angle_deg_pusher: {value: 10.0, units: deg, confidence: assumed, band: [10.0, 15.0], source: "Pusher rotation limited to 10 deg by a tail bumper (Gate A round 2: evaluate the pusher at the favourable end of Raymer's 10-15 deg band, p. 232); a layout assumption"}
+  nose_down_deg:         {value: 2.0, units: deg, confidence: assumed, band: [1.0, 3.0], source: "Nose-down pitch with the nose strut compressed, for tractor propeller clearance in all attitudes (Raymer p. 222); a judgement"}
+  overturn_max_deg:      {value: 63.0, units: deg, confidence: published, source: "Raymer p. 232: overturn angle at most 63 deg"}
+  station_nose_gear_min: {value: 0.04, units: "-", confidence: assumed, band: [0.03, 0.06], source: "Most-forward nose-gear station the nose can hold; a layout judgement (the nose wheel is moved forward to this when the nose load exceeds the 8-15 % optimum)"}
+  flap_cp_fraction:      {value: 0.44, units: "-", confidence: published, source: "Raymer Fig. 16.9 p. 423: centre of pressure of the slotted-flap lift increment at about 0.44-0.45 of the flapped chord"}
+  vc_placard_kt_eas:     {value: 0.0, units: kt, confidence: default, source: "Design cruise speed V_C placard (0 = none: V_C is the full-power maximum level speed). Gate A round 2 ruling pending (reviewer N5)"}
