@@ -1,0 +1,86 @@
+{
+  "table": [
+    {
+      "criterion": "take-off weight W0 (computed)",
+      "weight": 0.35,
+      "tractor": 2306.8087115902454,
+      "pusher": 2630.414395876108,
+      "tractor_grade": 5.0,
+      "pusher_grade": 4.38
+    },
+    {
+      "criterion": "sensor field of view: nose free of propeller and exhaust (judgement)",
+      "weight": 0.2,
+      "tractor": 2,
+      "pusher": 5,
+      "tractor_grade": 2.0,
+      "pusher_grade": 5.0
+    },
+    {
+      "criterion": "propeller wash and exhaust on the sensor and airframe (judgement)",
+      "weight": 0.1,
+      "tractor": 2,
+      "pusher": 4,
+      "tractor_grade": 2.0,
+      "pusher_grade": 4.0
+    },
+    {
+      "criterion": "turboprop exhaust impinging on a pusher propeller, p. 222 (judgement)",
+      "weight": 0.05,
+      "tractor": 5,
+      "pusher": 2,
+      "tractor_grade": 5.0,
+      "pusher_grade": 2.0
+    },
+    {
+      "criterion": "main-gear length for propeller clearance (computed, shorter is better)",
+      "weight": 0.15,
+      "tractor": 30.0,
+      "pusher": 77.5563786945587,
+      "tractor_grade": 5.0,
+      "pusher_grade": 1.93
+    },
+    {
+      "criterion": "nose-wheel load in Raymer's 8-15 % band (computed)",
+      "weight": 0.15,
+      "tractor": 0.16236232333960246,
+      "pusher": 0.2510383494272815,
+      "tractor_grade": 3.0,
+      "pusher_grade": 1.0
+    }
+  ],
+  "score": {
+    "tractor": 3.8,
+    "pusher": 3.4748184804781994
+  },
+  "recommended": "tractor",
+  "frozen_at_round1": "pusher",
+  "rubber_optimum": {
+    "tractor": {
+      "engine": "rubber",
+      "concept": "tractor",
+      "W_S": 13.0,
+      "A": 10.0,
+      "W0": 1700.6329250887748,
+      "We": 932.8647984579364,
+      "fuel": 267.7673897981622,
+      "bhp": 117.41258594779939,
+      "fuel_fits": true,
+      "power_ok": true,
+      "binding_power": "ceiling"
+    },
+    "pusher": {
+      "engine": "rubber",
+      "concept": "pusher",
+      "W_S": 14.0,
+      "A": 10.0,
+      "W0": 1886.219492519473,
+      "We": 1079.876719682898,
+      "fuel": 306.3418120703773,
+      "bhp": 135.63942559032728,
+      "fuel_fits": true,
+      "power_ok": true,
+      "binding_power": "ceiling"
+    }
+  }
+}

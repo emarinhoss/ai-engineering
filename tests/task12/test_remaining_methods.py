@@ -77,7 +77,7 @@ def test_hp_per_w_climb_inverts_rate_of_climb():
 def test_speed_max_ld_gives_ld_max():
     CD0, A, e = 0.025, 10.0, 0.8
     K = 1 / (math.pi * A * e)
-    V, CL = perf.speed_max_ld(20.0, RHO_SL, CD0, K)
+    V, _ = perf.speed_max_ld(20.0, RHO_SL, CD0, K)
     q = 0.5 * RHO_SL * V ** 2
     assert sizing.lift_to_drag(q, CD0, 20.0, A, e) == pytest.approx(0.5 * math.sqrt(math.pi * A * e / CD0))
 
