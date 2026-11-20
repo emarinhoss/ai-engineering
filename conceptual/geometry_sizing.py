@@ -77,10 +77,12 @@ def horizontal_tail_area(c_ht, mac_w, area_w, arm_ht):
 
 
 def propeller_diameter_statistical_in(hp, blades=2):
-    """Two-blade propeller diameter d = 22 Hp^(1/4) inches (10.23), p. 219."""
-    if blades != 2:
-        raise ValueError("only the two-blade relation of (10.23) is in the library notes")
-    return 22.0 * hp ** 0.25
+    """Statistical propeller diameter in inches: two-blade 22 Hp^(1/4) (10.23), three-blade
+    18 Hp^(1/4) (10.24), p. 219."""
+    coeff = {2: 22.0, 3: 18.0}
+    if blades not in coeff:
+        raise ValueError("only the two- and three-blade relations (10.23)-(10.24) are coded")
+    return coeff[blades] * hp ** 0.25
 
 
 def helical_tip_speed(V, rpm, diameter_ft):

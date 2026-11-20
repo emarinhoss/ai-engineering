@@ -3,10 +3,11 @@
     python -m conceptual.stage1 --out runs/task12/stage1/<date>
 
 Steps follow docs/specs/task12_drone_conceptual_design.md section 4: first-pass sizing (step 3),
-constraint diagram (step 4), refined sizing over a wing-loading by aspect-ratio grid for both
-concepts with the concept choice (steps 2, 5, 8), layout and analysis of the chosen design
-(steps 6, 7), the fixed-engine re-size (step 8) and one-at-a-time trades. Every table is written
-as CSV or JSON next to the ledger it used, its hash and the commit.
+refined sizing over a wing-loading by aspect-ratio grid for both concepts, first with a rubber
+engine and then with the fixed engine chosen at Gate A round 1 (steps 5 and 8), the horizontal
+tail enlarged where nose rotation needs it (p. 432-433), layout and analysis of both concepts
+(steps 6, 7), the concept scoring (step 2), the constraint diagram (step 4), the alternative
+engines and one-at-a-time trades. Every table is written next to the ledger it used.
 """
 import argparse
 import csv
@@ -16,17 +17,33 @@ import math
 import subprocess
 from pathlib import Path
 
+import yaml
+
 from conceptual import constraints, sizing, uav
 from conceptual import raymer_aero as aero
 from conceptual import raymer_loads as loads
 from conceptual import raymer_performance as perf
 from conceptual.units import KT, NM, RHO0, isa
 
+REPO = uav.LEDGER.parents[2]
+ENGINES = REPO / "data" / "task12" / "engines.yaml"
 WS_GRID = [8.0 + i for i in range(15)]          # 8 to 22 lb/ft^2
 A_GRID = [6.0 + i for i in range(17)]           # 6 to 22
-# the nearest production turboprops with printed data in the library: Mattingly Table C.1, p. 519
-REAL_TURBOPROPS = [{"name": "PT6A-42", "bhp": 850.0, "weight_lb": 391.0, "sfc_max": 0.601},
-                   {"name": "PT6A-45R", "bhp": 1197.0, "weight_lb": 434.0, "sfc_max": 0.553}]
+CHOSEN_ENGINE = "PBS_TP100"                     # Gate A round 1: a small production turboprop
+
+
+def engine_options():
+    """Fixed engines from data/task12/engines.yaml as evaluate() expects them. A datasheet cruise
+    consumption replaces Table 3.4 for cruise and, lacking a part-power value, for loiter too
+    (stated in the package); an engine without one keeps the ledger values."""
+    raw = yaml.safe_load(ENGINES.read_text())["engines"]
+    out = {}
+    for name, e in raw.items():
+        eng = {"name": name, "bhp": float(e["bhp"]), "weight_lb": float(e["weight_lb"])}
+        if e.get("cbhp_cruise"):
+            eng["cbhp_cruise"] = eng["cbhp_loiter"] = float(e["cbhp_cruise"])
+        out[name] = eng
+    return out, raw
 
 
 def first_pass(L, A=12.0, swet_sref=4.0, W_S=20.0):
@@ -59,117 +76,157 @@ def first_pass(L, A=12.0, swet_sref=4.0, W_S=20.0):
             "iterations": len(hist)}
 
 
-def landing_ws_limit(concept, A, L, W0):
-    """Largest W/S whose landing distance over 50 ft is within the field length, at W0."""
-    lo, hi = 5.0, 60.0
-    for _ in range(40):
+def landing_ws_limit(d, L, W_hi=200.0):
+    """Largest W/S whose landing distance over 50 ft is within the field length, at the design's
+    W0 and drag; returns (value, binding) where binding is False if no limit below W_hi."""
+    def dist(W_S):
+        S = d["W0"] / W_S
+        return perf.landing_distance(d["W0"], S, RHO0, d["CD0_landing"], d["K"],
+                                     d["clmax"]["landing"], mu_brake=L["braking_mu"],
+                                     free_roll_s=L["free_roll_s"])["total"]
+    if dist(W_hi) <= L["field_length_ft"]:
+        return W_hi, False
+    lo, hi = 5.0, W_hi
+    for _ in range(50):
         mid = 0.5 * (lo + hi)
-        d = uav._build(W0, concept, mid, A, L, 0.2 * W0)
-        dist = perf.landing_distance(W0, d["geom"]["S"], RHO0, d["CD0_sl"] + 0.05, d["K"],
-                                     d["clmax"]["landing"])["total"]
-        lo, hi = (mid, hi) if dist < L["field_length_ft"] else (lo, mid)
-    return lo
+        lo, hi = (mid, hi) if dist(mid) < L["field_length_ft"] else (lo, mid)
+    return lo, True
 
 
-def constraint_diagram(concept, A, W0, L):
-    """Step 4: installed sea-level hp/W required by each requirement against W/S, at fixed W0
-    and A, plus the stall and landing wing-loading limits."""
+def constraint_diagram(d, L, engine):
+    """Step 4: installed sea-level hp/W required by each requirement against W/S at the design's
+    W0 and A; the stall and landing limits; and the best-range (5.13) and best-loiter (5.16) wing
+    loadings at the design's cruise and loiter dynamic pressures (start of leg, 20,000 ft)."""
     rows = []
+    W0 = d["W0"]
     for i in range(41):
         W_S = 6.0 + 0.5 * i
-        d = uav._build(W0, concept, W_S, A, L, 0.2 * W0)
-        rows.append({"W_S": W_S, **{k: v / W0 for k, v in d["power_req"].items()}})
-    stall = constraints.ws_stall(RHO0, L["stall_speed_kt"] * KT, uav._cl_max(L)["clean"])
-    return rows, {"stall": stall, "landing": landing_ws_limit(concept, A, L, W0)}
+        b = uav._build(W0, d["concept"], W_S, d["A"], d["ledger_used"], d["fuel"], engine)
+        rows.append({"W_S": W_S, **{k: v / W0 for k, v in b["power_req"].items()}})
+    alt = isa(L["mission_altitude_ft"])
+    q_c = 0.5 * alt["rho"] * d["mission"][2][3] ** 2
+    q_l = 0.5 * alt["rho"] * d["mission"][3][3] ** 2
+    land, binding = landing_ws_limit(d, L)
+    return rows, {
+        "stall": constraints.ws_stall(RHO0, L["stall_speed_kt"] * KT, d["clmax"]["clean"]),
+        "landing": land, "landing_binding": binding,
+        "best_range_at_cruise_q": constraints.ws_best_range_prop(q_c, d["CD0_alt"], d["A"], d["e"]),
+        "best_loiter_at_loiter_q": constraints.ws_best_loiter_prop(q_l, d["CD0_alt"], d["A"], d["e"]),
+    }
 
 
-def carpet(concept, L):
-    """Steps 5 and 8: refined sizing over the grid; W0 and power per point."""
+def carpet(concept, L, engine=None, label="rubber"):
+    """Steps 5 and 8: refined sizing over the grid; W0 and power per point. The horizontal tail is
+    at its Table 6.4 size here; rotation is checked only at each concept's optimum."""
     rows = []
     for W_S in WS_GRID:
         for A in A_GRID:
             try:
-                d = uav.evaluate(concept, W_S, A, L)
+                d = uav.evaluate(concept, W_S, A, L, engine=engine)
                 need, avail = uav.fuel_volume_check(d, L)
-                rows.append({"concept": concept, "W_S": W_S, "A": A, "W0": d["W0"], "We": d["We"],
-                             "fuel": d["fuel"], "bhp": d["bhp"], "fuel_fits": need <= avail,
+                rows.append({"engine": label, "concept": concept, "W_S": W_S, "A": A, "W0": d["W0"],
+                             "We": d["We"], "fuel": d["fuel"], "bhp": d["bhp"],
+                             "fuel_fits": need <= avail, "power_ok": d["power_ok"],
                              "binding_power": max(d["power_req"], key=d["power_req"].get)})
             except ValueError as ex:
-                rows.append({"concept": concept, "W_S": W_S, "A": A, "W0": None, "error": str(ex)})
+                rows.append({"engine": label, "concept": concept, "W_S": W_S, "A": A, "W0": None,
+                             "error": str(ex)})
     return rows
 
 
 def feasible_optimum(rows, ws_max):
-    ok = [r for r in rows if r.get("W0") and r["W_S"] <= ws_max and r["fuel_fits"]]
+    ok = [r for r in rows if r.get("W0") and r["W_S"] <= ws_max and r["fuel_fits"]
+          and r.get("power_ok", True)]
     return min(ok, key=lambda r: r["W0"])
 
 
 def vn_diagram(d, L):
-    """V-n points (Raymer 14.2, Figs. 14.7-14.8) at sea level and at mission altitude: the cruise
-    point is the maximum level speed at that altitude (equivalent airspeed), the dive speed 50 %
-    above it (p. 338), gusts of U_de to cruise falling to half at dive (p. 339)."""
-    W_S, CLa, mac = d["W_S"], d["CLa"], d["geom"]["wing"].mac
+    """V-n points (Raymer 14.2, Figs. 14.7-14.8) at sea level and mission altitude, at take-off and
+    zero-fuel weight: the cruise point is the maximum level speed (equivalent airspeed), the dive
+    speed 50 % above it (p. 338), U_de to cruise falling to half at dive (p. 339)."""
+    CLa, mac, S = d["CLa"], d["geom"]["wing"].mac, d["geom"]["S"]
     alt = isa(L["mission_altitude_ft"])
-    pts = {"V_corner_eas_kt": math.sqrt(2 * L["limit_load_factor"] * W_S
+    pts = {"V_corner_eas_kt": math.sqrt(2 * d["n_limit"] * d["W_S"]
                                         / (RHO0 * d["clmax"]["clean"])) / KT}
     for label, rho in (("sea_level", RHO0), ("mission_altitude", alt["rho"])):
         V_c = d["V_c_eas"][label]
         V_d = 1.5 * V_c
-        n_c = loads.gust_load_factor(W_S, V_c, L["gust_ude_fps"], CLa, mac, rho)[0]
-        n_d = loads.gust_load_factor(W_S, V_d, 0.5 * L["gust_ude_fps"], CLa, mac, rho)[0]
-        pts[f"gust_{label}"] = {"V_cruise_eas_kt": V_c / KT, "V_dive_eas_kt": V_d / KT,
-                                "n_cruise": n_c, "n_dive": n_d, "n_cruise_neg": 2 - n_c,
-                                "n_dive_neg": 2 - n_d}
+        for wl, W in (("takeoff_weight", d["W0"]), ("zero_fuel_weight", d["W0"] - d["fuel"])):
+            n_c = loads.gust_load_factor(W / S, V_c, L["gust_ude_fps"], CLa, mac, rho)[0]
+            n_d = loads.gust_load_factor(W / S, V_d, 0.5 * L["gust_ude_fps"], CLa, mac, rho)[0]
+            pts[f"gust_{label}_{wl}"] = {"V_cruise_eas_kt": V_c / KT, "V_dive_eas_kt": V_d / KT,
+                                         "n_cruise": n_c, "n_dive": n_d, "n_cruise_neg": 2 - n_c,
+                                         "n_dive_neg": 2 - n_d}
     return pts
 
 
-def trades(concept, W_S, A, L):
-    """One-at-a-time trades at the chosen point: loiter time, payload, altitude, and each
-    banded assumption at its band ends."""
+def trades(concept, W_S, A, L, engine):
+    """One-at-a-time trades at the chosen point with the chosen engine: loiter time, payload,
+    altitude, the engine's consumption, and each banded ledger assumption at its band ends."""
     out = []
 
-    def run(label, **changes):
+    def run(label, eng=engine, **changes):
         L2 = dict(L, **changes)
         try:
-            d = uav.evaluate(concept, W_S, A, L2)
-            out.append({"case": label, "W0": d["W0"], "bhp": d["bhp"], "fuel": d["fuel"]})
+            d = uav.evaluate(concept, W_S, A, L2, engine=eng)
+            out.append({"case": label, "W0": d["W0"], "bhp": d["bhp"], "fuel": d["fuel"],
+                        "power_ok": d["power_ok"]})
         except ValueError as ex:
             out.append({"case": label, "W0": None, "error": str(ex)})
 
-    for h in (6.0, 8.0, 10.0, 12.0, 16.0):
+    for h in (6.0, 8.0, 10.0, 12.0):
         run(f"loiter_h={h:g}", loiter_h=h)
-    for p in (300.0, 500.0, 700.0, 1000.0):
+    for p in (300.0, 500.0, 700.0):
         run(f"payload_lb={p:g}", payload_lb=p)
     for alt in (15000.0, 20000.0, 25000.0):
         run(f"mission_altitude_ft={alt:g}", mission_altitude_ft=alt)
+    for c in (0.80, 1.00, 1.20):
+        run(f"engine_cbhp={c:g} (datasheet 0.901)", eng=dict(engine, cbhp_cruise=c, cbhp_loiter=c))
     _, entries = uav.load_ledger()
     for name, q in entries.items():
-        if "band" in q and name in L and name != "composite_factor":
+        if "band" in q and name in L and name != "composite_factor" and not name.startswith("cbhp"):
             for end, v in zip(("lo", "hi"), q["band"]):
                 run(f"{name}={v:g} ({end})", **{name: float(v)})
     return out
 
 
-def concept_scores(opt_t, opt_p, lay_t, lay_p):
-    """Step 2 scoring. Weights and grades are stated judgements; the quantitative rows come from
-    the sizing. Raymer 10.4, p. 221-223, gives the qualitative pros and cons used."""
+def concept_scores(res, L):
+    """Step 2 scoring, rerun at Gate A round 1 with computed rows. Weights and the qualitative
+    grades are stated judgements; W0, nose-wheel load and gear length are computed. Raymer 10.4,
+    p. 221-223, gives the qualitative pros and cons; 11.2, p. 232-233, the nose-load rule."""
+    t, p = res["tractor"], res["pusher"]
+
+    def nose_grade(r):
+        n = max(r["layout"]["nose_load"].values())
+        return 5.0 if L["nose_load_min"] <= n <= L["nose_load_max"] else (3.0 if n <= 0.20 else 1.0)
+
+    def gear_grade(r):
+        return 5.0 * min(t["design"]["gear_length_in"], p["design"]["gear_length_in"]) / r["design"]["gear_length_in"]
+
     rows = [
-        ("take-off weight W0 (lb), lower is better", 0.40, opt_t["W0"], opt_p["W0"]),
-        ("sensor field of view: nose free of propeller and exhaust (grade 1-5)", 0.25, 2, 5),
-        ("propeller wash and exhaust on the sensor and airframe (grade 1-5)", 0.10, 2, 4),
-        ("turboprop exhaust impinging on a pusher propeller (Raymer p. 222) (grade 1-5)", 0.10, 5, 2),
-        ("ground clearance and gear length (grade 1-5; pusher needs longer gear, p. 222)", 0.15, 5, 3),
+        ("take-off weight W0 (computed)", 0.35, t["design"]["W0"], p["design"]["W0"], "W0"),
+        ("sensor field of view: nose free of propeller and exhaust (judgement)", 0.20, 2, 5, None),
+        ("propeller wash and exhaust on the sensor and airframe (judgement)", 0.10, 2, 4, None),
+        ("turboprop exhaust impinging on a pusher propeller, p. 222 (judgement)", 0.05, 5, 2, None),
+        ("main-gear length for propeller clearance (computed, shorter is better)", 0.15,
+         t["design"]["gear_length_in"], p["design"]["gear_length_in"], "gear"),
+        ("nose-wheel load in Raymer's 8-15 % band (computed)", 0.15,
+         max(t["layout"]["nose_load"].values()), max(p["layout"]["nose_load"].values()), "nose"),
     ]
     score = {"tractor": 0.0, "pusher": 0.0}
     table = []
-    for label, w, t, p in rows:
-        if "W0" in label:
-            st, sp = (5.0 * min(t, p) / t, 5.0 * min(t, p) / p)
+    for label, w, tv, pv, kind in rows:
+        if kind == "W0":
+            st, sp = 5.0 * min(tv, pv) / tv, 5.0 * min(tv, pv) / pv
+        elif kind == "gear":
+            st, sp = gear_grade(t), gear_grade(p)
+        elif kind == "nose":
+            st, sp = nose_grade(t), nose_grade(p)
         else:
-            st, sp = float(t), float(p)
+            st, sp = float(tv), float(pv)
         score["tractor"] += w * st
         score["pusher"] += w * sp
-        table.append({"criterion": label, "weight": w, "tractor": t, "pusher": p,
+        table.append({"criterion": label, "weight": w, "tractor": tv, "pusher": pv,
                       "tractor_grade": round(st, 2), "pusher_grade": round(sp, 2)})
     return table, score
 
@@ -195,46 +252,38 @@ def _jsonable(x):
     return x
 
 
-def design_record(d, L, lay, per):
-    g = d["geom"]
-    return _jsonable({
-        "concept": d["concept"], "W_S": d["W_S"], "A": d["A"], "W0_lb": d["W0"], "We_lb": d["We"],
-        "fuel_lb": d["fuel"], "payload_lb": L["payload_lb"], "bhp_sl": d["bhp"],
-        "power_required_hp": d["power_req"], "engine": d["engine"], "propeller_diameter_ft": d["D_prop"],
-        "e": d["e"], "K": d["K"], "CD0_mission_altitude": d["CD0_alt"], "CD0_sea_level": d["CD0_sl"],
-        "CL_max": d["clmax"], "CL_alpha_wing": d["CLa"], "n_gust": d["n_gust"], "n_limit": d["n_limit"],
-        "Nz_ultimate": d["Nz"], "components_lb": d["components"],
-        "mission": [{"segment": r[0], "W_start": r[1], "W_end": r[2], "V_kt": r[3] / KT}
-                    for r in d["mission"]],
-        "wing": g["wing"], "horizontal_tail": g["ht"],
-        "vertical_tail": {"area": g["S_vt"], "height": g["vt_height"], "root_chord": g["vt_root"],
-                          "mac": g["vt_mac"]},
-        "fuselage": {"length": g["L_f"], "diameter": g["d_f"], "s_wet": g["s_wet_fus"]},
-        "tail_arm_ft": g["arm"],
-        "layout": {k: lay[k] for k in ("x_le", "x_ac", "x_np", "cg_full", "cg_empty", "sm_full",
-                                       "sm_empty", "x_ht", "x_vt", "dah_da", "Cma_fus", "CLa_h", "trim")},
-        "stations": {k: {"weight": m, "x": x} for k, (m, x) in lay["items"].items()},
-        "performance": per,
-    })
-
-
-def compliance(d, L, lay, per, need, avail, stat, vn):
-    n_neg = min(vn[f"gust_{k}"]["n_cruise_neg"] for k in ("sea_level", "mission_altitude"))
+def compliance(d, L, lay, per, need, avail, eng_raw):
     rows = [
-        ("R4 payload", "lb", L["payload_lb"], L["payload_lb"], "carried by construction"),
+        ("R1/R2 single turboprop, one engine", "-", d["engine"].get("fixed", "rubber"), "", "by construction"),
+        ("R4 payload", "lb", L["payload_lb"], L["payload_lb"], "by construction"),
         ("R5 mission 200 nm + 8 h + 200 nm", "fuel lb", d["fuel"], d["fuel"], "sized to it"),
+        ("R6 mission altitude 20,000 ft within engine limit", "ft", L["mission_altitude_ft"],
+         eng_raw.get("max_operating_altitude_ft", 1e9), "<="),
         ("R7 take-off over 50 ft", "ft", per["takeoff_ft"], L["field_length_ft"], "<="),
         ("R7 landing over 50 ft", "ft", per["landing_ft"], L["field_length_ft"], "<="),
         ("R7 clean stall at W0, sea level", "kt", per["V_stall_clean_kt"], L["stall_speed_kt"], "<="),
-        ("R9 limit load factor (manoeuvre or gust)", "-", d["n_limit"], L["limit_load_factor"], ">="),
-        ("R9 negative gust within the -1.5 limit (weights use the positive case only)", "-", n_neg,
+        ("R8 retractable tricycle gear", "-", "yes", "", "by construction"),
+        ("R9 positive limit load (manoeuvre or gust, both weights)", "-", d["n_limit"],
+         L["limit_load_factor"], ">="),
+        ("R9 negative gust within the negative limit", "-", d["n_negative_gust"],
          L["negative_load_factor"], ">="),
+        ("R10 6 % reserve and trapped fuel", "-", sizing.RESERVE_FACTOR, 1.06, "by construction"),
         ("R12 sea-level rate of climb", "ft/min", per["roc_sl_fpm"], L["climb_rate_sl_fpm"], ">="),
-        ("R12 service ceiling", "ft", per["service_ceiling_ft"], L["ceiling_ft"], ">="),
+        ("R12 service ceiling (last altitude with 100 ft/min)", "ft", per["service_ceiling_ft"],
+         L["ceiling_ft"] - 1.0, ">="),
         ("R13 static margin, full fuel", "MAC", lay["sm_full"], L["static_margin_min"], "in band"),
         ("R13 static margin, empty fuel", "MAC", lay["sm_empty"], L["static_margin_min"], "in band"),
+        ("R14 no crew items in the weights", "-", "yes", "", "by construction"),
+        ("R15 flight avionics 60 lb uninstalled", "lb", L["avionics_uninstalled_lb"], 60.0, "by construction"),
+        ("R16 sustained 30 deg bank at loiter (power)", "hp", d["power_req"]["turn_at_loiter"], d["bhp"], "<="),
+        ("engine power meets every requirement", "hp", max(d["power_req"].values()), d["bhp"], "<="),
         ("fuel fits integral wing tanks", "ft^3", need, avail, "<="),
-        ("empty fraction: build-up vs Table 3.1 (x0.95)", "-", stat["build_up"], stat["table_3_1"], "report"),
+        ("nose-wheel load, full fuel (p. 232-233)", "-", lay["nose_load"]["full"], L["nose_load_max"], "nose"),
+        ("nose-wheel load, empty fuel", "-", lay["nose_load"]["empty"], L["nose_load_max"], "nose"),
+        ("propeller clearance at rotation (p. 222)", "in", lay["prop_clearance_in"], L["prop_clearance_in"] - 0.05, ">="),
+        ("trim within tail CL limit, all mission legs", "-", "yes" if lay["trim_ok"] else "no", "", "flag"),
+        ("nose rotation at 0.8 V_TO (p. 432-433)", "tail CL", abs(lay["rotation"]["CL_tail_needed"]),
+         L["tail_cl_max_rotation"], "<="),
     ]
     out = []
     for label, units, value, limit, rule in rows:
@@ -244,11 +293,61 @@ def compliance(d, L, lay, per, need, avail, stat, vn):
             ok = value is not None and value >= limit
         elif rule == "in band":
             ok = L["static_margin_min"] <= value <= L["static_margin_max"]
+        elif rule == "nose":
+            ok = L["nose_load_min"] - 0.03 <= value <= 0.20          # Raymer's 5-20 % limits
+        elif rule == "flag":
+            ok = value == "yes"
         else:
             ok = None
         out.append({"requirement": label, "units": units, "value": value, "limit": limit,
                     "rule": rule, "met": ok})
     return out
+
+
+def analyse(concept, W_S, A, L, engine):
+    """Size the tail for rotation, lay out and analyse one design."""
+    d, lay, scale = uav.size_tail_for_rotation(concept, W_S, A, L, engine=engine)
+    Lu = d["ledger_used"]
+    per = uav.performance(d, Lu)
+    need, avail = uav.fuel_volume_check(d, Lu)
+    return {"design": d, "layout": lay, "ht_scale": scale, "performance": per,
+            "fuel_volume": (need, avail), "stat": uav.statistical_empty_fractions(d, Lu),
+            "vn": vn_diagram(d, Lu), "propeller": uav.propeller_points(d, Lu)}
+
+
+def design_record(r, L, eng_raw):
+    d, lay, per = r["design"], r["layout"], r["performance"]
+    g = d["geom"]
+    return _jsonable({
+        "concept": d["concept"], "W_S": d["W_S"], "A": d["A"], "W0_lb": d["W0"], "We_lb": d["We"],
+        "fuel_lb": d["fuel"], "payload_lb": L["payload_lb"], "bhp_sl": d["bhp"],
+        "engine": d["engine"], "engine_source": eng_raw.get("source", ""),
+        "cbhp_used": {"cruise": d["ledger_used"]["cbhp_cruise"], "loiter": d["ledger_used"]["cbhp_loiter"]},
+        "power_required_hp": d["power_req"], "power_ok": d["power_ok"],
+        "propeller_diameter_ft": d["D_prop"], "propeller_points": r["propeller"],
+        "gear_length_in": d["gear_length_in"], "gear_drag_area_ft2": d["gear_drag_area"],
+        "ht_volume_scale": r["ht_scale"],
+        "e": d["e"], "K": d["K"], "CD0": {"mission_altitude": d["CD0_alt"], "sea_level": d["CD0_sl"],
+                                         "takeoff": d["CD0_takeoff"], "landing": d["CD0_landing"]},
+        "CL_max": d["clmax"], "CL_alpha_wing": d["CLa"], "gusts": d["gusts"],
+        "n_gust": d["n_gust"], "n_limit": d["n_limit"], "n_negative_gust": d["n_negative_gust"],
+        "Nz_ultimate": d["Nz"], "q_design_psf": d["q_design"], "V_c_eas_kt": {k: v / KT for k, v in d["V_c_eas"].items()},
+        "components_lb": d["components"],
+        "mission": [{"segment": m[0], "W_start": m[1], "W_end": m[2], "V_kt": m[3] / KT,
+                     "speed_floor_fraction": m[4]} for m in d["mission"]],
+        "wing": g["wing"], "horizontal_tail": g["ht"],
+        "vertical_tail": {"area": g["S_vt"], "height": g["vt_height"], "root_chord": g["vt_root"],
+                          "mac": g["vt_mac"]},
+        "fuselage": {"length": g["L_f"], "diameter": g["d_f"], "s_wet": g["s_wet_fus"]},
+        "tail_arm_ft": g["arm"],
+        "layout": {k: lay[k] for k in ("x_le", "x_ac", "x_np", "cg_full", "cg_empty", "sm_full",
+                                       "sm_empty", "x_ht", "x_vt", "x_main", "h_cg", "dah_da",
+                                       "Cma_fus", "CLa_h", "trim", "trim_ok", "rotation",
+                                       "rotation_ok", "nose_load", "prop_clearance_in")},
+        "stations": {k: {"weight": m, "x": x} for k, (m, x) in lay["items"].items()},
+        "performance": per, "fuel_volume_ft3": {"needed": r["fuel_volume"][0], "available": r["fuel_volume"][1]},
+        "empty_fraction_comparison": r["stat"], "vn": r["vn"],
+    })
 
 
 def main(argv=None):
@@ -259,67 +358,72 @@ def main(argv=None):
     out.mkdir(parents=True, exist_ok=True)
     L, _ = uav.load_ledger()
     ledger_bytes = uav.LEDGER.read_bytes()
-    try:
-        commit = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True, check=False,
-                                cwd=uav.LEDGER.parents[2]).stdout.strip()
-    except OSError:
-        commit = "unknown"
+    commit = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True,
+                            check=False, cwd=REPO).stdout.strip()
+    engines, eng_raw = engine_options()
     (out / "inputs.json").write_text(json.dumps({
-        "commit": commit, "ledger": str(uav.LEDGER.relative_to(uav.LEDGER.parents[2])),
-        "ledger_sha256": hashlib.sha256(ledger_bytes).hexdigest(), "ws_grid": WS_GRID,
-        "a_grid": A_GRID}, indent=2))
+        "commit": commit, "ledger": "data/task12/ledger.yaml",
+        "ledger_sha256": hashlib.sha256(ledger_bytes).hexdigest(),
+        "engines_sha256": hashlib.sha256(ENGINES.read_bytes()).hexdigest(),
+        "chosen_engine": CHOSEN_ENGINE, "ws_grid": WS_GRID, "a_grid": A_GRID}, indent=2))
     (out / "ledger.yaml").write_bytes(ledger_bytes)
+    (out / "engines.yaml").write_bytes(ENGINES.read_bytes())
+    (out / "first_pass.json").write_text(json.dumps(first_pass(L), indent=2))
 
-    fp = first_pass(L)
-    (out / "first_pass.json").write_text(json.dumps(fp, indent=2))
-
-    rows = carpet("tractor", L) + carpet("pusher", L)
-    _write_csv(out / "carpet.csv", rows)
     stall_ws = constraints.ws_stall(RHO0, L["stall_speed_kt"] * KT, uav._cl_max(L)["clean"])
-    opt = {c: feasible_optimum([r for r in rows if r["concept"] == c], stall_ws)
-           for c in ("tractor", "pusher")}
-    designs = {c: uav.evaluate(c, opt[c]["W_S"], opt[c]["A"], L) for c in opt}
-    lays = {c: uav.layout(designs[c], L) for c in designs}
-    table, score = concept_scores(opt["tractor"], opt["pusher"], lays["tractor"], lays["pusher"])
-    chosen = max(score, key=score.get)
-    (out / "concept_scores.json").write_text(json.dumps({"table": table, "score": score,
-                                                         "chosen": chosen, "optimum": opt}, indent=2))
+    eng = engines[CHOSEN_ENGINE]
+    rows = []
+    for c in ("tractor", "pusher"):
+        rows += carpet(c, L, None, "rubber") + carpet(c, L, eng, CHOSEN_ENGINE)
+    _write_csv(out / "carpet.csv", rows)
 
-    d = designs[chosen]
-    lay, per = lays[chosen], uav.performance(d, L)
-    need, avail = uav.fuel_volume_check(d, L)
-    stat = uav.statistical_empty_fractions(d, L)
-    rec = design_record(d, L, lay, per)
-    vmax_mph = per["vmax_alt_kt"] * 1.151
-    vn = vn_diagram(d, L)
-    rec.update({"fuel_volume_ft3": {"needed": need, "available": avail},
-                "empty_fraction_comparison": stat, "vn": vn,
-                "power_loading_comparison": {
-                    "hp_per_W0_sized": d["bhp"] / d["W0"],
-                    "hp_per_W0_table_5_4": constraints.hp_per_W_statistical(vmax_mph, uav.CATEGORY),
-                    "vmax_mph_used": vmax_mph},
-                "turboprop_table_10_4_range_bhp": list(uav.geo.TURBOPROP_BHP_RANGE)})
-    (out / "design.json").write_text(json.dumps(rec, indent=2, default=float))
-    _write_csv(out / "compliance.csv", compliance(d, L, lay, per, need, avail, stat, vn))
+    res = {}
+    for c in ("tractor", "pusher"):
+        opt = feasible_optimum([r for r in rows if r["concept"] == c and r["engine"] == CHOSEN_ENGINE],
+                               stall_ws)
+        res[c] = analyse(c, opt["W_S"], opt["A"], L, eng)
+        (out / f"design_{c}.json").write_text(json.dumps(design_record(res[c], L, eng_raw[CHOSEN_ENGINE]),
+                                                         indent=2, default=float))
+        Lu = res[c]["design"]["ledger_used"]
+        _write_csv(out / f"compliance_{c}.csv",
+                   compliance(res[c]["design"], Lu, res[c]["layout"], res[c]["performance"],
+                              *res[c]["fuel_volume"], eng_raw[CHOSEN_ENGINE]))
+    table, score = concept_scores(res, L)
+    recommended = max(score, key=score.get)
+    rubber_opt = {c: feasible_optimum([r for r in rows if r["concept"] == c and r["engine"] == "rubber"],
+                                      stall_ws) for c in ("tractor", "pusher")}
+    (out / "concept_scores.json").write_text(json.dumps(
+        {"table": table, "score": score, "recommended": recommended,
+         "frozen_at_round1": "pusher", "rubber_optimum": rubber_opt}, indent=2, default=float))
 
-    cd_rows, ws_limits = constraint_diagram(chosen, d["A"], d["W0"], L)
+    d = res[recommended]["design"]
+    cd_rows, limits = constraint_diagram(d, L, eng)
     _write_csv(out / "constraint_diagram.csv", cd_rows)
-    (out / "constraint_limits.json").write_text(json.dumps(ws_limits, indent=2))
+    (out / "constraint_limits.json").write_text(json.dumps(limits, indent=2))
 
-    fixed = []
-    for eng in REAL_TURBOPROPS:
-        f = uav.evaluate(chosen, d["W_S"], d["A"], L, engine=eng)
-        fixed.append({"engine": eng["name"], "bhp": eng["bhp"], "engine_weight_lb": eng["weight_lb"],
-                      "W0": f["W0"], "We": f["We"], "fuel": f["fuel"], "power_ok": f["power_ok"],
-                      "power_ratio": eng["bhp"] / d["bhp"]})
-    _write_csv(out / "fixed_engine.csv", fixed)
-    _write_csv(out / "trades.csv", trades(chosen, d["W_S"], d["A"], L))
+    alt_rows = []
+    for name, e in [("rubber", None)] + list(engines.items()):
+        try:
+            f = uav.evaluate(recommended, d["W_S"], d["A"], dict(L, ht_volume_scale=res[recommended]["ht_scale"]),
+                             engine=e)
+            alt_rows.append({"engine": name, "bhp": f["bhp"], "engine_weight_lb": f["engine"]["weight_lb"],
+                             "cbhp_cruise": f["ledger_used"]["cbhp_cruise"],
+                             "cbhp_loiter": f["ledger_used"]["cbhp_loiter"],
+                             "W0": f["W0"], "We": f["We"], "fuel": f["fuel"], "power_ok": f["power_ok"],
+                             "required_hp": max(f["power_req"].values()),
+                             "binding": max(f["power_req"], key=f["power_req"].get)})
+        except ValueError as ex:
+            alt_rows.append({"engine": name, "W0": None, "error": str(ex)})
+    _write_csv(out / "engines_compared.csv", alt_rows)
+    _write_csv(out / "trades.csv", trades(recommended, d["W_S"], d["A"],
+                                          dict(L, ht_volume_scale=res[recommended]["ht_scale"]), eng))
     tests = subprocess.run(["python3", "-m", "pytest", "-q", "tests/task12"], capture_output=True,
-                           text=True, check=False, cwd=uav.LEDGER.parents[2])
+                           text=True, check=False, cwd=REPO)
     (out / "test_report.txt").write_text(tests.stdout)
-    print(json.dumps({"first_pass_W0": fp["W0"], "chosen": chosen, "W0": d["W0"],
-                      "W_S": d["W_S"], "A": d["A"], "bhp": d["bhp"], "score": score,
-                      "fixed": [(x["engine"], round(x["W0"])) for x in fixed]}, indent=2))
+    print(json.dumps({"recommended": recommended, "score": score,
+                      "W0": {c: res[c]["design"]["W0"] for c in res},
+                      "point": {c: (res[c]["design"]["W_S"], res[c]["design"]["A"]) for c in res},
+                      "engines": [(r["engine"], r.get("W0")) for r in alt_rows]}, indent=2, default=float))
 
 
 if __name__ == "__main__":

@@ -1,22 +1,28 @@
 """Render the Stage 1 conceptual design package from a run directory (figures and Markdown).
 
-    python -m conceptual.report --run runs/task12/stage1/<date> --doc docs/validation/<date>_task12_conceptual.md
+    python -m conceptual.report --run runs/task12/stage1/<date> --doc docs/validation/<name>.md
 
 Every number in the document is read from the run's files; nothing is computed here except unit
-conversions and the drawing coordinates.
+conversions, drawing coordinates and the equation-to-test table (read from the source files).
 """
 import argparse
 import csv
+import importlib
+import inspect
 import json
+import math
+import re
 from pathlib import Path
 
 import matplotlib
+import yaml
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 LB_KG = 0.45359237
 FT_M = 0.3048
+REPO = Path(__file__).resolve().parents[1]
 
 
 def _read_csv(path):
@@ -27,7 +33,10 @@ def _read_csv(path):
 def _f(x, nd=0):
     if x in (None, "", "None"):
         return "n/a"
-    return f"{float(x):,.{nd}f}"
+    try:
+        return f"{float(x):,.{nd}f}"
+    except ValueError:
+        return str(x)
 
 
 def three_view(d, path):
@@ -38,8 +47,9 @@ def three_view(d, path):
     x_le = lay["x_le"]
     x_ht_le = lay["x_ac"] + d["tail_arm_ft"] - 0.25 * ht["mac"]
     x_vt_le = lay["x_ac"] + d["tail_arm_ft"] - 0.25 * vt["mac"]
-    fig, axes = plt.subplots(1, 3, figsize=(15, 5), gridspec_kw={"width_ratios": [1.2, 1.2, 1]})
-    # body outline: ogive-like nose and tail cone
+    x_prop = L_f if d["concept"] == "pusher" else 0.0
+    R = d["propeller_diameter_ft"] / 2
+    fig, axes = plt.subplots(1, 3, figsize=(15, 5), gridspec_kw={"width_ratios": [1.2, 1.3, 1]})
     xs = [i * L_f / 60 for i in range(61)]
 
     def radius(x):
@@ -61,47 +71,50 @@ def three_view(d, path):
         hh = ht["span"] / 2
         ax.plot([x_ht_le, x_ht_le, x_ht_le + ht["tip_chord"], x_ht_le + ht["root_chord"]],
                 [0, sgn * hh, sgn * hh, 0], "g")
-    x_prop = L_f if d["concept"] == "pusher" else 0.0
-    ax.plot([x_prop, x_prop], [-d["propeller_diameter_ft"] / 2, d["propeller_diameter_ft"] / 2],
-            "r", lw=2, label="propeller disc")
-    ax.axvspan(lay["cg_empty"], lay["cg_full"], color="orange", alpha=0.6, label="CG range")
+    ax.plot([x_prop, x_prop], [-R, R], "r", lw=2, label="propeller disc")
+    ax.axvspan(min(lay["cg_empty"], lay["cg_full"]), max(lay["cg_empty"], lay["cg_full"]),
+               color="orange", alpha=0.6, label="CG range")
     ax.axvline(lay["x_np"], color="m", ls="--", lw=1, label="neutral point")
+    ax.plot([lay["x_main"]] * 2, [-0.6 * D_f, 0.6 * D_f], "ko", ms=4, label="main wheels")
     ax.set_aspect("equal")
     ax.set_xlabel("ft from nose")
     ax.legend(loc="lower left", fontsize=7)
 
     ax = axes[1]
-    ax.set_title("Side view")
-    ax.plot(xs, [radius(x) for x in xs], "k")
-    ax.plot(xs, [-radius(x) for x in xs], "k")
-    top = radius(x_vt_le)
+    ax.set_title("Side view (static, gear down)")
+    h = lay["h_cg"]
+    ax.plot(xs, [h + radius(x) for x in xs], "k")
+    ax.plot(xs, [h - radius(x) for x in xs], "k")
+    top = h + radius(x_vt_le)
     ax.plot([x_vt_le, x_vt_le + vt["height"] * 0.35, x_vt_le + vt["height"] * 0.35 + 0.5 * vt["root_chord"],
-             x_vt_le + vt["root_chord"], x_vt_le],
-            [top, top + vt["height"], top + vt["height"], top, top], "g")
-    ax.plot([x_le, x_le + w["root_chord"]], [0, 0], "b", lw=3)
-    ax.plot([x_prop, x_prop], [-d["propeller_diameter_ft"] / 2, d["propeller_diameter_ft"] / 2], "r", lw=2)
-    for name, st in d["stations"].items():
-        if name in ("payload", "installed_engine", "avionics"):
-            ax.plot(st["x"], -0.25 * D_f, "s", ms=6)
-            ax.annotate(name.replace("installed_", ""), (st["x"], -0.25 * D_f), fontsize=7,
-                        xytext=(2, -10), textcoords="offset points")
+             x_vt_le + vt["root_chord"], x_vt_le], [top, top + vt["height"], top + vt["height"], top, top], "g")
+    ax.plot([x_le, x_le + w["root_chord"]], [h, h], "b", lw=3)
+    ax.plot([x_prop, x_prop], [h - R, h + R], "r", lw=2)
+    ax.axhline(0.0, color="brown", lw=1)
+    for x in (lay["x_main"], d["stations"]["nose_gear"]["x"]):
+        ax.plot([x, x], [0, h - 0.5 * D_f], "k", lw=2)
+        ax.plot(x, 0.3, "ko", ms=6)
+    for name in ("payload", "installed_engine", "avionics"):
+        st = d["stations"][name]
+        ax.plot(st["x"], h - 0.25 * D_f, "s", ms=6)
+        ax.annotate(name.replace("installed_", ""), (st["x"], h - 0.25 * D_f), fontsize=7,
+                    xytext=(2, -10), textcoords="offset points")
     ax.set_aspect("equal")
     ax.set_xlabel("ft from nose")
 
     ax = axes[2]
     ax.set_title("Front view")
-    t = [i / 60 * 6.2832 for i in range(61)]
-    import math
+    t = [i / 60 * 2 * math.pi for i in range(61)]
     ax.plot([0.5 * D_f * math.cos(a) for a in t], [0.5 * D_f * math.sin(a) for a in t], "k")
     ax.plot([-half, half], [0, 0], "b", lw=2)
     ax.plot([-ht["span"] / 2, ht["span"] / 2], [0.3 * D_f, 0.3 * D_f], "g")
     ax.plot([0, 0], [0.3 * D_f, 0.3 * D_f + vt["height"]], "g")
-    ax.plot([0.5 * d["propeller_diameter_ft"] * math.cos(a) for a in t],
-            [0.5 * d["propeller_diameter_ft"] * math.sin(a) for a in t], "r:", lw=1)
+    ax.plot([R * math.cos(a) for a in t], [R * math.sin(a) for a in t], "r:", lw=1)
     ax.set_aspect("equal")
     ax.set_xlabel("ft")
-    fig.suptitle(f"Task 12 Stage 1 design ({d['concept']}): W0 {d['W0_lb']:.0f} lb, span "
-                 f"{w['span']:.1f} ft, orthographic, not to a common scale across panels")
+    fig.suptitle(f"Task 12 Stage 1 ({d['concept']}, {d['engine'].get('fixed', 'rubber')}): W0 "
+                 f"{d['W0_lb']:.0f} lb, span {w['span']:.1f} ft; orthographic sketch drawn from the "
+                 "sizing records, not to a common scale across panels", fontsize=10)
     fig.tight_layout()
     fig.savefig(path, dpi=130)
     plt.close(fig)
@@ -109,28 +122,34 @@ def three_view(d, path):
 
 def constraint_plot(rows, limits, d, path):
     ws = [float(r["W_S"]) for r in rows]
-    fig, ax = plt.subplots(figsize=(7, 5))
-    for key, label in (("climb_sl", "climb 1,000 ft/min, sea level"),
-                       ("ceiling", "service ceiling 25,000 ft"),
-                       ("takeoff", "take-off 2,500 ft over 50 ft"),
-                       ("cruise_at_altitude", "cruise at 20,000 ft")):
+    fig, ax = plt.subplots(figsize=(7.5, 5))
+    labels = {"climb_sl": "climb 1,000 ft/min, sea level", "ceiling": "service ceiling 25,000 ft",
+              "takeoff": "take-off 2,500 ft over 50 ft", "cruise_at_altitude": "cruise at 20,000 ft",
+              "turn_at_loiter": "30 deg bank at loiter (R16)"}
+    for key, label in labels.items():
         ax.plot(ws, [float(r[key]) for r in rows], label=label)
     ax.axvline(limits["stall"], color="k", ls="--", label=f"stall 70 kt: W/S <= {limits['stall']:.1f}")
-    ax.plot([d["W_S"]], [d["bhp_sl"] / d["W0_lb"]], "r*", ms=12, label="chosen design")
+    ax.axvline(limits["best_range_at_cruise_q"], color="grey", ls=":", label="best-range W/S at cruise q (5.13)")
+    ax.axvline(limits["best_loiter_at_loiter_q"], color="grey", ls="-.", label="best-loiter W/S at loiter q (5.16)")
+    ax.axhline(d["bhp_sl"] / d["W0_lb"], color="r", lw=0.8, label="installed engine")
+    ax.plot([d["W_S"]], [d["bhp_sl"] / d["W0_lb"]], "r*", ms=12, label="design")
     ax.set_xlabel("take-off wing loading W/S (lb/ft^2)")
-    ax.set_ylabel("installed sea-level hp / W0 required")
-    ax.set_title(f"Constraint diagram at W0 {d['W0_lb']:.0f} lb, A {d['A']:.0f}")
-    ax.legend(fontsize=8)
+    ax.set_ylabel("installed sea-level hp / W0")
+    land = (f"landing limit {limits['landing']:.0f} lb/ft^2 (off scale)" if limits["landing_binding"]
+            else "landing not binding below 200 lb/ft^2")
+    ax.set_title(f"Constraint diagram at W0 {d['W0_lb']:.0f} lb, A {d['A']:.0f}; {land}", fontsize=9)
+    ax.legend(fontsize=7)
     ax.grid(alpha=0.3)
     fig.tight_layout()
     fig.savefig(path, dpi=130)
     plt.close(fig)
 
 
-def carpet_plot(rows, d, stall_ws, path):
+def carpet_plot(rows, stall_ws, engine, path):
     fig, axes = plt.subplots(1, 2, figsize=(12, 5), sharey=True)
     for ax, concept in zip(axes, ("tractor", "pusher")):
-        pts = [r for r in rows if r["concept"] == concept and r["W0"] not in ("", None)]
+        pts = [r for r in rows if r["concept"] == concept and r["engine"] == engine
+               and r["W0"] not in ("", None)]
         X = sorted({float(r["W_S"]) for r in pts})
         Y = sorted({float(r["A"]) for r in pts})
         grid = {(float(r["W_S"]), float(r["A"])): float(r["W0"]) for r in pts}
@@ -138,37 +157,67 @@ def carpet_plot(rows, d, stall_ws, path):
         cs = ax.contour(X, Y, Z, levels=12)
         ax.clabel(cs, fmt="%.0f", fontsize=7)
         ax.axvline(stall_ws, color="k", ls="--")
-        best = min(pts, key=lambda r: float(r["W0"]))
+        ok = [r for r in pts if float(r["W_S"]) <= stall_ws and r["fuel_fits"] == "True"
+              and r.get("power_ok", "True") == "True"]
+        best = min(ok, key=lambda r: float(r["W0"]))
         ax.plot(float(best["W_S"]), float(best["A"]), "r*", ms=12)
-        ax.set_title(f"{concept}: W0 (lb), minimum {float(best['W0']):.0f} lb")
-        ax.set_xlabel("W/S (lb/ft^2)")
+        ax.set_title(f"{concept}, {engine}: W0 (lb), feasible minimum {float(best['W0']):.0f} lb", fontsize=9)
+        ax.set_xlabel("W/S (lb/ft^2); dashed: 70 kt stall limit")
     axes[0].set_ylabel("aspect ratio A")
     fig.tight_layout()
     fig.savefig(path, dpi=130)
     plt.close(fig)
 
 
-def vn_plot(d, L_limit, L_neg, path):
+def vn_plot(d, path):
     vn = d["vn"]
     clmax = d["CL_max"]["clean"]
     W_S = d["W_S"]
     rho0 = 0.0023769
-    Vd = max(vn[f"gust_{k}"]["V_dive_eas_kt"] for k in ("sea_level", "mission_altitude"))
-    fig, ax = plt.subplots(figsize=(7, 5))
+    n_lim = d["n_limit"]
+    n_neg = min(-1.8, d["n_negative_gust"])
+    Vd = max(v["V_dive_eas_kt"] for k, v in vn.items() if k.startswith("gust_"))
+    fig, ax = plt.subplots(figsize=(7.5, 5))
     Vs = [i * Vd / 100 for i in range(101)]
-    pos = [min(L_limit, 0.5 * rho0 * (v * 1.68781) ** 2 * clmax / W_S) for v in Vs]
-    neg = [max(L_neg, -0.5 * rho0 * (v * 1.68781) ** 2 * 0.8 * clmax / W_S) for v in Vs]
-    ax.plot(Vs, pos, "b", label="manoeuvre envelope")
+    pos = [min(n_lim, 0.5 * rho0 * (v * 1.68781) ** 2 * clmax / W_S) for v in Vs]
+    neg = [max(n_neg, -0.5 * rho0 * (v * 1.68781) ** 2 * 0.8 * clmax / W_S) for v in Vs]
+    ax.plot(Vs, pos, "b", label=f"manoeuvre envelope (limit {n_lim:.2f})")
     ax.plot(Vs, neg, "b")
-    ax.plot([Vd, Vd], [L_neg, L_limit], "b")
-    for label, style in (("sea_level", "g--"), ("mission_altitude", "m--")):
-        g = vn[f"gust_{label}"]
+    ax.plot([Vd, Vd], [n_neg, n_lim], "b")
+    styles = {"sea_level_takeoff_weight": "g--", "sea_level_zero_fuel_weight": "g:",
+              "mission_altitude_takeoff_weight": "m--", "mission_altitude_zero_fuel_weight": "m:"}
+    for key, style in styles.items():
+        g = vn[f"gust_{key}"]
         Vc, Vdl = g["V_cruise_eas_kt"], g["V_dive_eas_kt"]
-        ax.plot([0, Vc, Vdl], [1, g["n_cruise"], g["n_dive"]], style, label=f"gust, {label}")
+        ax.plot([0, Vc, Vdl], [1, g["n_cruise"], g["n_dive"]], style, label=f"gust, {key}")
         ax.plot([0, Vc, Vdl], [1, g["n_cruise_neg"], g["n_dive_neg"]], style)
     ax.set_xlabel("equivalent airspeed (kt)")
     ax.set_ylabel("load factor n")
-    ax.set_title("V-n diagram (negative stall line uses 0.8 CL_max, a drawing assumption)")
+    ax.set_title("V-n diagram (negative stall line drawn with 0.8 CL_max, a drawing assumption)", fontsize=9)
+    ax.legend(fontsize=7)
+    ax.grid(alpha=0.3)
+    fig.tight_layout()
+    fig.savefig(path, dpi=130)
+    plt.close(fig)
+
+
+def polar_plot(d, rho_alt, path):
+    """Drag polar CD = CD0 + K CL^2 at mission altitude, with the mission points."""
+    CD0, K = d["CD0"]["mission_altitude"], d["K"]
+    cls = [i * 0.02 for i in range(76)]
+    fig, ax = plt.subplots(figsize=(6.5, 4.5))
+    ax.plot([CD0 + K * c ** 2 for c in cls], cls, "b", label="CD0 + K CL^2, mission altitude")
+    for m in d["mission"]:
+        if m["V_kt"] > 0:
+            for W in (m["W_start"], m["W_end"]):
+                CL = W / (0.5 * rho_alt * (m["V_kt"] * 1.68781) ** 2 * d["wing"]["area"])
+                ax.plot(CD0 + K * CL ** 2, CL, "o", ms=4)
+            ax.annotate(m["segment"], (CD0 + K * CL ** 2, CL), fontsize=7, xytext=(4, -8),
+                        textcoords="offset points")
+    ax.axhline(d["CL_max"]["clean"], color="k", ls="--", lw=0.8, label="clean CL_max")
+    ax.set_xlabel("CD")
+    ax.set_ylabel("CL")
+    ax.set_title(f"Drag polar: CD0 {CD0:.4f}, K {K:.4f} (e {d['e']:.3f})")
     ax.legend(fontsize=8)
     ax.grid(alpha=0.3)
     fig.tight_layout()
@@ -177,8 +226,7 @@ def vn_plot(d, L_limit, L_neg, path):
 
 
 def weights_plot(d, path):
-    comp = d["components_lb"]
-    items = sorted(comp.items(), key=lambda kv: -kv[1])
+    items = sorted(d["components_lb"].items(), key=lambda kv: -kv[1])
     fig, ax = plt.subplots(figsize=(7, 4.5))
     ax.barh([k for k, _ in items], [v for _, v in items])
     ax.invert_yaxis()
@@ -189,6 +237,33 @@ def weights_plot(d, path):
     plt.close(fig)
 
 
+MODULE_ALIASES = {"sizing": ("sizing",), "constraints": ("constraints",),
+                  "geometry_sizing": ("geo", "geometry_sizing"), "raymer_aero": ("aero",),
+                  "raymer_propulsion": ("prop",), "raymer_loads": ("loads",),
+                  "raymer_weights": ("wts",), "raymer_stability": ("stab",),
+                  "raymer_performance": ("perf",)}
+
+
+def equation_table():
+    """Each public method function, the equation tags and pages in its docstring, and the tests
+    in tests/task12 that call it by name."""
+    tests = {p.name: p.read_text() for p in (REPO / "tests" / "task12").glob("test_*.py")}
+    rows = []
+    for mod_name, aliases in MODULE_ALIASES.items():
+        mod = importlib.import_module(f"conceptual.{mod_name}")
+        for name, fn in inspect.getmembers(mod, inspect.isfunction):
+            if name.startswith("_") or fn.__module__ != mod.__name__:
+                continue
+            doc = (fn.__doc__ or "").replace("\n", " ")
+            tags = re.findall(r"\((\d{1,2}\.\d{1,3}[a-z]?)\)", doc)
+            pages = re.findall(r"p\. (\d{1,3}(?:-\d{1,3})?)", doc)
+            hits = sorted(t for t, src in tests.items()
+                          if any(re.search(rf"\b{a}\.{name}\(", src) for a in aliases))
+            rows.append((f"{mod_name}.{name}", ", ".join(dict.fromkeys(tags)) or "-",
+                         ", ".join(dict.fromkeys(pages)) or "-", ", ".join(hits) or "**none**"))
+    return rows
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--run", required=True)
@@ -197,23 +272,31 @@ def main(argv=None):
     run, doc = Path(a.run), Path(a.doc)
     fig_dir = doc.parent / "figures" / doc.stem
     fig_dir.mkdir(parents=True, exist_ok=True)
-    d = json.loads((run / "design.json").read_text())
     inp = json.loads((run / "inputs.json").read_text())
     fp = json.loads((run / "first_pass.json").read_text())
     cs = json.loads((run / "concept_scores.json").read_text())
+    rec = cs["recommended"]
+    other = "pusher" if rec == "tractor" else "tractor"
+    D = {c: json.loads((run / f"design_{c}.json").read_text()) for c in ("tractor", "pusher")}
+    d = D[rec]
     limits = json.loads((run / "constraint_limits.json").read_text())
-    comp_rows = _read_csv(run / "compliance.csv")
+    comp_rows = _read_csv(run / f"compliance_{rec}.csv")
     carpet = _read_csv(run / "carpet.csv")
     cd_rows = _read_csv(run / "constraint_diagram.csv")
-    fixed = _read_csv(run / "fixed_engine.csv")
+    engines = _read_csv(run / "engines_compared.csv")
     trades = _read_csv(run / "trades.csv")
     tests = (run / "test_report.txt").read_text().strip().splitlines()[-1]
-    L_limit, L_neg = 3.8, -1.5
+    ledger = yaml.safe_load((run / "ledger.yaml").read_text())
+    from conceptual.units import isa
+    rho_alt = isa(ledger["requirements"]["mission_altitude_ft"]["value"])["rho"]
 
-    three_view(d, fig_dir / "three_view.png")
+    for c in ("tractor", "pusher"):
+        three_view(D[c], fig_dir / f"three_view_{c}.png")
     constraint_plot(cd_rows, limits, d, fig_dir / "constraint_diagram.png")
-    carpet_plot(carpet, d, limits["stall"], fig_dir / "carpet.png")
-    vn_plot(d, L_limit, L_neg, fig_dir / "vn.png")
+    carpet_plot(carpet, limits["stall"], inp["chosen_engine"], fig_dir / "carpet_engine.png")
+    carpet_plot(carpet, limits["stall"], "rubber", fig_dir / "carpet_rubber.png")
+    vn_plot(d, fig_dir / "vn.png")
+    polar_plot(d, rho_alt, fig_dir / "polar.png")
     weights_plot(d, fig_dir / "weights.png")
     rel = f"figures/{doc.stem}"
 
@@ -221,147 +304,226 @@ def main(argv=None):
     pr = d["power_required_hp"]
     binding = max(pr, key=pr.get)
     stat = d["empty_fraction_comparison"]
-    plc = d["power_loading_comparison"]
-    base = next(t for t in trades if t["case"] == "loiter_h=8")
-    sens = []
-    for t in trades:
-        if t["W0"] not in ("", None) and "(" in t["case"]:
-            sens.append((abs(float(t["W0"]) - float(base["W0"])), t))
-    sens.sort(key=lambda x: -x[0])
-
+    rub = next(r for r in engines if r["engine"] == "rubber")
     lines = []
     add = lines.append
-    add(f"# Task 12 Stage 1: conceptual design package ({run.name})")
+    add(f"# Task 12 Stage 1, resubmission for Gate A round 2 ({run.name})")
     add("")
-    add("**Status: Stage 1 output, before Gate A.** Generated by `python -m conceptual.report` from the "
-        f"records in `{run}` (commit `{inp['commit'][:10]}`, ledger sha256 `{inp['ledger_sha256'][:12]}`). "
-        "Every number below is read from those files. Methods: Raymer, *Aircraft Design: A Conceptual "
-        "Approach*, 2nd ed. (1992), through `conceptual/`; each function cites its equation and page. "
-        "Spec: `docs/specs/task12_drone_conceptual_design.md`.")
+    add("**Status: Stage 1 output after Gate A round 1 failed; before Gate A round 2.** Generated by "
+        f"`python -m conceptual.report` from `{run}` (commit `{inp['commit'][:10]}`, ledger sha256 "
+        f"`{inp['ledger_sha256'][:12]}`, engines sha256 `{inp['engines_sha256'][:12]}`). Every number is "
+        "read from those files. Methods: Raymer, *Aircraft Design: A Conceptual Approach*, 2nd ed. "
+        "(1992), through `conceptual/`. Round 1 record: `docs/reviews/2026-11-20_task12_gateA_round1.md`.")
     add("")
     add("## Summary")
     add("")
-    add(f"- **Chosen concept: {d['concept']}**, take-off weight **{d['W0_lb']:,.0f} lb** "
-        f"({d['W0_lb'] * LB_KG:,.0f} kg), empty {d['We_lb']:,.0f} lb, fuel {d['fuel_lb']:,.0f} lb, "
-        f"payload {d['payload_lb']:,.0f} lb.")
-    add(f"- Wing loading {d['W_S']:.0f} lb/ft^2, aspect ratio {d['A']:.0f}, area {w['area']:.0f} ft^2, "
-        f"span {w['span']:.1f} ft ({w['span'] * FT_M:.1f} m).")
-    add(f"- Rubber engine: **{d['bhp_sl']:.0f} shp** at sea level, set by the **{binding}** requirement. "
-        f"This is below the 400 to 5,000 bhp range of Raymer's turboprop statistics (Table 10.4, p. 224), so "
-        "the engine weight is an extrapolation. The only turboprops with printed data in the library "
-        f"(Mattingly Table C.1, p. 519) are {', '.join(f['engine'] for f in fixed)}, at "
-        f"{float(fixed[0]['power_ratio']):.1f} to {float(fixed[-1]['power_ratio']):.1f} times the power needed.")
-    add(f"- Fixed-engine re-size with the {fixed[0]['engine']}: W0 **{float(fixed[0]['W0']):,.0f} lb**, "
-        f"{(float(fixed[0]['W0']) / d['W0_lb'] - 1) * 100:.0f} % heavier than the rubber-engine design. "
-        "Choosing the real engine is the main open decision for Gate A.")
-    add(f"- First-pass sizing (Table 3.1 fit with sketch values) gave {fp['W0']:,.0f} lb; the refined "
-        f"component build-up gives {d['W0_lb']:,.0f} lb. Empty fraction: build-up {stat['build_up']:.3f}, "
-        f"Table 3.1 x 0.95 {stat['table_3_1']:.3f}, Table 6.2 x 0.95 {stat['table_6_2']:.3f}. The build-up "
-        "has no crew items; the fits include them.")
-    met = [r for r in comp_rows if r["met"] == "True"]
+    add(f"- **Recommended concept: {rec}**, re-scored with computed rows (section 2). Éder froze the "
+        "pusher at round 1 on the earlier scoring; the evidence below "
+        + ("reverses it, so the concept goes back to him at round 2." if rec != "pusher"
+           else "confirms it.") + " Both designs are kept and reported.")
+    add(f"- **{rec.capitalize()} with the {inp['chosen_engine']}**: take-off weight **{d['W0_lb']:,.0f} lb** "
+        f"({d['W0_lb'] * LB_KG:,.0f} kg), empty {d['We_lb']:,.0f} lb, fuel {d['fuel_lb']:,.0f} lb, payload "
+        f"{d['payload_lb']:,.0f} lb; W/S {d['W_S']:.0f} lb/ft^2, A {d['A']:.0f}, span {w['span']:.1f} ft "
+        f"({w['span'] * FT_M:.1f} m). The {other} with the same engine: {D[other]['W0_lb']:,.0f} lb.")
+    add(f"- **The engine sets the weight.** With a rubber engine the same aircraft would be "
+        f"{float(rub['W0']):,.0f} lb ({float(rub['bhp']):.0f} shp). The {inp['chosen_engine']} gives "
+        f"{d['bhp_sl']:.0f} shp against {max(pr.values()):.0f} needed ({binding} binds) at a datasheet "
+        f"consumption of {d['cbhp_used']['cruise']} lb/(hp h), against Raymer's 0.5 and 0.6 for large "
+        f"turboprops (Table 3.4): {d['W0_lb'] - float(rub['W0']):+,.0f} lb. The engine figures come from "
+        "search extracts of the maker's pages and must be checked against the datasheet (engines.yaml).")
     unmet = [r for r in comp_rows if r["met"] == "False"]
-    add(f"- Requirements: {len(met)} checked rows met, {len(unmet)} not met (table in section 1).")
-    add(f"- Raymer method tests: `{tests}` (DR-1 printed values, `tests/task12/`).")
+    met = [r for r in comp_rows if r["met"] == "True"]
+    add(f"- Requirements: {len(met)} checked rows met, {len(unmet)} not met"
+        + (": " + "; ".join(r["requirement"] for r in unmet) if unmet else "") + ".")
+    add(f"- Empty weight: build-up {stat['build_up']:.3f} of W0, Table 3.1 x 0.95 {stat['table_3_1']:.3f} "
+        "(decomposition in section 4).")
+    add(f"- First pass (Table 3.1 with sketch values) {fp['W0']:,.0f} lb. Method tests: `{tests}`.")
     add("")
-    add("## 1. Requirements compliance")
+    add("## 0. What changed after Gate A round 1")
+    add("")
+    add("| Finding or ruling | Change |")
+    add("|---|---|")
+    for f_, c_ in [
+        ("F1 main gear missing from the balance", "Main gear placed by the 15 deg tipback rule (p. 232) and included in the CG; nose-wheel load and propeller clearance checked"),
+        ("F2 gust at take-off weight only", "Gust at take-off and zero-fuel weight, sea level and mission altitude; the largest sets the limit load"),
+        ("F3 q inconsistent with the V-n", "Weight equations use q at the design cruise speed V_C (sea-level maximum level speed)"),
+        ("F4 crew-item explanation", "Decomposition reported (section 4)"),
+        ("F5 ceiling grid artefact", "Ceiling by bisection with CD0 at altitude; the last passing altitude is reported"),
+        ("F6 hard-coded speed text", "The mission records which legs the 1.3 V_stall floor set; the text is generated from it"),
+        ("F7 constraint diagram", "Landing limit searched to 200 lb/ft^2; best-range and best-loiter W/S and the R16 turn added"),
+        ("F8 test coverage", "Tests for methods without printed values (identities, limits, Table 10.4 against Mattingly's PT6A-42); equation-to-test table (section 10)"),
+        ("F9 constants in the code", "Moved to the ledger with sources and bands (appendix A)"),
+        ("F10 calibration list, polar, propeller", "Section 9; drag polar and propeller operating points added"),
+        ("F11 trim and rotation", "Trim on every mission leg at its fuel state; nose rotation at 0.8 V_TO with the forward CG (p. 432-433); tail enlarged where rotation needs it"),
+        ("Engine (Éder: find a small turboprop)", "PBS TP100 (241 shp, 135.8 lb, 0.901 lb/(hp h)) fixed; Turbotech TP-R90, PT6A-42 and rubber compared"),
+        ("R9 negative limit (Éder: raise it)", "Ledger -1.8 (GA utility); see section 7"),
+    ]:
+        add(f"| {f_} | {c_} |")
+    add("")
+    add(f"## 1. Requirements compliance ({rec})")
     add("")
     add("| Requirement | Value | Limit | Rule | Met |")
     add("|---|---|---|---|---|")
     for r in comp_rows:
-        v = r["value"]
-        nd = 3 if r["units"] in ("MAC", "-") else (1 if r["units"] == "ft^3" else 0)
-        add(f"| {r['requirement']} ({r['units']}) | {_f(v, nd)} | {_f(r['limit'], nd)} | {r['rule']} | "
-            f"{ {'True': 'yes', 'False': '**no**', '': '-'}[r['met']] } |")
+        nd = 3 if r["units"] in ("MAC", "-", "tail CL") else (1 if r["units"] in ("ft^3", "in") else 0)
+        mark = {"True": "yes", "False": "**no**", "": "-"}[r["met"]]
+        add(f"| {r['requirement']} ({r['units']}) | {_f(r['value'], nd)} | {_f(r['limit'], nd)} | {r['rule']} | {mark} |")
     add("")
-    add("Landing weight is taken as the take-off weight (conservative; Raymer 17.9 allows the "
-        "requirement to set it). Distances are the segment sums of Raymer 17.8-17.9, not FAR field "
-        f"lengths; the FAR landing field length would be {per['landing']['far_field_length']:,.0f} ft.")
+    add("Take-off and landing distances are Raymer's segment sums (17.8-17.9) with gear and flap drag "
+        "(12.37); landing weight = take-off weight (conservative). FAR landing field length: "
+        f"{per['landing']['far_field_length']:,.0f} ft. The nose-load rows pass inside Raymer's 5-20 % "
+        "limits; the 8-15 % band is his optimum.")
     add("")
-    add("## 2. Three-view and layout")
+    add("## 2. Concept choice (step 2, re-scored)")
     add("")
-    add(f"![three-view]({rel}/three_view.png)")
+    add("| Criterion | Weight | Tractor | Pusher | Tractor grade | Pusher grade |")
+    add("|---|---|---|---|---|---|")
+    for r in cs["table"]:
+        nd_t = 3 if float(r["tractor"]) < 1 else 0
+        nd_p = 3 if float(r["pusher"]) < 1 else 0
+        add(f"| {r['criterion']} | {r['weight']:.2f} | {_f(r['tractor'], nd_t)} | {_f(r['pusher'], nd_p)} | "
+            f"{r['tractor_grade']} | {r['pusher_grade']} |")
+    add(f"| **weighted score** | | | | **{cs['score']['tractor']:.2f}** | **{cs['score']['pusher']:.2f}** |")
     add("")
-    add(f"Fuselage {d['fuselage']['length']:.1f} ft long (Raymer Table 6.3, general aviation single), "
-        f"{d['fuselage']['diameter']:.2f} ft diameter (fineness from the ledger). Tail arm "
-        f"{d['tail_arm_ft']:.1f} ft ({'aft-engine 47.5 %' if d['concept'] == 'pusher' else 'front-propeller 60 %'} "
-        "of length, p. 112-113). Horizontal tail "
-        f"{d['horizontal_tail']['area']:.1f} ft^2, vertical tail {d['vertical_tail']['area']:.1f} ft^2 "
-        "(volume coefficients 0.70 and 0.04, Table 6.4). Propeller diameter "
-        f"{d['propeller_diameter_ft']:.2f} ft (smaller of (10.24) and the 950 ft/s tip-speed limit).")
+    add("| Quantity | Tractor | Pusher |")
+    add("|---|---|---|")
+    for label, key, nd in (("W0 (lb)", "W0_lb", 0), ("W/S (lb/ft^2)", "W_S", 0), ("A", "A", 0),
+                           ("main gear length (in)", "gear_length_in", 0),
+                           ("horizontal-tail volume scale for rotation", "ht_volume_scale", 2),
+                           ("limit load factor", "n_limit", 2)):
+        add(f"| {label} | {_f(D['tractor'][key], nd)} | {_f(D['pusher'][key], nd)} |")
+    for label, k in (("nose-wheel load, full fuel", "full"), ("nose-wheel load, empty", "empty")):
+        add(f"| {label} | {D['tractor']['layout']['nose_load'][k]:.3f} | {D['pusher']['layout']['nose_load'][k]:.3f} |")
     add("")
-    add("## 3. Weight statement")
+    add("The pusher's propeller sits at the tail. Keeping 9 in of clearance at a "
+        f"{ledger['assumptions']['rotation_angle_deg']['value']:.0f} deg rotation (p. 222, 232) needs a "
+        f"{D['pusher']['gear_length_in']:.0f} in main gear. The tipback rule then moves the wheels aft and "
+        "overloads the nose wheel, and the higher CG and longer wheelbase need a larger tail to rotate. "
+        "A raised thrust line or a tail bumper that limits rotation could relieve it; neither is "
+        "modelled. Criterion weights and the qualitative grades are judgements, stated for Éder.")
+    add("")
+    add(f"![three-view {rec}]({rel}/three_view_{rec}.png)")
+    add("")
+    add(f"![three-view {other}]({rel}/three_view_{other}.png)")
+    add("")
+    add("## 3. Layout")
+    add("")
+    add(f"Fuselage {d['fuselage']['length']:.1f} ft (Table 6.3), {d['fuselage']['diameter']:.2f} ft "
+        f"diameter; tail arm {d['tail_arm_ft']:.1f} ft; horizontal tail {d['horizontal_tail']['area']:.1f} "
+        f"ft^2 (volume scale {d['ht_volume_scale']:.2f}), vertical tail {d['vertical_tail']['area']:.1f} "
+        f"ft^2; propeller {d['propeller_diameter_ft']:.2f} ft (three-blade (10.24) or the 950 ft/s tip "
+        f"limit); main gear {d['gear_length_in']:.0f} in at {lay['x_main']:.2f} ft, CG height "
+        f"{lay['h_cg']:.2f} ft; propeller clearance at rotation {lay['prop_clearance_in']:.1f} in.")
+    add("")
+    add("## 4. Weight statement")
     add("")
     add(f"![weights]({rel}/weights.png)")
     add("")
-    add("| Item | lb | Station (ft from nose) |")
+    add("| Item | lb | Station (ft) |")
     add("|---|---|---|")
     for k, st in sorted(d["stations"].items(), key=lambda kv: kv[1]["x"]):
         add(f"| {k} | {st['weight']:.1f} | {st['x']:.2f} |")
-    add(f"| fuel (in wing tanks) | {d['fuel_lb']:.1f} | at the wing group |")
-    add(f"| **take-off** | **{d['W0_lb']:.1f}** | CG {lay['cg_full']:.2f} full, {lay['cg_empty']:.2f} empty |")
+    add(f"| fuel (wing tanks) | {d['fuel_lb']:.1f} | wing group |")
+    total = sum(s["weight"] for s in d["stations"].values()) + d["fuel_lb"]
+    add(f"| **sum** | **{total:.1f}** | CG {lay['cg_full']:.2f} full, {lay['cg_empty']:.2f} empty |")
     add("")
-    add("Composite factors of Raymer Table 15.4 (wing 0.85, tails 0.83, fuselage 0.90, gear 0.95) are "
-        "applied to the general-aviation equations (15.46)-(15.57). Crew items (seats, furnishings, air "
-        "conditioning, pressurisation) are left out (R14).")
+    add("Empty-fraction decomposition (reviewer finding F4):")
     add("")
-    add("## 4. Drag, propulsion and mission")
+    add("| Quantity | Fraction of W0 |")
+    add("|---|---|")
+    for k, label in (("build_up", "component build-up with composite factors (this design)"),
+                     ("build_up_metal", "same build-up without the Table 15.4 composite factors"),
+                     ("crew_items_furnishings", "crew items Raymer's GA set would add: furnishings (15.59); air conditioning (15.58) is zero with no crew"),
+                     ("build_up_metal_with_crew_items", "metal build-up plus crew items"),
+                     ("table_3_1_metal", "Table 3.1 fit, general aviation single"),
+                     ("table_3_1", "Table 3.1 fit x 0.95 (composite)"),
+                     ("table_6_2", "Table 6.2 fit x 0.95"),
+                     ("table_15_2_approximate", "Table 15.2 approximate group weights")):
+        add(f"| {label} | {stat[k]:.3f} |")
     add("")
-    add(f"CD0 {d['CD0_mission_altitude']:.4f} at 20,000 ft and {d['CD0_sea_level']:.4f} at sea level "
-        f"(component build-up (12.24) with 5 % leakage and the sensor turret), span efficiency e "
-        f"{d['e']:.3f} from (12.49), K {d['K']:.4f}. Clean CL_max {d['CL_max']['clean']:.2f}, take-off "
+    gap = stat["table_3_1_metal"] - stat["build_up_metal_with_crew_items"]
+    add(f"Like for like (metal, with crew items) the group equations sit {abs(gap):.3f} of W0 "
+        f"{'below' if gap > 0 else 'above'} the Table 3.1 fit at this size; the crew items are "
+        f"{stat['crew_items_furnishings']:.3f}. The build-up and the fit therefore differ for more than "
+        "the crew deduction; Stage 3's independent sizing (Anderson ch. 8) is the check.")
+    add("")
+    add("## 5. Drag, propulsion and mission")
+    add("")
+    add(f"![polar]({rel}/polar.png)")
+    add("")
+    add(f"CD0: {d['CD0']['mission_altitude']:.4f} at mission altitude, {d['CD0']['sea_level']:.4f} sea "
+        f"level, {d['CD0']['takeoff']:.4f} take-off and {d['CD0']['landing']:.4f} landing (gear by the "
+        "DR-1 p. 572 per-area values, flaps by (12.37)); "
+        f"e {d['e']:.3f} (12.49); CL_max clean {d['CL_max']['clean']:.2f}, take-off "
         f"{d['CL_max']['takeoff']:.2f}, landing {d['CL_max']['landing']:.2f}.")
     add("")
-    add("| Segment | W start (lb) | W end (lb) | Mean TAS (kt) |")
-    add("|---|---|---|---|")
+    add("| Segment | W start (lb) | W end (lb) | Mean TAS (kt) | Speed set by |")
+    add("|---|---|---|---|---|")
     for m in d["mission"]:
-        add(f"| {m['segment']} | {m['W_start']:.1f} | {m['W_end']:.1f} | "
-            f"{_f(m['V_kt'], 1) if m['V_kt'] else '-'} |")
+        if m["V_kt"]:
+            fr = m["speed_floor_fraction"]
+            by = ("1.3 V_stall floor" if fr > 0.99 else "best speed (L/D max or minimum power)"
+                  if fr < 0.01 else f"floor in {fr:.0%} of sub-segments")
+            v = _f(m["V_kt"], 1)
+        else:
+            by, v = "-", "-"
+        add(f"| {m['segment']} | {m['W_start']:.1f} | {m['W_end']:.1f} | {v} | {by} |")
     add("")
-    add("Cruise and loiter fly at the larger of the best speed (L/D max for range, minimum power for "
-        "loiter) and 1.3 V_stall clean; at this design the 1.3 V_stall floor sets both speeds. Fuel is "
-        "1.06 times the mission burn (3.11).")
+    add("Propeller operating points (efficiency is the ledger's constant, not computed; J and C_P from "
+        "(13.10)-(13.11)):")
     add("")
-    add("## 5. Constraint diagram and carpet plot")
+    add("| Point | V (kt) | Shaft hp | Throttle | J | C_P |")
+    add("|---|---|---|---|---|---|")
+    for k, p in d["propeller_points"].items():
+        add(f"| {k} | {p['V_kt']:.1f} | {p['shaft_hp']:.1f} | {p['throttle']:.2f} | {p['J']:.2f} | {p['C_P']:.3f} |")
+    add("")
+    add("Engines compared at the recommended point (W/S, A and tail held):")
+    add("")
+    add("| Engine | shp | Engine lb | C_bhp cruise / loiter | W0 (lb) | Fuel (lb) | Power needed (hp) | Power OK |")
+    add("|---|---|---|---|---|---|---|---|")
+    for r in engines:
+        add(f"| {r['engine']} | {_f(r.get('bhp'))} | {_f(r.get('engine_weight_lb'))} | "
+            f"{r.get('cbhp_cruise', '')} / {r.get('cbhp_loiter', '')} | {_f(r.get('W0'))} | {_f(r.get('fuel'))} | "
+            f"{_f(r.get('required_hp'))} | {r.get('power_ok', '')} |")
+    add("")
+    add("The rubber engine's weight is Table 10.4 extrapolated below 400 bhp. The TP-R90 and PT6A-42 rows "
+        "carry Table 3.4 consumption (no published values in hand); the TP-R90 lacks the power for the "
+        "ceiling.")
+    add("")
+    add("## 6. Constraint diagram and carpet plots")
     add("")
     add(f"![constraints]({rel}/constraint_diagram.png)")
     add("")
-    add(f"![carpet]({rel}/carpet.png)")
+    add(f"![carpet engine]({rel}/carpet_engine.png)")
     add("")
-    add("Required sea-level shp: " + ", ".join(f"{k} {v:.0f}" for k, v in pr.items()) + ". "
-        f"Raymer's statistical power loading (Table 5.4, general aviation single, at the computed "
-        f"maximum speed) is {plc['hp_per_W0_table_5_4']:.3f} hp/lb against {plc['hp_per_W0_sized']:.3f} "
-        "sized here. The ceiling and altitude-cruise rows use Raymer's piston power lapse (13.9), because "
-        "he gives none for a turboprop (13.7); Stage 3 measures the lapse with Mattingly App. K.")
+    add(f"![carpet rubber]({rel}/carpet_rubber.png)")
     add("")
-    add("## 6. Concept choice (step 2)")
+    add("Required sea-level shp: " + ", ".join(f"{k} {v:.0f}" for k, v in pr.items())
+        + f"; engine {d['bhp_sl']:.0f}. The ceiling and altitude rows use Raymer's piston lapse (13.9); "
+        "Stage 3 measures the turboprop lapse (Mattingly App. K). Carpets use the Table 6.4 tail; the "
+        "rotation resize is applied at each concept's optimum.")
     add("")
-    add("| Criterion | Weight | Tractor | Pusher |")
-    add("|---|---|---|---|")
-    for r in cs["table"]:
-        add(f"| {r['criterion']} | {r['weight']:.2f} | {r['tractor_grade']} | {r['pusher_grade']} |")
-    add(f"| **weighted score** | | **{cs['score']['tractor']:.2f}** | **{cs['score']['pusher']:.2f}** |")
-    add("")
-    add(f"Chosen: **{cs['chosen']}**. The weights and the 1-5 grades are judgements, stated so that Gate A "
-        "can change them; only the weight row is computed. The tractor is "
-        f"{(float(cs['optimum']['pusher']['W0']) / float(cs['optimum']['tractor']['W0']) - 1) * 100:.1f} % "
-        "lighter at its own optimum (shorter tail arm and longer gear cost the pusher).")
-    add("")
-    add("## 7. Loads, stability and trim")
+    add("## 7. Loads, stability, trim and rotation")
     add("")
     add(f"![vn]({rel}/vn.png)")
     add("")
-    g = d["vn"]
-    gs, ga = g["gust_sea_level"], g["gust_mission_altitude"]
-    governs = "the manoeuvre limit governs" if d["n_gust"] <= 3.8 else "the gust load governs"
-    add(f"Gust load factor at the maximum level speed: {gs['n_cruise']:.2f} at sea level "
-        f"({gs['V_cruise_eas_kt']:.0f} kt EAS) and {ga['n_cruise']:.2f} at 20,000 ft "
-        f"({ga['V_cruise_eas_kt']:.0f} kt EAS), U_de 30 ft/s, (14.4)-(14.8); {governs}: limit "
-        f"{d['n_limit']:.2f}, ultimate {d['Nz_ultimate']:.2f}.")
-    add(f"Neutral point {lay['x_np']:.2f} ft, static margin {lay['sm_full']:.3f} (full fuel) and "
-        f"{lay['sm_empty']:.3f} (empty) of the MAC; the wing is placed to centre the margin in R13. "
-        f"Downwash gradient {1 - lay['dah_da']:.3f} from the far-wake value 2 CL_alpha/(pi A), not "
-        "Raymer's chart (not readable from the notes; conservative for the margin). Trim tail lift "
-        "coefficient at loiter: " + ", ".join(f"{k} {v['CL_tail']:.3f}" for k, v in lay["trim"].items()) + ".")
+    add("| Gust case | n (positive) | 2 - n (negative) |")
+    add("|---|---|---|")
+    for k, v in d["gusts"].items():
+        add(f"| {k} | {v:.2f} | {2 - v:.2f} |")
+    add("")
+    add(f"Limit load factor {d['n_limit']:.2f}, ultimate {d['Nz_ultimate']:.2f}; design q "
+        f"{d['q_design_psf']:.1f} psf at V_C {d['V_c_eas_kt']['sea_level']:.0f} kt EAS. Negative gust "
+        f"{d['n_negative_gust']:.2f} against the -1.8 set at round 1; Raymer's weight equations carry "
+        "only the positive case.")
+    add("")
+    add(f"Static margin {lay['sm_full']:.3f} (full) and {lay['sm_empty']:.3f} (empty); neutral point "
+        f"{lay['x_np']:.2f} ft; downwash gradient {1 - lay['dah_da']:.3f} (far-wake value in place of "
+        "Raymer's chart, conservative). Tail lift coefficient in trim at every leg start and end: "
+        + ", ".join(f"{k} {v['CL_tail']:.3f}" for k, v in lay["trim"].items())
+        + f". Rotation at {lay['rotation']['V_kt']:.0f} kt with the forward CG: tail CL needed "
+        f"{lay['rotation']['CL_tail_needed']:.2f} (available "
+        f"{ledger['assumptions']['tail_cl_max_rotation']['value']}).")
     add("")
     add("## 8. Performance as sized")
     add("")
@@ -371,59 +533,75 @@ def main(argv=None):
               "v_best_climb_kt", "service_ceiling_ft", "vmax_alt_kt"):
         add(f"| {k} | {_f(per[k], 1)} |")
     add("")
-    add("## 9. Fixed engine and trades")
+    add("## 9. Trades, sensitivities and out-of-calibration uses")
     add("")
-    add("| Engine (Mattingly Table C.1) | shp | Engine lb | W0 (lb) | Fuel (lb) | Power / needed |")
-    add("|---|---|---|---|---|---|")
-    for f in fixed:
-        add(f"| {f['engine']} | {_f(f['bhp'])} | {_f(f['engine_weight_lb'])} | {_f(f['W0'])} | "
-            f"{_f(f['fuel'])} | {float(f['power_ratio']):.1f} |")
-    add("")
-    add("| Trade | W0 (lb) | shp | Fuel (lb) |")
+    add("| Trade | W0 (lb) | Fuel (lb) | Power OK |")
     add("|---|---|---|---|")
     for t in trades:
-        if "(" not in t["case"]:
-            add(f"| {t['case']} | {_f(t['W0'])} | {_f(t['bhp'])} | {_f(t['fuel'])} |")
+        if not (t["case"].endswith("(lo)") or t["case"].endswith("(hi)")):
+            add(f"| {t['case']} | {_f(t['W0'])} | {_f(t['fuel'])} | {t.get('power_ok', '')} |")
+    base = next(t for t in trades if t["case"] == "loiter_h=8")
+    sens, by_name = [], {}
+    for t in trades:
+        if (t["case"].endswith("(lo)") or t["case"].endswith("(hi)")) and t["W0"] not in ("", None):
+            dw = float(t["W0"]) - float(base["W0"])
+            sens.append((abs(dw), dw, t))
+            by_name.setdefault(t["case"].split("=")[0], []).append(abs(dw))
+    sens.sort(key=lambda x: -x[0])
     add("")
-    add("Largest one-at-a-time effects of the banded assumptions on W0 (each at its band end):")
-    add("")
-    add("| Assumption at band end | W0 (lb) | Change (lb) |")
+    add("| Ledger assumption at band end | W0 (lb) | Change (lb) |")
     add("|---|---|---|")
-    for dw, t in sens[:10]:
-        add(f"| {t['case']} | {_f(t['W0'])} | {float(t['W0']) - float(base['W0']):+.0f} |")
-    by_name = {}
-    for dw, t in sens:
-        by_name.setdefault(t["case"].split("=")[0], []).append(dw)
-    zero = sorted(k for k, v in by_name.items() if max(v) < 0.5)
+    for _, dw, t in sens[:12]:
+        add(f"| {t['case']} | {_f(t['W0'])} | {dw:+.0f} |")
     add("")
-    add("No effect on W0 at this design (not binding here): " + ", ".join(zero) + ".")
+    add("No effect at this design: " + ", ".join(sorted(k for k, v in by_name.items() if max(v) < 0.5)) + ".")
     add("")
-    add("## 10. Risks and open items for Gate A")
+    add("Used outside its calibration (each carried with a band or flagged for Stage 3):")
     add("")
-    add(f"1. **Engine size.** The aircraft needs about {d['bhp_sl']:.0f} shp; Raymer's turboprop statistics "
-        "start at 400 bhp and the library's real turboprops start at 850 eshp. Options: accept the "
-        f"{fixed[0]['engine']} ({float(fixed[0]['W0']):,.0f} lb aircraft, heavily over-powered); find an "
-        "open datasheet for a small turboprop near the rubber engine's power; or enlarge the mission "
-        "(payload or endurance) so the power reaches the statistical range. Stage 3 measures the fuel "
-        "burn and lapse with Mattingly App. K either way.")
-    add("2. **Power lapse.** Raymer's piston lapse (13.9) sizes the ceiling, the binding requirement; a "
-        "turbine's lapse differs. Measured in Stage 3 (Mattingly App. K).")
-    add("3. **Empty weight without crew.** The build-up is "
-        f"{(1 - stat['build_up'] / stat['table_3_1']) * 100:.0f} % below the Table 3.1 fit; the size of "
-        "the crew-item deduction is the task's main assumption. Measured in Stage 3 by Anderson's "
-        "independent sizing (ch. 8).")
-    add("4. **Section data.** CL_max 1.5 is a judgement; the 1.3 V_stall floor makes it set the loiter "
-        "and cruise speeds. Measured in Stage 3 (SU2 polar after a NACA-data validation row).")
-    add("5. **Span efficiency.** (12.49) falls quickly with aspect ratio and sets the optimum A; the "
-        "vortex lattice measures the inviscid part in Stage 3.")
-    add("6. **Downwash** from the far-wake value, not Raymer's chart; measured by the lattice in Stage 3.")
-    add("7. **Concept scoring** grades are judgements for Éder to confirm.")
-    if unmet:
-        add("8. **Requirements not met** (section 1): " + "; ".join(r["requirement"] for r in unmet)
-            + ". The negative gust case is outside Raymer's weight equations, which take the positive "
-            "ultimate load; Gate A decides whether to raise the negative limit or size for it.")
+    for item in [
+        "Table 3.1 and Table 6.2 empty-weight fits and the GA group weights (15.46)-(15.57): crewed aircraft, used without crew items.",
+        "Table 6.3 fuselage length: crewed aircraft; it sets the tail arm and the fuselage wetted area.",
+        "Table 3.4 consumption (rubber, TP-R90 and PT6A-42 rows): large turboprops. The TP100 uses its datasheet cruise value also at loiter; its part-power value is unknown.",
+        "Table 10.4 turboprop weight and size: 400-5,000 bhp; the rubber engine and the TP100 are below it.",
+        "(13.9) power lapse: piston engines, applied to turboprops.",
+        "(12.49) span efficiency: a straight-wing fit; it sets the optimum aspect ratio.",
+        "Downwash: the far-wake value in place of Raymer's chart.",
+        "Gear and tyre drag per area: DR-1's readings of Raymer's gear-drag table.",
+    ]:
+        add(f"- {item}")
     add("")
-    add("## 11. Records")
+    add("## 10. Method tests (equation to test)")
+    add("")
+    add(f"Run: `{tests}`. Functions are matched by name in `tests/task12/`; 'none' means no test calls "
+        "the function directly (it may still run through `uav.py` in the pipeline tests). DR-1's "
+        "maximum-speed and climb plots (p. 584-585) use a chart thrust curve and are not reproduced.")
+    add("")
+    add("| Function | Equation(s) | Page(s) | Tests |")
+    add("|---|---|---|---|")
+    for row in equation_table():
+        add("| " + " | ".join(row) + " |")
+    add("")
+    add("## 11. Open items for Gate A round 2")
+    add("")
+    add(f"1. **Concept**: the computed rows favour the {rec} ({cs['score'][rec]:.2f} against "
+        f"{cs['score'][other]:.2f}); the round 1 freeze was the pusher.")
+    add(f"2. **Negative gust**: {d['n_negative_gust']:.2f} at zero-fuel weight against -1.8.")
+    add("3. **The 1.3 V_stall speed floor** (it sets the loiter speed) and **R16** (30 deg bank at "
+        "loiter): not yet ruled.")
+    add(f"4. **Engine data**: the {inp['chosen_engine']} figures are search extracts; the datasheet must be "
+        "read before Gate B. Its part-power consumption at loiter is unknown (the cruise value is used).")
+    add("5. The rotation and trim checks rest on two assumed tail lift limits (ledger).")
+    add("")
+    add("## Appendix A. Ledger")
+    add("")
+    add("| Name | Value | Units | Confidence | Band | Source |")
+    add("|---|---|---|---|---|---|")
+    for grp in ("requirements", "assumptions"):
+        for name, q in ledger[grp].items():
+            band = q.get("band", "")
+            add(f"| {name} | {q['value']} | {q['units']} | {q['confidence']} | {band if band else ''} | {q['source']} |")
+    add("")
+    add("## Appendix B. Records")
     add("")
     for name in sorted(p.name for p in run.iterdir()):
         add(f"- `{run / name}`")

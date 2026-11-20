@@ -33,7 +33,7 @@ def test_engine_power_meets_every_requirement(design):
 
 
 def test_mission_burns_fuel_in_every_segment(design):
-    for name, w_in, w_out, _ in design["mission"]:
+    for name, w_in, w_out, *_ in design["mission"]:
         assert w_out < w_in, name
 
 
@@ -54,3 +54,25 @@ def test_more_endurance_costs_weight(ledger):
     a = uav.evaluate("pusher", 12.0, 10.0, dict(ledger, loiter_h=6.0))
     b = uav.evaluate("pusher", 12.0, 10.0, dict(ledger, loiter_h=10.0))
     assert b["W0"] > a["W0"]
+
+
+def test_layout_checks_present(design, ledger):
+    lay = uav.layout(design, ledger)
+    for key in ("nose_load", "prop_clearance_in", "rotation", "trim", "x_main"):
+        assert key in lay
+    # the main gear is in the weight and balance (reviewer finding F1)
+    assert "main_gear" in lay["items"]
+    total = sum(m for m, _ in lay["items"].values()) + design["fuel"]
+    assert total == pytest.approx(design["W0"], rel=1e-6)
+
+
+def test_gust_checked_at_zero_fuel_weight(design):
+    # a lighter aircraft takes a larger gust load factor (Raymer p. 340)
+    g = design["gusts"]
+    assert g["sea_level/zero_fuel_weight"] > g["sea_level/takeoff_weight"]
+    assert design["n_gust"] == pytest.approx(max(g.values()))
+
+
+def test_ceiling_is_last_passing_altitude(design, ledger):
+    h = uav.ceiling(design, ledger)
+    assert h >= ledger["ceiling_ft"] - 50.0    # the rubber engine is sized to the ceiling
