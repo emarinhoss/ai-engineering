@@ -18,7 +18,7 @@ requirements:
   ceiling_rate_fpm:      {value: 100.0, units: ft/min, confidence: default, source: "R12: service-ceiling definition"}
   static_margin_min:     {value: 0.05, units: MAC, confidence: default, source: "R13, spec default"}
   static_margin_max:     {value: 0.15, units: MAC, confidence: default, source: "R13, spec default"}
-  speed_over_stall:      {value: 1.3, units: "-", confidence: default, source: "Cruise and loiter fly at least 1.3 V_stall clean at the current weight; the rule of Task 10 (docs/specs/task10_drone_sizing.md section 2), kept for comparability. Not from the library."}
+  speed_over_stall:      {value: 1.3, units: "-", confidence: requirement, source: "R17, Gate A round 3 ruling (Eder 2026-11-20, keep): cruise and loiter fly at least 1.3 V_stall clean at the current weight, for gust and turn margin on a long orbit; first used in Task 10. Not from the library."}
 
 assumptions:
   # engine and propeller, Raymer Table 3.4 p. 19 (turboprop)
@@ -88,7 +88,7 @@ assumptions:
   main_gear_station_guess: {value: 0.40, units: "-", confidence: assumed, band: [0.30, 0.50], source: "Main-wheel station as a fraction of fuselage length used only to size the gear length for propeller clearance before the layout places the wheels; the layout then checks the clearance at the placed station"}
   tail_cl_max_trim:      {value: 0.5, units: "-", confidence: assumed, band: [0.4, 0.7], source: "Largest horizontal-tail lift coefficient allowed in steady trim, leaving elevator authority; a judgement, not from the library"}
   tail_cl_max_rotation:  {value: 1.0, units: "-", confidence: assumed, band: [0.8, 1.2], source: "Horizontal-tail lift coefficient available with full elevator at rotation; a judgement, not from the library"}
-  turn_bank_deg:         {value: 30.0, units: deg, confidence: default, source: "R16 (proposed at Gate A round 1, to be ruled): sustained 30 deg banked turn (n = 1.155) at loiter speed and mission altitude, the turn the spec's step 4 names"}
+  turn_bank_deg:         {value: 30.0, units: deg, confidence: requirement, source: "R16 (accepted at Gate A round 3): sustained 30 deg banked turn (n = 1.155) at loiter speed and mission altitude, the turn the spec's step 4 names"}
   # component stations as fractions of fuselage length (layout judgements; Raymer Table 15.2 p. 398
   # puts fuselage and all-else at 40-50 % of length, wing and tails at 40 % MAC)
   station_engine_pusher:   {value: 0.88, units: "-", confidence: assumed, band: [0.82, 0.92], source: "Aft-mounted engine ahead of the pusher propeller; layout judgement"}
@@ -106,4 +106,9 @@ assumptions:
   overturn_max_deg:      {value: 63.0, units: deg, confidence: published, source: "Raymer p. 232: overturn angle at most 63 deg"}
   station_nose_gear_min: {value: 0.04, units: "-", confidence: assumed, band: [0.03, 0.06], source: "Most-forward nose-gear station the nose can hold; a layout judgement (the nose wheel is moved forward to this when the nose load exceeds the 8-15 % optimum)"}
   flap_cp_fraction:      {value: 0.44, units: "-", confidence: published, source: "Raymer Fig. 16.9 p. 423: centre of pressure of the slotted-flap lift increment at about 0.44-0.45 of the flapped chord"}
-  vc_placard_kt_eas:     {value: 0.0, units: kt, confidence: default, source: "Design cruise speed V_C placard (0 = none: V_C is the full-power maximum level speed). Gate A round 2 ruling pending (reviewer N5)"}
+  vc_placard_kt_eas:     {value: 150.0, units: kt, confidence: requirement, source: "R18, Gate A round 3 ruling (Eder 2026-11-20): design cruise speed V_C placarded at 150 kt EAS (dive 225 kt, Raymer p. 338); the structure and gust loads are sized at it, the autopilot enforces it"}
+  # --- Gate A round 3 ruling: main gear retracts into sponsons (wheels outboard of the fuselage) ---
+  sponson_length_per_tyre: {value: 3.0, units: "-", confidence: assumed, band: [2.5, 4.0], source: "Sponson length as a multiple of the main-tyre diameter (wheel, strut fold and fairing); a layout judgement"}
+  sponson_depth_per_tyre:  {value: 1.2, units: "-", confidence: assumed, band: [1.1, 1.4], source: "Sponson depth as a multiple of the main-tyre diameter; a layout judgement"}
+  sponson_interference_q:  {value: 1.5, units: "-", confidence: published, band: [1.3, 1.5], source: "Raymer p. 284-285: nacelle or store mounted directly on the wing or fuselage Q about 1.5, within one diameter about 1.3"}
+  sponson_weight_per_wetted: {value: 1.4, units: lb/ft^2, confidence: published, band: [1.0, 1.8], source: "Raymer Table 15.2 p. 398: general-aviation fuselage 1.4 lb per ft^2 of wetted area, applied to the sponson skins (composite factor 0.90 of Table 15.4 applied in code)"}

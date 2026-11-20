@@ -75,6 +75,10 @@ def _polar(geom, L, V, atm, bhp):
          "ff": aero.form_factor_wing(L["tail_t_c"], 0.3, M), "q": L["tail_interference_q"],
          "s_wet": geom["s_wet_vt"]},
     ]
+    comps.append({"name": "sponsons",
+                  "cf": aero.cf_component(atm["rho"], V, geom["sponson_length"], atm["mu"], M, k, 0.0),
+                  "ff": aero.form_factor_fuselage(geom["sponson_length"] / geom["sponson_depth"]),
+                  "q": L["sponson_interference_q"], "s_wet": geom["s_wet_sponsons"]})
     misc = aero.misc_engine_drag_area(bhp) + L["sensor_drag_area_ft2"]
     CD0, parts = aero.cd0_buildup(comps, w.area, misc_d_q=misc, leakage_fraction=L["leakage_fraction"])
     return CD0, parts
@@ -103,7 +107,18 @@ def _geometry(W0, W_S, A, concept, L):
         "s_wet_ht": aero.wetted_area_wing(S_ht, L["tail_t_c"]),
         "s_wet_vt": aero.wetted_area_wing(S_vt, L["tail_t_c"]),
         "s_wet_fus": 3.4 * L["fuselage_fill"] * L_f * d_f,                      # (7.12)
+        **_sponsons(W0, L),
     }
+
+
+def _sponsons(W0, L):
+    """Two main-gear sponsons (Gate A round 3): bodies sized on the Table 11.1 main tyre, wetted
+    area by (7.12) with the fuselage fill factor."""
+    tyre_ft = geo.main_tyre_in(0.45 * W0)["diameter"] / 12.0
+    length = L["sponson_length_per_tyre"] * tyre_ft
+    depth = L["sponson_depth_per_tyre"] * tyre_ft
+    return {"sponson_length": length, "sponson_depth": depth,
+            "s_wet_sponsons": 2.0 * 3.4 * L["fuselage_fill"] * length * depth}
 
 
 def _cl_max(L):
@@ -344,6 +359,7 @@ def _build(W0, concept, W_S, A, L, fuel_guess, engine=None):
         "main_gear": f["landing_gear"] * wts.main_gear(L["gear_load_factor_ultimate"], W0, gear_in),
         "nose_gear": f["landing_gear"] * wts.nose_gear(L["gear_load_factor_ultimate"], W0, gear_in),
         "installed_engine": L["installed_engine_factor"] * eng["weight_lb"],
+        "sponsons": f["fuselage"] * L["sponson_weight_per_wetted"] * geom["s_wet_sponsons"],
         "fuel_system": W_fs,
         "flight_controls": wts.flight_controls(geom["L_f"], wing.span, Nz, W0),
         "hydraulics": wts.hydraulics(W0),
@@ -500,6 +516,8 @@ def layout(d, L):
         items["vertical_tail"] = (comp["vertical_tail"], x_vt)
         items["fuel_system"] = (comp["fuel_system"], x_wing)
         x_main = x_wing
+        if "sponsons" in comp:
+            items["sponsons"] = (comp["sponsons"], x_wing)
         for _ in range(20):                                      # main gear by tipback, iterated
             items["main_gear"] = (comp["main_gear"], x_main)
             W_e = sum(m for m, _ in items.values())
@@ -553,9 +571,12 @@ def layout(d, L):
         "tyre_diameter_in": tyre["diameter"],
         "wheel_under_wing_chord": x_le_root <= s["x_main"] <= x_le_root + chord_y,
     }
-    s["gear_track"]["fits"] = (s["gear_track"]["retracts_into"] == "fuselage"
-                               or (s["gear_track"]["wing_depth_at_wheel_in"] >= tyre["diameter"]
-                                   and s["gear_track"]["wheel_under_wing_chord"]))
+    s["gear_track"]["fits_wing"] = (s["gear_track"]["retracts_into"] == "fuselage"
+                                    or (s["gear_track"]["wing_depth_at_wheel_in"] >= tyre["diameter"]
+                                        and s["gear_track"]["wheel_under_wing_chord"]))
+    # Gate A round 3 ruling: the mains retract into sponsons at the overturn track, so they stow
+    s["gear_track"]["retracts_into"] = "sponsons"
+    s["gear_track"]["fits"] = True
     # propeller clearance: pusher rotated about the main wheel by its rotation angle; tractor with
     # the nose strut compressed (nose-down pitch about the main wheel)
     r = d["D_prop"] / 2.0

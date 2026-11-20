@@ -30,6 +30,7 @@ ENGINES = REPO / "data" / "task12" / "engines.yaml"
 WS_GRID = [8.0 + i for i in range(15)]          # 8 to 22 lb/ft^2
 A_GRID = [6.0 + i for i in range(17)]           # 6 to 22
 CHOSEN_ENGINE = "PBS_TP100"                     # Gate A round 1: a small production turboprop
+FROZEN_CONCEPT = "pusher"                       # Gate A round 3 ruling (Eder 2026-11-20)
 
 
 def engine_options():
@@ -272,8 +273,8 @@ def compliance(d, L, lay, per, need, avail, eng_raw):
         ("fuel fits integral wing tanks", "ft^3", need, avail, "<="),
         ("nose-wheel load, full fuel (p. 232-233; optimum 0.08-0.15)", "-", lay["nose_load"]["full"], "0.05-0.20", "nose"),
         ("nose-wheel load, empty fuel", "-", lay["nose_load"]["empty"], "0.05-0.20", "nose"),
-        ("main gear stows (overturn 63 deg sets the track, p. 232)", "in", lay["gear_track"]["wing_depth_at_wheel_in"],
-         lay["gear_track"]["tyre_diameter_in"], "stow"),
+        ("main gear stows: sponsons at the 63 deg overturn track (p. 232; ruling round 3)", "ft",
+         lay["gear_track"]["half_track_ft"], "", "stow"),
         ("propeller clearance at rotation (p. 222)", "in", lay["prop_clearance_in"], L["prop_clearance_in"] - 0.05, ">="),
         ("trim within tail CL limit, all mission legs", "-", "yes" if lay["trim_ok"] else "no", "", "flag"),
         ("nose rotation at 0.8 V_TO (p. 432-433), tail download", "tail CL", abs(lay["rotation"]["CL_tail_needed"]),
@@ -392,10 +393,12 @@ def main(argv=None):
     rubber_opt = {c: feasible_optimum([r for r in rows if r["concept"] == c and r["engine"] == "rubber"],
                                       stall_ws) for c in ("tractor", "pusher")}
     (out / "concept_scores.json").write_text(json.dumps(
-        {"table": table, "score": score, "feasibility": feas, "recommended": recommended,
+        {"table": table, "score": score, "feasibility": feas, "recommended": FROZEN_CONCEPT,
+         "highest_score": recommended, "frozen_at_round3": FROZEN_CONCEPT,
          "frozen_at_round1": "pusher", "ruled_at_round2_on_flawed_rotation": "tractor",
          "rubber_optimum": rubber_opt}, indent=2, default=float))
 
+    recommended = FROZEN_CONCEPT                 # the package follows the frozen concept
     d = res[recommended]["design"]
     cd_rows, limits = constraint_diagram(d, L, eng)
     _write_csv(out / "constraint_diagram.csv", cd_rows)
