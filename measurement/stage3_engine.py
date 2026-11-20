@@ -46,7 +46,7 @@ def _segment_points(d):
     """(segment, W, V_kt, shaft hp) at start, middle and end of each cruise and loiter leg."""
     h = d["ledger_used"]["mission_altitude_ft"]
     pts = []
-    for seg, W1, W2, V, _ in d["mission"]:
+    for seg, W1, W2, V, *_ in d["mission"]:
         if V <= 0.0:
             continue
         for where, W in (("start", W1), ("mid", 0.5 * (W1 + W2)), ("end", W2)):

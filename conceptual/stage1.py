@@ -23,10 +23,12 @@ from conceptual import constraints, sizing, uav
 from conceptual import raymer_aero as aero
 from conceptual import raymer_loads as loads
 from conceptual import raymer_performance as perf
+from conceptual.engine_model import TableEngine
 from conceptual.units import KT, NM, RHO0, isa
 
 REPO = uav.LEDGER.parents[2]
 ENGINES = REPO / "data" / "task12" / "engines.yaml"
+TP100_TABLE = REPO / "data" / "task12" / "tp100_table.json"
 WS_GRID = [8.0 + i for i in range(15)]          # 8 to 22 lb/ft^2
 A_GRID = [6.0 + i for i in range(17)]           # 6 to 22
 CHOSEN_ENGINE = "PBS_TP100"                     # Gate A round 1: a small production turboprop
@@ -34,7 +36,8 @@ FROZEN_CONCEPT = "pusher"                       # Gate A round 3 ruling (Eder 20
 
 
 def engine_options():
-    """Fixed engines from data/task12/engines.yaml as evaluate() expects them. A datasheet cruise
+    """Fixed engines from data/task12/engines.yaml as evaluate() expects them; the chosen engine
+    also carries its App. K table model (conceptual/engine_model.py). A datasheet cruise
     consumption replaces Table 3.4 for cruise and, lacking a part-power value, for loiter too
     (stated in the package); an engine without one keeps the ledger values."""
     raw = yaml.safe_load(ENGINES.read_text())["engines"]
@@ -43,6 +46,10 @@ def engine_options():
         eng = {"name": name, "bhp": float(e["bhp"]), "weight_lb": float(e["weight_lb"])}
         if e.get("cbhp_cruise"):
             eng["cbhp_cruise"] = eng["cbhp_loiter"] = float(e["cbhp_cruise"])
+        if name == CHOSEN_ENGINE and TP100_TABLE.exists():
+            # Stage 3 return (Eder 2026-11-20): the TP100 as its Mattingly App. K cycle table, which
+            # replaces the piston lapse (13.9) and the flat brochure SFC wherever the engine enters
+            eng["model"] = TableEngine(TP100_TABLE)
         out[name] = eng
     return out, raw
 
@@ -334,7 +341,7 @@ def design_record(r, L, eng_raw):
         "Nz_ultimate": d["Nz"], "q_design_psf": d["q_design"], "V_c_eas_kt": {k: v / KT for k, v in d["V_c_eas"].items()},
         "components_lb": d["components"],
         "mission": [{"segment": m[0], "W_start": m[1], "W_end": m[2], "V_kt": m[3] / KT,
-                     "speed_floor_fraction": m[4]} for m in d["mission"]],
+                     "speed_floor_fraction": m[4], "cbhp_mean": m[5]} for m in d["mission"]],
         "wing": g["wing"], "horizontal_tail": g["ht"],
         "vertical_tail": {"area": g["S_vt"], "height": g["vt_height"], "root_chord": g["vt_root"],
                           "mac": g["vt_mac"]},
@@ -366,6 +373,7 @@ def main(argv=None):
         "commit": commit, "ledger": "data/task12/ledger.yaml",
         "ledger_sha256": hashlib.sha256(ledger_bytes).hexdigest(),
         "engines_sha256": hashlib.sha256(ENGINES.read_bytes()).hexdigest(),
+        "tp100_table_sha256": hashlib.sha256(TP100_TABLE.read_bytes()).hexdigest(),
         "chosen_engine": CHOSEN_ENGINE, "ws_grid": WS_GRID, "a_grid": A_GRID}, indent=2))
     (out / "ledger.yaml").write_bytes(ledger_bytes)
     (out / "engines.yaml").write_bytes(ENGINES.read_bytes())
@@ -406,16 +414,18 @@ def main(argv=None):
     (out / "constraint_limits.json").write_text(json.dumps(limits, indent=2))
 
     alt_rows = []
-    tp_table34 = {k: v for k, v in engines[CHOSEN_ENGINE].items() if not k.startswith("cbhp")}
-    tp_table34["name"] = CHOSEN_ENGINE + " at Table 3.4 consumption"
+    tp_table34 = {k: v for k, v in engines[CHOSEN_ENGINE].items() if not k.startswith("cbhp") and k != "model"}
+    tp_table34["name"] = CHOSEN_ENGINE + " at Table 3.4 consumption, piston lapse"
+    tp_gate_a = {k: v for k, v in engines[CHOSEN_ENGINE].items() if k != "model"}
+    tp_gate_a["name"] = CHOSEN_ENGINE + " as at Gate A: flat 0.901, piston lapse"
     for name, e in ([("rubber", None)] + list(engines.items())
-                    + [(tp_table34["name"], tp_table34)]):
+                    + [(tp_gate_a["name"], tp_gate_a), (tp_table34["name"], tp_table34)]):
         try:
             f = uav.evaluate(recommended, d["W_S"], d["A"], dict(L, ht_volume_scale=res[recommended]["ht_scale"]),
                              engine=e)
             alt_rows.append({"engine": name, "bhp": f["bhp"], "engine_weight_lb": f["engine"]["weight_lb"],
-                             "cbhp_cruise": f["ledger_used"]["cbhp_cruise"],
-                             "cbhp_loiter": f["ledger_used"]["cbhp_loiter"],
+                             "cbhp_cruise": next(m[5] for m in f["mission"] if m[0] == "cruise_out"),
+                             "cbhp_loiter": next(m[5] for m in f["mission"] if m[0] == "loiter"),
                              "W0": f["W0"], "We": f["We"], "fuel": f["fuel"], "power_ok": f["power_ok"],
                              "required_hp": max(f["power_req"].values()),
                              "binding": max(f["power_req"], key=f["power_req"].get)})

@@ -86,3 +86,45 @@ def bsfc_at(member, h_ft, V_kt, shaft_hp):
     r = tc.shaft_power_at(member["ref"], M0, a["T"], a["p"], shaft_hp, member["k"],
                           pi_c_max=member["ref"]["pi_c"])
     return r["bsfc"], r["Tt4"]
+
+
+# ---- table for the Stage 1 sizing loop ----------------------------------------------------------
+NOMINAL = {"Tt4": 2200.0, "e_c": 0.85, "e_t": 0.85}     # middle of CYCLE_GRID
+TABLE_H = [2500.0 * i for i in range(13)]                # 0 to 30,000 ft
+TABLE_V = [30.0 + 20.0 * i for i in range(11)]           # 30 to 230 kt TAS
+TABLE_F = [0.10 + 0.05 * i for i in range(19)]           # shaft power / full-throttle power
+
+
+def table(member=None):
+    """Full-throttle shaft hp and part-power shaft SFC of one family member on a grid of altitude,
+    true airspeed and power fraction, for conceptual/engine_model.py to interpolate."""
+    if member is None:
+        k, ref = calibrated(**NOMINAL)
+        member = {"k": k, "ref": ref, **NOMINAL}
+    k, ref = member["k"], member["ref"]
+    p_full, sfc = [], []
+    for h in TABLE_H:
+        a = isa(h)
+        row_p, row_s = [], []
+        for v in TABLE_V:
+            M0 = v * KT / a["a"]
+            top = tc.full_throttle(ref, M0, a["T"], a["p"], k, pi_c_max=ref["pi_c"])
+            row_p.append(top["shaft_hp"])
+            row_s.append([tc.shaft_power_at(ref, M0, a["T"], a["p"], f * top["shaft_hp"], k,
+                                             pi_c_max=ref["pi_c"])["bsfc"] if f < 1.0 else top["bsfc"]
+                          for f in TABLE_F])
+        p_full.append(row_p)
+        sfc.append(row_s)
+    return {"h_ft": TABLE_H, "V_kt": TABLE_V, "power_fraction": TABLE_F, "full_throttle_shp": p_full,
+            "bsfc": sfc, "rated_shp": RATED_SHP,
+            "member": {x: member[x] for x in ("Tt4", "e_c", "e_t")} | {"pi_c": ref["pi_c"], "tau_t": ref["tau_t"]},
+            "calibration_bsfc": BSFC_RATED, "control_law": "Tt4 <= rated, pi_c <= sea-level rated value"}
+
+
+if __name__ == "__main__":
+    import json
+    import sys
+    from pathlib import Path
+    out = Path(sys.argv[1] if len(sys.argv) > 1 else "data/task12/tp100_table.json")
+    out.write_text(json.dumps(table(), indent=1))
+    print(f"wrote {out}")
