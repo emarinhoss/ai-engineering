@@ -318,10 +318,10 @@ def main(argv=None):
     add("")
     add("## Summary")
     add("")
-    add(f"- **Recommended concept: {rec}**, re-scored with computed rows (section 2). Éder froze the "
-        "pusher at round 1 on the earlier scoring; the evidence below "
-        + ("reverses it, so the concept goes back to him at round 2." if rec != "pusher"
-           else "confirms it.") + " Both designs are kept and reported.")
+    add(f"- **Scoring favours the {rec}** with the round-1 criteria and weights ({cs['score'][rec]:.2f} "
+        f"against {cs['score'][other]:.2f}; only W0 is computed, the rest are judgement grades). Éder froze "
+        "the pusher at round 1 and switched to the tractor at round 2 on figures a sign error had "
+        "distorted, so the concept is asked again at round 3. Both designs are kept and reported.")
     add(f"- **{rec.capitalize()} with the {inp['chosen_engine']}**: take-off weight **{d['W0_lb']:,.0f} lb** "
         f"({d['W0_lb'] * LB_KG:,.0f} kg), empty {d['We_lb']:,.0f} lb, fuel {d['fuel_lb']:,.0f} lb, payload "
         f"{d['payload_lb']:,.0f} lb; W/S {d['W_S']:.0f} lb/ft^2, A {d['A']:.0f}, span {w['span']:.1f} ft "
