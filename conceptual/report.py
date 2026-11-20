@@ -336,6 +336,10 @@ def main(argv=None):
         f"({d['cbhp_used']['cruise']} lb/(hp h) against 0.5 and 0.6) {d['W0_lb'] - float(t34['W0']):+,.0f} lb. "
         "The engine figures are search extracts of the maker's pages and must be checked against the "
         "datasheet (engines.yaml).")
+    sp = d["components_lb"].get("sponsons")
+    if sp:
+        add(f"- **Sponsons** (round 3 ruling) weigh {sp:.0f} lb and add wetted area at an interference "
+            "factor of 1.5; see the trade table for the take-off weight they cost.")
     unmet = [r for r in comp_rows if r["met"] == "False"]
     met = [r for r in comp_rows if r["met"] == "True"]
     add(f"- Requirements: {len(met)} checked rows met, {len(unmet)} not met"
