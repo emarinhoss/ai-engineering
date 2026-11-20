@@ -1,0 +1,29 @@
+# Production turboprops considered for the Task 12 fixed-engine re-size (Gate A, question 1:
+# "find a small turboprop"). Units: shp, lb, lb/(hp h). Each entry names its source. Values marked
+# "cited" were read from web-search extracts of the maker's pages on 2026-11-20; the pages themselves
+# could not be retrieved from the sandbox (host blocked by the network policy) and must be checked
+# against the datasheet before Gate B.
+
+engines:
+  PBS_TP100:
+    bhp: 241.0
+    weight_lb: 135.8
+    cbhp_cruise: 0.901
+    max_operating_altitude_ft: 29528.0
+    starting_altitude_max_ft: 19685.0
+    output_shaft_rpm: 2158.0
+    confidence: datasheet
+    source: "PBS Velka Bites, US brochure 'Turbine Engines', p. 12 (TP100 page) and p. 14 (specification table), supplied by the owner 2026-11-20 (not committed: maker's copyright). Max. output power 180 kW (241 HP); specific fuel consumption 0.548 kg/kW/h (0.901 lb/HP/hr), one value, printed beside the maximum output with no flight condition; weight 61.60 kg (135.80 lb); length 891 mm; output shaft 2,158 RPM; operating envelope max. altitude 9,000 m (29,528 ft); starting envelope max. altitude 6,000 m (19,685 ft). The brochure gives no part-power consumption. Stage 1 used 0.901 for cruise and loiter (key name cbhp_cruise kept for the code)."
+    unverified_extracts: "Search extracts (2026-11-20) attributed SFC 0.847 at take-off and 0.863 at maximum continuous to an earlier PBS brochure; not in the supplied brochure; used only as a sensitivity case in Stage 3."
+  Turbotech_TP_R90:
+    bhp: 120.0
+    weight_lb: 141.1
+    cbhp_cruise: null
+    confidence: cited
+    source: "Turbotech TP-R90 regenerative turboprop (turbotech-aero.com and trade press): rated 90 kW (120 shp); dry weight 64 kg (74 kg with electronics and fasteners). No specific fuel consumption published in the sources found; the makers describe fuel burn comparable to piston engines. Cited from search extracts 2026-11-20; not retrieved in the sandbox."
+  PT6A_42:
+    bhp: 850.0
+    weight_lb: 391.0
+    cbhp_max: 0.601
+    confidence: published
+    source: "Mattingly, Aircraft Engine Design, 2nd ed., Table C.1 p. 519 (library): 850 eshp, SFC 0.601 at maximum, 391 lbf"

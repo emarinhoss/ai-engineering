@@ -143,7 +143,8 @@ def constraint_plot(rows, limits, d, path):
               "takeoff": "take-off 2,500 ft over 50 ft", "cruise_at_altitude": "cruise at 20,000 ft",
               "turn_at_loiter": "30 deg bank at loiter (R16)"}
     for key, label in labels.items():
-        ax.plot(ws, [float(r[key]) for r in rows], label=label)
+        # rows where the fixed engine cannot fly a mission leg carry no values (gaps in the curves)
+        ax.plot(ws, [float(r[key]) if r.get(key) not in (None, "") else float("nan") for r in rows], label=label)
     ax.axvline(limits["stall"], color="k", ls="--", label=f"stall 70 kt: W/S <= {limits['stall']:.1f}")
     ax.axvline(limits["best_range_at_cruise_q"], color="grey", ls=":", label="best-range W/S at cruise q (5.13)")
     ax.axvline(limits["best_loiter_at_loiter_q"], color="grey", ls="-.", label="best-loiter W/S at loiter q (5.16)")
@@ -585,7 +586,12 @@ def main(argv=None):
            "rubber-engine rows keep the piston lapse (13.9). " if appk else
            "The ceiling and altitude rows use Raymer's piston lapse (13.9); Stage 3 measures the turboprop "
            "lapse (Mattingly App. K). ")
-        + "Carpets use the Table 6.4 tail; the rotation resize is applied at each concept's optimum.")
+        + "Carpets use the Table 6.4 tail; the rotation resize is applied to each candidate, lightest first, until every checked requirement is met (selection_<concept>.json).")
+    gaps = [r["W_S"] for r in cd_rows if r.get("mission_flyable") == "False"]
+    if gaps:
+        add("")
+        add(f"At wing loadings from {gaps[0]} to {gaps[-1]} lb/ft^2 (at this W0 and A) the {inp['chosen_engine']} "
+            "cannot fly a mission leg at any speed within its power; the curves stop there.")
     add("")
     add("## 7. Loads, stability, trim and rotation")
     add("")
