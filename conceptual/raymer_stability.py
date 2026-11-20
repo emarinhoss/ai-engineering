@@ -28,8 +28,8 @@ def downwash_gradient_lifting_line(CLa_w, aspect_ratio):
     """d(eps)/d(alpha) = 2 CL_alpha/(pi A): the far-wake value of an elliptic wing.
 
     NOT from the library. Raymer's subsonic method is a chart (Fig. 16.12, p. 425), which the notes
-    describe but cannot be read numerically; at a real tail position the downwash is lower than
-    this far-wake value, so using it under-states the tail's contribution and the static margin
-    (conservative). For DR-1 it gives 0.51 against the chart's 0.38. Stage 3 measures it with the
-    vortex lattice."""
+    describe but cannot be read numerically. For DR-1 it gives 0.51 against the chart's 0.38, i.e.
+    conservative there. It is not conservative in general: for the Task 12 pusher the vortex
+    lattice gives 0.38 at the tail against this formula's 0.35
+    (docs/validation/2026-11-20_task12_stage3_aero.md)."""
     return 2.0 * CLa_w / (math.pi * aspect_ratio)
