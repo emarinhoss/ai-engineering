@@ -181,3 +181,23 @@ def derivatives(planform, level="medium", camber=None):
     cl_a = (hi["CL"] - lo["CL"]) / (2.0 * h)
     return {"CL_alpha": cl_a, "alpha_L0": -mid["CL"] / cl_a,
             "Cm_alpha": (hi["Cm"] - lo["Cm"]) / (2.0 * h)}
+
+
+def induced_velocity(planform, alpha, points, level="medium", camber=None):
+    """Velocity (n, 3) induced by the solved lattice at field points (n, 3) in the wing axes,
+    free stream excluded. Added for Task 12 Stage 3 (downwash at the tail). The wake is the
+    planar one of this lattice (trailing legs along +x at z = 0)."""
+    lat = _lattice(planform, level, camber)
+    v_inf = np.array([math.cos(alpha), 0.0, math.sin(alpha)])
+    gamma = np.linalg.solve(lat["matrix"], -lat["normal"] @ v_inf)
+    p = np.atleast_2d(np.asarray(points, float))
+    return np.einsum("ijk,j->ik", _influence(p, lat["a"], lat["b"]), gamma)
+
+
+def downwash_gradient(planform, points, level="medium", camber=None):
+    """d(epsilon)/d(alpha) at field points: the mean over the points of -dw/dalpha (unit speed),
+    by central difference over +-2 deg. epsilon is the downwash angle, positive down."""
+    h = math.radians(2.0)
+    w_hi = induced_velocity(planform, h, points, level, camber)[:, 2]
+    w_lo = induced_velocity(planform, -h, points, level, camber)[:, 2]
+    return float(np.mean(-(w_hi - w_lo) / (2.0 * h)))
