@@ -1,0 +1,73 @@
+{
+  "table": [
+    {
+      "criterion": "take-off weight W0 (lb), lower is better",
+      "weight": 0.4,
+      "tractor": 1579.7735852317267,
+      "pusher": 1639.9568053953315,
+      "tractor_grade": 5.0,
+      "pusher_grade": 4.82
+    },
+    {
+      "criterion": "sensor field of view: nose free of propeller and exhaust (grade 1-5)",
+      "weight": 0.25,
+      "tractor": 2,
+      "pusher": 5,
+      "tractor_grade": 2.0,
+      "pusher_grade": 5.0
+    },
+    {
+      "criterion": "propeller wash and exhaust on the sensor and airframe (grade 1-5)",
+      "weight": 0.1,
+      "tractor": 2,
+      "pusher": 4,
+      "tractor_grade": 2.0,
+      "pusher_grade": 4.0
+    },
+    {
+      "criterion": "turboprop exhaust impinging on a pusher propeller (Raymer p. 222) (grade 1-5)",
+      "weight": 0.1,
+      "tractor": 5,
+      "pusher": 2,
+      "tractor_grade": 5.0,
+      "pusher_grade": 2.0
+    },
+    {
+      "criterion": "ground clearance and gear length (grade 1-5; pusher needs longer gear, p. 222)",
+      "weight": 0.15,
+      "tractor": 5,
+      "pusher": 3,
+      "tractor_grade": 5.0,
+      "pusher_grade": 3.0
+    }
+  ],
+  "score": {
+    "tractor": 3.95,
+    "pusher": 4.226603895949446
+  },
+  "chosen": "pusher",
+  "optimum": {
+    "tractor": {
+      "concept": "tractor",
+      "W_S": 12.0,
+      "A": 10.0,
+      "W0": 1579.7735852317267,
+      "We": 837.1658366910773,
+      "fuel": 242.60723403159585,
+      "bhp": 105.17297710578752,
+      "fuel_fits": true,
+      "binding_power": "ceiling"
+    },
+    "pusher": {
+      "concept": "pusher",
+      "W_S": 12.0,
+      "A": 10.0,
+      "W0": 1639.9568053953315,
+      "We": 886.091430254671,
+      "fuel": 253.8648376872144,
+      "bhp": 109.943488236174,
+      "fuel_fits": true,
+      "binding_power": "ceiling"
+    }
+  }
+}

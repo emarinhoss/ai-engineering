@@ -1,6 +1,6 @@
 # Task 12 spec: a single-turboprop endurance UAV, designed with Raymer, reviewed, then measured independently
 
-**Status: spec, revision 2 (2026-11-20). Nothing in this note has been run.** Revision 1 (same day)
+**Status: spec, revision 2 (2026-11-20).** Stage 1 has run since: package `docs/validation/2026-11-20_task12_conceptual.md`, records `runs/task12/stage1/2026-11-20/`. Gate A has not been held. The text below is the spec as written before the run. Revision 1 (same day)
 sized a 1 to 4 kg battery drone. Éder then changed the aircraft so that Raymer's weight statistics
 apply and the engine is a turbine, and answered eight requirement questions. Section 3 records
 each answer with the options he was shown. The figures quoted in section 3 come from a rough sizing

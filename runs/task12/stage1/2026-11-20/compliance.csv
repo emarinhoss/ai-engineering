@@ -1,0 +1,14 @@
+requirement,units,value,limit,rule,met
+R4 payload,lb,500.0,500.0,carried by construction,
+R5 mission 200 nm + 8 h + 200 nm,fuel lb,253.8648376872144,253.8648376872144,sized to it,
+R7 take-off over 50 ft,ft,648.6344378863525,2500.0,<=,True
+R7 landing over 50 ft,ft,1328.622797556964,2500.0,<=,True
+"R7 clean stall at W0, sea level",kt,51.23903913542438,70.0,<=,True
+R9 limit load factor (manoeuvre or gust),-,3.8,3.8,>=,True
+R9 negative gust within the -1.5 limit (weights use the positive case only),-,-1.6456808248028758,-1.5,>=,False
+R12 sea-level rate of climb,ft/min,1402.9927553010457,1000.0,>=,True
+R12 service ceiling,ft,25250,25000.0,>=,True
+"R13 static margin, full fuel",MAC,0.09753161972067206,0.05,in band,True
+"R13 static margin, empty fuel",MAC,0.10246838027932806,0.05,in band,True
+fuel fits integral wing tanks,ft^3,5.065192916126531,23.277301373137444,<=,True
+empty fraction: build-up vs Table 3.1 (x0.95),-,0.5403138834751613,0.5915150168377528,report,
