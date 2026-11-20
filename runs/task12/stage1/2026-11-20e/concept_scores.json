@@ -1,0 +1,95 @@
+{
+  "table": [
+    {
+      "criterion": "take-off weight W0 (computed)",
+      "weight": 0.4,
+      "tractor": 2461.599242145051,
+      "pusher": 2806.2366521909553,
+      "tractor_grade": 5.0,
+      "pusher_grade": 4.39
+    },
+    {
+      "criterion": "sensor field of view: nose free of propeller and exhaust (judgement)",
+      "weight": 0.25,
+      "tractor": 2,
+      "pusher": 5,
+      "tractor_grade": 2.0,
+      "pusher_grade": 5.0
+    },
+    {
+      "criterion": "propeller wash and exhaust on the sensor and airframe (judgement)",
+      "weight": 0.1,
+      "tractor": 2,
+      "pusher": 4,
+      "tractor_grade": 2.0,
+      "pusher_grade": 4.0
+    },
+    {
+      "criterion": "turboprop exhaust impinging on a pusher propeller, p. 222 (judgement)",
+      "weight": 0.1,
+      "tractor": 5,
+      "pusher": 2,
+      "tractor_grade": 5.0,
+      "pusher_grade": 2.0
+    },
+    {
+      "criterion": "ground clearance and gear length (judgement; pusher needs longer gear, p. 222)",
+      "weight": 0.15,
+      "tractor": 5,
+      "pusher": 3,
+      "tractor_grade": 5.0,
+      "pusher_grade": 3.0
+    }
+  ],
+  "score": {
+    "tractor": 3.95,
+    "pusher": 4.054377514970571
+  },
+  "feasibility": {
+    "tractor": {
+      "nose_load_within_5_20": true,
+      "nose_load_within_8_15_optimum": true,
+      "rotation_ok": true,
+      "gear_stows": true
+    },
+    "pusher": {
+      "nose_load_within_5_20": true,
+      "nose_load_within_8_15_optimum": false,
+      "rotation_ok": true,
+      "gear_stows": true
+    }
+  },
+  "recommended": "pusher",
+  "highest_score": "pusher",
+  "frozen_at_round3": "pusher",
+  "frozen_at_round1": "pusher",
+  "ruled_at_round2_on_flawed_rotation": "tractor",
+  "rubber_optimum": {
+    "tractor": {
+      "engine": "rubber",
+      "concept": "tractor",
+      "W_S": 11.0,
+      "A": 9.0,
+      "W0": 1856.86252356372,
+      "We": 1053.8278345147892,
+      "fuel": 303.0339985980178,
+      "bhp": 128.92181486275777,
+      "fuel_fits": true,
+      "power_ok": true,
+      "binding_power": "ceiling"
+    },
+    "pusher": {
+      "engine": "rubber",
+      "concept": "pusher",
+      "W_S": 12.0,
+      "A": 10.0,
+      "W0": 2004.9858196784012,
+      "We": 1174.0171270900298,
+      "fuel": 330.96777801634596,
+      "bhp": 141.4360843809912,
+      "fuel_fits": true,
+      "power_ok": true,
+      "binding_power": "ceiling"
+    }
+  }
+}
