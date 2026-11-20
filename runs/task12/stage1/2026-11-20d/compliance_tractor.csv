@@ -1,0 +1,27 @@
+requirement,units,value,limit,rule,met
+"R1/R2 single turboprop, one engine",-,PBS_TP100,,by construction,
+R4 payload,lb,500.0,500.0,by construction,
+R5 mission 200 nm + 8 h + 200 nm,fuel lb,644.9491340217331,644.9491340217331,sized to it,
+"R6 mission altitude 20,000 ft within engine limit",ft,20000.0,29528.0,<=,True
+R7 take-off over 50 ft,ft,642.4338726420655,2500.0,<=,True
+R7 landing over 50 ft,ft,1372.4086180140243,2500.0,<=,True
+"R7 clean stall at W0, sea level",kt,55.34448771204298,70.0,<=,True
+R8 retractable tricycle gear,-,yes,,by construction,
+"R9 positive limit load (manoeuvre or gust, both weights)",-,3.8024067757042683,3.8,>=,True
+R9 negative gust within the negative limit,-,-1.8024067757042683,-1.8,>=,False
+R10 6 % reserve and trapped fuel,-,1.06,1.06,by construction,
+R12 sea-level rate of climb,ft/min,2153.688920861306,1000.0,>=,True
+R12 service ceiling (last altitude with 100 ft/min),ft,28465.919570044207,25000.0,ceiling,True
+"R13 static margin, full fuel",MAC,0.09571066961285153,0.05-0.15,in band,True
+"R13 static margin, empty fuel",MAC,0.1042893303871484,0.05-0.15,in band,True
+R14 no crew items in the weights,-,yes,,by construction,
+R15 flight avionics 60 lb uninstalled,lb,60.0,60.0,by construction,
+R16 sustained 30 deg bank at loiter (power),hp,150.32201332647222,241.0,<=,True
+engine power meets every requirement,hp,191.27884633118052,241.0,<=,True
+fuel fits integral wing tanks,ft^3,12.868232618074588,35.54545086162515,<=,True
+"nose-wheel load, full fuel (p. 232-233; optimum 0.08-0.15)",-,0.14308052879953562,0.05-0.20,nose,True
+"nose-wheel load, empty fuel",-,0.1481936820967419,0.05-0.20,nose,True
+main gear stows: sponsons at the 63 deg overturn track (p. 232; ruling round 3),ft,2.598950837280993,,stow,True
+propeller clearance at rotation (p. 222),in,10.113646827714405,8.95,>=,True
+"trim within tail CL limit, all mission legs",-,yes,,flag,True
+"nose rotation at 0.8 V_TO (p. 432-433), tail download",tail CL,0.9501794544693106,1.0,<=,True

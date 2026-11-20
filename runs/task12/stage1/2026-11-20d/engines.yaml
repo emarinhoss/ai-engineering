@@ -1,0 +1,28 @@
+# Production turboprops considered for the Task 12 fixed-engine re-size (Gate A, question 1:
+# "find a small turboprop"). Units: shp, lb, lb/(hp h). Each entry names its source. Values marked
+# "cited" were read from web-search extracts of the maker's pages on 2026-11-20; the pages themselves
+# could not be retrieved from the sandbox (host blocked by the network policy) and must be checked
+# against the datasheet before Gate B.
+
+engines:
+  PBS_TP100:
+    bhp: 241.0
+    weight_lb: 135.8
+    cbhp_takeoff: 0.847
+    cbhp_max_continuous: 0.863
+    cbhp_cruise: 0.901
+    max_operating_altitude_ft: 29528.0
+    confidence: cited
+    source: "PBS Velka Bites, Turboprop engine PBS TP100 datasheet and product page (pbs.cz): maximum output 180 kW (241 HP); weight 61.6 kg (135.80 lb); SFC 0.548 kg/kW/h (0.901 lb/HP/hr) at cruise, 0.847 take-off and 0.863 maximum continuous in an earlier PBS brochure; maximum operating altitude 9,000 m. Cited from search extracts 2026-11-20; not retrieved in the sandbox."
+  Turbotech_TP_R90:
+    bhp: 120.0
+    weight_lb: 141.1
+    cbhp_cruise: null
+    confidence: cited
+    source: "Turbotech TP-R90 regenerative turboprop (turbotech-aero.com and trade press): rated 90 kW (120 shp); dry weight 64 kg (74 kg with electronics and fasteners). No specific fuel consumption published in the sources found; the makers describe fuel burn comparable to piston engines. Cited from search extracts 2026-11-20; not retrieved in the sandbox."
+  PT6A_42:
+    bhp: 850.0
+    weight_lb: 391.0
+    cbhp_max: 0.601
+    confidence: published
+    source: "Mattingly, Aircraft Engine Design, 2nd ed., Table C.1 p. 519 (library): 850 eshp, SFC 0.601 at maximum, 391 lbf"
