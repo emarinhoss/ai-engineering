@@ -75,10 +75,11 @@ def _polar(geom, L, V, atm, bhp):
          "ff": aero.form_factor_wing(L["tail_t_c"], 0.3, M), "q": L["tail_interference_q"],
          "s_wet": geom["s_wet_vt"]},
     ]
-    comps.append({"name": "sponsons",
-                  "cf": aero.cf_component(atm["rho"], V, geom["sponson_length"], atm["mu"], M, k, 0.0),
-                  "ff": aero.form_factor_fuselage(geom["sponson_length"] / geom["sponson_depth"]),
-                  "q": L["sponson_interference_q"], "s_wet": geom["s_wet_sponsons"]})
+    if geom["s_wet_sponsons"] > 0.0:
+        comps.append({"name": "sponsons",
+                      "cf": aero.cf_component(atm["rho"], V, geom["sponson_length"], atm["mu"], M, k, 0.0),
+                      "ff": aero.form_factor_fuselage(geom["sponson_length"] / geom["sponson_depth"]),
+                      "q": L["sponson_interference_q"], "s_wet": geom["s_wet_sponsons"]})
     misc = aero.misc_engine_drag_area(bhp) + L["sensor_drag_area_ft2"]
     CD0, parts = aero.cd0_buildup(comps, w.area, misc_d_q=misc, leakage_fraction=L["leakage_fraction"])
     return CD0, parts
@@ -114,6 +115,8 @@ def _geometry(W0, W_S, A, concept, L):
 def _sponsons(W0, L):
     """Two main-gear sponsons (Gate A round 3): bodies sized on the Table 11.1 main tyre, wetted
     area by (7.12) with the fuselage fill factor."""
+    if L.get("no_sponsons"):                                     # reference trade only
+        return {"sponson_length": 0.0, "sponson_depth": 0.0, "s_wet_sponsons": 0.0}
     tyre_ft = geo.main_tyre_in(0.45 * W0)["diameter"] / 12.0
     length = L["sponson_length_per_tyre"] * tyre_ft
     depth = L["sponson_depth_per_tyre"] * tyre_ft

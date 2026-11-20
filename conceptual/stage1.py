@@ -181,8 +181,7 @@ def trades(concept, W_S, A, L, engine):
         run(f"payload_lb={p:g}", payload_lb=p)
     for alt in (15000.0, 20000.0, 25000.0):
         run(f"mission_altitude_ft={alt:g}", mission_altitude_ft=alt)
-    run("no sponsons (wheels stowed for free; reference only)", sponson_length_per_tyre=1e-6,
-        sponson_depth_per_tyre=1e-6)
+    run("no sponsons (wheels stowed for free; reference only)", no_sponsons=True)
     for c in (0.80, 1.00, 1.20):
         run(f"engine_cbhp={c:g} (datasheet 0.901)", eng=dict(engine, cbhp_cruise=c, cbhp_loiter=c))
     _, entries = uav.load_ledger()
