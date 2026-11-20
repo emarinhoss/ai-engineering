@@ -144,7 +144,8 @@ def _gear_length_in(geom, L, D_prop, concept):
         dx = geom["L_f"] * (1.0 - L["main_gear_station_guess"])
         # centreline height h above ground at the wheel; after rotation the propeller hub sits at
         # h cos(th) - dx sin(th); its lowest tip must clear by 9 in
-        need_ft = (r + clear + dx * math.sin(th)) / math.cos(th) - geom["d_f"] / 2.0
+        need_ft = ((r + clear + dx * math.sin(th)) / math.cos(th) - geom["d_f"] / 2.0
+                   - L.get("prop_hub_offset_ft", 0.0))                 # raised thrust line
     return max(L["main_gear_length_in"], 12.0 * need_ft)
 
 
@@ -588,7 +589,8 @@ def layout(d, L):
     r = d["D_prop"] / 2.0
     if d["concept"] == "pusher":
         th = math.radians(L["rotation_angle_deg_pusher"])
-        hub = h_cg * math.cos(th) - (L_f - s["x_main"]) * math.sin(th)
+        hub = ((h_cg + L.get("prop_hub_offset_ft", 0.0)) * math.cos(th)
+               - (L_f - s["x_main"]) * math.sin(th))
     else:
         th = math.radians(L["nose_down_deg"])
         hub = h_cg * math.cos(th) - s["x_main"] * math.sin(th)
@@ -603,6 +605,9 @@ def layout(d, L):
         W_e = s["W_empty_items"]
         return (s["cg_empty"] * W_e + fuel_left * s["x_wing"]) / (W_e + fuel_left)
 
+    # thrust-line height above the CG (pusher hub raised by the ledger offset; the CG is taken on
+    # the fuselage centreline); the thrust term -T z_t/(q S c) of (16.7), p. 416
+    z_t = L.get("prop_hub_offset_ft", 0.0) if d["concept"] == "pusher" else 0.0
     trims = {}
     W_ld = d["W0"] - d["fuel"]
     for seg in d["mission"]:
@@ -612,8 +617,11 @@ def layout(d, L):
         for tag, W in (("start", W_in), ("end", W_out)):
             cg = cg_at(W - W_ld)
             CL = W / (0.5 * alt["rho"] * V ** 2 * S)
+            q_ = 0.5 * alt["rho"] * V ** 2
+            T = perf.drag(W, S, alt["rho"], V, d["CD0_alt"], d["K"])      # level: thrust = drag
+            cm_t = -T * z_t / (q_ * S * mac)                               # (16.7) thrust term
             trims[f"{name}_{tag}"] = {"CL_wing": CL,
-                                      "CL_tail": (CL * (cg - s["x_ac"]) / mac + cm_w) / den_of(cg)}
+                                      "CL_tail": (CL * (cg - s["x_ac"]) / mac + cm_w + cm_t) / den_of(cg)}
     s["trim"] = trims
     s["trim_ok"] = all(abs(t["CL_tail"]) <= L["tail_cl_max_trim"] for t in trims.values())
     # rotation at 0.8 V_TO, most-forward CG, sea level (p. 432-433). Moments about the CG, nose-up
@@ -630,11 +638,13 @@ def layout(d, L):
     x_cp = s["x_le"] + L["flap_cp_fraction"] * mac
     # The main-wheel load is the weight less the total lift, tail included (p. 432-433); the tail
     # download adds to it, so the balance is solved by fixed-point iteration.
+    T_r = _thrust_fn(d["bhp"], L, d["D_prop"])(V_r)
     CL_tail = 0.0
     for _ in range(50):
         N_main = max(0.0, W - q * S * CL_w - L["tail_eta_h"] * q * S_h * CL_tail)
         cm = (L["cl_ground"] * (cg - s["x_ac"]) / mac + cm_w + dCL_flap * (cg - x_cp) / mac
-              - (N_main * (s["x_main"] - cg) + L["rolling_mu"] * N_main * h_cg) / (q * S * mac))
+              - (N_main * (s["x_main"] - cg) + L["rolling_mu"] * N_main * h_cg) / (q * S * mac)
+              - T_r * z_t / (q * S * mac))                         # take-off thrust above the CG
         # tail term -eta (S_h/S) CL_h (x_h - cg)/c balances cm
         new = cm / den_of(cg)
         if abs(new - CL_tail) < 1e-10:

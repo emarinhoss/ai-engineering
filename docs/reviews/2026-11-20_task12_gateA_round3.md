@@ -106,3 +106,16 @@ The concept, engine, placard and requirements that Gate A freezes are unaffected
 4. Read the PBS TP100 datasheet before Gate B and update engines.yaml (owner's action).
 5. Ask Éder to note that the pusher's 17.7 % nose load is accepted above Raymer's 8-15 % optimum.
 6. Carry the Stage 3 measurements already in §11: turboprop lapse, loiter part-power consumption, the empty-weight check, sponson drag, and rotation in ground effect.
+
+## 4. Gate close (2026-11-20)
+
+**Nose-wheel load.** Éder first required Raymer's 8-15 % optimum. The pusher was tried with a raised
+thrust line (propeller hub 1.2-2.0 ft above the centreline), which shortens the gear. Counting the
+take-off thrust moment of (16.7), the tail then had to grow to 2.3-2.7x and the full-fuel nose load
+stayed at 17-17.6 %; the other levers (nose wheel forward, tipback) are at their limits. Put back to
+Éder with the tractor (14.7 %) and a relaxed tipback rule as alternatives, his ruling: **accept the
+pusher at 17-18 %**, recorded as a deviation from Raymer's optimum inside his 5-20 % limits.
+
+The thrust-line option and the thrust moment -T z_t of (16.7) were added to the code (trim and
+rotation) and left at zero offset; at zero offset they change no number, so the records of
+`runs/task12/stage1/2026-11-20e/` stand (pusher W0 re-evaluated at the new commit: identical).
