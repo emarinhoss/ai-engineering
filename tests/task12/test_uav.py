@@ -93,3 +93,31 @@ def test_overturn_track_meets_63_degrees():
     delta = math.atan(half / 8.0)
     d = 6.0 * math.sin(delta)
     assert math.degrees(math.atan(4.0 / d)) == pytest.approx(63.0)
+
+
+def test_rotation_main_wheel_load_includes_tail_download(design, ledger):
+    # Gate A round 3: the main-wheel load is weight minus total lift, tail download included
+    lay = uav.layout(design, ledger)
+    rot = lay["rotation"]
+    from conceptual.units import KT, RHO0
+    q = 0.5 * RHO0 * (rot["V_kt"] * KT) ** 2
+    S, S_h = design["geom"]["S"], design["geom"]["ht"].area
+    expected = design["W0"] - q * S * rot["CL_wing"] - ledger["tail_eta_h"] * q * S_h * rot["CL_tail_needed"]
+    assert rot["main_wheel_load_lb"] == pytest.approx(expected, rel=1e-6)
+    assert rot["main_wheel_load_lb"] > design["W0"] - q * S * rot["CL_wing"]   # download adds load
+
+
+def test_overturn_uses_the_critical_cg(design, ledger):
+    lay = uav.layout(design, ledger)
+    halves = [uav.overturn_track(lay["x_main"], lay["x_nose"], cg, lay["h_cg"], ledger["overturn_max_deg"])
+              for cg in (lay["cg_full"], lay["cg_empty"])]
+    assert lay["gear_track"]["half_track_ft"] == pytest.approx(max(halves))
+
+
+def test_vc_placard_caps_design_speed(ledger):
+    free = uav.evaluate("pusher", 12.0, 10.0, dict(ledger, vc_placard_kt_eas=0.0))
+    capped = uav.evaluate("pusher", 12.0, 10.0, dict(ledger, vc_placard_kt_eas=100.0))
+    from conceptual.units import KT
+    assert max(capped["V_c_eas"].values()) <= 100.0 * KT + 1e-9
+    assert capped["q_design"] < free["q_design"]
+    assert capped["W0"] < free["W0"]

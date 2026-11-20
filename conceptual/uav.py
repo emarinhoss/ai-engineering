@@ -117,7 +117,7 @@ def _sponsons(W0, L):
     area by (7.12) with the fuselage fill factor."""
     if L.get("no_sponsons"):                                     # reference trade only
         return {"sponson_length": 0.0, "sponson_depth": 0.0, "s_wet_sponsons": 0.0}
-    tyre_ft = geo.main_tyre_in(0.45 * W0)["diameter"] / 12.0
+    tyre_ft = geo.main_tyre_in(L["main_wheel_load_fraction"] * W0)["diameter"] / 12.0
     length = L["sponson_length_per_tyre"] * tyre_ft
     depth = L["sponson_depth_per_tyre"] * tyre_ft
     return {"sponson_length": length, "sponson_depth": depth,
@@ -152,9 +152,9 @@ def _gear_drag_area(W0, L, gear_in):
     """Gear-down D/q (ft^2): tyres (Table 11.1 size) and struts times the D/q-per-area values of
     Raymer's gear-drag table (DR-1 p. 572), times 1.2 interference and 1.07 open wells (p. 286-288).
     Two mains and one nose wheel; the nose tyre at 80 % of main size (p. 233: 60-100 %)."""
-    main = geo.main_tyre_in(0.45 * W0)
+    main = geo.main_tyre_in(L["main_wheel_load_fraction"] * W0)
     a_main = main["diameter"] * main["width"] / 144.0
-    a_tyres = 2 * a_main + 0.8 ** 2 * a_main
+    a_tyres = 2 * a_main + L["nose_tyre_scale"] ** 2 * a_main
     a_struts = 3 * gear_in * L["strut_width_in"] / 144.0
     return L["gear_interference"] * (L["tyre_drag_per_area"] * a_tyres
                                      + L["strut_drag_per_area"] * a_struts)
@@ -561,9 +561,9 @@ def layout(d, L):
     s.update({"dah_da": dah, "Cma_fus": Cma_fus, "CLa_h": CLa_h, "h_cg": h_cg,
               "nose_station": nose_station, "cm_wing": cm_w})
     # track for the overturn limit, and where the main wheels retract
-    half = overturn_track(s["x_main"], s["x_nose"], max(s["cg_full"], s["cg_empty"]), h_cg,
-                          L["overturn_max_deg"])
-    tyre = geo.main_tyre_in(0.45 * d["W0"])
+    half = max(overturn_track(s["x_main"], s["x_nose"], cg_, h_cg, L["overturn_max_deg"])
+               for cg_ in (s["cg_full"], s["cg_empty"]))           # the more critical CG
+    tyre = geo.main_tyre_in(L["main_wheel_load_fraction"] * d["W0"])
     y = min(half, w.span / 2.0)
     chord_y = w.root_chord * (1.0 - (1.0 - w.taper) * y / (w.span / 2.0))
     x_le_root = s["x_le"]                                         # unswept leading edge
@@ -579,7 +579,10 @@ def layout(d, L):
                                         and s["gear_track"]["wheel_under_wing_chord"]))
     # Gate A round 3 ruling: the mains retract into sponsons at the overturn track, so they stow
     s["gear_track"]["retracts_into"] = "sponsons"
-    s["gear_track"]["fits"] = True
+    s["gear_track"]["sponson_length_ft"] = g["sponson_length"]
+    s["gear_track"]["sponson_depth_ft"] = g["sponson_depth"]
+    s["gear_track"]["fits"] = (d["gear_length_in"] / 12.0 <= g["sponson_length"]
+                               and tyre["diameter"] / 12.0 <= g["sponson_depth"])
     # propeller clearance: pusher rotated about the main wheel by its rotation angle; tractor with
     # the nose strut compressed (nose-down pitch about the main wheel)
     r = d["D_prop"] / 2.0
@@ -625,13 +628,20 @@ def layout(d, L):
     dCL_flap = L["takeoff_flap_fraction"] * L["flap_delta_cl_max"] * L["flap_span_fraction"]
     CL_w = L["cl_ground"] + dCL_flap
     x_cp = s["x_le"] + L["flap_cp_fraction"] * mac
-    N_main = max(0.0, W - q * S * CL_w)
-    cm = (L["cl_ground"] * (cg - s["x_ac"]) / mac + cm_w + dCL_flap * (cg - x_cp) / mac
-          - (N_main * (s["x_main"] - cg) + L["rolling_mu"] * N_main * h_cg) / (q * S * mac))
-    # tail term: -eta (S_h/S) CL_h (x_h - cg)/c balances cm, so CL_h = cm / [eta (S_h/S)(x_h - cg)/c]
-    CL_tail = cm / den_of(cg)
+    # The main-wheel load is the weight less the total lift, tail included (p. 432-433); the tail
+    # download adds to it, so the balance is solved by fixed-point iteration.
+    CL_tail = 0.0
+    for _ in range(50):
+        N_main = max(0.0, W - q * S * CL_w - L["tail_eta_h"] * q * S_h * CL_tail)
+        cm = (L["cl_ground"] * (cg - s["x_ac"]) / mac + cm_w + dCL_flap * (cg - x_cp) / mac
+              - (N_main * (s["x_main"] - cg) + L["rolling_mu"] * N_main * h_cg) / (q * S * mac))
+        # tail term -eta (S_h/S) CL_h (x_h - cg)/c balances cm
+        new = cm / den_of(cg)
+        if abs(new - CL_tail) < 1e-10:
+            break
+        CL_tail = new
     s["rotation"] = {"V_kt": V_r / KT, "CL_wing": CL_w, "Cm_without_tail": cm,
-                     "CL_tail_needed": CL_tail}
+                     "CL_tail_needed": CL_tail, "main_wheel_load_lb": N_main}
     s["rotation_ok"] = abs(CL_tail) <= L["tail_cl_max_rotation"]
     return s
 
