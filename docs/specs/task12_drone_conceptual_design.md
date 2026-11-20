@@ -230,6 +230,34 @@ whether the design goes back to Stage 1.
 The take-off-weight row is the strongest independent check in the table: Anderson's chapter 8
 sizes a propeller aircraft by its own route, and his weight method differs from Raymer's.
 
+### 7.1a Agreement tolerances (proposed 2026-11-20, to be ruled when Gate A closes)
+
+Fixed before any Stage 3 measurement runs. "Raymer" is the Stage 1 value in
+`runs/task12/stage1/2026-11-20d/design_pusher.json`; the independent value is Stage 3's. A row
+outside tolerance is diagnosed and reported, and if it moves a requirement margin below zero the
+design returns to Stage 1.
+
+| Quantity | Tolerance | Reason for the size |
+|---|---|---|
+| Shaft power available at 20,000 and 25,000 ft (App. K against the piston lapse (13.9)) | ±10 % | the ceiling binds the engine; 10 % is about the engine's present power margin |
+| Fuel consumption at cruise and loiter power (App. K against the datasheet value) | ±10 % | fuel is 27 % of W0; 10 % of fuel is about 3 % of W0 |
+| Propeller efficiency at climb, cruise, loiter (App. L against 0.80) | ±0.05 absolute | Raymer's Table 3.4 value is itself rounded to 0.05 |
+| Installed power required by each constraint (Mattingly (2.11)-(2.17) against Raymer ch. 5) | ±5 % | same physics by a second route; larger differences mean a coding error |
+| Mission fuel (Mattingly ch. 3 against Raymer's Breguet fractions) | ±5 % | same physics, different bookkeeping |
+| Take-off weight (Anderson ch. 8 sizing against Raymer) | ±10 % | two different weight statistics; this is the main assumption of the task |
+| Lift slope (vortex lattice against (12.6)) | ±5 % | the lattice passed its own analytic checks to 2 % (Task 10 V6a) |
+| Span efficiency, inviscid part (lattice against (12.49)'s implied value) | ±0.05 absolute | (12.49) includes viscous drag due to lift; the lattice does not, so the comparison is of the inviscid share only, stated with the result |
+| Zero-lift drag (Anderson drag polar against Raymer's build-up) | ±10 % | different form-factor and friction treatments |
+| Section CL_max at the design Reynolds number (SU2, after a NACA-data validation row) | inside the ledger band 1.3-1.7 | the band is what Stage 1 carried |
+| Best-range and best-endurance speeds, climb rate | ±3 % | closed forms on the same polar; checks the arithmetic |
+| Service ceiling | ±1,000 ft | sets the engine; 1,000 ft is about 3 % of the lapse |
+| Take-off and landing distances | ±15 % | both are far from binding (under 1,500 ft against 2,500) |
+| Static margin | ±0.03 MAC | the R13 band is 0.10 wide |
+| V-n points and gust load factors | ±5 % | same relations by a second source |
+
+Gate B robustness threshold (section 7.4): info-gap horizon at least 1 (the ledger's own bands)
+at R5 and R7.
+
 ### 7.2 Uncertainty of the measured performance
 
 - The banded assumptions (composite factor, empty-weight fit against build-up, fuel burn, propeller
