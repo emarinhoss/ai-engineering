@@ -227,10 +227,12 @@ whether the design goes back to Stage 1.
 | Static margin and trim | ch. 16 | Anderson's static-stability relations; downwash from the vortex lattice | **[Lib]** Anderson APD 8.6.7, (8.76)-(8.78), p. 444 |
 | V-n and corner speed | ch. 14 | Anderson's V-n treatment | **[Lib]** Anderson APD (6.54), p. 343; Example 6.3 as test |
 
-The take-off-weight row is the strongest independent check in the table: Anderson's chapter 8
-sizes a propeller aircraft by its own route, and his weight method differs from Raymer's.
+The take-off-weight row is a partly independent check: Anderson's chapter 8 sizes a propeller
+aircraft by its own route and first estimates the empty fraction from his own historical data
+(0.62, (8.5) p. 400), but his refined build-up (8.83a-g, p. 449) is Raymer's Table 15.2
+approximate method. Both are run and reported separately (corrected at Gate A close).
 
-### 7.1a Agreement tolerances (proposed 2026-11-20, to be ruled when Gate A closes)
+### 7.1a Agreement tolerances (accepted by Éder at Gate A close, 2026-11-20)
 
 Fixed before any Stage 3 measurement runs. "Raymer" is the Stage 1 value in
 `runs/task12/stage1/2026-11-20d/design_pusher.json`; the independent value is Stage 3's. A row
@@ -244,7 +246,7 @@ design returns to Stage 1.
 | Propeller efficiency at climb, cruise, loiter (App. L against 0.80) | ±0.05 absolute | Raymer's Table 3.4 value is itself rounded to 0.05 |
 | Installed power required by each constraint (Mattingly (2.11)-(2.17) against Raymer ch. 5) | ±5 % | same physics by a second route; larger differences mean a coding error |
 | Mission fuel (Mattingly ch. 3 against Raymer's Breguet fractions) | ±5 % | same physics, different bookkeeping |
-| Take-off weight (Anderson ch. 8 sizing against Raymer) | ±10 % | two different weight statistics; this is the main assumption of the task |
+| Take-off weight (Anderson ch. 8 sizing against Raymer) | ±10 % | Anderson's first estimate (empty fraction 0.62 from his own historical data, (8.5)) is independent; his refined build-up (8.83) is Raymer's Table 15.2 approximate method, so it is a same-author cross-check, reported as such |
 | Lift slope (vortex lattice against (12.6)) | ±5 % | the lattice passed its own analytic checks to 2 % (Task 10 V6a) |
 | Span efficiency, inviscid part (lattice against (12.49)'s implied value) | ±0.05 absolute | (12.49) includes viscous drag due to lift; the lattice does not, so the comparison is of the inviscid share only, stated with the result |
 | Zero-lift drag (Anderson drag polar against Raymer's build-up) | ±10 % | different form-factor and friction treatments |
