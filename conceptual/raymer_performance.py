@@ -104,6 +104,7 @@ def takeoff_distance(W, S, rho, CD0, K, CL_max_to, thrust_of_V, mu=0.03, CL_grou
     sin_g = (T_tr - D_tr) / W                                           # (17.105)
     if sin_g <= 0.0:
         raise ValueError("no climb gradient after lift-off")
+    sin_g = min(sin_g, 0.5)        # cap at 30 deg: (17.105) is a small-angle relation
     gamma = math.asin(sin_g)
     h_tr = R * (1.0 - math.cos(gamma))                                  # (17.107)
     if h_tr >= h_obstacle:
