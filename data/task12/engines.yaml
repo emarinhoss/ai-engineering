@@ -8,12 +8,13 @@ engines:
   PBS_TP100:
     bhp: 241.0
     weight_lb: 135.8
-    cbhp_takeoff: 0.847
-    cbhp_max_continuous: 0.863
     cbhp_cruise: 0.901
     max_operating_altitude_ft: 29528.0
-    confidence: cited
-    source: "PBS Velka Bites, Turboprop engine PBS TP100 datasheet and product page (pbs.cz): maximum output 180 kW (241 HP); weight 61.6 kg (135.80 lb); SFC 0.548 kg/kW/h (0.901 lb/HP/hr) at cruise, 0.847 take-off and 0.863 maximum continuous in an earlier PBS brochure; maximum operating altitude 9,000 m. Cited from search extracts 2026-11-20; not retrieved in the sandbox."
+    starting_altitude_max_ft: 19685.0
+    output_shaft_rpm: 2158.0
+    confidence: datasheet
+    source: "PBS Velka Bites, US brochure 'Turbine Engines', p. 12 (TP100 page) and p. 14 (specification table), supplied by the owner 2026-11-20 (not committed: maker's copyright). Max. output power 180 kW (241 HP); specific fuel consumption 0.548 kg/kW/h (0.901 lb/HP/hr), one value, printed beside the maximum output with no flight condition; weight 61.60 kg (135.80 lb); length 891 mm; output shaft 2,158 RPM; operating envelope max. altitude 9,000 m (29,528 ft); starting envelope max. altitude 6,000 m (19,685 ft). The brochure gives no part-power consumption. Stage 1 used 0.901 for cruise and loiter (key name cbhp_cruise kept for the code)."
+    unverified_extracts: "Search extracts (2026-11-20) attributed SFC 0.847 at take-off and 0.863 at maximum continuous to an earlier PBS brochure; not in the supplied brochure; used only as a sensitivity case in Stage 3."
   Turbotech_TP_R90:
     bhp: 120.0
     weight_lb: 141.1

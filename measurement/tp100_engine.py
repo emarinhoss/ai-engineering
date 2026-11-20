@@ -1,11 +1,12 @@
 """The PBS TP100 represented by Mattingly's App. K turboprop cycle (measurement/turboprop_cycle.py).
 
-The maker publishes rated shaft power (241 shp), take-off SFC (0.847 lb/(hp h)) and a cruise SFC
-(0.901) but not the cycle: compressor pressure ratio, turbine inlet temperature and component
+The maker's brochure (data/task12/engines.yaml) gives rated shaft power (241 shp) and one SFC,
+0.901 lb/(hp h), printed beside the maximum output with no flight condition, but not the cycle: compressor pressure ratio, turbine inlet temperature and component
 efficiencies are unknown. So the engine is not one cycle but a family. Each member takes an
 assumed turbine inlet temperature and polytropic efficiencies (CYCLE_GRID, small uncooled engine)
-and its compressor pressure ratio is then solved so that the shaft SFC at sea level, take-off
-power equals the datasheet 0.847. The spread over the family is reported with every result.
+and its compressor pressure ratio is then solved so that the shaft SFC at sea level, maximum
+power equals the brochure's 0.901 (read as the rated-power value). An unverified search extract
+gave 0.847 at take-off; family(bsfc=BSFC_TAKEOFF_UNVERIFIED) is the sensitivity case. The spread over the family is reported with every result.
 
 Fixed assumptions for every member (study choices, not datasheet values): no turbine cooling
 (eps1 = eps2 = 0), no bleed or power takeoff, pi_d 0.98, pi_b 0.95, pi_n 0.99, eta_b 0.98,
@@ -26,8 +27,8 @@ from conceptual.units import KT, isa
 from measurement import turboprop_cycle as tc
 
 RATED_SHP = 241.0
-BSFC_TAKEOFF = 0.847
-BSFC_CRUISE = 0.901
+BSFC_RATED = 0.901             # brochure, at maximum output (condition not stated)
+BSFC_TAKEOFF_UNVERIFIED = 0.847 # search extract only
 M_RATING = 0.1
 
 CYCLE_GRID = {"Tt4": (2000.0, 2200.0, 2400.0), "e_c": (0.80, 0.85), "e_t": (0.85, 0.90)}
@@ -39,7 +40,7 @@ def _gas(Tt4, e_c, e_t):
                 eta_mL=0.98, eta_g=0.98, eta_prop=0.80)
 
 
-def calibrated(Tt4, e_c, e_t, bsfc=BSFC_TAKEOFF, shp=RATED_SHP):
+def calibrated(Tt4, e_c, e_t, bsfc=BSFC_RATED, shp=RATED_SHP):
     """One family member: (gas inputs k, reference design dict with m0), or None when no compressor
     pressure ratio between 2 and 14 gives the datasheet SFC with these assumptions."""
     k = _gas(Tt4, e_c, e_t)
@@ -60,11 +61,11 @@ def calibrated(Tt4, e_c, e_t, bsfc=BSFC_TAKEOFF, shp=RATED_SHP):
     return k, ref
 
 
-def family():
-    """All members of CYCLE_GRID that calibrate, as dicts with their assumptions."""
+def family(bsfc=BSFC_RATED):
+    """All members of CYCLE_GRID that calibrate to bsfc, as dicts with their assumptions."""
     out = []
     for Tt4, e_c, e_t in itertools.product(*CYCLE_GRID.values()):
-        m = calibrated(Tt4, e_c, e_t)
+        m = calibrated(Tt4, e_c, e_t, bsfc)
         if m is not None:
             out.append({"Tt4": Tt4, "e_c": e_c, "e_t": e_t, "k": m[0], "ref": m[1]})
     return out

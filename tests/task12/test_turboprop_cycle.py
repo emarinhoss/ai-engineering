@@ -120,7 +120,7 @@ def test_tp100_family_calibrates_to_datasheet():
     sl = isa(0.0)
     for m in fam:
         r = tc.off_design(m["ref"], tp.M_RATING, sl["T"], sl["p"], m["ref"]["Tt4"], m["k"])
-        assert r["bsfc"] == pytest.approx(tp.BSFC_TAKEOFF, rel=1e-3)
+        assert r["bsfc"] == pytest.approx(tp.BSFC_RATED, rel=1e-3)
         assert r["shaft_hp"] == pytest.approx(tp.RATED_SHP, rel=1e-3)
         assert 3.0 < m["ref"]["pi_c"] < 7.0          # small-turboprop range
 

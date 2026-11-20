@@ -96,6 +96,11 @@ def measure(L, eng):
         p["bsfc"] = _band(vals)
         p["Tt4_R"] = _band([tp.bsfc_at(m, h_alt, p["V_kt"], p["shaft_hp"])[1] for m in fam])
     detail["points"] = pts
+    # sensitivity: the family calibrated to the unverified 0.847 take-off extract
+    fam_alt = tp.family(tp.BSFC_TAKEOFF_UNVERIFIED)
+    detail["sensitivity_bsfc_0_847"] = {
+        p["segment"] + "_" + p["where"]: _band([tp.bsfc_at(m, h_alt, p["V_kt"], p["shaft_hp"])[0] for m in fam_alt])
+        for p in pts}
     seg_mean = {}
     for seg in ("cruise_out", "loiter", "cruise_back"):
         sp = [p for p in pts if p["segment"] == seg]
@@ -199,8 +204,9 @@ def report(res, path):
       "published part-power point for the TP100 (the datasheet's cruise condition) before Gate B.\n")
     w("## 2. The TP100 as a family of cycles\n")
     w("Its cycle is not published. Each member assumes a turbine inlet temperature and efficiencies, "
-      "and its compressor ratio is solved so that the SFC at sea-level take-off power equals the "
-      "datasheet's 0.847 (`measurement/tp100_engine.py`).\n")
+      "and its compressor ratio is solved so that the SFC at sea-level maximum power equals the "
+      "brochure's 0.901, the only SFC the brochure gives, printed beside the maximum output "
+      "(`measurement/tp100_engine.py`).\n")
     w("| Tt4, R | e_c | e_t | pi_c solved | tau_t* |\n|---|---|---|---|---|")
     for m in res["detail"]["family"]:
         w(f"| {m['Tt4']:.0f} | {m['e_c']:.2f} | {m['e_t']:.2f} | {m['pi_c']:.2f} | {m['tau_t']:.3f} |")
@@ -241,8 +247,16 @@ def report(res, path):
       f"{ceil_row['measured']['max']:,.0f} ft against R12's 25,000 ft.\n")
     w("Under spec 7.1a a row outside tolerance that takes a requirement margin below zero returns the "
       "design to Stage 1. The ceiling row does that; the SFC rows would once the extra fuel is carried.\n")
+    sens = res["detail"]["sensitivity_bsfc_0_847"]
+    w(f"Sensitivity: calibrated instead to the unverified 0.847 take-off extract, the loiter SFC runs "
+      f"{sens['loiter_start']['mean']:.3f} at the start and {sens['loiter_end']['mean']:.3f} at the end of the leg "
+      "(family means); the shortfall against 0.901 remains.\n")
+    w("Brochure facts that bear on the design but are not measured here: the starting envelope ends at "
+      "19,685 ft, below the 20,000 ft loiter, so an in-flight relight needs a descent; the output shaft "
+      "turns at 2,158 rpm against the ledger's assumed 2,000 rpm (inside its band).\n")
     w("## 5. Not done in this run\n")
-    w("- No TP100 part-power datum to validate the part-throttle trend (owner action: datasheet).")
+    w("- No TP100 part-power datum to validate the part-throttle trend: the owner's brochure gives none. "
+      "The maker would have to be asked for a part-power curve.")
     w("- Installation losses (inlet, exhaust, bleed, accessory power) are not modelled; they would lower power and raise SFC further.")
     w("- Power at altitude uses 95 kt for every row; the ceiling bisection uses the same speed.")
     Path(path).write_text("\n".join(L) + "\n")
