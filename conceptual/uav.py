@@ -656,18 +656,22 @@ def layout(d, L):
     return s
 
 
-def ceiling(d, L):
+def ceiling(d, L, power_at=None):
     """Service ceiling: the highest altitude with best rate of climb at least 100 ft/min, by
-    bisection, with CD0 evaluated at each altitude (reviewer finding F5)."""
+    bisection, with CD0 evaluated at each altitude (reviewer finding F5). power_at(h_ft) gives the
+    shaft hp available; by default the rated bhp times the piston lapse (13.9). Stage 3 passes
+    the Mattingly App. K engine instead."""
     W0, S, K, bhp = d["W0"], d["geom"]["S"], d["K"], d["bhp"]
+    if power_at is None:
+        def power_at(h):
+            return bhp * prop.piston_power_lapse(isa(h)["sigma"])
     clean = d["clmax"]["clean"]
 
     def roc(h):
         a = isa(h)
         CD0, _ = _polar(d["geom"], L, 250.0, a, bhp)
         lo = L["climb_speed_over_stall"] * perf.stall_speed(d["W_S"], a["rho"], clean)
-        r, _ = perf.best_rate_of_climb(W0, S, a["rho"], CD0, K,
-                                       bhp * prop.piston_power_lapse(a["sigma"]), L["eta_p"],
+        r, _ = perf.best_rate_of_climb(W0, S, a["rho"], CD0, K, power_at(h), L["eta_p"],
                                        lo, lo + 400.0)
         return r
     target = L["ceiling_rate_fpm"] / 60.0
