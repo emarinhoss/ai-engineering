@@ -1,6 +1,6 @@
 # Gate A, round 4: Task 12 Stage 1 re-sized around the TP100 App. K engine (2026-11-21)
 
-**Outcome: PASS WITH ACTIONS** (closing check by the reviewer, 2026-11-21: sizes may be frozen). Final design after rulings 6-8: pusher, W/S 13.5, A 10.5, W0 3,342 lb, span 51.0 ft, power margin 3.0 %; record `runs/task12/stage1/2026-11-21c/` (the 2026-11-21b record is the 100 kt EAS design before ruling 8), package `docs/validation/2026-11-21_task12_conceptual_gateA4_final.md`. Rulings 7-8 came after the closing check; the final record was re-reviewed (section 4: PASS WITH ACTIONS). Initial recommendation: PASS WITH ACTIONS for the configuration only (pusher,
+**Outcome: PASS WITH ACTIONS** (closing check by the reviewer, 2026-11-21: sizes may be frozen). Final design after rulings 6-8: pusher, W/S 13.5, A 10.5, W0 3,342 lb, span 51.0 ft, power margin 3.0 %; record `runs/task12/stage1/2026-11-21d/` after the re-check actions (sizes unchanged from `2026-11-21c`, which the re-check reviewed; `2026-11-21b` is the 100 kt EAS design before ruling 8; ruling 8's option runs are in `runs/task12/stage1/2026-11-21_placard_options/`), package `docs/validation/2026-11-21_task12_conceptual_gateA4_final.md`. Rulings 7-8 came after the closing check; the final record was re-reviewed (section 4: PASS WITH ACTIONS). Initial recommendation: PASS WITH ACTIONS for the configuration only (pusher,
 conventional tail, sponson gear, TP100). The sizes (W/S 9, A 9, 3,520 lb) are **not frozen** and
 Stage 3 does not start on them. Package reviewed: `docs/validation/2026-11-20_task12_conceptual_engine.md`
 (records `runs/task12/stage1/2026-11-20f/`). Spot check by the author: the TP100 table gives 244.9 hp at
@@ -40,6 +40,8 @@ To be recorded as they are given (questions asked one at a time).
 | C-2 R18 row on the fastest sub-step | done in the final run |
 | C-3 near-limit rows (rotation tail CL, nose load, empty static margin) | carried: first Stage 3 aero rows (package section 12) |
 | C-4 tests for `_refine`, `_vmax_consistent`, margin rows; actions list; unchoked share per leg | done |
+| Re-check RC-1, RC-3, RC-4 (required) | done: R17/R19 rows, round-4 rulings in the package body, option runs recorded, stale text fixed |
+| Re-check RC-2, RC-5 to RC-9 | done: wind trades and payload-wind operating limit, full-throttle transit stated, gust lift slope at V_C Mach (negative gust -1.67), ceiling-margin note, comparison-engine note, tests |
 | C-5 climb TAS held, `_leg_speed` CD0 reference, flat sea-level climb power | carried, minor (no row changes) |
 
 ## 3. Independent review (verbatim)
