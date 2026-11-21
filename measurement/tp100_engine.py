@@ -102,21 +102,29 @@ def table(member=None):
         k, ref = calibrated(**NOMINAL)
         member = {"k": k, "ref": ref, **NOMINAL}
     k, ref = member["k"], member["ref"]
-    p_full, sfc = [], []
+    p_full, sfc, lp_ratio = [], [], []
     for h in TABLE_H:
         a = isa(h)
-        row_p, row_s = [], []
+        row_p, row_s, row_r = [], [], []
         for v in TABLE_V:
             M0 = v * KT / a["a"]
             top = tc.full_throttle(ref, M0, a["T"], a["p"], k, pi_c_max=ref["pi_c"])
             row_p.append(top["shaft_hp"])
-            row_s.append([tc.shaft_power_at(ref, M0, a["T"], a["p"], f * top["shaft_hp"], k,
-                                             pi_c_max=ref["pi_c"])["bsfc"] if f < 1.0 else top["bsfc"]
-                          for f in TABLE_F])
+            pts = [tc.shaft_power_at(ref, M0, a["T"], a["p"], f * top["shaft_hp"], k, pi_c_max=ref["pi_c"])
+                   if f < 1.0 else top for f in TABLE_F]
+            row_s.append([r["bsfc"] for r in pts])
+            row_r.append([1.0 / r["pi_tL"] for r in pts])
         p_full.append(row_p)
         sfc.append(row_s)
+        lp_ratio.append(row_r)
+    gt = k["gamma_t"]
     return {"h_ft": TABLE_H, "V_kt": TABLE_V, "power_fraction": TABLE_F, "full_throttle_shp": p_full,
             "bsfc": sfc, "rated_shp": RATED_SHP,
+            # validity (Gate A round 4, R4-4): App. K off-design holds the HP turbine ratios fixed
+            # because stations 4 and 4.5 are choked; a turbine pressure ratio below the critical
+            # value means that assumption fails in that cell
+            "lp_turbine_pressure_ratio": lp_ratio, "hp_turbine_pressure_ratio": 1.0 / ref["pi_tH"],
+            "critical_pressure_ratio": ((gt + 1.0) / 2.0) ** (gt / (gt - 1.0)),
             "member": {x: member[x] for x in ("Tt4", "e_c", "e_t")} | {"pi_c": ref["pi_c"], "tau_t": ref["tau_t"]},
             "calibration_bsfc": BSFC_RATED, "control_law": "Tt4 <= rated, pi_c <= sea-level rated value"}
 

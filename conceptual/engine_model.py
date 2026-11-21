@@ -3,6 +3,7 @@ altitude, true airspeed and power fraction. For the TP100 the table is generated
 Mattingly App. K cycle (python -m measurement.tp100_engine data/task12/tp100_table.json) so the
 sizing loop does not run the cycle itself. Linear interpolation; inputs are clamped to the table.
 """
+import copy
 import json
 from pathlib import Path
 
@@ -28,12 +29,22 @@ class TableEngine:
         self.sfc = np.array(t["bsfc"])
         self.rated = t["rated_shp"]
         self.meta = {k: t[k] for k in ("member", "calibration_bsfc", "control_law")}
+        self.sfc_scale, self.power_scale = 1.0, 1.0
+        self.lp_ratio = np.array(t["lp_turbine_pressure_ratio"])
+        self.crit = t["critical_pressure_ratio"]
+        self.hp_ratio = t["hp_turbine_pressure_ratio"]
+
+    def scaled(self, sfc=1.0, power=1.0):
+        """A copy with every SFC and every full-throttle power multiplied (band-end trades)."""
+        out = copy.copy(self)
+        out.sfc_scale, out.power_scale = self.sfc_scale * sfc, self.power_scale * power
+        return out
 
     def power_available(self, h_ft, V_kt):
         """Full-throttle shaft hp (bilinear in altitude and speed), capped at the rated power: the
         brochure gives 241 hp as the maximum output, so ram recovery above it (the cycle reaches
         about 250 hp at 140 kt at sea level) is not credited (Gate A round 4, R4-1)."""
-        return min(self.rated, self._full_throttle(h_ft, V_kt))
+        return min(self.rated, self._full_throttle(h_ft, V_kt)) * self.power_scale
 
     def _full_throttle(self, h_ft, V_kt):
         """Uncapped full-throttle shaft hp of the cycle: the reference for the table's fractions."""
@@ -53,7 +64,7 @@ class TableEngine:
         avail = self.power_available(h_ft, V_kt)
         if shp > avail * (1.0 + 1e-6):
             raise ValueError(f"{shp:.1f} hp exceeds the {avail:.1f} hp available")
-        frac = shp / self._full_throttle(h_ft, V_kt)
+        frac = shp / (self._full_throttle(h_ft, V_kt) * self.power_scale)
         i, a = _locate(self.h, h_ft)
         j, b = _locate(self.v, V_kt)
         k, c = _locate(self.f, frac)
@@ -63,4 +74,12 @@ class TableEngine:
             for dj, wj in ((0, 1 - b), (1, b)):
                 for dk, wk in ((0, 1 - c), (1, c)):
                     out += wi * wj * wk * s[i + di, j + dj, k + dk]
-        return float(out)
+        return float(out) * self.sfc_scale
+
+    def turbine_choked(self, h_ft, V_kt, shp):
+        """Whether the App. K choked-turbine assumption holds at this point: the LP turbine pressure
+        ratio (nearest table cell) at or above the critical ratio (Gate A round 4, R4-4)."""
+        i = int(np.abs(self.h - h_ft).argmin())
+        j = int(np.abs(self.v - V_kt).argmin())
+        k = int(np.abs(self.f - shp / (self._full_throttle(h_ft, V_kt) * self.power_scale)).argmin())
+        return bool(self.lp_ratio[i, j, k] >= self.crit), float(self.lp_ratio[i, j, k])

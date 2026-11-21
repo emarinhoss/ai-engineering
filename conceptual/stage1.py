@@ -14,9 +14,11 @@ import csv
 import hashlib
 import json
 import math
+import platform
 import subprocess
 from pathlib import Path
 
+import numpy as np
 import yaml
 
 from conceptual import constraints, sizing, uav
@@ -172,17 +174,22 @@ def vn_diagram(d, L):
     return pts
 
 
-def trades(concept, W_S, A, L, engine):
+def trades(concept, W_S, A, L, engine, eng_raw):
     """One-at-a-time trades at the chosen point with the chosen engine: loiter time, payload,
-    altitude, the engine's consumption, and each banded ledger assumption at its band ends."""
+    altitude, the engine table's SFC and power at +-10 % (Stage 3 tolerances), and each banded
+    ledger assumption at its band ends. Each case is re-sized with the rotation tail resize and
+    run through the full compliance check (Gate A round 4, R4-2); failed rows are listed."""
     out = []
 
     def run(label, eng=engine, **changes):
         L2 = dict(L, **changes)
         try:
-            d = uav.evaluate(concept, W_S, A, L2, engine=eng)
+            a = analyse(concept, W_S, A, L2, eng)
+            d = a["design"]
+            comp = compliance(d, d["ledger_used"], a["layout"], a["performance"], *a["fuel_volume"], eng_raw)
             out.append({"case": label, "W0": d["W0"], "bhp": d["bhp"], "fuel": d["fuel"],
-                        "power_ok": d["power_ok"]})
+                        "power_ok": d["power_ok"],
+                        "failed": "; ".join(c["requirement"] for c in comp if c["met"] is False)})
         except ValueError as ex:
             out.append({"case": label, "W0": None, "error": str(ex)})
 
@@ -193,8 +200,11 @@ def trades(concept, W_S, A, L, engine):
     for alt in (15000.0, 20000.0, 25000.0):
         run(f"mission_altitude_ft={alt:g}", mission_altitude_ft=alt)
     run("no sponsons (wheels stowed for free; reference only)", no_sponsons=True)
-    for c in (0.80, 1.00, 1.20):
-        run(f"engine_cbhp={c:g} (datasheet 0.901)", eng=dict(engine, cbhp_cruise=c, cbhp_loiter=c))
+    if engine.get("model") is not None:
+        for f in (0.9, 1.1):
+            run(f"engine table SFC x{f:g}", eng=dict(engine, model=engine["model"].scaled(sfc=f)))
+        for f in (0.9, 1.1):
+            run(f"engine table power x{f:g}", eng=dict(engine, model=engine["model"].scaled(power=f)))
     _, entries = uav.load_ledger()
     for name, q in entries.items():
         if "band" in q and name in L and name != "composite_factor" and not name.startswith("cbhp"):
@@ -262,6 +272,9 @@ def compliance(d, L, lay, per, need, avail, eng_raw):
         ("R1/R2 single turboprop, one engine", "-", d["engine"].get("fixed", "rubber"), "", "by construction"),
         ("R4 payload", "lb", L["payload_lb"], L["payload_lb"], "by construction"),
         ("R5 mission 200 nm + 8 h + 200 nm", "fuel lb", d["fuel"], d["fuel"], "sized to it"),
+        (("R6 note: brochure starting (relight) envelope ends below the loiter altitude; an in-flight relight "
+         "needs a descent (round 4, R4-10)"), "ft", eng_raw.get("starting_altitude_max_ft", ""),
+         L["mission_altitude_ft"], "note"),
         ("R6 mission altitude 20,000 ft within engine limit", "ft", L["mission_altitude_ft"],
          eng_raw.get("max_operating_altitude_ft", 1e9), "<="),
         ("R7 take-off over 50 ft", "ft", per["takeoff_ft"], L["field_length_ft"], "<="),
@@ -270,12 +283,12 @@ def compliance(d, L, lay, per, need, avail, eng_raw):
         ("R8 retractable tricycle gear", "-", "yes", "", "by construction"),
         ("R9 positive limit load (manoeuvre or gust, both weights)", "-", d["n_limit"],
          L["limit_load_factor"], ">="),
-        ("R9 negative gust within the negative limit", "-", d["n_negative_gust"],
-         L["negative_load_factor"], ">="),
+        ("R9 negative gust within the negative limit, with the round-4 margin", "-", d["n_negative_gust"],
+         L["negative_load_factor"] + L.get("margin_gust_g", 0.0), ">="),
         ("R10 6 % reserve and trapped fuel", "-", sizing.RESERVE_FACTOR, 1.06, "by construction"),
         ("R12 sea-level rate of climb", "ft/min", per["roc_sl_fpm"], L["climb_rate_sl_fpm"], ">="),
-        ("R12 service ceiling (last altitude with 100 ft/min)", "ft", per["service_ceiling_ft"],
-         L["ceiling_ft"], "ceiling"),
+        ("R12 service ceiling (last altitude with 100 ft/min), with the round-4 margin", "ft",
+         per["service_ceiling_ft"], L["ceiling_ft"] + L.get("margin_ceiling_ft", 0.0), "ceiling"),
         ("R13 static margin, full fuel", "MAC", lay["sm_full"], "0.05-0.15", "in band"),
         ("R13 static margin, empty fuel", "MAC", lay["sm_empty"], "0.05-0.15", "in band"),
         ("R14 no crew items in the weights", "-", "yes", "", "by construction"),
@@ -284,7 +297,8 @@ def compliance(d, L, lay, per, need, avail, eng_raw):
          1.1 * max(m[3] * math.sqrt(isa(L["mission_altitude_ft"])["sigma"]) for m in d["mission"]) / KT,
          d["V_c_eas"]["sea_level"] / KT, "<="),
         ("R16 sustained 30 deg bank at loiter (power)", "hp", d["power_req"]["turn_at_loiter"], d["bhp"], "<="),
-        ("engine power meets every requirement", "hp", max(d["power_req"].values()), d["bhp"], "<="),
+        ("engine power meets every requirement, with the round-4 margin", "hp", max(d["power_req"].values()),
+         d["bhp"] * (1.0 - L.get("margin_power_fraction", 0.0)), "<="),
         ("fuel fits integral wing tanks", "ft^3", need, avail, "<="),
         ("nose-wheel load, full fuel (p. 232-233; optimum 0.08-0.15)", "-", lay["nose_load"]["full"], "0.05-0.20", "nose"),
         ("nose-wheel load, empty fuel", "-", lay["nose_load"]["empty"], "0.05-0.20", "nose"),
@@ -348,10 +362,46 @@ def first_compliant(concept, rows, ws_max, L, engine, eng_raw, max_tries=80):
     a = best.pop("analysis")
     for t in tried:
         t.pop("analysis", None)
+    if not best["failed"]:
+        a, best = _refine(concept, a, best, ws_max, L, engine, eng_raw, tried)
     best["chosen"] = True
     comp = compliance(a["design"], a["design"]["ledger_used"], a["layout"], a["performance"],
                       *a["fuel_volume"], eng_raw)
     return a, comp, tried
+
+
+def _refine(concept, a, best, ws_max, L, engine, eng_raw, tried, step=0.5, max_moves=8):
+    """Local search off the 1 x 1 grid (Gate A round 4, R4-7): move to the lightest compliant of
+    the eight neighbours at +-step in W/S and A until none is lighter. Every point is recorded."""
+    seen = {(t["W_S"], t["A"]) for t in tried}
+    for _ in range(max_moves):
+        moved = False
+        cands = []
+        for dw in (-step, 0.0, step):
+            for da in (-step, 0.0, step):
+                p = (best["W_S"] + dw, best["A"] + da)
+                if p in seen or p[0] > ws_max or p[1] < 3.0:
+                    continue
+                seen.add(p)
+                try:
+                    an = analyse(concept, p[0], p[1], L, engine)
+                except ValueError as ex:
+                    tried.append({"W_S": p[0], "A": p[1], "failed": [str(ex)], "refinement": True})
+                    continue
+                comp = compliance(an["design"], an["design"]["ledger_used"], an["layout"], an["performance"],
+                                  *an["fuel_volume"], eng_raw)
+                t = {"W_S": p[0], "A": p[1], "W0": an["design"]["W0"], "refinement": True,
+                     "failed": [c["requirement"] for c in comp if c["met"] is False]}
+                tried.append(t)
+                if not t["failed"]:
+                    cands.append((t["W0"], t, an))
+        if cands:
+            w, t, an = min(cands, key=lambda c: c[0])
+            if w < best["W0"]:
+                best, a, moved = t, an, True
+        if not moved:
+            break
+    return a, best
 
 
 def analyse(concept, W_S, A, L, engine):
@@ -372,7 +422,8 @@ def design_record(r, L, eng_raw):
         "concept": d["concept"], "W_S": d["W_S"], "A": d["A"], "W0_lb": d["W0"], "We_lb": d["We"],
         "fuel_lb": d["fuel"], "payload_lb": L["payload_lb"], "bhp_sl": d["bhp"],
         "engine": d["engine"], "engine_source": eng_raw.get("source", ""),
-        "cbhp_used": {"cruise": d["ledger_used"]["cbhp_cruise"], "loiter": d["ledger_used"]["cbhp_loiter"]},
+        "cbhp_used": {"cruise": next(m[5] for m in d["mission"] if m[0] == "cruise_out"),
+                      "loiter": next(m[5] for m in d["mission"] if m[0] == "loiter")},
         "power_required_hp": d["power_req"], "power_ok": d["power_ok"],
         "propeller_diameter_ft": d["D_prop"], "propeller_points": r["propeller"],
         "gear_length_in": d["gear_length_in"], "gear_drag_area_ft2": d["gear_drag_area"],
@@ -384,7 +435,8 @@ def design_record(r, L, eng_raw):
         "Nz_ultimate": d["Nz"], "q_design_psf": d["q_design"], "V_c_eas_kt": {k: v / KT for k, v in d["V_c_eas"].items()},
         "components_lb": d["components"],
         "mission": [{"segment": m[0], "W_start": m[1], "W_end": m[2], "V_kt": m[3] / KT,
-                     "speed_floor_fraction": m[4], "cbhp_mean": m[5]} for m in d["mission"]],
+                     "speed_floor_fraction": m[4], "cbhp_mean": m[5],
+                     "turbine_unchoked_fraction": m[6]} for m in d["mission"]],
         "wing": g["wing"], "horizontal_tail": g["ht"],
         "vertical_tail": {"area": g["S_vt"], "height": g["vt_height"], "root_chord": g["vt_root"],
                           "mac": g["vt_mac"]},
@@ -417,6 +469,12 @@ def main(argv=None):
         "ledger_sha256": hashlib.sha256(ledger_bytes).hexdigest(),
         "engines_sha256": hashlib.sha256(ENGINES.read_bytes()).hexdigest(),
         "tp100_table_sha256": hashlib.sha256(TP100_TABLE.read_bytes()).hexdigest(),
+        "tp100_table_commit": subprocess.run(["git", "log", "-1", "--format=%H", "--", str(TP100_TABLE)],
+                                             capture_output=True, text=True, check=False, cwd=REPO).stdout.strip(),
+        "uncommitted_code_changes": bool(subprocess.run(
+            ["git", "status", "--porcelain", "--", "conceptual", "measurement", "data"],
+            capture_output=True, text=True, check=False, cwd=REPO).stdout.strip()),
+        "python": platform.python_version(), "numpy": np.__version__,
         "chosen_engine": CHOSEN_ENGINE, "ws_grid": WS_GRID, "a_grid": A_GRID}, indent=2))
     (out / "ledger.yaml").write_bytes(ledger_bytes)
     (out / "engines.yaml").write_bytes(ENGINES.read_bytes())
@@ -475,8 +533,7 @@ def main(argv=None):
         except ValueError as ex:
             alt_rows.append({"engine": name, "W0": None, "error": str(ex)})
     _write_csv(out / "engines_compared.csv", alt_rows)
-    _write_csv(out / "trades.csv", trades(recommended, d["W_S"], d["A"],
-                                          dict(L, ht_volume_scale=res[recommended]["ht_scale"]), eng))
+    _write_csv(out / "trades.csv", trades(recommended, d["W_S"], d["A"], L, eng, eng_raw[CHOSEN_ENGINE]))
     tests = subprocess.run(["python3", "-m", "pytest", "-q", "tests/task12"], capture_output=True,
                            text=True, check=False, cwd=REPO)
     (out / "test_report.txt").write_text(tests.stdout)

@@ -281,7 +281,7 @@ def _mission(W0, geom, A, e, L, bhp, clmax, model=None):
     h_alt = L["mission_altitude_ft"]
     c_to = L["cbhp_cruise"] if model is None else model.bsfc(0.0, 60.0, bhp * model.lapse(0.0, 60.0))
     W = W0 * sizing.takeoff_fraction_power(c_to, bhp, L["takeoff_minutes"], W0)
-    rows.append(("takeoff", W0, W, 0.0, 0.0, c_to))
+    rows.append(("takeoff", W0, W, 0.0, 0.0, c_to, 0.0))
     CD0_sl, _ = _polar(geom, L, 200.0, sl, bhp)
     v_lo = L["climb_speed_over_stall"] * perf.stall_speed(W / S, sl["rho"], clmax["clean"])
     _, V_cl = perf.best_rate_of_climb(W, S, sl["rho"], CD0_sl, K, bhp, L["eta_p"], v_lo,
@@ -298,7 +298,7 @@ def _mission(W0, geom, A, e, L, bhp, clmax, model=None):
             else model.bsfc(0.5 * h_alt, V_cl / KT, bhp * model.lapse(0.5 * h_alt, V_cl / KT)))
     C = sizing.equivalent_tsfc(c_cl, V_cl, L["eta_p"])
     W2 = W * sizing.climb_fraction_energy(C, dhe, V_cl, min(d_t, 0.95))
-    rows.append(("climb", W, W2, 0.0, 0.0, c_cl))
+    rows.append(("climb", W, W2, 0.0, 0.0, c_cl, 0.0))
     W = W2
 
     def leg(W, name, distance_ft=None, time_s=None):
@@ -306,12 +306,14 @@ def _mission(W0, geom, A, e, L, bhp, clmax, model=None):
         n = N_CRUISE_STEPS if distance_ft else N_LOITER_STEPS
         mode = "range" if distance_ft else "loiter"
         cbhp = L["cbhp_cruise"] if distance_ft else L["cbhp_loiter"]
-        v_sum, floor_steps, c_sum = 0.0, 0, 0.0
+        v_sum, floor_steps, c_sum, unchoked = 0.0, 0, 0.0, 0
         for _ in range(n):
             CD0, _ = _polar(geom, L, 250.0, alt, bhp)
             V, floored, c_tab = _leg_speed(W, S, alt, h_alt, CD0, K, clmax["clean"], L, mode, model, bhp)
             if c_tab is not None:
                 cbhp = c_tab
+                shp = perf.drag(W, S, alt["rho"], V, CD0, K) * V / (HP * L["eta_p"])
+                unchoked += not model.turbine_choked(h_alt, V / KT, shp)[0]
             v_sum += V / n
             c_sum += cbhp / n
             floor_steps += floored
@@ -323,14 +325,14 @@ def _mission(W0, geom, A, e, L, bhp, clmax, model=None):
             else:
                 f = sizing.loiter_fraction_prop(time_s / n, V, cbhp, L["eta_p"], LD)
             W *= f
-        rows.append((name, W_in, W, v_sum, floor_steps / n, c_sum))
+        rows.append((name, W_in, W, v_sum, floor_steps / n, c_sum, unchoked / n))
         return W
 
     W = leg(W, "cruise_out", distance_ft=L["radius_nm"] * NM)
     W = leg(W, "loiter", time_s=L["loiter_h"] * 3600.0)
     W = leg(W, "cruise_back", distance_ft=L["radius_nm"] * NM)
     W_end = W * sizing.LANDING_FRACTION
-    rows.append(("landing", W, W_end, 0.0, 0.0, 0.0))
+    rows.append(("landing", W, W_end, 0.0, 0.0, 0.0, 0.0))
     fuel = sizing.RESERVE_FACTOR * (W0 - W_end)
     return fuel, rows
 

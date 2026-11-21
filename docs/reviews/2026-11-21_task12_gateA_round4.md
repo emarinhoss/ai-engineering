@@ -14,6 +14,7 @@ To be recorded as they are given (questions asked one at a time).
 |---|---|
 | 1. Altitude rating and R12 ceiling | **Relax the ceiling**: keep the conservative engine law (pi_c held at the sea-level rating) and replace R12's 25,000 ft service ceiling by a lower ceiling or a climb-rate requirement at 20,000 ft, sized by a run |
 | 2. V_C | **One low placard**: a single V_C in EAS at every altitude, enforced by the autopilot; structure and gusts sized at it; value set from a run with a margin over the fastest mission leg |
+| 4. Robustness | **Stated margins**: installed power at most 95 % of the engine's, service ceiling at least 500 ft above R12, negative gust at least 0.1 g inside the limit; every trade and band end (with the engine table's SFC and power at +-10 %) run through the full compliance check and reported |
 | 3. Ceiling and V_C values (from option runs: lightest compliant pusher for ceilings 25,000 / 23,000 / 22,000 ft and 300 ft/min at 20,000 ft, each at 100 and 110 kt EAS) | **Service ceiling 23,000 ft; V_C 100 kt EAS.** Probe result at that setting: W/S 15, A 9, W0 3,054 lb, span 42.8 ft (to be confirmed by the recorded Stage 1 run) |
 
 ## 2. Actions
