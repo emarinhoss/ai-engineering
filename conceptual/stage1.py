@@ -187,9 +187,13 @@ def trades(concept, W_S, A, L, engine, eng_raw):
             a = analyse(concept, W_S, A, L2, eng)
             d = a["design"]
             comp = compliance(d, d["ledger_used"], a["layout"], a["performance"], *a["fuel_volume"], eng_raw)
+            bare = dict(d["ledger_used"], margin_power_fraction=0.0, margin_ceiling_ft=0.0, margin_gust_g=0.0)
+            comp0 = compliance(d, bare, a["layout"], a["performance"], *a["fuel_volume"], eng_raw)
             out.append({"case": label, "W0": d["W0"], "bhp": d["bhp"], "fuel": d["fuel"],
                         "power_ok": d["power_ok"],
-                        "failed": "; ".join(c["requirement"] for c in comp if c["met"] is False)})
+                        "failed": "; ".join(c["requirement"] for c in comp if c["met"] is False),
+                        "failed_without_margins": "; ".join(c["requirement"].replace(", with the round-4 margin", "")
+                                                            for c in comp0 if c["met"] is False)})
         except ValueError as ex:
             out.append({"case": label, "W0": None, "error": str(ex)})
 

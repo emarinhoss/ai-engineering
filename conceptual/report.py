@@ -630,13 +630,15 @@ def main(argv=None):
     add("## 9. Trades, sensitivities and out-of-calibration uses")
     add("")
     add("Each case is re-sized (tail resized for rotation) and run through the full compliance check, "
-        "round-4 margins included; the last column lists the rows it fails.")
+        "with and without the round-4 margins: a row failing only with margins has used up its margin, "
+        "one failing without them breaks the requirement.")
     add("")
-    add("| Trade | W0 (lb) | Fuel (lb) | Fails |")
-    add("|---|---|---|---|")
+    add("| Trade | W0 (lb) | Fuel (lb) | Fails with margins | Fails without margins |")
+    add("|---|---|---|---|---|")
     for t in trades:
         if not (t["case"].endswith("(lo)") or t["case"].endswith("(hi)")):
-            add(f"| {t['case']} | {_f(t['W0'])} | {_f(t['fuel'])} | {t.get('failed') or t.get('error') or 'none'} |")
+            add(f"| {t['case']} | {_f(t['W0'])} | {_f(t['fuel'])} | {t.get('failed') or t.get('error') or 'none'} | "
+                f"{t.get('failed_without_margins') or ('-' if t.get('error') else 'none')} |")
     base = next(t for t in trades if t["case"] == "loiter_h=8")
     sens, by_name = [], {}
     for t in trades:
@@ -646,14 +648,17 @@ def main(argv=None):
             by_name.setdefault(t["case"].split("=")[0], []).append(abs(dw))
     sens.sort(key=lambda x: -x[0])
     add("")
-    add("| Ledger assumption at band end | W0 (lb) | Change (lb) | Fails |")
-    add("|---|---|---|---|")
+    add("| Ledger assumption at band end | W0 (lb) | Change (lb) | Fails with margins | Fails without margins |")
+    add("|---|---|---|---|---|")
     for _, dw, t in sens[:12]:
-        add(f"| {t['case']} | {_f(t['W0'])} | {dw:+.0f} | {t.get('failed') or 'none'} |")
-    fails = [t for _, _, t in sens if t.get("failed")]
+        add(f"| {t['case']} | {_f(t['W0'])} | {dw:+.0f} | {t.get('failed') or 'none'} | "
+            f"{t.get('failed_without_margins') or 'none'} |")
+    fm = [t for _, _, t in sens if t.get("failed")]
+    f0 = [t for _, _, t in sens if t.get("failed_without_margins")]
     add("")
-    add(f"Band ends that fail a requirement: {len(fails)} of {len(sens)}"
-        + (": " + "; ".join(f"{t['case']} ({t['failed']})" for t in fails) if fails else "") + ".")
+    add(f"Band ends (one at a time, {len(sens)} in all) that use up a round-4 margin: {len(fm)}; that break a "
+        f"requirement: {len(f0)}" + (": " + "; ".join(f"{t['case']} ({t['failed_without_margins']})" for t in f0)
+                                    if f0 else "") + ".")
     add("")
     add("No effect at this design: " + ", ".join(sorted(k for k, v in by_name.items() if max(v) < 0.5)) + ".")
     add("")

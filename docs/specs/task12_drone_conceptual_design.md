@@ -1,6 +1,6 @@
 # Task 12 spec: a single-turboprop endurance UAV, designed with Raymer, reviewed, then measured independently
 
-**Status: spec, revision 2 (2026-11-20).** Stage 1 has run since: package `docs/validation/2026-11-20_task12_conceptual.md`, records `runs/task12/stage1/2026-11-20/`. Gate A has not been held. The text below is the spec as written before the run. Revision 1 (same day)
+**Status: spec, revision 3 (2026-11-21).** Revision 3 records the Gate A round 4 rulings: R12 ceiling 23,000 ft, R18 one V_C placard of 100 kt EAS, R16-R18 in the requirement table, Gate A margins (power 5 %, ceiling 500 ft, negative gust 0.1 g), and section 7.1b (the engine rows in Stage 3 are no longer independent). Earlier status: **revision 2 (2026-11-20).** Stage 1 has run since: package `docs/validation/2026-11-20_task12_conceptual.md`, records `runs/task12/stage1/2026-11-20/`. Gate A has not been held. The text below is the spec as written before the run. Revision 1 (same day)
 sized a 1 to 4 kg battery drone. Éder then changed the aircraft so that Raymer's weight statistics
 apply and the engine is a turbine, and answered eight requirement questions. Section 3 records
 each answer with the options he was shown. The figures quoted in section 3 come from a rough sizing
@@ -238,7 +238,7 @@ approximate method. Both are run and reported separately (corrected at Gate A cl
 ### 7.1a Agreement tolerances (accepted by Éder at Gate A close, 2026-11-20)
 
 Fixed before any Stage 3 measurement runs. "Raymer" is the Stage 1 value in
-`runs/task12/stage1/2026-11-20d/design_pusher.json`; the independent value is Stage 3's. A row
+`runs/task12/stage1/2026-11-20d/design_pusher.json` (from revision 3: the Stage 1 record that passes Gate A round 4); the independent value is Stage 3's. A row
 outside tolerance is diagnosed and reported, and if it moves a requirement margin below zero the
 design returns to Stage 1.
 
@@ -262,6 +262,22 @@ design returns to Stage 1.
 
 Gate B robustness threshold (section 7.4): info-gap horizon at least 1 (the ledger's own bands)
 at R5 and R7.
+
+### 7.1b Engine rows after the return to Stage 1 (Gate A round 4 ruling 5, Éder 2026-11-21)
+
+From the Gate A round 4 design on, Stage 1 sizes with the TP100's Mattingly App. K table
+(`data/task12/tp100_table.json`), so the rows above that compare App. K power, SFC, ceiling and
+mission fuel with Stage 1 would compare the table with itself. **They are declared not independent
+and are not used as agreement checks.** In their place:
+
+1. **Model check.** Mattingly's burner fuel/air ratio with variable specific heats (the book's MSH
+   model, ch. 4) replaces the constant-cp burner; the App. K validation against Figs. K.2-K.4,
+   K.7 and K.9 is re-run with tolerances fixed before the run; the table is regenerated and the
+   change in mission fuel and W0 at the frozen point is reported against the ±10 % SFC tolerance.
+2. **Validity.** The share of mission sub-steps where App. K's choked-turbine assumption fails is
+   reported with the result.
+3. **Closing check when available.** The maker's part-power SFC curve and altitude rating; until
+   then the engine rows rest on the model, stated as such.
 
 ### 7.2 Uncertainty of the measured performance
 
