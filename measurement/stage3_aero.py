@@ -135,8 +135,12 @@ def report(res, path, commit):
             f"{len(i['downwash_gradient_by_tail_height_ft'])} tail heights, so it was not conservative here."),
             ("- Static margin rows recompute Raymer's (16.9) with only the downwash replaced; the record carries "
             "the Stage 1 value reproduced by the same call as a check. Against R13 (5 to 15 % MAC) the "
-            f"lattice margins are {sm['full']:.3f} full and {sm['empty']:.3f} empty: inside the band, with "
-            f"{sm['empty'] - 0.05:.3f} MAC above the 5 % floor at empty fuel."),
+            f"lattice margins are {sm['full']:.3f} full and {sm['empty']:.3f} empty: "
+            + (f"inside the band, {min(sm.values()) - 0.05:.3f} MAC above the 5 % floor."
+               if min(sm.values()) >= 0.05 and max(sm.values()) <= 0.15 else
+               f"**outside R13** ({0.05 - min(sm.values()):.3f} MAC below the 5 % floor at the lower one). "
+               "Within the 7.1a tolerance, but a requirement margin below zero returns the design to Stage 1 "
+               "(spec 7.1a).")),
             ("- Not measured here: compressibility (at cruise Mach 0.16 the Prandtl-Glauert factor is 1.014, an upper bound on the slope change), the "
             "fuselage and nacelle on the lattice, the propeller slipstream at the tail.")]
     Path(path).write_text("\n".join(out) + "\n")
