@@ -1,0 +1,395 @@
+{
+  "rows": [
+    {
+      "id": "power_climb_sl",
+      "quantity": "installed power, sea-level climb 1,000 ft/min",
+      "unit": "hp",
+      "stage1": 177.514121879983,
+      "stage1_source": "record",
+      "stage3": 177.514121879983,
+      "source": "Mattingly (2.11) p. 24 with T = 550 eta_p P/V (shaft_power_loading)",
+      "deviation": 0.0,
+      "deviation_kind": "relative",
+      "tolerance": 0.05,
+      "note": "CD0 at sea level from the record; minimum over speed from 1.2 V_stall.",
+      "verdict": "within"
+    },
+    {
+      "id": "power_ceiling",
+      "quantity": "installed power, 100 ft/min at the ceiling altitude 23000 ft",
+      "unit": "hp",
+      "stage1": 233.79605857268206,
+      "stage1_source": "record",
+      "stage3": 233.79605857268206,
+      "source": "Mattingly (2.11) p. 24 with T = 550 eta_p P/V (shaft_power_loading)",
+      "deviation": 0.0,
+      "deviation_kind": "relative",
+      "tolerance": 0.05,
+      "note": "CD0 at the climb-speed floor and the App. K lapse there are recomputed with conceptual code (not in the record); the lapse is the engine table's, an input shared with Stage 1.",
+      "verdict": "within"
+    },
+    {
+      "id": "power_takeoff",
+      "quantity": "installed power, take-off over 50 ft in the field length",
+      "unit": "hp",
+      "stage1": 109.2489121579764,
+      "stage1_source": "record",
+      "stage3": null,
+      "source": "Mattingly (2.22) take-off",
+      "deviation": null,
+      "deviation_kind": "relative",
+      "tolerance": 0.05,
+      "note": "not computed: measurement/mattingly.py has no (2.22) take-off relation, and (2.11) alone does not give a distance-based power.",
+      "verdict": "not computed"
+    },
+    {
+      "id": "power_turn",
+      "quantity": "installed power, sustained 30 deg turn at loiter speed",
+      "unit": "hp",
+      "stage1": 203.24370701123812,
+      "stage1_source": "record",
+      "stage3": 203.24370701123806,
+      "source": "Mattingly (2.11) p. 24 with T = 550 eta_p P/V (shaft_power_loading); n from (2.16) p. 27",
+      "deviation": -3.3306690738754696e-16,
+      "deviation_kind": "relative",
+      "tolerance": 0.05,
+      "note": "Loiter speed (Stage 1's best-endurance speed at W0 with the 1.3 V_stall floor) is recomputed with conceptual code; CD0 from the record.",
+      "verdict": "within"
+    },
+    {
+      "id": "power_cruise",
+      "quantity": "installed power, level cruise at mission altitude",
+      "unit": "hp",
+      "stage1": 177.49817170262347,
+      "stage1_source": "record",
+      "stage3": 177.4981717026235,
+      "source": "Mattingly (2.11) p. 24 with T = 550 eta_p P/V (shaft_power_loading)",
+      "deviation": 2.220446049250313e-16,
+      "deviation_kind": "relative",
+      "tolerance": 0.05,
+      "note": "Cruise speed (Stage 1's best-range speed at W0) recomputed with conceptual code; CD0 from the record.",
+      "verdict": "within"
+    },
+    {
+      "id": "mission_fuel",
+      "quantity": "mission fuel (200 nm out + 8 h + 200 nm back, headwind)",
+      "unit": "lb",
+      "stage1": 1056.7329789088988,
+      "stage1_source": "record",
+      "stage3": 1056.7329789088988,
+      "source": "Mattingly (3.17), (3.23), (3.36)-(3.37) p. 61-67",
+      "deviation": 0.0,
+      "deviation_kind": "relative",
+      "tolerance": 0.05,
+      "note": "Same speeds, SFC and headwind air distance as Stage 1; the fraction relations reduce algebraically to Raymer's, so this checks the coding. Take-off, landing and the 1.06 reserve are Stage 1's.",
+      "verdict": "within"
+    },
+    {
+      "id": "w0_first",
+      "quantity": "take-off weight, Anderson first estimate (empty fraction 0.62)",
+      "unit": "lb",
+      "stage1": 3341.8912171652855,
+      "stage1_source": "record",
+      "stage3": 6171.860970776353,
+      "source": "Anderson (8.4)-(8.5) p. 399-400, (8.6)-(8.8) p. 402, (5.153), (5.169)",
+      "deviation": 0.8468168380452405,
+      "deviation_kind": "relative",
+      "tolerance": 0.1,
+      "note": "Anderson's own best-range and best-endurance speeds and (L/D)max (no 1.3 V_stall floor, headwind applied to the air distance at his best-range speed); polar, SFC used, eta_p, radius, headwind, loiter time and W/S from the record or its ledger copy.",
+      "verdict": "outside"
+    },
+    {
+      "id": "w0_buildup",
+      "quantity": "take-off weight, Anderson build-up (8.83) (same-author cross-check)",
+      "unit": "lb",
+      "stage1": 3341.8912171652855,
+      "stage1_source": "record",
+      "stage3": 3559.1443561284195,
+      "source": "Anderson (8.83a-g) p. 449, section 8.7 p. 449-453",
+      "deviation": 0.06500903974588867,
+      "deviation_kind": "relative",
+      "tolerance": null,
+      "note": "Raymer's Table 15.2 approximate method, so not independent: reported, not judged (spec 7.1a). Uses the first-estimate fuel fraction.",
+      "verdict": "not judged"
+    },
+    {
+      "id": "cd0",
+      "quantity": "zero-lift drag coefficient, mission altitude, clean",
+      "unit": "-",
+      "stage1": 0.02276792354026308,
+      "stage1_source": "record",
+      "stage3": 0.013900644281083502,
+      "source": "Anderson (2.37) p. 128 with Cfe from (2.29) p. 108 and Fig. 2.55 p. 129",
+      "deviation": -0.3894636787363841,
+      "deviation_kind": "relative",
+      "tolerance": 0.1,
+      "note": "S_wet from the rebuilt geometry (wing, fuselage, tails, sponsons); Cfe is 1.5 x the flat-plate value at the fuselage-length Reynolds number, a reading of a chart. Stage 1's CD0 includes engine, sensor and gear terms the equivalent-skin-friction method has no separate place for.",
+      "verdict": "outside"
+    },
+    {
+      "id": "v_best_range",
+      "quantity": "best-range speed (L/D max), mission altitude",
+      "unit": "kt",
+      "stage1": 100.03691428461089,
+      "stage1_source": "recomputed with conceptual code from the record's inputs",
+      "stage3": 100.03691428461086,
+      "source": "Anderson (5.34) p. 220",
+      "deviation": -3.3306690738754696e-16,
+      "deviation_kind": "relative",
+      "tolerance": 0.03,
+      "note": "Stage 1 value: Raymer's closed form (17.2, p. 457-459) at W0, mission altitude and the record's CD0 there (recomputed, not in the record). The mission itself flew other speeds (engine-table SFC, headwind, 1.3 V_stall floor).",
+      "verdict": "within"
+    },
+    {
+      "id": "v_best_endurance",
+      "quantity": "best-endurance speed (C_L^1.5/C_D max), mission altitude",
+      "unit": "kt",
+      "stage1": 76.0116173559169,
+      "stage1_source": "recomputed with conceptual code from the record's inputs",
+      "stage3": 76.0116173559169,
+      "source": "Anderson (5.41) p. 221",
+      "deviation": 0.0,
+      "deviation_kind": "relative",
+      "tolerance": 0.03,
+      "note": "Stage 1 value: Raymer's closed form (17.2, p. 457-459) at W0, mission altitude and the record's CD0 there (recomputed, not in the record). The mission itself flew other speeds (engine-table SFC, headwind, 1.3 V_stall floor).",
+      "verdict": "within"
+    },
+    {
+      "id": "roc_sl",
+      "quantity": "sea-level rate of climb at W0",
+      "unit": "ft/min",
+      "stage1": 1501.5205682817275,
+      "stage1_source": "record",
+      "stage3": 1514.9183749599495,
+      "source": "Anderson (5.121) p. 277 (5.122 misprinted, per the notes)",
+      "deviation": 0.00892282594140803,
+      "deviation_kind": "relative",
+      "tolerance": 0.03,
+      "note": "Rated 241 hp at sea level, eta_p 0.8, CD0 at sea level from the record, as Stage 1.",
+      "verdict": "within"
+    },
+    {
+      "id": "v_best_climb",
+      "quantity": "best-climb speed, sea level",
+      "unit": "kt",
+      "stage1": 65.21664966145464,
+      "stage1_source": "record",
+      "stage3": 56.44601060341485,
+      "source": "Anderson (5.118)/(5.41) p. 221, 277",
+      "deviation": -0.1344846615637103,
+      "deviation_kind": "relative",
+      "tolerance": 0.03,
+      "note": "Stage 1 searches speeds from 1.2 V_stall upward (Raymer p. 489) and lands on that floor; the closed form has no floor.",
+      "verdict": "outside"
+    },
+    {
+      "id": "ceiling",
+      "quantity": "service ceiling (100 ft/min) at W0",
+      "unit": "ft",
+      "stage1": 23502.542246606026,
+      "stage1_source": "record",
+      "stage3": 23949.498357087577,
+      "source": "Anderson (5.121) p. 277 with the App. K lapse",
+      "deviation": 446.95611048155115,
+      "deviation_kind": "absolute",
+      "tolerance": 1000.0,
+      "note": "Same engine table as Stage 1 (shared input); CD0 recomputed per altitude; the closed form has no 1.2 V_stall floor, Stage 1 does.",
+      "verdict": "within"
+    },
+    {
+      "id": "takeoff_distance",
+      "quantity": "take-off distance over 50 ft, sea level",
+      "unit": "ft",
+      "stage1": 734.5771758283607,
+      "stage1_source": "record",
+      "stage3": null,
+      "source": "Anderson (6.95) p. 393",
+      "deviation": null,
+      "deviation_kind": "relative",
+      "tolerance": 0.15,
+      "note": "not computed: measurement/anderson.py has no ground-roll or landing relation ((6.95) p. 393 is not implemented).",
+      "verdict": "not computed"
+    },
+    {
+      "id": "landing_distance",
+      "quantity": "landing distance over 50 ft, sea level",
+      "unit": "ft",
+      "stage1": 1360.515125264159,
+      "stage1_source": "record",
+      "stage3": null,
+      "source": "Anderson ch. 6 landing",
+      "deviation": null,
+      "deviation_kind": "relative",
+      "tolerance": 0.15,
+      "note": "not computed: measurement/anderson.py has no ground-roll or landing relation ((6.95) p. 393 is not implemented).",
+      "verdict": "not computed"
+    },
+    {
+      "id": "v_corner",
+      "quantity": "corner speed V*, sea level, EAS",
+      "unit": "kt",
+      "stage1": 105.94434618150544,
+      "stage1_source": "record",
+      "stage3": 105.94434618150544,
+      "source": "Anderson (6.54) p. 343",
+      "deviation": 0.0,
+      "deviation_kind": "relative",
+      "tolerance": 0.05,
+      "note": "n_limit (3.8, the requirement) and clean CL_max 1.35 from the record. The same V = sqrt(2 n W/S/(rho CL_max)) as Stage 1's, so it checks the arithmetic.",
+      "verdict": "within"
+    },
+    {
+      "id": "gust_n",
+      "quantity": "gust load factors (V_C and V_D points)",
+      "unit": "-",
+      "stage1": 3.6706714132719025,
+      "stage1_source": "record",
+      "stage3": null,
+      "source": "Anderson ch. 6 gust relation",
+      "deviation": null,
+      "deviation_kind": "relative",
+      "tolerance": 0.05,
+      "note": "not computed: measurement/anderson.py has no gust load factor relation.",
+      "verdict": "not computed"
+    },
+    {
+      "id": "sm_full",
+      "quantity": "static margin, full fuel",
+      "unit": "MAC",
+      "stage1": 0.1278539160910393,
+      "stage1_source": "record",
+      "stage3": null,
+      "source": "Anderson (8.76)-(8.78) p. 444",
+      "deviation": null,
+      "deviation_kind": "absolute",
+      "tolerance": 0.03,
+      "note": "not computed: measurement/anderson.py has no static-stability relation, and the spec wants the downwash from the vortex lattice (measurement/stage3_aero.py computes the static margin).",
+      "verdict": "not computed"
+    },
+    {
+      "id": "sm_empty",
+      "quantity": "static margin, empty fuel",
+      "unit": "MAC",
+      "stage1": 0.0721460839089607,
+      "stage1_source": "record",
+      "stage3": null,
+      "source": "Anderson (8.76)-(8.78) p. 444",
+      "deviation": null,
+      "deviation_kind": "absolute",
+      "tolerance": 0.03,
+      "note": "not computed: measurement/anderson.py has no static-stability relation, and the spec wants the downwash from the vortex lattice (measurement/stage3_aero.py computes the static margin).",
+      "verdict": "not computed"
+    }
+  ],
+  "mission_legs": [
+    {
+      "segment": "takeoff",
+      "fraction_stage3": 0.9945769440003399,
+      "fraction_stage1": 0.9945769440003399,
+      "basis": "taken from the record"
+    },
+    {
+      "segment": "climb",
+      "fraction_stage3": 0.9795022294425054,
+      "fraction_stage1": 0.9795022294425054,
+      "basis": "Mattingly (3.17)/(3.20); best-climb speed, D/T, SFC as Stage 1 formed them"
+    },
+    {
+      "segment": "cruise_out",
+      "fraction_stage3": 0.9427434773865202,
+      "fraction_stage1": 0.9427434773865202,
+      "basis": "Mattingly (3.23) per sub-step"
+    },
+    {
+      "segment": "loiter",
+      "fraction_stage3": 0.8245902865976428,
+      "fraction_stage1": 0.8245902865976428,
+      "basis": "Mattingly (3.36)-(3.37) per sub-step"
+    },
+    {
+      "segment": "cruise_back",
+      "fraction_stage3": 0.9312085346640173,
+      "fraction_stage1": 0.9312085346640173,
+      "basis": "Mattingly (3.23) per sub-step"
+    },
+    {
+      "segment": "landing",
+      "fraction_stage3": 0.995,
+      "fraction_stage1": 0.995,
+      "basis": "taken from the record"
+    }
+  ],
+  "anderson_w0": {
+    "W0": 6171.860970776353,
+    "fuel_fraction": 0.2989871576227186,
+    "f_cruise": 0.9466318125049074,
+    "f_loiter": 0.8427385961173642,
+    "LD_max": 16.412403844752586,
+    "V_best_range_kt": 100.03691428461086,
+    "buildup_W0": 3559.1443561284195,
+    "buildup_We": 1995.0059012575705,
+    "buildup_passes": 28,
+    "buildup_areas_ft2": [
+      223.8988507596303,
+      115.63147799756601,
+      37.622631937955646,
+      271.31777888367776
+    ],
+    "diagnostic_stage1_empty_fraction": 0.5341765016141419,
+    "diagnostic_W0_at_stage1_empty_fraction": 2996.948972345651
+  },
+  "cd0_detail": {
+    "CD0": 0.013900644281083502,
+    "S_wet_ft2": 1105.4038737026913,
+    "S_wet_over_S": 4.465421321417077,
+    "Re_fuselage": 26921714.722629096,
+    "Cfe": 0.0031129524585761167,
+    "Cfe_flat_plate_only": 0.0020753016390507445,
+    "Cfe_for_Stage1_CD0": 0.005098717881572215
+  },
+  "rebuild_check": {
+    "fuel_lb": {
+      "record": 1056.7329789088988,
+      "rebuilt": 1056.7329789088988
+    },
+    "power_climb_sl_hp": {
+      "record": 177.514121879983,
+      "rebuilt": 177.514121879983
+    },
+    "power_ceiling_hp": {
+      "record": 233.79605857268206,
+      "rebuilt": 233.79605857268206
+    },
+    "power_takeoff_hp": {
+      "record": 109.2489121579764,
+      "rebuilt": 109.2489121579764
+    },
+    "power_turn_at_loiter_hp": {
+      "record": 203.24370701123812,
+      "rebuilt": 203.24370701123812
+    },
+    "power_cruise_at_altitude_hp": {
+      "record": 177.49817170262347,
+      "rebuilt": 177.49817170262347
+    }
+  },
+  "inputs": {
+    "design": "runs/task12/stage1/2026-11-21d/design_pusher.json",
+    "design_sha256": "331bad995d37d4e38331a32a74cd26221317a788698a8fd406597bcd6150ea21",
+    "ledger": "runs/task12/stage1/2026-11-21d/ledger.yaml",
+    "ledger_sha256": "1aa6114a226c4244364902d78796a924f00e9f13ddfd9fb0c6460444c0008980",
+    "tp100_table": "data/task12/tp100_table.json",
+    "tp100_table_sha256": "f3078c85c1b04f9a1ac3df46f1c4fd6c04786c18197d14724ff4b822050f85d3",
+    "git_commit": "6c920c0d51e2f5d1aa3de20271383e04b60c3c7e",
+    "python": "3.13.18",
+    "numpy": "2.5.3",
+    "seed": null,
+    "rebuild_tolerance": 1e-06
+  },
+  "summary": {
+    "within": 10,
+    "outside": 3,
+    "not judged": 1,
+    "not computed": 6
+  }
+}
