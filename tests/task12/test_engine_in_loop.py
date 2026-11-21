@@ -21,9 +21,13 @@ def test_scaled_copy_multiplies_and_leaves_original():
     assert ENG.sfc_scale == 1.0 and ENG.power_scale == 1.0
 
 
-def test_turbine_flag_fails_at_low_power():
-    assert ENG.turbine_choked(20000.0, 95.0, 0.95 * ENG.power_available(20000.0, 95.0))[0]
-    assert not ENG.turbine_choked(20000.0, 95.0, 0.4 * ENG.power_available(20000.0, 95.0))[0]
+def test_turbine_flag_follows_the_pressure_ratio():
+    """The flag is the stored LP turbine pressure ratio against the critical ratio; it falls with
+    power (with the variable-cp TP100 it is below critical even at full power: reported, not hidden)."""
+    p = ENG.power_available(20000.0, 95.0)
+    hi, lo = ENG.turbine_choked(20000.0, 95.0, 0.95 * p), ENG.turbine_choked(20000.0, 95.0, 0.4 * p)
+    assert hi[0] == (hi[1] >= ENG.crit) and lo[0] == (lo[1] >= ENG.crit)
+    assert lo[1] < hi[1]
 
 
 def _design():

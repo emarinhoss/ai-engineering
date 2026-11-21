@@ -541,6 +541,7 @@ def main(argv=None):
         "chosen_engine": CHOSEN_ENGINE, "ws_grid": WS_GRID, "a_grid": A_GRID}, indent=2))
     (out / "ledger.yaml").write_bytes(ledger_bytes)
     (out / "engines.yaml").write_bytes(ENGINES.read_bytes())
+    (out / "tp100_table.json").write_bytes(TP100_TABLE.read_bytes())    # the engine the run used
     (out / "first_pass.json").write_text(json.dumps(first_pass(L), indent=2))
 
     stall_ws = constraints.ws_stall(RHO0, L["stall_speed_kt"] * KT, uav._cl_max(L)["clean"])

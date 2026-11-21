@@ -32,7 +32,7 @@ import numpy as np
 from conceptual import raymer_performance as perf
 from conceptual import raymer_propulsion as prop
 from conceptual import sizing, uav
-from conceptual.engine_model import TP100_TABLE, TableEngine
+from conceptual.engine_model import TP100_TABLE, TableEngine, table_for_run
 from conceptual.units import KT, NM, RHO0, G, isa
 from measurement import anderson as A
 from measurement import mattingly as M
@@ -60,7 +60,8 @@ def rebuild(design_path):
     ledger_path = path.parent / "ledger.yaml"
     L, _ = uav.load_ledger(ledger_path)
     L = dict(L, ht_volume_scale=d["ht_volume_scale"], cbhp_cruise=0.901, cbhp_loiter=0.901)
-    eng = dict(CHOSEN_ENGINE, model=TableEngine(TP100_TABLE))
+    # the engine table the record was made with, not necessarily the current one
+    eng = dict(CHOSEN_ENGINE, model=TableEngine(table_for_run(path.parent)))
     b = uav._build(d["W0_lb"], d["concept"], d["W_S"], d["A"], L, d["fuel_lb"], eng)
     check = {"fuel_lb": [d["fuel_lb"], b["fuel"]]}
     for k, v in d["power_required_hp"].items():

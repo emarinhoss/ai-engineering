@@ -31,7 +31,13 @@ BSFC_RATED = 0.901             # brochure, at maximum output (condition not stat
 BSFC_TAKEOFF_UNVERIFIED = 0.847 # search extract only
 M_RATING = 0.1
 
-CYCLE_GRID = {"Tt4": (2000.0, 2200.0, 2400.0), "e_c": (0.80, 0.85), "e_t": (0.85, 0.90)}
+# Widened toward lower efficiencies at the Stage 3 ruling (Eder 2026-11-21, review B-3): with the
+# variable-cp burner the original grid met the brochure SFC only at pi_c 2.8-3.4.
+CYCLE_GRID = {"Tt4": (2000.0, 2200.0, 2400.0), "e_c": (0.75, 0.80, 0.85), "e_t": (0.80, 0.85, 0.90)}
+# Members calibrating below this compressor pressure ratio are set aside as implausible for the
+# engine class. A study judgement, not a datasheet value: the TP100's pi_c is not published.
+PI_C_PLAUSIBLE_MIN = 3.0
+DEFAULT_BURNER = "msh"      # Mattingly's MSH fuel flow (review of 2026-11-21: cleared with actions)
 
 
 def _gas(Tt4, e_c, e_t, burner="csh"):
@@ -40,7 +46,7 @@ def _gas(Tt4, e_c, e_t, burner="csh"):
                 eta_mL=0.98, eta_g=0.98, eta_prop=0.80)
 
 
-def calibrated(Tt4, e_c, e_t, bsfc=BSFC_RATED, shp=RATED_SHP, burner="csh"):
+def calibrated(Tt4, e_c, e_t, bsfc=BSFC_RATED, shp=RATED_SHP, burner=DEFAULT_BURNER):
     """One family member: (gas inputs k, reference design dict with m0), or None when no compressor
     pressure ratio between 2 and 14 gives the datasheet SFC with these assumptions."""
     k = _gas(Tt4, e_c, e_t, burner)
@@ -51,7 +57,10 @@ def calibrated(Tt4, e_c, e_t, bsfc=BSFC_RATED, shp=RATED_SHP, burner="csh"):
         return tc.design_point(M_RATING, sl["T"], sl["p"], pi_c, t, k)
 
     lo, hi = 2.0, 14.0
-    if at(hi)["bsfc"] > bsfc or at(lo)["bsfc"] < bsfc:
+    try:
+        if at(hi)["bsfc"] > bsfc or at(lo)["bsfc"] < bsfc:
+            return None
+    except ValueError:                       # no valid cycle at a bracket end: no calibration
         return None
     for _ in range(50):                      # bsfc falls as pi_c rises over this range
         mid = 0.5 * (lo + hi)
@@ -61,12 +70,13 @@ def calibrated(Tt4, e_c, e_t, bsfc=BSFC_RATED, shp=RATED_SHP, burner="csh"):
     return k, ref
 
 
-def family(bsfc=BSFC_RATED, burner="csh"):
-    """All members of CYCLE_GRID that calibrate to bsfc, as dicts with their assumptions."""
+def family(bsfc=BSFC_RATED, burner=DEFAULT_BURNER, pi_c_min=PI_C_PLAUSIBLE_MIN):
+    """All members of CYCLE_GRID that calibrate to bsfc with pi_c at least pi_c_min, as dicts with
+    their assumptions."""
     out = []
     for Tt4, e_c, e_t in itertools.product(*CYCLE_GRID.values()):
         m = calibrated(Tt4, e_c, e_t, bsfc, burner=burner)
-        if m is not None:
+        if m is not None and m[1]["pi_c"] >= pi_c_min:
             out.append({"Tt4": Tt4, "e_c": e_c, "e_t": e_t, "k": m[0], "ref": m[1]})
     return out
 
@@ -89,13 +99,13 @@ def bsfc_at(member, h_ft, V_kt, shaft_hp):
 
 
 # ---- table for the Stage 1 sizing loop ----------------------------------------------------------
-NOMINAL = {"Tt4": 2200.0, "e_c": 0.85, "e_t": 0.85}     # middle of CYCLE_GRID
+NOMINAL = {"Tt4": 2200.0, "e_c": 0.80, "e_t": 0.85}     # middle of the widened CYCLE_GRID
 TABLE_H = [2500.0 * i for i in range(13)]                # 0 to 30,000 ft
 TABLE_V = [30.0 + 20.0 * i for i in range(11)]           # 30 to 230 kt TAS
 TABLE_F = [0.10 + 0.05 * i for i in range(19)]           # shaft power / full-throttle power
 
 
-def table(member=None, burner="csh"):
+def table(member=None, burner=DEFAULT_BURNER):
     """Full-throttle shaft hp and part-power shaft SFC of one family member on a grid of altitude,
     true airspeed and power fraction, for conceptual/engine_model.py to interpolate."""
     if member is None:

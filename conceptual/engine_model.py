@@ -12,6 +12,30 @@ import numpy as np
 TP100_TABLE = Path(__file__).resolve().parents[1] / "data" / "task12" / "tp100_table.json"
 
 
+def table_for_run(run_dir):
+    """Path of the engine table a Stage 1 run used: the copy in the run folder if there is one,
+    else the committed table at the run's recorded commit if its hash differs from the current file
+    (read with `git show`), else the current file. Raises if the recorded hash cannot be matched."""
+    import hashlib
+    import subprocess
+    import tempfile
+    run_dir = Path(run_dir)
+    if (run_dir / "tp100_table.json").exists():
+        return run_dir / "tp100_table.json"
+    inp = json.loads((run_dir / "inputs.json").read_text())
+    want = inp.get("tp100_table_sha256")
+    if want is None or hashlib.sha256(TP100_TABLE.read_bytes()).hexdigest() == want:
+        return TP100_TABLE
+    repo = TP100_TABLE.parents[2]
+    blob = subprocess.run(["git", "show", f"{inp['commit']}:data/task12/tp100_table.json"], cwd=repo,
+                          capture_output=True, check=True).stdout
+    if hashlib.sha256(blob).hexdigest() != want:
+        raise ValueError(f"no engine table with the recorded hash for {run_dir}")
+    out = Path(tempfile.mkdtemp()) / "tp100_table.json"
+    out.write_bytes(blob)
+    return out
+
+
 def _locate(axis, x):
     """Index i and weight t with x = axis[i] + t (axis[i+1] - axis[i]), clamped."""
     x = min(max(x, axis[0]), axis[-1])
