@@ -293,6 +293,24 @@ and are not used as agreement checks.** In their place:
 3. **Closing check when available.** The maker's part-power SFC curve and altitude rating; until
    then the engine rows rest on the model, stated as such.
 
+### 7.1c Rulings from the first Stage 3 pass (Éder, 2026-11-21)
+
+1. **Engine family (review B-3).** The TP100 cycle family is widened toward lower component
+   efficiencies (e_c 0.75-0.85, e_t 0.80-0.90); members calibrating below pi_c 3.0 are set aside
+   (study judgement); the variable-cp (MSH) burner is the default. Recorded result: at the frozen
+   point the corrected table changes mission fuel by -3.6 % and the re-sized W0 by -3.0 %
+   (`runs/task12/stage3/2026-11-21/engine_change.json`).
+2. **Engine validity.** With pi_c about 3.4 the turbines are below the choking ratio at every
+   operating point, so App. K's off-design assumption fails for this engine everywhere. The table
+   is used with that stated; the engine SFC and power +-10 % band ends remain the carried
+   uncertainty; the maker's part-power curve is the closing check.
+3. **Downwash.** The vortex-lattice downwash replaces the far-wake formula in Stage 1's layout
+   (the lattice gave 0.389 against 0.338 and the empty-fuel static margin fell to 0.045, below
+   R13). The Stage 3 downwash and static-margin rows therefore become checks of the same model,
+   declared not independent, like the engine rows in 7.1b. Tail height above the wing plane is a
+   ledger assumption (0.4 D_f, banded).
+4. The design returns to Stage 1 with items 1 and 3; Gate A is re-checked on the result.
+
 ### 7.2 Uncertainty of the measured performance
 
 - The banded assumptions (composite factor, empty-weight fit against build-up, fuel burn, propeller

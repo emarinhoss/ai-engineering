@@ -8,6 +8,7 @@ power is whatever the binding requirement needs. layout() then places the wing f
 margin (ch. 16) and checks the fit. Every constant comes from the ledger (data/task12/ledger.yaml)
 or is a cited Raymer value.
 """
+import functools
 import math
 from pathlib import Path
 
@@ -566,6 +567,23 @@ def overturn_track(x_main, x_nose, x_cg, h_cg, max_deg):
     return (x_main - x_nose) * math.tan(delta)
 
 
+@functools.lru_cache(maxsize=256)
+def _lattice_downwash_cached(span, A, taper, arm, ht_span, z):
+    from drone import geometry, vlm
+    pf = geometry.tapered(span, A, taper)                        # unswept leading edge
+    x_t = pf.x_ref + arm                                         # tail quarter-MAC station
+    pts = [[x_t, f * ht_span / 2.0, z] for f in (0.1, 0.3, 0.5, 0.7, 0.9)]
+    return vlm.downwash_gradient(pf, pts, "medium")
+
+
+def lattice_downwash(span, A, taper, arm, ht_span, z):
+    """d(eps)/d(alpha) at the horizontal tail from the study's vortex lattice (drone/vlm.py, Task 10
+    V6a-V6c; far wake checked to 3 %): mean of five spanwise points at the tail's quarter-MAC
+    station, at height z above the wing plane; planar wake. Cached: the layout calls it often."""
+    r = lambda v: round(float(v), 3)
+    return _lattice_downwash_cached(r(span), r(A), r(taper), r(arm), r(ht_span), r(z))
+
+
 def layout(d, L):
     """Place the components (stations from the ledger), the main gear by the tipback rule (Raymer
     p. 232) and the wing so that the static margin range (full and empty fuel) is centred in R13.
@@ -579,7 +597,10 @@ def layout(d, L):
     mac = w.mac
     CLa_w = d["CLa"]
     CLa_h = aero.lift_slope(L["ht_aspect_ratio"], 0.0, L["airfoil_efficiency"])
-    dah = 1.0 - stab.downwash_gradient_lifting_line(CLa_w, d["A"])
+    # downwash at the tail from the vortex lattice (Stage 3 ruling, Eder 2026-11-21): the far-wake
+    # formula under-stated it for this aircraft (0.338 against 0.389), so Stage 1 uses the lattice
+    dah = 1.0 - lattice_downwash(w.span, d["A"], L["wing_taper"], g["arm"], g["ht"].span,
+                                 L["tail_height_over_df"] * g["d_f"])
     Cma_fus = stab.fuselage_cm_alpha_per_deg(L["fuselage_kf"], g["d_f"], L_f, mac, g["S"]) * 180 / math.pi
     h_cg = d["gear_length_in"] / 12.0 + g["d_f"] / 2.0          # CG height above ground (ft)
     tb = math.tan(math.radians(L["tipback_angle_deg"]))

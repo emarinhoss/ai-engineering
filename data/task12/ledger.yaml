@@ -55,6 +55,7 @@ assumptions:
   fuselage_fill:         {value: 0.80, units: "-", confidence: assumed, band: [0.75, 0.85], source: "Projected top and side areas over length x diameter, for Raymer (7.12) p. 152; a judgement"}
   fuselage_kf:           {value: 0.008, units: "-", confidence: published, band: [0.005, 0.015], source: "Raymer (16.22) p. 427 empirical factor from Fig. 16.14, as read in DR-1 p. 579; the chart itself is not readable from the notes"}
   tail_eta_h:            {value: 0.9, units: "-", confidence: published, source: "Raymer (16.6) and DR-1 p. 579: q_h/q about 0.9"}
+  tail_height_over_df:   {value: 0.4, units: "-", confidence: assumed, band: [0.0, 0.9], source: "Horizontal-tail height above the wing plane over fuselage diameter for the lattice downwash (Stage 3 ruling 2026-11-21); 0.4 is the render's layout (wing at -0.1 D_f, tail at +0.3 D_f); band from a mid-fuselage tail to one near the fuselage top"}
   ht_aspect_ratio:       {value: 4.0, units: "-", confidence: published, source: "Raymer Table 4.3 p. 76 range for horizontal tails; DR-1 p. 563"}
   ht_taper:              {value: 0.5, units: "-", confidence: published, source: "Raymer Table 4.3 p. 76 range"}
   vt_aspect_ratio:       {value: 1.5, units: "-", confidence: published, source: "Raymer Table 4.3 p. 76 range; DR-1 p. 563"}
