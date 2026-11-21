@@ -415,26 +415,32 @@ def _refine(concept, a, best, ws_max, L, engine, eng_raw, tried, step=0.5, max_m
     return a, best
 
 
-def wind_limit(d, engine, hi=80.0):
-    """Operating limit (Gate A round 4 ruling 9): the largest headwind on both transit legs for which
-    the built aircraft (W0, geometry and fuel as sized) still flies the mission, i.e. the mission fuel
-    at its W0 is within the fuel it was sized with and every leg has a speed within the engine's
+def wind_limits(d, engine, payloads=(500.0, 400.0, 300.0), hi=80.0):
+    """Operating limit (Gate A round 4 ruling 9): for each payload, the largest headwind on both transit
+    legs that the built aircraft (W0 and geometry as sized) can fly, trading payload for fuel at the
+    same W0. At the design payload the fuel is sized for R19's wind, so the limit is that wind by
+    construction; lighter payloads buy wind. Every leg must also have a speed within the engine's
     power. Bisection on the wind; nothing is re-sized."""
     L = d["ledger_used"]
+    out = {}
+    for pl in payloads:
+        usable = d["fuel"] + (L["payload_lb"] - pl)
 
-    def closes(w):
-        try:
-            b = uav._build(d["W0"], d["concept"], d["W_S"], d["A"], dict(L, headwind_kt=w), d["fuel"], engine)
-        except ValueError:
-            return False
-        return b["fuel"] <= d["fuel"] * (1 + 1e-9)
-    lo, hi_ = L.get("headwind_kt", 0.0), hi
-    if not closes(lo):
-        return lo
-    for _ in range(30):
-        mid = 0.5 * (lo + hi_)
-        lo, hi_ = (mid, hi_) if closes(mid) else (lo, mid)
-    return lo
+        def closes(w, usable=usable):
+            try:
+                b = uav._build(d["W0"], d["concept"], d["W_S"], d["A"], dict(L, headwind_kt=w), d["fuel"], engine)
+            except ValueError:
+                return False
+            return b["fuel"] <= usable * (1 + 1e-9)
+        lo, hi_ = 0.0, hi
+        if not closes(lo):
+            out[f"{pl:g}"] = None
+            continue
+        for _ in range(30):
+            mid = 0.5 * (lo + hi_)
+            lo, hi_ = (mid, hi_) if closes(mid) else (lo, mid)
+        out[f"{pl:g}"] = lo
+    return out
 
 
 def speeds_by_altitude(d, L, altitudes=(0.0, 5000.0, 10000.0, 15000.0, 20000.0)):
@@ -548,7 +554,7 @@ def main(argv=None):
     for c in ("tractor", "pusher"):
         crows = [r for r in rows if r["concept"] == c and r["engine"] == CHOSEN_ENGINE]
         res[c], _, tried = first_compliant(c, crows, stall_ws, L, eng, eng_raw[CHOSEN_ENGINE])
-        res[c]["limits"] = {"max_headwind_kt": wind_limit(res[c]["design"], eng)}
+        res[c]["limits"] = {"max_headwind_kt_by_payload_lb": wind_limits(res[c]["design"], eng)}
         res[c]["speeds"] = speeds_by_altitude(res[c]["design"], res[c]["design"]["ledger_used"])
         (out / f"selection_{c}.json").write_text(json.dumps(tried, indent=2, default=float))
         (out / f"design_{c}.json").write_text(json.dumps(design_record(res[c], L, eng_raw[CHOSEN_ENGINE]),

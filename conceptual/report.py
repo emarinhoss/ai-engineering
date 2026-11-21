@@ -408,8 +408,11 @@ def main(argv=None):
             + (f"{L0['margin_power_fraction']:.0%} required" if L0.get("margin_power_fraction") else
                "relaxed to the bare requirement (ruling 8)")
             + (f", achieved {1 - float(pw['value']) / d['bhp_sl']:.1%}" if pw else "") + ". "
-            f"Operating limit: the built aircraft flies the mission against headwinds up to "
-            f"{d.get('operating_limits', {}).get('max_headwind_kt', float('nan')):.0f} kt (ruling 9).")
+            "Operating limit (ruling 9): largest headwind the built aircraft flies on both transit legs, "
+            "trading payload for fuel at the same W0: "
+            + ", ".join(f"{float(p):,.0f} lb payload {w:.0f} kt" if w is not None else f"{float(p):,.0f} lb payload: none"
+                        for p, w in d.get("operating_limits", {}).get("max_headwind_kt_by_payload_lb", {}).items())
+            + ".")
     add(f"- First pass (Table 3.1 with sketch values, still air) {fp['W0']:,.0f} lb. Method tests: `{tests}`.")
     add("")
     add("## 0. What changed after Gate A round 1")

@@ -53,3 +53,11 @@ def test_refine_moves_to_a_lighter_compliant_neighbour(monkeypatch):
     tried = [{"W_S": 10.0, "A": 9.0, "W0": 3000.0, "failed": []}]
     a, best = stage1._refine("pusher", fake_analyse("p", 10.0, 9.0, {}, None), tried[0], 30.0, {}, None, {}, tried)
     assert (best["W_S"], best["A"]) == (11.0, 9.0) and a["design"]["W0"] == 2985.0
+
+
+def test_wind_limit_at_design_payload_is_the_design_wind_and_payload_buys_wind():
+    d, L = _design()
+    engs, _ = stage1.engine_options()
+    lim = stage1.wind_limits(d, engs["PBS_TP100"], payloads=(500.0, 400.0))
+    assert lim["500"] == pytest.approx(L["headwind_kt"], abs=0.1)
+    assert lim["400"] > lim["500"]
