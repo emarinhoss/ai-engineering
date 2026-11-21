@@ -1,6 +1,6 @@
 # Gate A, round 4: Task 12 Stage 1 re-sized around the TP100 App. K engine (2026-11-21)
 
-**Outcome (reviewer's recommendation): PASS WITH ACTIONS for the configuration only** (pusher,
+**Outcome: PASS WITH ACTIONS** (closing check by the reviewer, 2026-11-21: sizes may be frozen). Final design after rulings 6-7: pusher, W/S 11.5, A 9, W0 3,366 lb, span 51.3 ft; record `runs/task12/stage1/2026-11-21b/`, package `docs/validation/2026-11-21_task12_conceptual_gateA4_final.md`. The headwind ruling (7) came after the closing check, so the final record was not re-reviewed. Initial recommendation: PASS WITH ACTIONS for the configuration only (pusher,
 conventional tail, sponson gear, TP100). The sizes (W/S 9, A 9, 3,520 lb) are **not frozen** and
 Stage 3 does not start on them. Package reviewed: `docs/validation/2026-11-20_task12_conceptual_engine.md`
 (records `runs/task12/stage1/2026-11-20f/`). Spot check by the author: the TP100 table gives 244.9 hp at
