@@ -213,6 +213,21 @@ def _leg_speed(W, S, atm, h_ft, CD0, K, clmax_clean, L, mode, model, bhp):
     return best[1], best[2], best[3]
 
 
+def _vmax_consistent(W, S, geom, L, atm, h_ft, K, bhp, model, v_lo):
+    """Maximum level speed with the shaft power and CD0 both taken at that speed: fixed point
+    over max_level_speed (Gate A round 4, R4-1; the earlier code used them at the cruise speed)."""
+    V = 1.5 * v_lo
+    vmax = None
+    for _ in range(20):
+        CD0, _ = _polar(geom, L, V, atm, bhp)
+        vmax = perf.max_level_speed(W, S, atm["rho"], CD0, K, bhp * _lapse(model, h_ft, atm, V),
+                                    L["eta_p"], v_lo, 1200.0)
+        if vmax is None or abs(vmax - V) < 0.01:
+            break
+        V = vmax
+    return vmax
+
+
 def _thrust_fn(bhp, L, D_prop):
     n_rps = L["propeller_rpm"] / 60.0
 
@@ -344,12 +359,15 @@ def _build(W0, concept, W_S, A, L, fuel_guess, engine=None):
         CD0_land = CD0_sl + gear_dq / S + _flap_cd0(L, L["flap_deflection_landing_deg"])
         V_lt, _ = _cruise_speed(W0, S, alt["rho"], CD0_alt, K, clmax["clean"], L, "loiter")
         n_turn = 1.0 / math.cos(math.radians(L["turn_bank_deg"]))
+        V_ceil = L["climb_speed_over_stall"] * perf.stall_speed(W0 / S, ceil["rho"], clmax["clean"])
         req = {
             "climb_sl": _min_power_for(W0, S, sl, CD0_sl, K, L["eta_p"],
                                        L["climb_rate_sl_fpm"] / 60.0, 1.0, clmax["clean"], L),
-            "ceiling": _min_power_for(W0, S, ceil, _polar(geom, L, 250.0, ceil, bhp)[0], K,
+            # CD0 and power at the climb-speed floor at the ceiling, where the best climb sits
+            # (Gate A round 4, R4-2), not at the 250 ft/s cruise reference
+            "ceiling": _min_power_for(W0, S, ceil, _polar(geom, L, V_ceil, ceil, bhp)[0], K,
                                       L["eta_p"], L["ceiling_rate_fpm"] / 60.0,
-                                      _lapse(model, h_ceil, ceil, V_lt), clmax["clean"], L),
+                                      _lapse(model, h_ceil, ceil, V_ceil), clmax["clean"], L),
             "takeoff": _takeoff_power(W0, S, CD0_to, K, clmax["takeoff"], L, D_prop),
             # R16: sustained turn at loiter speed and altitude, level (17.4), power = D V
             "turn_at_loiter": (perf.drag(W0, S, alt["rho"], V_lt, CD0_alt, K, n_turn) * V_lt
@@ -367,9 +385,7 @@ def _build(W0, concept, W_S, A, L, fuel_guess, engine=None):
     v_c_eas = {}
     for label, atm, h in (("sea_level", sl, 0.0), ("mission_altitude", alt, h_alt)):
         lo = L["climb_speed_over_stall"] * perf.stall_speed(W_S, atm["rho"], clmax["clean"])
-        vmax = perf.max_level_speed(W0, S, atm["rho"], CD0_alt if atm is alt else CD0_sl, K,
-                                    bhp * _lapse(model, h, atm, V_cr), L["eta_p"],
-                                    lo, 1200.0)
+        vmax = _vmax_consistent(W0, S, geom, L, atm, h, K, bhp, model, lo)
         v_c_eas[label] = (vmax or lo) * math.sqrt(atm["sigma"])
         if L.get("vc_placard_kt_eas"):                           # Gate A: optional V_C placard
             v_c_eas[label] = min(v_c_eas[label], L["vc_placard_kt_eas"] * KT)
@@ -714,10 +730,12 @@ def ceiling(d, L, power_at=None):
 
     def roc(h):
         a = isa(h)
-        CD0, _ = _polar(d["geom"], L, 250.0, a, bhp)
         lo = L["climb_speed_over_stall"] * perf.stall_speed(d["W_S"], a["rho"], clean)
-        r, _ = perf.best_rate_of_climb(W0, S, a["rho"], CD0, K, power_at(h), L["eta_p"],
-                                       lo, lo + 400.0)
+        V = lo
+        for _ in range(3):        # CD0 at the best-climb speed (Gate A round 4, R4-2)
+            CD0, _ = _polar(d["geom"], L, V, a, bhp)
+            r, V = perf.best_rate_of_climb(W0, S, a["rho"], CD0, K, power_at(h), L["eta_p"],
+                                           lo, lo + 400.0)
         return r
     target = L["ceiling_rate_fpm"] / 60.0
     lo, hi = 0.0, 60000.0

@@ -10,6 +10,10 @@ Stage 3 does not start on them. Package reviewed: `docs/validation/2026-11-20_ta
 
 To be recorded as they are given (questions asked one at a time).
 
+| Question | Ruling |
+|---|---|
+| 1. Altitude rating and R12 ceiling | **Relax the ceiling**: keep the conservative engine law (pi_c held at the sea-level rating) and replace R12's 25,000 ft service ceiling by a lower ceiling or a climb-rate requirement at 20,000 ft, sized by a run |
+
 ## 2. Actions
 
 | Finding | Status |

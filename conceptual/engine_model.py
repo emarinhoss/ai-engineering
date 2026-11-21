@@ -30,7 +30,13 @@ class TableEngine:
         self.meta = {k: t[k] for k in ("member", "calibration_bsfc", "control_law")}
 
     def power_available(self, h_ft, V_kt):
-        """Full-throttle shaft hp (bilinear in altitude and speed)."""
+        """Full-throttle shaft hp (bilinear in altitude and speed), capped at the rated power: the
+        brochure gives 241 hp as the maximum output, so ram recovery above it (the cycle reaches
+        about 250 hp at 140 kt at sea level) is not credited (Gate A round 4, R4-1)."""
+        return min(self.rated, self._full_throttle(h_ft, V_kt))
+
+    def _full_throttle(self, h_ft, V_kt):
+        """Uncapped full-throttle shaft hp of the cycle: the reference for the table's fractions."""
         i, a = _locate(self.h, h_ft)
         j, b = _locate(self.v, V_kt)
         p = self.p_full
@@ -45,9 +51,9 @@ class TableEngine:
         """Shaft SFC, lb/(hp h), at a shaft power. Raises ValueError above full throttle; below the
         table's lowest fraction (0.10) the lowest fraction's value is used (optimistic)."""
         avail = self.power_available(h_ft, V_kt)
-        frac = shp / avail
-        if frac > 1.0 + 1e-6:
+        if shp > avail * (1.0 + 1e-6):
             raise ValueError(f"{shp:.1f} hp exceeds the {avail:.1f} hp available")
+        frac = shp / self._full_throttle(h_ft, V_kt)
         i, a = _locate(self.h, h_ft)
         j, b = _locate(self.v, V_kt)
         k, c = _locate(self.f, frac)
