@@ -1,0 +1,74 @@
+{
+  "rows": [
+    {
+      "quantity": "wing lift slope, per rad (bare planform, inviscid, M 0)",
+      "raymer": 5.199353292918739,
+      "measured": 5.060472855400286,
+      "deviation": -0.02671109841825947,
+      "tolerance": 0.05,
+      "tolerance_kind": "rel",
+      "within": true
+    },
+    {
+      "quantity": "span efficiency e",
+      "raymer": 0.7436843344471181,
+      "measured": 0.9856253423204198,
+      "deviation": 0.24194100787330164,
+      "tolerance": 0.05,
+      "tolerance_kind": "abs",
+      "within": null,
+      "note": "not comparable as specified: (12.49) has no inviscid share"
+    },
+    {
+      "quantity": "downwash gradient at the tail (z = 1.41 ft)",
+      "raymer": 0.3381925243212133,
+      "measured": 0.38913717528731695,
+      "deviation": 0.05094465096610368,
+      "tolerance": null,
+      "tolerance_kind": "abs",
+      "within": null,
+      "note": "no 7.1a tolerance; feeds the static margin"
+    },
+    {
+      "quantity": "static margin, full fuel, MAC",
+      "raymer": 0.1278539160910393,
+      "measured": 0.10022272432072779,
+      "deviation": -0.02763119177031151,
+      "tolerance": 0.03,
+      "tolerance_kind": "abs",
+      "within": true,
+      "stage1_reproduced": 0.1278539160910393
+    },
+    {
+      "quantity": "static margin, empty fuel, MAC",
+      "raymer": 0.0721460839089607,
+      "measured": 0.044514892138649176,
+      "deviation": -0.027631191770311522,
+      "tolerance": 0.03,
+      "tolerance_kind": "abs",
+      "within": true,
+      "stage1_reproduced": 0.0721460839089607
+    }
+  ],
+  "info": {
+    "lift_slope_by_level": {
+      "coarse": 5.081654383111064,
+      "medium": 5.067656692605837,
+      "fine": 5.060472855400286
+    },
+    "stage1_installed_lift_slope": 5.577931537009183,
+    "implied_viscous_K": 0.010006214741406581,
+    "downwash_gradient_by_tail_height_ft": {
+      "0.0": 0.45233619844288553,
+      "1.412": 0.38913717528731695,
+      "3.0": 0.35978133293994674
+    }
+  },
+  "tail_z_nominal_ft": 1.4124389077982582,
+  "level": "fine",
+  "inputs": {
+    "commit": "cb33cd30eca261ffc9673a4ffcc50620cf2a3fa1",
+    "design": "runs/task12/stage1/2026-11-21d/design_pusher.json",
+    "seed": null
+  }
+}
