@@ -192,7 +192,7 @@ def trades(concept, W_S, A, L, engine, eng_raw):
             out.append({"case": label, "W0": d["W0"], "bhp": d["bhp"], "fuel": d["fuel"],
                         "power_ok": d["power_ok"],
                         "failed": "; ".join(c["requirement"] for c in comp if c["met"] is False),
-                        "failed_without_margins": "; ".join(c["requirement"].replace(", with the round-4 margin", "")
+                        "failed_without_margins": "; ".join(c["requirement"].replace(", with the round-4 margin", "").split(" (achieved")[0]
                                                             for c in comp0 if c["met"] is False)})
         except ValueError as ex:
             out.append({"case": label, "W0": None, "error": str(ex)})
@@ -301,7 +301,8 @@ def compliance(d, L, lay, per, need, avail, eng_raw):
          1.1 * max(m[7] * math.sqrt(isa(L["mission_altitude_ft"])["sigma"]) for m in d["mission"]) / KT,
          d["V_c_eas"]["sea_level"] / KT, "<="),
         ("R16 sustained 30 deg bank at loiter (power)", "hp", d["power_req"]["turn_at_loiter"], d["bhp"], "<="),
-        ("engine power meets every requirement, with the round-4 margin", "hp", max(d["power_req"].values()),
+        ("engine power meets every requirement" + (", with the round-4 margin" if L.get("margin_power_fraction") else "")
+         + f" (achieved margin {1 - max(d['power_req'].values()) / d['bhp']:.1%})", "hp", max(d["power_req"].values()),
          d["bhp"] * (1.0 - L.get("margin_power_fraction", 0.0)), "<="),
         ("fuel fits integral wing tanks", "ft^3", need, avail, "<="),
         ("nose-wheel load, full fuel (p. 232-233; optimum 0.08-0.15)", "-", lay["nose_load"]["full"], "0.05-0.20", "nose"),

@@ -1,6 +1,6 @@
 # Task 12 spec: a single-turboprop endurance UAV, designed with Raymer, reviewed, then measured independently
 
-**Status: spec, revision 3 (2026-11-21).** Revision 3 records the Gate A round 4 rulings: R12 ceiling 23,000 ft, R18 one V_C placard of 100 kt EAS, R16-R18 in the requirement table, Gate A margins (power 5 %, ceiling 500 ft, negative gust 0.1 g), and section 7.1b (the engine rows in Stage 3 are no longer independent). Earlier status: **revision 2 (2026-11-20).** Stage 1 has run since: package `docs/validation/2026-11-20_task12_conceptual.md`, records `runs/task12/stage1/2026-11-20/`. Gate A has not been held. The text below is the spec as written before the run. Revision 1 (same day)
+**Status: spec, revision 3 (2026-11-21).** Revision 3 records the Gate A round 4 rulings: R12 ceiling 23,000 ft, R18 one V_C placard of 100 kt EAS, R16-R18 in the requirement table, Gate A margins (ceiling 500 ft, negative gust 0.1 g; the 5 % power margin was relaxed at the round 4 close with the 110 kt EAS placard), and section 7.1b (the engine rows in Stage 3 are no longer independent). Earlier status: **revision 2 (2026-11-20).** Stage 1 has run since: package `docs/validation/2026-11-20_task12_conceptual.md`, records `runs/task12/stage1/2026-11-20/`. Gate A has not been held. The text below is the spec as written before the run. Revision 1 (same day)
 sized a 1 to 4 kg battery drone. Éder then changed the aircraft so that Raymer's weight statistics
 apply and the engine is a turbine, and answered eight requirement questions. Section 3 records
 each answer with the options he was shown. The figures quoted in section 3 come from a rough sizing
@@ -87,7 +87,7 @@ confirms them:
 | R15 | Flight avionics | autopilot, datalink, navigation: an uninstalled weight fixed in the ledger, installed by Raymer's general-aviation avionics relation | **[Lib]** Raymer (15.57), as DR-1 uses it, p. 576 |
 | R16 | Manoeuvre at loiter | sustained 30 deg banked turn (n = 1.155) at loiter speed and 20,000 ft | accepted at Gate A round 3 |
 | R17 | Speed floor | every mission leg at least 1.3 V_stall | Gate A round 3 ruling |
-| R18 | Design cruise speed | one V_C placard of 100 kt EAS at every altitude, enforced by the autopilot; structure and gusts sized at it (was 150 kt EAS at round 3) | Gate A round 4 ruling, Éder 2026-11-21 |
+| R18 | Design cruise speed | one V_C placard of 110 kt EAS at every altitude, enforced by the autopilot; structure and gusts sized at it (150 kt EAS at round 3, 100 kt EAS at round 4 before the headwind) | Gate A round 4 rulings, Éder 2026-11-21 |
 | R19 | Wind | both 200 nm transit legs against a 25 kt headwind at 20,000 ft; the loiter is sized in still air | Gate A round 4 ruling, Éder 2026-11-21 |
 
 **The figures Éder was shown** (hand arithmetic during the questions, not a record): Raymer (3.4)

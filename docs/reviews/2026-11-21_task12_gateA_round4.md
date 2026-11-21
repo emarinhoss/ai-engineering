@@ -18,6 +18,7 @@ To be recorded as they are given (questions asked one at a time).
 | 5. What measures the engine in Stage 3 | **Declare and fix the model**: the engine rows are declared not independent (spec 7.1b); Stage 3 implements the variable-cp burner, re-runs the App. K validation with fixed tolerances and reports the change; the maker's part-power curve closes it when available |
 | 6. Concept (closing) | **Keep the pusher** (3,087 lb against the tractor's 2,778 lb before the wind ruling; score 4.10 against 3.95) |
 | 7. Wind (closing) | **Size for a 25 kt headwind** on both transit legs (R19); loiter in still air |
+| 8. Placard after the headwind (option runs 100/105/110/120 kt EAS with band-end counts) | **110 kt EAS, accepting the loss of the 5 % power margin** (power margin set to 0, ceiling and gust margins kept); 120 kt fails the negative gust everywhere |
 | 3. Ceiling and V_C values (from option runs: lightest compliant pusher for ceilings 25,000 / 23,000 / 22,000 ft and 300 ft/min at 20,000 ft, each at 100 and 110 kt EAS) | **Service ceiling 23,000 ft; V_C 100 kt EAS.** Probe result at that setting: W/S 15, A 9, W0 3,054 lb, span 42.8 ft (to be confirmed by the recorded Stage 1 run) |
 
 ## 2. Actions
