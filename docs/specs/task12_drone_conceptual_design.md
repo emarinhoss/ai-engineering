@@ -81,10 +81,13 @@ confirms them:
 |---|---|---|---|
 | R10 | Fuel reserve and trapped fuel | Raymer's 6 % allowance | **[Lib]** Raymer (3.11), p. 23 |
 | R11 | Cruise legs | flown at the best-range speed; no minimum speed | the requirement is time on station, not transit time |
-| R12 | Climb | sea-level rate of climb at least 1,000 ft/min; service ceiling (100 ft/min) at least 25,000 ft | reach 20,000 ft with margin after the power lapse |
+| R12 | Climb | sea-level rate of climb at least 1,000 ft/min; service ceiling (100 ft/min) at least 23,000 ft (revised from 25,000 ft at Gate A round 4, Éder 2026-11-21) | reach 20,000 ft with margin after the power lapse |
 | R13 | Static margin | 5 to 15 % mean chord over the centre-of-gravity range, full to empty fuel | stable, not over-stable; the fuel burn moves the centre of gravity |
 | R14 | Technology | production turboprop; composite airframe; no crew systems (no cockpit, seats, pressurisation, crew oxygen) | Raymer 2.3 asks for a technology decision first (p. 7) |
 | R15 | Flight avionics | autopilot, datalink, navigation: an uninstalled weight fixed in the ledger, installed by Raymer's general-aviation avionics relation | **[Lib]** Raymer (15.57), as DR-1 uses it, p. 576 |
+| R16 | Manoeuvre at loiter | sustained 30 deg banked turn (n = 1.155) at loiter speed and 20,000 ft | accepted at Gate A round 3 |
+| R17 | Speed floor | every mission leg at least 1.3 V_stall | Gate A round 3 ruling |
+| R18 | Design cruise speed | one V_C placard of 100 kt EAS at every altitude, enforced by the autopilot; structure and gusts sized at it (was 150 kt EAS at round 3) | Gate A round 4 ruling, Éder 2026-11-21 |
 
 **The figures Éder was shown** (hand arithmetic during the questions, not a record): Raymer (3.4)
 with the single-engine fit and Table 3.4 turboprop values, an assumed L/D of 18 in cruise at 200 kt
