@@ -40,7 +40,7 @@ PI_C_PLAUSIBLE_MIN = 3.0
 DEFAULT_BURNER = "msh"      # Mattingly's MSH fuel flow (review of 2026-11-21: cleared with actions)
 
 
-def _gas(Tt4, e_c, e_t, burner="csh"):
+def _gas(Tt4, e_c, e_t, burner=DEFAULT_BURNER):
     return dict(tc.BOOK_EXAMPLE, burner=burner, Tt4=Tt4, e_c=e_c, e_tH=e_t, e_tL=e_t, eps1=0.0, eps2=0.0,
                 eta_b=0.98, gamma_t=1.3, pi_d=0.98, pi_b=0.95, pi_n=0.99, eta_mH=0.98,
                 eta_mL=0.98, eta_g=0.98, eta_prop=0.80)
