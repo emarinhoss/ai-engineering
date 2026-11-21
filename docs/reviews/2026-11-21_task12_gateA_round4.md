@@ -1,6 +1,6 @@
 # Gate A, round 4: Task 12 Stage 1 re-sized around the TP100 App. K engine (2026-11-21)
 
-**Outcome: PASS WITH ACTIONS** (closing check by the reviewer, 2026-11-21: sizes may be frozen). Final design after rulings 6-8: pusher, W/S 13.5, A 10.5, W0 3,342 lb, span 51.0 ft, power margin 3.0 %; record `runs/task12/stage1/2026-11-21c/` (the 2026-11-21b record is the 100 kt EAS design before ruling 8), package `docs/validation/2026-11-21_task12_conceptual_gateA4_final.md`. Rulings 7-8 came after the closing check; the final record is sent for re-review (section 4). Initial recommendation: PASS WITH ACTIONS for the configuration only (pusher,
+**Outcome: PASS WITH ACTIONS** (closing check by the reviewer, 2026-11-21: sizes may be frozen). Final design after rulings 6-8: pusher, W/S 13.5, A 10.5, W0 3,342 lb, span 51.0 ft, power margin 3.0 %; record `runs/task12/stage1/2026-11-21c/` (the 2026-11-21b record is the 100 kt EAS design before ruling 8), package `docs/validation/2026-11-21_task12_conceptual_gateA4_final.md`. Rulings 7-8 came after the closing check; the final record was re-reviewed (section 4: PASS WITH ACTIONS). Initial recommendation: PASS WITH ACTIONS for the configuration only (pusher,
 conventional tail, sponson gear, TP100). The sizes (W/S 9, A 9, 3,520 lb) are **not frozen** and
 Stage 3 does not start on them. Package reviewed: `docs/validation/2026-11-20_task12_conceptual_engine.md`
 (records `runs/task12/stage1/2026-11-20f/`). Spot check by the author: the TP100 table gives 244.9 hp at
@@ -19,7 +19,9 @@ To be recorded as they are given (questions asked one at a time).
 | 6. Concept (closing) | **Keep the pusher** (3,087 lb against the tractor's 2,778 lb before the wind ruling; score 4.10 against 3.95) |
 | 7. Wind (closing) | **Size for a 25 kt headwind** on both transit legs (R19); loiter in still air |
 | 8. Placard after the headwind (option runs 100/105/110/120 kt EAS with band-end counts) | **110 kt EAS, accepting the loss of the 5 % power margin** (power margin set to 0, ceiling and gust margins kept); 120 kt fails the negative gust everywhere |
-| 3. Ceiling and V_C values (from option runs: lightest compliant pusher for ceilings 25,000 / 23,000 / 22,000 ft and 300 ft/min at 20,000 ft, each at 100 and 110 kt EAS) | **Service ceiling 23,000 ft; V_C 100 kt EAS.** Probe result at that setting: W/S 15, A 9, W0 3,054 lb, span 42.8 ft (to be confirmed by the recorded Stage 1 run) |
+| 9. Wind strength (re-check RC-2) | **Keep 25 kt for sizing and add wind trades; state the headwind beyond which the mission no longer closes as an operating limit** |
+| 10. V_C basis (re-check) | **Keep 110 kt EAS as a study placard**; the package gives level top speed and the gust load by altitude; autopilot speed protection stays a stated requirement; the certification basis goes to preliminary design |
+| 3. Ceiling and V_C values (from option runs: lightest compliant pusher for ceilings 25,000 / 23,000 / 22,000 ft and 300 ft/min at 20,000 ft, each at 100 and 110 kt EAS) | **Service ceiling 23,000 ft; V_C 100 kt EAS.** Probe result at that setting: W/S 15, A 9, W0 3,054 lb, span 42.8 ft; the recorded run with the later rulings is the final design |
 
 ## 2. Actions
 
@@ -278,3 +280,246 @@ Closing conditions, to be re-checked by this reviewer:
 - R4-9: stale text removed.
 
 On a strict reading of A1, a compliance row that fails under the package's own stated engine treatment makes this a FAIL back to Stage 1. The remedy is the same list.
+
+## 4. Closing check and re-check (verbatim)
+
+# Gate A round 4 closing check
+
+**Outcome: PASS WITH ACTIONS.** The closing conditions are met or properly dispositioned by the owner's rulings, and the sizes (pusher, W/S 14, A 9.5, 3,087 lb) can be frozen for Stage 3. The remaining items are minor and none changes a compliance row.
+
+Read-only check at HEAD `e882010`; no repository file was modified. `python -m pytest -q tests/task12`: **141 passed**, matching the recorded `141 passed in 9.19s`.
+
+## What I verified
+
+- **Reproducibility.** `stage1.analyse("pusher", 14, 9.5)` reproduces the record exactly (W0 3,086.50 lb, ceiling 23,845.8 ft). Ledger, engines and table hashes match `inputs.json`. The table regenerates bit-identically (sha256 `f3078c85c1b0`). No sizing code changed after the recorded commit `0b65631`.
+- **Probe script.** `/tmp/claude-0/-home-user/d15a4c10-d7a3-5006-96e8-4d0a5f6097f0/scratchpad/c1.py`, run with `PYTHONPATH=. python` from the repo root. Probe numbers below are from it, not repo records.
+
+## Closing conditions
+
+| Condition | Status | Evidence |
+|---|---|---|
+| R4-1 self-consistent V_C, re-selection | closed | `_vmax_consistent` iterates power and CD0 at V_max. Power is capped at 241 hp (`engine_model.py`, tested). V_C no longer depends on V_max at all: it is the placard. |
+| R4-2 compliance on every trade; engine bands; ceiling CD0 | closed | `trades.csv` carries `failed` and `failed_without_margins` for 94 band ends plus table SFC and power at x0.9 and x1.1. Ceiling and its power row use CD0 at the climb speed. Margins are in the ledger and the compliance rows. |
+| R4-3 control law | dispositioned (ruling 1) | Conservative law kept, ceiling relaxed to 23,000 ft. The risk row now cites the Stage 3 record instead of "about 50 %". |
+| R4-4 validity flags | closed as a disclosure | The table records turbine pressure ratios; the mission records the unchoked share per leg. The risk row says the choked-turbine assumption fails in 100 % of loiter sub-steps. |
+| R4-5 burner model | dispositioned (ruling 5) | Deferred to Stage 3 (spec 7.1b item 1). The risk row states the constant-cp burner and the 2.5-7.5 % design-point offset. |
+| R4-6 V_C | closed (rulings 2, 3) | One placard of 100 kt EAS at both altitudes (tested). Gust n is 3.30 at worst; negative gust -1.298 against -1.7. A new row checks the placard covers the fastest leg. |
+| R4-7 grid | closed | 0.5-step local refinement is recorded in `selection_<concept>.json` for both concepts. |
+| R4-8 Stage 3 independence | closed | Spec revision 3, section 7.1b; R12, R16-R18 and the status line are updated; `cbhp_used` now records 0.934 / 1.149. |
+| R4-9 stale text | closed | Downwash sentence, sponson share (9 %, matching 270 lb of 3,087), family-spread row, float formatting, status paragraph and the dead `engine_cbhp` rows are all fixed. |
+| R4-10 brochure limits | closed | Relight note row under R6; `propeller_rpm` 2,158 from the brochure. |
+| R4-12 provenance and tests | mostly closed | `inputs.json` has the dirty flag, Python and numpy versions and the table commit. Six new tests; gaps in C-4 below. |
+
+## Probes of the new design
+
+- **Selection is a sound local optimum.** Ten off-step points around (14, 9.5): nothing compliant is lighter. The nearest compliant point, (13.75, 9.25), is 3,087.1 lb. Points up to 12 lb lighter all fail the 95 % power margin.
+- **The margins do real work.** With margins removed, the point still meets every bare requirement at table SFC x1.05 (ceiling 23,357 ft, 235.9 hp needed) and at power x0.95 (23,187 ft, 238.3 hp). At ±10 % it fails R12 and power, which the package reports. The rulings cover about half the Stage 3 tolerance, not all of it.
+- **Concept score.** 4.10 against 3.95, recomputed from 2,778 and 3,087 lb.
+
+## Remaining findings
+
+**C-1 (minor): the speed limit is now safety-critical and has no risk row.**
+- Level V_max at sea level is 154.5 kt EAS (probe), above V_C 100 and above V_D 150.
+- The manoeuvre corner speed is 108 kt EAS, above V_C.
+- Ruling 2 accepts autopilot enforcement, but section 11 does not list it.
+- Action: add a risk row and state V_max, V_C, V_D and the corner speed together in section 7.
+
+**C-2 (minor): the R18 row uses leg-mean speeds.**
+- The row shows 96.7 kt. The first outbound cruise sub-step gives 98.4 kt (89.5 kt EAS x 1.1), so it still passes.
+- Level V_max at 20,000 ft is 94.6 kt EAS, so the placard sits only 5 kt above it.
+- Action: use the fastest sub-step in the row.
+
+**C-3 (minor): three rows sit near their limits with no stated margin.**
+- Rotation tail CL 0.994 of 1.0; nose-wheel load 0.187 of 0.20; empty static margin 0.076.
+- The horizontal tail is 1.74 times its Table 6.4 size: 103 ft^2 against a 220 ft^2 wing.
+- Band ends `tail_cl_max_rotation=0.8`, `main_gear_station_guess=0.3` and `rotation_angle_deg_pusher=15` break the nose-load row; these are reported in the package.
+- Stage 3's lattice lowered the previous design's empty-fuel margin to 0.056 by the downwash alone.
+- Action: make the ground-effect rotation check and the lattice downwash the first Stage 3 aero rows.
+
+**C-4 (minor): test and bookkeeping gaps.**
+- No test covers `_refine`, `_vmax_consistent` or the margin rows of `compliance`.
+- Section 12 of the package does not list the Stage 3 burner fix and re-validation (spec 7.1b).
+- The review file's section 2 still reads "R4-1 to R4-12 | open".
+- The risk text names the unchoked share for the loiter only; the record shows the return cruise at 100 % as well.
+- `measurement/stage3_engine.py:111` still reads the ledger `cbhp_*` values and must be reworked with 7.1b before the Stage 3 re-run.
+
+**C-5 (minor, carried from R4-11, unchanged).**
+- The climb segment holds the sea-level best-climb TAS (66 kt) to 20,000 ft, where the stall TAS at W0 is about 76 kt.
+- `_leg_speed` takes CD0 at 250 ft/s.
+- Sea-level climb uses 241 hp flat.
+- The effects are small and none changes a row.
+
+# Gate A round 4 re-check after rulings 7-8
+
+Read-only review; no repository file was modified. **Outcome: PASS WITH ACTIONS.** The design numbers, the headwind physics, the placard loads and the selection all hold under independent probes. The actions are about what the package and records say, not about the sizes.
+
+## Verification summary
+
+- **Tests:** `python -m pytest -q tests/task12` gives **144 passed** (10.9 s), matching `runs/task12/stage1/2026-11-21c/test_report.txt`.
+- **Provenance:** ledger, engines and table hashes match `inputs.json`. The record's ledger copy is identical to `data/task12/ledger.yaml`. `git diff a1aee38..HEAD -- conceptual data tests` is empty, so the recorded commit equals HEAD for the code.
+- **Reproduction:** `stage1.analyse("pusher", 13.5, 10.5, L, engine)` reproduces the record to the last digit (W0 3,341.891 lb, fuel 1,056.733 lb, n_gust 3.64206, q 40.965 psf, ceiling 23,502.54 ft). All 28 compliance rows match `compliance_pusher.csv`.
+- **Selection:** re-running `carpet` → `first_compliant` → `_refine` gives (13.5, 10.5) with the same 41-point sequence as `selection_pusher.json`.
+
+Probe scripts, run with `PYTHONPATH=. python <script>` from the repo root (probe numbers below are not repo records):
+- `/tmp/claude-0/-home-user/d15a4c10-d7a3-5006-96e8-4d0a5f6097f0/scratchpad/rc1.py` (reproduction)
+- `/tmp/claude-0/-home-user/d15a4c10-d7a3-5006-96e8-4d0a5f6097f0/scratchpad/rc2.py` (headwind, independent integration)
+- `/tmp/claude-0/-home-user/d15a4c10-d7a3-5006-96e8-4d0a5f6097f0/scratchpad/rc3.py` (0.5 lattice scan)
+- `/tmp/claude-0/-home-user/d15a4c10-d7a3-5006-96e8-4d0a5f6097f0/scratchpad/rc4.py` (wind, placard, sub-step sensitivities)
+- `/tmp/claude-0/-home-user/d15a4c10-d7a3-5006-96e8-4d0a5f6097f0/scratchpad/rc5.py` (power margin, cruise power cap)
+- `/tmp/claude-0/-home-user/d15a4c10-d7a3-5006-96e8-4d0a5f6097f0/scratchpad/rc6.py` (selection re-run, 0.25 lattice)
+- `/tmp/claude-0/-home-user/d15a4c10-d7a3-5006-96e8-4d0a5f6097f0/scratchpad/rc7.py` (gust lift slope, V_max gust)
+- `/tmp/claude-0/-home-user/d15a4c10-d7a3-5006-96e8-4d0a5f6097f0/scratchpad/rc8.py` (level V_max against altitude)
+
+### 1. Headwind physics: correct
+
+- **Air distance.** (6.12) is in air distance, and ground distance × V/(V − V_w) per sub-step is right because V is constant within a sub-step (`uav.py:326-333`).
+- **Speed objective.** Fuel flow / (V − V_w) is the right minimum-fuel-per-ground-distance objective (`uav.py:208-211`). Loiter correctly ignores the wind.
+- **Independent check (rc2).** A time integration of dW = −c·P dt, dx = (V − V_w) dt at the record's leg-start weights agrees with the record to 0.2 %:
+
+| Leg | Record fuel (lb) | Independent, 25 kt head (lb) | Still air (lb) | 25 kt tail (lb) |
+|---|---|---|---|---|
+| cruise_out | 186.4 | 186.2 | 148.9 | 122.2 |
+| cruise_back | 174.1 | 173.8 | 135.9 | 109.4 |
+
+- **Speeds.** The wind moves the optimum up as expected: outbound 118.6 → 126.4 kt, return 106.7 → 123.4 kt on a fine grid. The code's 2 % grid picks 126.1 and 121.3 kt, with negligible fuel effect.
+- **Outbound leg is power-limited.** Its optimum sits on the full-throttle limit at 20,000 ft (throttle 0.995 to 1.00, power-cap speed 126.4 kt). See RC-5.
+- **Climb.** It is given no distance credit and the full 200 nm is flown at altitude, so it needs no wind term (conservative).
+- **Downstream consistency.** The R18 coverage row, the propeller points and the trim all take the wind-optimised leg speeds.
+- **Both legs against the wind is the conservative reading of direction.** At fixed weights it costs +75 lb of transit fuel against still air; a steady wind (head out, tail back) costs only +10 lb. Re-sized at this point, still air gives 3,160 lb against 3,342 lb.
+- **It is not conservative in strength.** See RC-2.
+- **Discretisation.** Four times the sub-steps moves W0 by +2.8 lb.
+
+### 2. The 110 kt placard: correct and reproduced
+
+- q = 0.5·ρ0·(110 kt)² = 40.97 psf.
+- Hand call of (14.4)-(14.8) at zero-fuel weight, 20,000 ft: n = 3.6421, K = 0.661, μ = 15.95. Negative gust −1.642 against −1.700.
+- V_D = 165 kt is used in the V-n points with U_de/2.
+- R18 coverage row: fastest sub-step 128.35 kt TAS = 93.72 kt EAS; × 1.1 = 103.09 ≤ 110.
+- One V_C at both altitudes. The governing case (zero-fuel, 20,000 ft, 110 kt EAS = 150.6 kt TAS) is above the level maximum there, so it is conservative.
+
+### 3. Selection and power margin: confirmed
+
+- **Lightest compliant.** On a 100-point 0.5 lattice (W/S 11.5 to 16, A 8.5 to 13), each point through `analyse` + `compliance`, (13.5, 10.5) is the lightest compliant at 3,341.9 lb. Next are (13, 10) at 3,348.2 and (12.5, 9.5) at 3,356.3. A 0.25 lattice around it finds nothing lighter: (13.25, 10.25) is 3,344.8, and (13.5, 10.25) fails the ceiling margin.
+- **Power margin.** An independent scan at 23,000 ft (CD0 and table power at each speed) gives required/available = 0.9701, a margin of 2.99 %, at the 1.2 V_stall floor (94 kt TAS). The stated 3.0 % is real, and it is the ceiling row's margin.
+
+## Findings
+
+### RC-1 (major, documentation): the package body never states R19, and rulings 7-8 are described only in the ledger appendix
+
+- **Evidence.** In `docs/validation/2026-11-21_task12_conceptual_gateA4_final.md` the only occurrence of "headwind" or "R19" is appendix line 425. `conceptual/report.py` and `stage1.compliance` contain neither word.
+- The compliance matrix (section 1) has no R19 row, and no R17 row either. Checklist A1 asks that every requirement trace to a number.
+- The mission table (section 5) labels the cruise legs "minimum fuel with the App. K SFC" with no wind, ground speed or leg time. Probe values: 101.9 and 95.0 kt ground speed, 1.96 h and 2.11 h.
+- Section 0 stops at "Round 3 rulings … V_C placarded at 150 kt EAS" with no round-4 row.
+- The header still says "Gate A must be re-run on this design" and lists only the round 1-2 review records (`report.py:335-345`).
+- The summary does not say the 5 % power margin was relaxed.
+- **Fix.** Generate from the ledger and record:
+  - an R19 row (wind, air distance per leg, leg times);
+  - an R17 row;
+  - a "Round 4 rulings 1-8" row in section 0;
+  - a summary bullet with the placard, the wind and the achieved 3.0 %;
+  - the review list.
+
+### RC-2 (minor, robustness not reported): no wind-strength trade
+
+- **Evidence.** `trades()` skips `headwind_kt` because a requirement has no band. Probe rc4, re-sized at (13.5, 10.5):
+
+| Headwind (kt) | W0 (lb) | Ceiling (ft) | Power margin | Fails |
+|---|---|---|---|---|
+| 0 | 3,160 | 24,321 | 7.8 % | none |
+| 15 | 3,260 | 23,869 | 5.1 % | none |
+| 25 (record) | 3,342 | 23,503 | 3.0 % | none |
+| 35 | 3,450 | 23,008 | 0.0 % | ceiling margin |
+| 40 | 3,510 | 22,741 | −1.6 % | bare ceiling, power |
+| 50 | 3,665 | 22,101 | −5.6 % | bare ceiling, power |
+
+- **Fix.** Add headwind rows (0, 15, 35, 50 kt) to `trades.csv` and section 9.
+
+### RC-3 (major, repo rule): the runs behind ruling 8 are not recorded
+
+- **Evidence.** The review record (line 21) and the ledger (`margin_power_fraction`, `vc_placard_kt_eas` sources) cite "option runs 100/105/110/120 kt EAS with band-end counts", "120 kt fails the negative gust everywhere" and "no grid point meets [110 kt] with a 5 % power margin". No file under `runs/` or `docs/` holds these runs. Only the 100 kt design (`2026-11-21b`) and the 110 kt design (`2026-11-21c`) exist. `CLAUDE.md` requires every claim to come from a recorded run.
+- **What the probes support.**
+  - At (13.5, 10.5): 115 kt gives −1.759 and 120 kt gives −1.872, both failing; 105 kt passes at 3,332 lb.
+  - On the 100-point lattice no compliant point exceeds a 4.2 % power margin.
+  - "Everywhere" and the band-end counts were not checked.
+- **Fix.** Commit the option-run script and its table (a `runs/task12/stage1/<date>_options/` record) and cite it, or reword the two sources to what the records show.
+
+### RC-4 (minor): wrong or stale statements in the package, spec and review record
+
+- **Package section 2 table** prints the pusher as "W/S 14, A 10". `report.py:458` formats 13.5 and 10.5 with zero decimals. The summary line is right.
+- **Constraint diagram title** says "A 10" (`report.py:157`).
+- **Constraint diagram legend** says "service ceiling 25,000 ft" (`report.py:142`, hard-coded). R12 has been 23,000 ft since ruling 3.
+- **Carpet plot** stars (17, 11), "feasible minimum 3115 lb" (`report.py:177-181`). That carpet point fails the ceiling, power and nose-load rows after the tail resize (`selection_pusher.json`, first entry). The chosen (13.5, 10.5) is not marked, though spec section 4 output 5 asks for it.
+- **Section 8** gives V_max 125.3 kt at altitude while cruise_out averages 126.9 kt. Both are right (V_max is at W0), but it reads as a contradiction without a note.
+- **Spec status line** still says "R18 one V_C placard of 100 kt EAS" and does not list R19; the R18 and R19 table rows are correct.
+- **Review record:**
+  - line 3 points to "section 4" for the re-review, which does not exist;
+  - the closing check's text is not in the record, only its outcome and the action statuses;
+  - ruling 3's row still ends "to be confirmed by the recorded Stage 1 run".
+- **Checked and correct:** every other number in the summary and sections 1-9 matches the records, including 3,342 / 1,785 / 1,057 lb, span 51.0 ft, tractor 2,943 lb, scores 4.06 / 3.95, rubber 2,069 lb, +164 / +1,108 lb, 2,911 lb, sponsons 77 lb / +314 lb, 0.534 / 0.520, first pass 2,110 lb, 20 rows met and the trade rows. The review record's 3,087 / 2,778 lb and 4.10 / 3.95 match `2026-11-21`.
+
+### RC-5 (minor): the "cruise at altitude" power row is not the cruise that R19 flies
+
+- **Evidence.** `req["cruise_at_altitude"]` (`uav.py:398-400`) uses the still-air best-L/D speed, 100.0 kt, and gives 177 hp. The package's own propeller table shows cruise_out at throttle 1.00 (108.9 shp of 108.9 available at 20,000 ft) for 1.96 h.
+- The 3.0 % margin therefore applies to the ceiling, not to the transit, which has none.
+- **Sensitivity is small.** Capping transit power at 0.95 / 0.90 / 0.85 of full throttle gives W0 3,343 / 3,346 / 3,351 lb (rc5).
+- The brochure's 241 hp is "max. output"; no continuous rating is known.
+- **Fix.** State in sections 5-6 that the outbound leg runs at the full-throttle limit, with the cap sensitivity. Add the continuous rating to the maker-data action.
+
+### RC-6 (minor): gust lift slope taken at the still-air cruise Mach, not at V_C
+
+- **Evidence.** `uav.py:404` computes CLa at V_cr/a = M 0.163. V_C at 20,000 ft is 150.6 kt TAS, M 0.245. With CLa at that Mach (5.659 against 5.578) the governing case is n = 3.671 and the negative gust −1.671 (rc7).
+- The row still passes; the slack to −1.700 falls from 0.058 to 0.029.
+- **Fix.** Evaluate CLa at the V_C Mach number of each altitude.
+
+### RC-7 (minor): the chosen point sits on the ceiling margin within numerical noise
+
+- **Evidence.** Ceiling is 23,502.5 ft against 23,500. With four times the mission sub-steps it is 23,490 ft, 10 ft short of the margined row (rc4).
+- The bare R12 holds by about 500 ft, so the margin is doing its job.
+- **Fix.** Say in the package that the point is selected on the margin.
+
+### RC-8 (minor): no test for the new numbers
+
+- **Evidence.** The only test touching the wind is the cost function in `test_leg_speed_is_a_fuel_minimum_above_the_floor`. Nothing tests:
+  - the V/(V − V_w) factor in `_mission`;
+  - the R18 row on `m[7]`;
+  - the power row with zero margin.
+- **Fix.** Add three tests:
+  - leg fuel with wind against a closed-form Breguet at constant V, and wind 0 recovering the old result;
+  - the coverage row on a hand-built mission tuple;
+  - the power-row label and limit at margin 0 and 0.05.
+
+### RC-9 (minor): the wind is applied unevenly outside the TP100 path
+
+- **Evidence.** With no engine table `_leg_speed` returns the still-air best-L/D speed (`uav.py:197-199`). The rubber, TP-R90, PT6A-42 and "as at Gate A" rows therefore fly the stretched air distance at a speed not optimised for the wind.
+- `first_pass` (`stage1.py:60-87`) has no wind at all.
+- The "+1,272 lb" split and the 2,110 lb first pass are thus not like for like with the design. The effect was not quantified.
+- **Fix.** State it beside the engine table, or apply the same speed rule.
+
+## Physics and safety points from rulings 7-8 the owner should know
+
+- **The placard is load-bearing below about 15,000 ft, not only in a dive.** Full-throttle level V_max in EAS at W0 / zero-fuel (rc8): 150 / 152 kt at sea level, 123 / 126 kt at 10,000 ft, 108 / 112 kt at 15,000 ft, 92 / 99 kt at 20,000 ft. At 150 kt EAS, zero-fuel, sea level, the 30 ft/s gust gives n = 3.96, above the 3.80 limit (rc7). The package's risk row covers this in words; these numbers would make it concrete.
+- **V_C is below what a normal-category basis would require.** FAR 23.335 sets V_C ≥ 33·√(W/S) = 121 kt for this wing loading. This is from my memory, [Not lib], and should be confirmed against the open regulation text before use. At 115 to 120 kt the negative-gust row fails at this point. The design's V_C is 0.73 of the sea-level level maximum, and the manoeuvre corner (106 kt) is 4 kt below it.
+- **The 3.0 % power margin is smaller than every engine uncertainty carried.** The package's own trades show table power × 0.9, SFC × 1.1, eta_p 0.75 and five other band ends breaking the bare R12 (13 of 94 band ends break a requirement). This is reported and was accepted in ruling 8; it remains the main Stage 3 exposure.
+
+## Questions for the owner
+
+1. **Is 25 kt meant as a design value or a typical one?** (RC-2)
+   - (a) Keep 25 kt and add the wind trade rows: no size change.
+   - (b) Size for a stronger wind: 35 kt is about +108 lb with zero power margin at this point, and 40 kt needs a new selection.
+   - (c) Keep 25 kt for sizing and state the wind at which the mission no longer closes as an operating limit.
+2. **Should V_C be tied to a stated basis?** (second safety point)
+   - (a) Keep 110 kt as a study placard, with the speed-protection requirement and the numbers above in the package.
+   - (b) Adopt the 33·√(W/S) rule: about 121 kt, which fails the negative-gust row unless the −1.8 limit or the 30 ft/s gust is revisited.
+   - (c) Defer to preliminary design with a V-n check at V_max.
+3. **Should the ruling-8 option runs be recorded or the claims reworded?** (RC-3) Recording costs one short run. Rewording leaves the choice of 110 over 105 kt without a record; my probe shows 105 kt also passes at this point, 9 lb lighter.
+
+## Outcome
+
+**PASS WITH ACTIONS.** The sizes (pusher, W/S 13.5, A 10.5, W0 3,342 lb) are supported: the record reproduces, the headwind and placard are implemented correctly, the point is the lightest compliant on a 0.5 lattice and the 3.0 % margin is real.
+
+Before the package is called final:
+- RC-1: R19 and rulings 7-8 in the package body.
+- RC-3: record the option runs or reword.
+- RC-4: stale and mis-rounded statements.
+
+The remaining findings (RC-2, RC-5 to RC-9) are minor and can be carried into Stage 3 if recorded as actions. None of them changes a compliance verdict in my probes.

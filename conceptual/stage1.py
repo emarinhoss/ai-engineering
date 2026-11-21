@@ -204,6 +204,8 @@ def trades(concept, W_S, A, L, engine, eng_raw):
     for alt in (15000.0, 20000.0, 25000.0):
         run(f"mission_altitude_ft={alt:g}", mission_altitude_ft=alt)
     run("no sponsons (wheels stowed for free; reference only)", no_sponsons=True)
+    for w in (0.0, 15.0, 35.0, 50.0):                   # R19 strength (Gate A round 4 ruling 9)
+        run(f"headwind_kt={w:g}", headwind_kt=w)
     if engine.get("model") is not None:
         for f in (0.9, 1.1):
             run(f"engine table SFC x{f:g}", eng=dict(engine, model=engine["model"].scaled(sfc=f)))
@@ -300,6 +302,10 @@ def compliance(d, L, lay, per, need, avail, eng_raw):
         ("R18 V_C placard covers the fastest mission sub-step with 10 % margin (study margin)", "kt EAS",
          1.1 * max(m[7] * math.sqrt(isa(L["mission_altitude_ft"])["sigma"]) for m in d["mission"]) / KT,
          d["V_c_eas"]["sea_level"] / KT, "<="),
+        ("R17 every mission sub-step at or above 1.3 V_stall (enforced in the speed choice)", "-",
+         "yes", "", "by construction"),
+        (f"R19 both transit legs flown against a {L.get('headwind_kt', 0.0):g} kt headwind (air distance V/(V - V_w))",
+         "kt", L.get("headwind_kt", 0.0), L.get("headwind_kt", 0.0), "by construction"),
         ("R16 sustained 30 deg bank at loiter (power)", "hp", d["power_req"]["turn_at_loiter"], d["bhp"], "<="),
         ("engine power meets every requirement" + (", with the round-4 margin" if L.get("margin_power_fraction") else "")
          + f" (achieved margin {1 - max(d['power_req'].values()) / d['bhp']:.1%})", "hp", max(d["power_req"].values()),
@@ -409,6 +415,49 @@ def _refine(concept, a, best, ws_max, L, engine, eng_raw, tried, step=0.5, max_m
     return a, best
 
 
+def wind_limit(d, engine, hi=80.0):
+    """Operating limit (Gate A round 4 ruling 9): the largest headwind on both transit legs for which
+    the built aircraft (W0, geometry and fuel as sized) still flies the mission, i.e. the mission fuel
+    at its W0 is within the fuel it was sized with and every leg has a speed within the engine's
+    power. Bisection on the wind; nothing is re-sized."""
+    L = d["ledger_used"]
+
+    def closes(w):
+        try:
+            b = uav._build(d["W0"], d["concept"], d["W_S"], d["A"], dict(L, headwind_kt=w), d["fuel"], engine)
+        except ValueError:
+            return False
+        return b["fuel"] <= d["fuel"] * (1 + 1e-9)
+    lo, hi_ = L.get("headwind_kt", 0.0), hi
+    if not closes(lo):
+        return lo
+    for _ in range(30):
+        mid = 0.5 * (lo + hi_)
+        lo, hi_ = (mid, hi_) if closes(mid) else (lo, mid)
+    return lo
+
+
+def speeds_by_altitude(d, L, altitudes=(0.0, 5000.0, 10000.0, 15000.0, 20000.0)):
+    """Level full-throttle top speed (EAS) at take-off and zero-fuel weight, and the gust load factor
+    at that speed (14.4)-(14.8), by altitude (Gate A round 4 ruling 10): where it exceeds V_C, the
+    placard holds only through the autopilot."""
+    out = []
+    S, g = d["geom"]["S"], d["geom"]
+    for h in altitudes:
+        a = isa(h)
+        for wlabel, W in (("takeoff_weight", d["W0"]), ("zero_fuel_weight", d["W0"] - d["fuel"])):
+            lo = L["climb_speed_over_stall"] * perf.stall_speed(W / S, a["rho"], d["clmax"]["clean"])
+            v = uav._vmax_consistent(W, S, g, L, a, h, d["K"], d["bhp"], d.get("engine_model"), lo)
+            if v is None:
+                continue
+            v_eas = v * math.sqrt(a["sigma"])
+            cla = aero.lift_slope(d["A"], v / a["a"], L["airfoil_efficiency"], 0.0, g["s_exposed"] / S,
+                                  aero.fuselage_lift_factor(g["d_f"], g["wing"].span))
+            n = loads.gust_load_factor(W / S, v_eas, L["gust_ude_fps"], cla, g["wing"].mac, a["rho"])[0]
+            out.append({"h_ft": h, "weight": wlabel, "vmax_kt_eas": v_eas / KT, "n_gust": n})
+    return out
+
+
 def analyse(concept, W_S, A, L, engine):
     """Size the tail for rotation, lay out and analyse one design."""
     d, lay, scale = uav.size_tail_for_rotation(concept, W_S, A, L, engine=engine)
@@ -441,7 +490,9 @@ def design_record(r, L, eng_raw):
         "components_lb": d["components"],
         "mission": [{"segment": m[0], "W_start": m[1], "W_end": m[2], "V_kt": m[3] / KT,
                      "speed_floor_fraction": m[4], "cbhp_mean": m[5],
-                     "turbine_unchoked_fraction": m[6], "V_top_kt": m[7] / KT} for m in d["mission"]],
+                     "turbine_unchoked_fraction": m[6], "V_top_kt": m[7] / KT, "leg_time_h": m[8] / 3600.0,
+                     "ground_speed_kt": (L["radius_nm"] * NM / m[8] / KT
+                                         if m[0].startswith("cruise") and m[8] else None)} for m in d["mission"]],
         "wing": g["wing"], "horizontal_tail": g["ht"],
         "vertical_tail": {"area": g["S_vt"], "height": g["vt_height"], "root_chord": g["vt_root"],
                           "mac": g["vt_mac"]},
@@ -455,6 +506,7 @@ def design_record(r, L, eng_raw):
         "stations": {k: {"weight": m, "x": x} for k, (m, x) in lay["items"].items()},
         "performance": per, "fuel_volume_ft3": {"needed": r["fuel_volume"][0], "available": r["fuel_volume"][1]},
         "empty_fraction_comparison": r["stat"], "vn": r["vn"],
+        "operating_limits": r.get("limits", {}), "speeds_by_altitude": r.get("speeds", []),
     })
 
 
@@ -496,6 +548,8 @@ def main(argv=None):
     for c in ("tractor", "pusher"):
         crows = [r for r in rows if r["concept"] == c and r["engine"] == CHOSEN_ENGINE]
         res[c], _, tried = first_compliant(c, crows, stall_ws, L, eng, eng_raw[CHOSEN_ENGINE])
+        res[c]["limits"] = {"max_headwind_kt": wind_limit(res[c]["design"], eng)}
+        res[c]["speeds"] = speeds_by_altitude(res[c]["design"], res[c]["design"]["ledger_used"])
         (out / f"selection_{c}.json").write_text(json.dumps(tried, indent=2, default=float))
         (out / f"design_{c}.json").write_text(json.dumps(design_record(res[c], L, eng_raw[CHOSEN_ENGINE]),
                                                          indent=2, default=float))

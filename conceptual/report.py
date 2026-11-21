@@ -136,10 +136,10 @@ def three_view(d, path):
     plt.close(fig)
 
 
-def constraint_plot(rows, limits, d, path):
+def constraint_plot(rows, limits, d, path, ceiling_ft=25000.0):
     ws = [float(r["W_S"]) for r in rows]
     fig, ax = plt.subplots(figsize=(7.5, 5))
-    labels = {"climb_sl": "climb 1,000 ft/min, sea level", "ceiling": "service ceiling 25,000 ft",
+    labels = {"climb_sl": "climb 1,000 ft/min, sea level", "ceiling": f"service ceiling {ceiling_ft:,.0f} ft",
               "takeoff": "take-off 2,500 ft over 50 ft", "cruise_at_altitude": "cruise at 20,000 ft",
               "turn_at_loiter": "30 deg bank at loiter (R16)"}
     for key, label in labels.items():
@@ -154,7 +154,7 @@ def constraint_plot(rows, limits, d, path):
     ax.set_ylabel("installed sea-level hp / W0")
     land = (f"landing limit {limits['landing']:.0f} lb/ft^2 (off scale)" if limits["landing_binding"]
             else "landing not binding below 200 lb/ft^2")
-    ax.set_title(f"Constraint diagram at W0 {d['W0_lb']:.0f} lb, A {d['A']:.0f}; {land}", fontsize=9)
+    ax.set_title(f"Constraint diagram at W0 {d['W0_lb']:.0f} lb, A {d['A']:g}; {land}", fontsize=9)
     ax.legend(fontsize=7)
     ax.grid(alpha=0.3)
     fig.tight_layout()
@@ -162,7 +162,7 @@ def constraint_plot(rows, limits, d, path):
     plt.close(fig)
 
 
-def carpet_plot(rows, stall_ws, engine, path):
+def carpet_plot(rows, stall_ws, engine, path, chosen=None):
     fig, axes = plt.subplots(1, 2, figsize=(12, 5), sharey=True)
     for ax, concept in zip(axes, ("tractor", "pusher")):
         pts = [r for r in rows if r["concept"] == concept and r["engine"] == engine
@@ -177,8 +177,13 @@ def carpet_plot(rows, stall_ws, engine, path):
         ok = [r for r in pts if float(r["W_S"]) <= stall_ws and r["fuel_fits"] == "True"
               and r.get("power_ok", "True") == "True"]
         best = min(ok, key=lambda r: float(r["W0"]))
-        ax.plot(float(best["W_S"]), float(best["A"]), "r*", ms=12)
-        ax.set_title(f"{concept}, {engine}: W0 (lb), feasible minimum {float(best['W0']):.0f} lb", fontsize=9)
+        ax.plot(float(best["W_S"]), float(best["A"]), "kx", ms=9)
+        title = f"{concept}, {engine}: W0 (lb); x carpet minimum {float(best['W0']):.0f} lb (Table 6.4 tail)"
+        if chosen and concept in chosen:
+            ws_c, a_c, w_c = chosen[concept]
+            ax.plot(ws_c, a_c, "r*", ms=13)
+            title += f";\n* chosen after tail resize and compliance: {w_c:,.0f} lb at ({ws_c:g}, {a_c:g})"
+        ax.set_title(title, fontsize=8)
         ax.set_xlabel("W/S (lb/ft^2); dashed: 70 kt stall limit")
     axes[0].set_ylabel("aspect ratio A")
     fig.tight_layout()
@@ -309,8 +314,10 @@ def main(argv=None):
 
     for c in ("tractor", "pusher"):
         three_view(D[c], fig_dir / f"three_view_{c}.png")
-    constraint_plot(cd_rows, limits, d, fig_dir / "constraint_diagram.png")
-    carpet_plot(carpet, limits["stall"], inp["chosen_engine"], fig_dir / "carpet_engine.png")
+    constraint_plot(cd_rows, limits, d, fig_dir / "constraint_diagram.png",
+                    ledger["requirements"]["ceiling_ft"]["value"])
+    carpet_plot(carpet, limits["stall"], inp["chosen_engine"], fig_dir / "carpet_engine.png",
+                {c: (D[c]["W_S"], D[c]["A"], D[c]["W0_lb"]) for c in D})
     carpet_plot(carpet, limits["stall"], "rubber", fig_dir / "carpet_rubber.png")
     vn_plot(d, fig_dir / "vn.png")
     polar_plot(d, rho_alt, fig_dir / "polar.png")
@@ -331,8 +338,8 @@ def main(argv=None):
         add("**Status: Stage 1 repeated after Stage 3 (Éder, 2026-11-20: \"go back to Stage 1 and design around "
             "this engine\"). The TP100 now enters through its Mattingly App. K cycle table "
             f"(`data/task12/tp100_table.json`, sha256 `{inp['tp100_table_sha256'][:12]}`): power lapse and "
-            "part-power SFC replace the piston lapse (13.9) and the flat brochure SFC. Gate A must be re-run "
-            "on this design.** Earlier history follows.")
+            "part-power SFC replace the piston lapse (13.9) and the flat brochure SFC. Gate A round 4: passed "
+            "with actions; rulings 1-10 in docs/reviews/2026-11-21_task12_gateA_round4.md.**")
         add("")
         add("Gate A history: rounds 1-3 reviewed the previous design (round 3 passed with actions, "
             "docs/reviews/2026-11-20_task12_gateA_round3.md); round 4 reviews this design "
@@ -342,7 +349,8 @@ def main(argv=None):
         f"`python -m conceptual.report` from `{run}` (commit `{inp['commit'][:10]}`, ledger sha256 "
         f"`{inp['ledger_sha256'][:12]}`, engines sha256 `{inp['engines_sha256'][:12]}`). Every number is "
         "read from those files. Methods: Raymer, *Aircraft Design: A Conceptual Approach*, 2nd ed. "
-        "(1992), through `conceptual/`. Review records: `docs/reviews/2026-11-20_task12_gateA_round1.md` and `..._round2.md`.")
+        "(1992), through `conceptual/`. Review records: `docs/reviews/2026-11-20_task12_gateA_round1.md` to `..._round3.md` and "
+        "`docs/reviews/2026-11-21_task12_gateA_round4.md`.")
     add("")
     add("## Summary")
     add("")
@@ -390,7 +398,19 @@ def main(argv=None):
         + (": " + "; ".join(r["requirement"] for r in unmet) if unmet else "") + ".")
     add(f"- Empty weight: build-up {stat['build_up']:.3f} of W0, Table 3.1 x 0.95 {stat['table_3_1']:.3f} "
         "(decomposition in section 4).")
-    add(f"- First pass (Table 3.1 with sketch values) {fp['W0']:,.0f} lb. Method tests: `{tests}`.")
+    if appk:
+        L0 = {k: v["value"] for g in ("requirements", "assumptions") for k, v in ledger[g].items()}
+        pw = next((r for r in comp_rows if r["requirement"].startswith("engine power")), None)
+        add(f"- **Round 4 rulings in force**: service ceiling {L0['ceiling_ft']:,.0f} ft (R12) with a "
+            f"{L0.get('margin_ceiling_ft', 0):,.0f} ft margin; one V_C placard of {L0['vc_placard_kt_eas']:.0f} kt EAS "
+            f"(R18); both transit legs against a {L0.get('headwind_kt', 0):.0f} kt headwind (R19); negative-gust margin "
+            f"{L0.get('margin_gust_g', 0):.1f} g; power margin "
+            + (f"{L0['margin_power_fraction']:.0%} required" if L0.get("margin_power_fraction") else
+               "relaxed to the bare requirement (ruling 8)")
+            + (f", achieved {1 - float(pw['value']) / d['bhp_sl']:.1%}" if pw else "") + ". "
+            f"Operating limit: the built aircraft flies the mission against headwinds up to "
+            f"{d.get('operating_limits', {}).get('max_headwind_kt', float('nan')):.0f} kt (ruling 9).")
+    add(f"- First pass (Table 3.1 with sketch values, still air) {fp['W0']:,.0f} lb. Method tests: `{tests}`.")
     add("")
     add("## 0. What changed after Gate A round 1")
     add("")
@@ -416,6 +436,9 @@ def main(argv=None):
         ("Round 2 N4 pusher rotation angle", "Pusher at 10 deg with a tail bumper (favourable end); tractor clearance with the nose strut compressed"),
         ("Round 2 N6 engine attribution", "Split into engine size and consumption with a Table 3.4 run of the same engine"),
         ("Round 2 scoring", "Round-1 weights restored; layout limits applied as constraints, not scored rows"),
+        ("Round 4 rulings 1-10", ("TP100 as its App. K table; R12 ceiling 23,000 ft; one V_C placard (100, then 110 kt EAS); "
+         "margins (ceiling 500 ft, negative gust 0.1 g; power 5 % relaxed); Stage 3 engine rows not independent; "
+         "pusher kept; R19 25 kt headwind; wind trades and operating limit; V_C a study placard with speeds by altitude")),
         ("Round 3 rulings", "Pusher frozen; V_C placarded at 150 kt EAS (R18); 1.3 V_stall floor kept (R17); R16 accepted; main gear in sponsons with drag (Q 1.5) and weight (Table 15.2) penalties"),
         ("Round 2 F9 tyre drag", "Regular wheel and tyre 0.25 (Table 12.5 p. 287) instead of the faired 0.13"),
     ]:
@@ -455,7 +478,7 @@ def main(argv=None):
     add("")
     add("| Quantity | Tractor | Pusher |")
     add("|---|---|---|")
-    for label, key, nd in (("W0 (lb)", "W0_lb", 0), ("W/S (lb/ft^2)", "W_S", 0), ("A", "A", 0),
+    for label, key, nd in (("W0 (lb)", "W0_lb", 0), ("W/S (lb/ft^2)", "W_S", 1), ("A", "A", 1),
                            ("main gear length (in)", "gear_length_in", 0),
                            ("horizontal-tail volume scale for rotation", "ht_volume_scale", 2),
                            ("limit load factor", "n_limit", 2)):
@@ -542,8 +565,8 @@ def main(argv=None):
         f"{d['CL_max']['takeoff']:.2f}, landing {d['CL_max']['landing']:.2f}.")
     add("")
     best = ("minimum fuel with the App. K SFC" if appk else "best speed (L/D max or minimum power)")
-    add("| Segment | W start (lb) | W end (lb) | Mean TAS (kt) | Speed set by | Mean SFC, lb/(hp h) |")
-    add("|---|---|---|---|---|---|")
+    add("| Segment | W start (lb) | W end (lb) | Mean TAS (kt) | Speed set by | Mean SFC, lb/(hp h) | Ground speed (kt) | Time (h) |")
+    add("|---|---|---|---|---|---|---|---|")
     for m in d["mission"]:
         if m["V_kt"]:
             fr = m["speed_floor_fraction"]
@@ -553,7 +576,9 @@ def main(argv=None):
         else:
             by, v = "-", "-"
         c = _f(m.get("cbhp_mean"), 3) if m.get("cbhp_mean") else "-"
-        add(f"| {m['segment']} | {m['W_start']:.1f} | {m['W_end']:.1f} | {v} | {by} | {c} |")
+        gs = _f(m.get("ground_speed_kt"), 1) if m.get("ground_speed_kt") else "-"
+        th = _f(m.get("leg_time_h"), 2) if m.get("leg_time_h") else "-"
+        add(f"| {m['segment']} | {m['W_start']:.1f} | {m['W_end']:.1f} | {v} | {by} | {c} | {gs} | {th} |")
     add("")
     add("Propeller operating points (efficiency is the ledger's constant, not computed; J and C_P from "
         "(13.10)-(13.11)):")
@@ -574,7 +599,15 @@ def main(argv=None):
     add("")
     add("The rubber engine's weight is Table 10.4 extrapolated below 400 bhp. The TP-R90 and PT6A-42 rows "
         "carry Table 3.4 consumption (no published values in hand); the TP-R90 lacks the power for the "
-        "ceiling.")
+        "ceiling."
+        + (" They and the rubber engine fly the headwind legs at Raymer's still-air best-range speed (no engine "
+           "table to optimise against), so their W0 is not like for like with the TP100 row." if appk else ""))
+    full = [k for k, p in d["propeller_points"].items() if p["throttle"] >= 0.99]
+    if appk and full:
+        add("")
+        add(f"At full throttle (99 % or more of the power available): {', '.join(full)}. The minimum-fuel speed "
+            "against the headwind sits on the power limit there, so the transit has no power margin; the "
+            "brochure gives 241 hp as maximum output and no continuous rating (action 1).")
     add("")
     add("## 6. Constraint diagram and carpet plots")
     add("")
@@ -634,6 +667,27 @@ def main(argv=None):
     for k in ("V_stall_clean_kt", "V_stall_landing_kt", "takeoff_ft", "landing_ft", "roc_sl_fpm",
               "v_best_climb_kt", "service_ceiling_ft", "vmax_alt_kt"):
         add(f"| {k} | {_f(per[k], 1)} |")
+    add("")
+    if appk:
+        add("V_max is at take-off weight; the transit legs fly lighter, so their speed can exceed it.")
+        ceil_row = next((r for r in comp_rows if r["requirement"].startswith("R12 service ceiling")), None)
+        if ceil_row and float(ceil_row["value"]) - float(ceil_row["limit"]) < 50.0:
+            add(f"The chosen point sits on the ceiling margin: {float(ceil_row['value']):,.0f} ft against "
+                f"{float(ceil_row['limit']):,.0f} ft. Selection stops at the lightest point meeting it, so the margin "
+                "(not the bare requirement) is what is used up.")
+        sp = d.get("speeds_by_altitude", [])
+        if sp:
+            add("")
+            add("Level full-throttle top speed and the gust load factor at it (ruling 10):")
+            add("")
+            add("| Altitude (ft) | Weight | V_max (kt EAS) | Gust n at V_max | Above V_C? |")
+            add("|---|---|---|---|---|")
+            for r in sp:
+                add(f"| {r['h_ft']:,.0f} | {r['weight'].replace('_', ' ')} | {r['vmax_kt_eas']:.0f} | {r['n_gust']:.2f} | "
+                    f"{'yes' if r['vmax_kt_eas'] > d['V_c_eas_kt']['sea_level'] else 'no'} |")
+            add("")
+            add(f"Where V_max exceeds V_C ({d['V_c_eas_kt']['sea_level']:.0f} kt EAS) only the autopilot keeps the "
+                f"structure within its gust case; above n {d['n_limit']:.2f} the airframe is over its limit load.")
     add("")
     add("## 9. Trades, sensitivities and out-of-calibration uses")
     add("")
@@ -751,8 +805,8 @@ def main(argv=None):
     add("## 12. Actions carried past Gate A")
     add("")
     if appk:
-        add(f"1. **Engine data**: the brochure gives no part-power SFC, control law or cycle; ask the maker for a "
-            f"part-power curve of the {inp['chosen_engine']}.")
+        add(f"1. **Engine data**: the brochure gives no part-power SFC, control law, continuous rating or cycle; ask "
+            f"the maker for a part-power curve and the continuous rating of the {inp['chosen_engine']}.")
         add("2. **Stage 3 engine (spec 7.1b)**: variable-cp burner, App. K re-validation with tolerances fixed "
             "first, regenerated table and the change in fuel and W0; rework `measurement/stage3_engine.py`, "
             "whose rows compare the table with itself.")
