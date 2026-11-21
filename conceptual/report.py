@@ -610,6 +610,14 @@ def main(argv=None):
         f"{d['q_design_psf']:.1f} psf at V_C {d['V_c_eas_kt']['sea_level']:.0f} kt EAS. Negative gust "
         f"{d['n_negative_gust']:.2f} against the -1.8 set at round 1; Raymer's weight equations carry "
         "only the positive case.")
+    if per.get("vmax_sl_kt_eas"):
+        add("")
+        add(f"Speeds (EAS): V_C {d['V_c_eas_kt']['sea_level']:.0f} kt (placard, R18); V_D "
+            f"{1.5 * d['V_c_eas_kt']['sea_level']:.0f} kt (1.5 V_C, p. 338); manoeuvre corner "
+            f"{d['vn']['V_corner_eas_kt']:.0f} kt; level maximum speed {per['vmax_sl_kt_eas']:.0f} kt at sea level "
+            f"and {per['vmax_alt_kt_eas']:.0f} kt at the mission altitude. Where the level maximum exceeds V_C the "
+            "aircraft can over-speed its structure in level flight: the placard holds only if the autopilot "
+            "enforces it (ruling 2).")
     add("")
     add(f"Static margin {lay['sm_full']:.3f} (full) and {lay['sm_empty']:.3f} (empty); neutral point "
         f"{lay['x_np']:.2f} ft; downwash gradient {1 - lay['dah_da']:.3f} (far-wake value in place of "
@@ -723,13 +731,20 @@ def main(argv=None):
                     "maker's cycle data or a test-cell curve")
         risks[1] = (("Part-power SFC from App. K: part-throttle trend unvalidated (11-14 % offset), constant-cp burner "
                     "(design-point S 2.5-7.5 % high against Figs. K.2-K.3), choked-turbine assumption fails in "
-                    f"{loit.get('turbine_unchoked_fraction', 0):.0%} of loiter sub-steps"),
+                    + ", ".join(f"{m['turbine_unchoked_fraction']:.0%} of {m['segment']}" for m in d["mission"]
+                                if m.get("turbine_unchoked_fraction")) + " sub-steps"),
                     f"loiter SFC {loit.get('cbhp_mean', 0):.3f}; fuel and W0 move directly (SFC +-10 % trades, section 9)",
                     "maker's part-power curve")
         risks[-1] = ("Control law (pi_c held at the sea-level rating) and installation losses not modelled",
                      ("a flat-rated engine gives much more power at altitude (Stage 3 engine report, section 3); "
                      "installation losses lower it; the design uses the conservative law (round 4 ruling 1)"),
                      "maker's data; installation estimate in preliminary design")
+    if appk and per.get("vmax_sl_kt_eas", 0) > d["V_c_eas_kt"]["sea_level"]:
+        risks.append((("V_C placard enforced only by the autopilot (level V_max "
+                      f"{per['vmax_sl_kt_eas']:.0f} kt EAS at sea level against V_C {d['V_c_eas_kt']['sea_level']:.0f} "
+                      f"and V_D {1.5 * d['V_c_eas_kt']['sea_level']:.0f})"),
+                      "structural over-speed in a fault or a steep descent",
+                      "speed-protection requirement on the autopilot; V-n check at V_max in preliminary design"))
     for risk, eff, meas in risks:
         add(f"| {risk} | {eff} | {meas} |")
     add("")
@@ -738,14 +753,20 @@ def main(argv=None):
     if appk:
         add(f"1. **Engine data**: the brochure gives no part-power SFC, control law or cycle; ask the maker for a "
             f"part-power curve of the {inp['chosen_engine']}.")
-        add("2. **Gate A re-run** on this design, then Stage 3 again (engine rows now part of the sizing).")
+        add("2. **Stage 3 engine (spec 7.1b)**: variable-cp burner, App. K re-validation with tolerances fixed "
+            "first, regenerated table and the change in fuel and W0; rework `measurement/stage3_engine.py`, "
+            "whose rows compare the table with itself.")
+        add("3. **Stage 3 aero first rows**: rotation with ground effect and the lattice downwash; the rotation "
+            "tail CL, the nose-wheel load and the empty-fuel static margin sit near their limits.")
+        add("4. **Autopilot speed protection** for the V_C placard (section 7).")
     else:
         add(f"1. **Engine data**: read the {inp['chosen_engine']} datasheet and update engines.yaml before "
             "Gate B (search extracts used; the maker's host is blocked from the sandbox).")
         add("2. **Stage 3 measurements** named in section 11, in particular the turboprop lapse and the "
             "loiter part-power consumption (Mattingly App. K).")
-    add("3. **Sponson** size, drag and weight are banded assumptions; preliminary design draws them.")
-    add("4. The rotation and trim checks rest on two assumed tail lift limits (ledger).")
+    k = 5 if appk else 3
+    add(f"{k}. **Sponson** size, drag and weight are banded assumptions; preliminary design draws them.")
+    add(f"{k + 1}. The rotation and trim checks rest on two assumed tail lift limits (ledger).")
     add("")
     add("## Appendix A. Ledger")
     add("")

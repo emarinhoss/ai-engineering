@@ -22,7 +22,20 @@ To be recorded as they are given (questions asked one at a time).
 
 | Finding | Status |
 |---|---|
-| R4-1 to R4-12 | open |
+| R4-1 self-consistent V_max, rating cap | closed (closing check) |
+| R4-2 margins, compliance-based trades, engine bands, ceiling CD0 | closed |
+| R4-3 control law | dispositioned by ruling 1 |
+| R4-4 turbine validity | closed as a disclosure (table and per-leg share) |
+| R4-5 variable-cp burner | deferred to Stage 3 by ruling 5 (spec 7.1b) |
+| R4-6 V_C | closed by rulings 2 and 3 |
+| R4-7 grid refinement | closed |
+| R4-8 Stage 3 independence | closed (spec revision 3, 7.1b); `measurement/stage3_engine.py` to be reworked in Stage 3 |
+| R4-9, R4-10, R4-12 | closed |
+| C-1 speeds stated together; autopilot speed-protection risk row | done in the final run |
+| C-2 R18 row on the fastest sub-step | done in the final run |
+| C-3 near-limit rows (rotation tail CL, nose load, empty static margin) | carried: first Stage 3 aero rows (package section 12) |
+| C-4 tests for `_refine`, `_vmax_consistent`, margin rows; actions list; unchoked share per leg | done |
+| C-5 climb TAS held, `_leg_speed` CD0 reference, flat sea-level climb power | carried, minor (no row changes) |
 
 ## 3. Independent review (verbatim)
 

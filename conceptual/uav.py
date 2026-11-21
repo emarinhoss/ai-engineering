@@ -281,7 +281,7 @@ def _mission(W0, geom, A, e, L, bhp, clmax, model=None):
     h_alt = L["mission_altitude_ft"]
     c_to = L["cbhp_cruise"] if model is None else model.bsfc(0.0, 60.0, bhp * model.lapse(0.0, 60.0))
     W = W0 * sizing.takeoff_fraction_power(c_to, bhp, L["takeoff_minutes"], W0)
-    rows.append(("takeoff", W0, W, 0.0, 0.0, c_to, 0.0))
+    rows.append(("takeoff", W0, W, 0.0, 0.0, c_to, 0.0, 0.0))
     CD0_sl, _ = _polar(geom, L, 200.0, sl, bhp)
     v_lo = L["climb_speed_over_stall"] * perf.stall_speed(W / S, sl["rho"], clmax["clean"])
     _, V_cl = perf.best_rate_of_climb(W, S, sl["rho"], CD0_sl, K, bhp, L["eta_p"], v_lo,
@@ -298,7 +298,7 @@ def _mission(W0, geom, A, e, L, bhp, clmax, model=None):
             else model.bsfc(0.5 * h_alt, V_cl / KT, bhp * model.lapse(0.5 * h_alt, V_cl / KT)))
     C = sizing.equivalent_tsfc(c_cl, V_cl, L["eta_p"])
     W2 = W * sizing.climb_fraction_energy(C, dhe, V_cl, min(d_t, 0.95))
-    rows.append(("climb", W, W2, 0.0, 0.0, c_cl, 0.0))
+    rows.append(("climb", W, W2, 0.0, 0.0, c_cl, 0.0, 0.0))
     W = W2
 
     def leg(W, name, distance_ft=None, time_s=None):
@@ -306,7 +306,7 @@ def _mission(W0, geom, A, e, L, bhp, clmax, model=None):
         n = N_CRUISE_STEPS if distance_ft else N_LOITER_STEPS
         mode = "range" if distance_ft else "loiter"
         cbhp = L["cbhp_cruise"] if distance_ft else L["cbhp_loiter"]
-        v_sum, floor_steps, c_sum, unchoked = 0.0, 0, 0.0, 0
+        v_sum, floor_steps, c_sum, unchoked, v_top = 0.0, 0, 0.0, 0, 0.0
         for _ in range(n):
             CD0, _ = _polar(geom, L, 250.0, alt, bhp)
             V, floored, c_tab = _leg_speed(W, S, alt, h_alt, CD0, K, clmax["clean"], L, mode, model, bhp)
@@ -315,6 +315,7 @@ def _mission(W0, geom, A, e, L, bhp, clmax, model=None):
                 shp = perf.drag(W, S, alt["rho"], V, CD0, K) * V / (HP * L["eta_p"])
                 unchoked += not model.turbine_choked(h_alt, V / KT, shp)[0]
             v_sum += V / n
+            v_top = max(v_top, V)
             c_sum += cbhp / n
             floor_steps += floored
             CD0, _ = _polar(geom, L, V, alt, bhp)
@@ -325,14 +326,14 @@ def _mission(W0, geom, A, e, L, bhp, clmax, model=None):
             else:
                 f = sizing.loiter_fraction_prop(time_s / n, V, cbhp, L["eta_p"], LD)
             W *= f
-        rows.append((name, W_in, W, v_sum, floor_steps / n, c_sum, unchoked / n))
+        rows.append((name, W_in, W, v_sum, floor_steps / n, c_sum, unchoked / n, v_top))
         return W
 
     W = leg(W, "cruise_out", distance_ft=L["radius_nm"] * NM)
     W = leg(W, "loiter", time_s=L["loiter_h"] * 3600.0)
     W = leg(W, "cruise_back", distance_ft=L["radius_nm"] * NM)
     W_end = W * sizing.LANDING_FRACTION
-    rows.append(("landing", W, W_end, 0.0, 0.0, 0.0, 0.0))
+    rows.append(("landing", W, W_end, 0.0, 0.0, 0.0, 0.0, 0.0))
     fuel = sizing.RESERVE_FACTOR * (W0 - W_end)
     return fuel, rows
 
@@ -765,14 +766,18 @@ def performance(d, L):
     vv, v_best = perf.best_rate_of_climb(W0, S, sl["rho"], d["CD0_sl"], K, bhp, L["eta_p"],
                                          v_lo, v_lo + 350.0)
     alt = isa(L["mission_altitude_ft"])
-    vmax = perf.max_level_speed(W0, S, alt["rho"], d["CD0_alt"], K,
-                                bhp * _lapse(d.get("engine_model"), L["mission_altitude_ft"], alt, 150.0 * KT),
-                                L["eta_p"], 120.0, 1200.0)
+    m = d.get("engine_model")
+    # level maximum speeds with power and CD0 at that speed (closing check C-1, C-5)
+    vmax = _vmax_consistent(W0, S, d["geom"], L, alt, L["mission_altitude_ft"], K, bhp, m,
+                            L["climb_speed_over_stall"] * perf.stall_speed(d["W_S"], alt["rho"], clean))
+    vmax_sl = _vmax_consistent(W0, S, d["geom"], L, sl, 0.0, K, bhp, m, v_lo)
     return {"V_stall_clean_kt": perf.stall_speed(d["W_S"], sl["rho"], clean) / KT,
             "V_stall_landing_kt": perf.stall_speed(d["W_S"], sl["rho"], d["clmax"]["landing"]) / KT,
             "takeoff_ft": to["total"], "takeoff": to, "landing_ft": ld["total"], "landing": ld,
             "roc_sl_fpm": vv * 60.0, "v_best_climb_kt": v_best / KT,
-            "service_ceiling_ft": ceiling(d, L), "vmax_alt_kt": (vmax or 0.0) / KT}
+            "service_ceiling_ft": ceiling(d, L), "vmax_alt_kt": (vmax or 0.0) / KT,
+            "vmax_alt_kt_eas": (vmax or 0.0) * math.sqrt(alt["sigma"]) / KT,
+            "vmax_sl_kt_eas": (vmax_sl or 0.0) / KT}
 
 
 def propeller_points(d, L):
