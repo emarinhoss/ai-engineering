@@ -275,6 +275,19 @@ and are not used as agreement checks.** In their place:
    model, ch. 4) replaces the constant-cp burner; the App. K validation against Figs. K.2-K.4,
    K.7 and K.9 is re-run with tolerances fixed before the run; the table is regenerated and the
    change in mission fuel and W0 at the frozen point is reported against the ±10 % SFC tolerance.
+   **Tolerances for the re-validation, fixed 2026-11-21 before the variable-cp code exists**
+   (book values are figure read-offs in the library notes):
+
+   | Comparison (MSH with the variable-cp burner) | Tolerance |
+   |---|---|
+   | Fig. K.4 optimum turbine ratio tau_t* at pi_c 5, 10, 20, 35 | ±0.015 absolute |
+   | Figs. K.2-K.3 envelope: F/m0 at pi_c 5, 17; S at pi_c 5, 17, 35 | ±5 % |
+   | Fig. K.7 full-throttle thrust lapse F/F_SL at 5-30 kft | ±0.015 absolute |
+   | Fig. K.9 part-throttle minimum S at 15 kft, M0 0.3, 0.5, 0.8 (eta_prop,max 0.9) | within ±10 % of the book |
+
+   A row outside its tolerance is reported as failed, with its numbers, and not tuned. The
+   constant-cp results (S 2.5-7.5 % high, part throttle 11-14 % high) are the baseline.
+
 2. **Validity.** The share of mission sub-steps where App. K's choked-turbine assumption fails is
    reported with the result.
 3. **Closing check when available.** The maker's part-power SFC curve and altitude rating; until
