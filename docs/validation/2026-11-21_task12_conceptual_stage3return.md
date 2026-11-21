@@ -229,7 +229,7 @@ Limit load factor 3.80, ultimate 5.70; design q 41.0 psf at V_C 110 kt EAS. Nega
 
 Speeds (EAS): V_C 110 kt (placard, R18); V_D 165 kt (1.5 V_C, p. 338); manoeuvre corner 112 kt; level maximum speed 155 kt at sea level and 95 kt at the mission altitude. Where the level maximum exceeds V_C the aircraft can over-speed its structure in level flight: the placard holds only if the autopilot enforces it (ruling 2).
 
-Static margin 0.130 (full) and 0.070 (empty); neutral point 10.66 ft; downwash gradient 0.369 (far-wake value in place of Raymer's chart; Stage 3's lattice found it not conservative for the previous design). Tail lift coefficient in trim at every leg start and end: cruise_out_start 0.063, cruise_out_end 0.059, loiter_start 0.172, loiter_end 0.152, cruise_back_start 0.067, cruise_back_end 0.064. Rotation at 43 kt with the forward CG: tail CL needed -0.99 (available 1.0).
+Static margin 0.130 (full) and 0.070 (empty); neutral point 10.66 ft; downwash gradient 0.369 (vortex lattice at the tail, height 0.4 D_f above the wing plane; spec 7.1c). Tail lift coefficient in trim at every leg start and end: cruise_out_start 0.063, cruise_out_end 0.059, loiter_start 0.172, loiter_end 0.152, cruise_back_start 0.067, cruise_back_end 0.064. Rotation at 43 kt with the forward CG: tail CL needed -0.99 (available 1.0).
 
 ## 8. Performance as sized
 
@@ -317,7 +317,7 @@ Used outside its calibration (each carried with a band or flagged for Stage 3):
 - Table 10.4 turboprop weight and size: 400-5,000 bhp; the rubber engine and the TP100 are below it.
 - (13.9) power lapse: piston engines, applied only to the rubber and comparison engines.
 - (12.49) span efficiency: a straight-wing fit; it sets the optimum aspect ratio.
-- Downwash: the far-wake value in place of Raymer's chart. Stage 3's lattice gave 0.38 against 0.35 for the previous design: not conservative here (docs/validation/2026-11-20_task12_stage3_aero.md).
+- Downwash: the vortex lattice (planar wake, wing alone, no fuselage or slipstream); the tail height is a banded ledger assumption. The Stage 3 downwash and static-margin rows now check the same model (spec 7.1c).
 - Gear and tyre drag per area: DR-1's readings of Raymer's gear-drag table.
 
 ## 10. Method tests (equation to test)
@@ -430,7 +430,7 @@ Run: `167 passed in 55.49s`. Functions are matched by name in `tests/task12/`; '
 | Part-power SFC from App. K: part-throttle trend unvalidated (11-14 % offset), constant-cp burner (design-point S 2.5-7.5 % high against Figs. K.2-K.3), choked-turbine assumption fails in 100% of cruise_out, 100% of loiter, 100% of cruise_back sub-steps | loiter SFC 1.077; fuel and W0 move directly (SFC +-10 % trades, section 9) | maker's part-power curve |
 | Empty weight of a crewless aircraft from crewed statistics | W0 through the sizing growth factor | Anderson ch. 8 independent weight estimate |
 | Section CL_max 1.5 (judgement) | sets the loiter and cruise speeds through the 1.3 V_stall floor and the stall limit | SU2 polar of the chosen section after a NACA-data validation row |
-| Span efficiency (12.49) and downwash (far-wake value) | optimum aspect ratio; static margin and tail size | vortex lattice: span loading, e, downwash at the tail |
+| Span efficiency (12.49) and downwash (vortex lattice, tail height assumed) | optimum aspect ratio; static margin and tail size | vortex lattice: span loading, e, downwash at the tail |
 | Sponson size, drag (form factor at low fineness, Q 1.5) and weight (banded) | 10% of W0 at the current size (no-sponson trade) | layout in preliminary design; sponson drag by the vortex-lattice/CFD ladder |
 | Rotation without ground effect; assumed tail CL limits | tail size | lattice with a ground image; elevator sizing |
 | Control law (pi_c held at the sea-level rating) and installation losses not modelled | a flat-rated engine gives much more power at altitude (Stage 3 engine report, section 3); installation losses lower it; the design uses the conservative law (round 4 ruling 1) | maker's data; installation estimate in preliminary design |

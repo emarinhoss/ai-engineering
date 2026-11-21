@@ -332,6 +332,7 @@ def main(argv=None):
     lines = []
     add = lines.append
     appk = "tp100_table_sha256" in inp
+    lat_dw = "tail_height_over_df" in ledger.get("assumptions", {})
     if appk:
         add(f"# Task 12 Stage 1, re-sized around the TP100's App. K engine model ({run.name})")
         add("")
@@ -656,8 +657,12 @@ def main(argv=None):
             "enforces it (ruling 2).")
     add("")
     add(f"Static margin {lay['sm_full']:.3f} (full) and {lay['sm_empty']:.3f} (empty); neutral point "
-        f"{lay['x_np']:.2f} ft; downwash gradient {1 - lay['dah_da']:.3f} (far-wake value in place of "
-        "Raymer's chart; Stage 3's lattice found it not conservative for the previous design). Tail lift coefficient in trim at every leg start and end: "
+        f"{lay['x_np']:.2f} ft; downwash gradient {1 - lay['dah_da']:.3f} "
+        + ("(vortex lattice at the tail, height "
+           f"{ledger['assumptions']['tail_height_over_df']['value']:g} D_f above the wing plane; spec 7.1c). "
+           if lat_dw else "(far-wake value in place of Raymer's chart; Stage 3's lattice found it not conservative "
+           "for the previous design). ")
+        + "Tail lift coefficient in trim at every leg start and end: "
         + ", ".join(f"{k} {v['CL_tail']:.3f}" for k, v in lay["trim"].items())
         + f". Rotation at {lay['rotation']['V_kt']:.0f} kt with the forward CG: tail CL needed "
         f"{lay['rotation']['CL_tail_needed']:.2f} (available "
@@ -740,7 +745,10 @@ def main(argv=None):
         ("(13.9) power lapse: piston engines, applied only to the rubber and comparison engines."
          if appk else "(13.9) power lapse: piston engines, applied to turboprops."),
         "(12.49) span efficiency: a straight-wing fit; it sets the optimum aspect ratio.",
-        ("Downwash: the far-wake value in place of Raymer's chart. Stage 3's lattice gave 0.38 against 0.35 for the "
+        ("Downwash: the vortex lattice (planar wake, wing alone, no fuselage or slipstream); the tail height is a "
+         "banded ledger assumption. The Stage 3 downwash and static-margin rows now check the same model (spec 7.1c)."
+         if lat_dw else
+         "Downwash: the far-wake value in place of Raymer's chart. Stage 3's lattice gave 0.38 against 0.35 for the "
          "previous design: not conservative here (docs/validation/2026-11-20_task12_stage3_aero.md)."
          if appk else "Downwash: the far-wake value in place of Raymer's chart."),
         "Gear and tyre drag per area: DR-1's readings of Raymer's gear-drag table.",
@@ -771,7 +779,8 @@ def main(argv=None):
          "Anderson ch. 8 independent weight estimate"),
         ("Section CL_max 1.5 (judgement)", "sets the loiter and cruise speeds through the 1.3 V_stall floor and the stall limit",
          "SU2 polar of the chosen section after a NACA-data validation row"),
-        ("Span efficiency (12.49) and downwash (far-wake value)", "optimum aspect ratio; static margin and tail size",
+        ("Span efficiency (12.49) and downwash (" + ("vortex lattice, tail height assumed" if lat_dw else "far-wake value")
+         + ")", "optimum aspect ratio; static margin and tail size",
          "vortex lattice: span loading, e, downwash at the tail"),
         ("Sponson size, drag (form factor at low fineness, Q 1.5) and weight (banded)",
          (f"{(d['W0_lb'] - float(nosp['W0'])) / d['W0_lb']:.0%} of W0 at the current size (no-sponson trade)"
