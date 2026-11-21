@@ -2,7 +2,7 @@
 
 **Outcome: PASS WITH ACTIONS** (independent reviewer). Design: pusher W/S 15, A 11, W0 3,198 lb;
 record `runs/task12/stage1/2026-11-21e/`, package `docs/validation/2026-11-21_task12_conceptual_stage3return.md`.
-Required before the package is final: G-1 (engine text) and G-2 (tail-height band and its trade row).
+Required before the package is final: G-1 (engine text) and G-2 (tail-height band and its trade row): both done; package `docs/validation/2026-11-21_task12_conceptual_round5.md`. G-3 noted in the package; G-4, G-5 done.
 
 ## Owner rulings
 
@@ -10,6 +10,7 @@ Required before the package is final: G-1 (engine text) and G-2 (tail-height ban
 |---|---|
 | 1. Rotation sizes the tail | **Measure it first**: keep the rule and sizes; the ground-effect rotation check is the next Stage 3 item |
 | 2. Engine model bias | **5 % SFC allowance** in sizing (ledger `engine_sfc_allowance` 1.05) |
+| 3. Lightest point or more margin | not asked: with the allowance (record `runs/task12/stage1/2026-11-21f/`, pusher W/S 13.5, A 10.5, 3,355 lb) the neighbouring points that add power margin fail the negative-gust margin (probe: (13, 10) 3,357 lb, 3.5 %, gust -1.70 on the limit; (12.5, 10) 4.6 %, gust -1.75 fails); the lightest point is kept per rulings 4 and 8 |
 
 ## Author's disposition
 
