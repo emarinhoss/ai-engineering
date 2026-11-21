@@ -16,6 +16,8 @@ thrust in lbf. Shaft power is returned in hp.
 """
 import math
 
+from measurement import gas_props
+
 GC = 32.174          # lbm ft/(lbf s^2)
 J = 778.16           # ft lbf per Btu
 BTU_PER_HP_H = 2544.43
@@ -37,6 +39,15 @@ def _R(gamma, cp):
 def _mfp_ratio(M, gamma):
     """Mass flow parameter up to a constant: M (1 + (gamma-1)/2 M^2)^(-(gamma+1)/(2(gamma-1)))."""
     return M * (1.0 + 0.5 * (gamma - 1.0) * M * M) ** (-(gamma + 1.0) / (2.0 * (gamma - 1.0)))
+
+
+def _fuel_air(k, T0, tau_r, tau_c, tau_lam, Tt4):
+    """Burner fuel/air ratio. burner "csh" (default): constant specific heats. burner "msh":
+    Mattingly's MSH fuel flow, the energy balance (4.10a) with variable-cp enthalpies of air at
+    T_t3 and of the products at T_t4 (measurement/gas_props.py); everything else stays constant-cp."""
+    if k.get("burner", "csh") == "msh":
+        return gas_props.fuel_air_msh(T0 * tau_r * tau_c, Tt4, k["eta_b"], k["h_PR"])
+    return (tau_lam - tau_r * tau_c) / (k["h_PR"] * k["eta_b"] / (k["cp_c"] * T0) - tau_lam)
 
 
 def _ram(M0, k):
@@ -98,7 +109,7 @@ def design_point(M0, T0, P0, pi_c, tau_t, k=BOOK_EXAMPLE):
     tau_c = pi_c ** ((gc_ - 1.0) / (gc_ * k["e_c"]))
     eta_c = (pi_c ** ((gc_ - 1.0) / gc_) - 1.0) / (tau_c - 1.0)
     tau_lam = k["cp_t"] * k["Tt4"] / (k["cp_c"] * T0)
-    f = (tau_lam - tau_r * tau_c) / (k["h_PR"] * k["eta_b"] / (k["cp_c"] * T0) - tau_lam)
+    f = _fuel_air(k, T0, tau_r, tau_c, tau_lam, k["Tt4"])
     core = (1.0 - k["beta"] - k["eps1"] - k["eps2"]) * (1.0 + f)
     tm1, _ = _mixers(k, f, tau_r, tau_c, tau_lam, 1.0)
     tau_tH = 1.0 - tau_r * (tau_c - 1.0) / (k["eta_mH"] * tau_lam * (core + k["eps1"] * tau_r * tau_c / tau_lam))  # (K.7)
@@ -163,7 +174,7 @@ def off_design(ref, M0, T0, P0, Tt4, k=BOOK_EXAMPLE, eta_prop_max=None):
     for _ in range(200):
         core = (1.0 - k["beta"] - k["eps1"] - k["eps2"]) * (1.0 + f)
         tau_c_new = 1.0 + k["eta_mH"] * (core + k["eps1"]) * tau_lam * tm1 * (1.0 - tau_tH) / tau_r   # (K.15)
-        f_new = (tau_lam - tau_r * tau_c_new) / (k["h_PR"] * k["eta_b"] / (k["cp_c"] * T0) - tau_lam)
+        f_new = _fuel_air(k, T0, tau_r, tau_c_new, tau_lam, Tt4)
         tm1_new, _ = _mixers(k, f_new, tau_r, tau_c_new, tau_lam, tau_tH)
         done = abs(tau_c_new - tau_c) < 1e-10 and abs(f_new - f) < 1e-12
         tau_c, f, tm1 = tau_c_new, f_new, tm1_new
