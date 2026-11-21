@@ -34,16 +34,16 @@ M_RATING = 0.1
 CYCLE_GRID = {"Tt4": (2000.0, 2200.0, 2400.0), "e_c": (0.80, 0.85), "e_t": (0.85, 0.90)}
 
 
-def _gas(Tt4, e_c, e_t):
-    return dict(tc.BOOK_EXAMPLE, Tt4=Tt4, e_c=e_c, e_tH=e_t, e_tL=e_t, eps1=0.0, eps2=0.0,
+def _gas(Tt4, e_c, e_t, burner="csh"):
+    return dict(tc.BOOK_EXAMPLE, burner=burner, Tt4=Tt4, e_c=e_c, e_tH=e_t, e_tL=e_t, eps1=0.0, eps2=0.0,
                 eta_b=0.98, gamma_t=1.3, pi_d=0.98, pi_b=0.95, pi_n=0.99, eta_mH=0.98,
                 eta_mL=0.98, eta_g=0.98, eta_prop=0.80)
 
 
-def calibrated(Tt4, e_c, e_t, bsfc=BSFC_RATED, shp=RATED_SHP):
+def calibrated(Tt4, e_c, e_t, bsfc=BSFC_RATED, shp=RATED_SHP, burner="csh"):
     """One family member: (gas inputs k, reference design dict with m0), or None when no compressor
     pressure ratio between 2 and 14 gives the datasheet SFC with these assumptions."""
-    k = _gas(Tt4, e_c, e_t)
+    k = _gas(Tt4, e_c, e_t, burner)
     sl = isa(0.0)
 
     def at(pi_c):
@@ -61,11 +61,11 @@ def calibrated(Tt4, e_c, e_t, bsfc=BSFC_RATED, shp=RATED_SHP):
     return k, ref
 
 
-def family(bsfc=BSFC_RATED):
+def family(bsfc=BSFC_RATED, burner="csh"):
     """All members of CYCLE_GRID that calibrate to bsfc, as dicts with their assumptions."""
     out = []
     for Tt4, e_c, e_t in itertools.product(*CYCLE_GRID.values()):
-        m = calibrated(Tt4, e_c, e_t, bsfc)
+        m = calibrated(Tt4, e_c, e_t, bsfc, burner=burner)
         if m is not None:
             out.append({"Tt4": Tt4, "e_c": e_c, "e_t": e_t, "k": m[0], "ref": m[1]})
     return out
@@ -95,11 +95,11 @@ TABLE_V = [30.0 + 20.0 * i for i in range(11)]           # 30 to 230 kt TAS
 TABLE_F = [0.10 + 0.05 * i for i in range(19)]           # shaft power / full-throttle power
 
 
-def table(member=None):
+def table(member=None, burner="csh"):
     """Full-throttle shaft hp and part-power shaft SFC of one family member on a grid of altitude,
     true airspeed and power fraction, for conceptual/engine_model.py to interpolate."""
     if member is None:
-        k, ref = calibrated(**NOMINAL)
+        k, ref = calibrated(**NOMINAL, burner=burner)
         member = {"k": k, "ref": ref, **NOMINAL}
     k, ref = member["k"], member["ref"]
     p_full, sfc, lp_ratio = [], [], []
@@ -126,7 +126,7 @@ def table(member=None):
             "lp_turbine_pressure_ratio": lp_ratio, "hp_turbine_pressure_ratio": 1.0 / ref["pi_tH"],
             "critical_pressure_ratio": ((gt + 1.0) / 2.0) ** (gt / (gt - 1.0)),
             "member": {x: member[x] for x in ("Tt4", "e_c", "e_t")} | {"pi_c": ref["pi_c"], "tau_t": ref["tau_t"]},
-            "calibration_bsfc": BSFC_RATED, "control_law": "Tt4 <= rated, pi_c <= sea-level rated value"}
+            "calibration_bsfc": BSFC_RATED, "burner": k.get("burner", "csh"), "control_law": "Tt4 <= rated, pi_c <= sea-level rated value"}
 
 
 if __name__ == "__main__":

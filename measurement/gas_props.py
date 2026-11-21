@@ -7,6 +7,12 @@ them from the NASA / Burcat thermodynamic databases). Only a1..a6 are needed for
     h/(R T) = a1 + a2 T/2 + a3 T^2/3 + a4 T^3/4 + a5 T^4/5 + a6/T        (T in K)
 Sensible enthalpy = h(T) - h(298.15 K) = h(T) - h(536.67 R), the reference where h_PR is defined.
 
+Enthalpy reference: 298.15 K with H2O as vapour, so sensible enthalpy is consistent with h_PR used
+as a lower heating value. Mattingly's own property routine may use a different zero; that is a
+known difference of about 1 % in f (reviewer estimate, not run here). Dissociation is neglected:
+about +1 % in f at 3,200 R and under 0.1 % below 2,400 R (reviewer's Cantera check).
+Valid range 360-6,300 R (200-3,500 K), the overlap of the NASA fits; outside it ValueError.
+
 Units out: Btu/lbm and Btu/(lbm R). Temperatures in deg R.
 """
 
@@ -88,8 +94,14 @@ def _products_moles(f):
     return moles
 
 
+def _check_T(T_R):
+    if not 360.0 <= T_R <= 6300.0:
+        raise ValueError(f"temperature {T_R} R outside the property range 360-6300 R")
+
+
 def h_air(T_R):
     """Sensible enthalpy of dry air, Btu/lbm, relative to 536.67 R."""
+    _check_T(T_R)
     T = T_R / 1.8
     moles = _air_moles()
     h = sum(n * _h_sensible_molar(s, T) for s, n in moles.items())     # J per kg of air
@@ -98,6 +110,7 @@ def h_air(T_R):
 
 def cp_air(T_R):
     """Specific heat of dry air, Btu/(lbm R)."""
+    _check_T(T_R)
     T = T_R / 1.8
     cp = sum(n * _cp_molar(s, T) for s, n in _air_moles().items())      # J/(kg K)
     return cp / BTU_PER_LBM_IN_J_PER_KG / 1.8                             # per R: 1 K = 1.8 R
@@ -105,6 +118,7 @@ def cp_air(T_R):
 
 def h_products(T_R, f):
     """Sensible enthalpy, Btu/lbm of products (mass 1 + f per unit air), relative to 536.67 R."""
+    _check_T(T_R)
     T = T_R / 1.8
     moles = _products_moles(f)
     h = sum(n * _h_sensible_molar(s, T) for s, n in moles.items())     # J per kg of air
@@ -114,12 +128,16 @@ def h_products(T_R, f):
 def fuel_air_msh(T_t3, T_t4, eta_b, h_PR, tol=1e-12):
     """Burner fuel/air ratio from the energy balance (4.10a) with variable-cp enthalpies:
         f = (h_t4(T_t4, f) - h_t3(T_t3)) / (eta_b h_PR - h_t4(T_t4, f)),   fixed-point iteration on f."""
+    if T_t4 <= T_t3:
+        raise ValueError(f"T_t4 {T_t4} R must exceed T_t3 {T_t3} R")
     h3 = h_air(T_t3)
     f = 0.0
     for _ in range(100):
         h4 = h_products(T_t4, f)
         f_new = (h4 - h3) / (eta_b * h_PR - h4)
         if abs(f_new - f) < tol:
+            if f_new <= 0.0:
+                raise ValueError(f"fuel/air ratio {f_new} is not positive")
             return f_new
         f = f_new
     raise ValueError("fuel_air_msh did not converge")

@@ -1,7 +1,7 @@
 """Mattingly App. K example against the book's figure readings, for the constant-cp fuel flow
 ("csh") and the MSH variable-cp fuel flow ("msh") side by side.
 
-    python -m measurement.appk_validation --burner msh --out result.json
+    python -m measurement.appk_validation --out result.json
 
 Cases are the same as tests/task12/test_turboprop_cycle.py (gamma_t = 1.3, see that file).
 Tolerances were fixed in advance in docs/specs/task12_drone_conceptual_design.md section 7.1b
@@ -11,6 +11,11 @@ K.9 minimum S within +-10 % of the book. Rows that fail are reported as FAIL.
 import argparse
 import json
 import math
+import platform
+import subprocess
+from pathlib import Path
+
+import numpy as np
 
 from conceptual.units import isa
 from measurement import turboprop_cycle as tc
@@ -63,13 +68,24 @@ def run(burner):
     return rows
 
 
+def _inputs():
+    """Run record: code version (read-only git calls), dirty flag, library versions, data source."""
+    repo = Path(__file__).resolve().parents[1]
+    commit = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True,
+                            check=False, cwd=repo).stdout.strip()
+    dirty = bool(subprocess.run(["git", "status", "--porcelain", "--", "measurement"],
+                                capture_output=True, text=True, check=False, cwd=repo).stdout.strip())
+    return {"commit": commit, "uncommitted_code_changes": dirty, "python": platform.python_version(),
+            "numpy": np.__version__, "gas_data": "NASA-7 polynomials from Cantera 3.1.0 gri30.yaml",
+            "gamma_t": 1.3, "tolerances_spec": "docs/specs/task12_drone_conceptual_design.md 7.1b"}
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--burner", choices=("csh", "msh"), default="msh",
-                    help="burner model to highlight; both are always computed")
     ap.add_argument("--out", required=True)
     args = ap.parse_args()
-    res = {"burners": {b: run(b) for b in ("csh", "msh")}, "tolerances": TOL, "requested": args.burner}
+    res = {"burners": {b: run(b) for b in ("csh", "msh")}, "tolerances": TOL}
+    res["inputs"] = _inputs()
     res["summary"] = {b: {"pass": sum(r["verdict"] == "PASS" for r in rows), "total": len(rows)}
                       for b, rows in res["burners"].items()}
     with open(args.out, "w") as fh:

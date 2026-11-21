@@ -63,3 +63,20 @@ def test_csh_default_unchanged_and_msh_changes_f():
     assert base == explicit
     msh = tc.design_point(0.8, a["T"], a["p"], 20, 0.5, dict(tc.BOOK_EXAMPLE, burner="msh"))
     assert msh["f"] != base["f"] and 0.005 < msh["f"] < 0.05
+
+
+def test_fuel_air_msh_anchor_without_cantera():
+    # Value cross-checked by the reviewer against Cantera frozen products and a hand mean-cp
+    # calculation (not computed with Cantera here), so this test needs no Cantera install.
+    assert gp.fuel_air_msh(1000.0, 2200.0, 0.98, 18400.0) == pytest.approx(0.01884, abs=2e-5)
+
+
+def test_gas_props_gates():
+    with pytest.raises(ValueError):
+        gp.h_air(300.0)
+    with pytest.raises(ValueError):
+        gp.cp_air(7000.0)
+    with pytest.raises(ValueError):
+        gp.h_products(100.0, 0.02)
+    with pytest.raises(ValueError):
+        gp.fuel_air_msh(2000.0, 1500.0, 0.98, 18400.0)

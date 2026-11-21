@@ -18,6 +18,9 @@ dependencies = [
     "torch",
 ]
 
+[project.optional-dependencies]
+test = ["cantera>=3.1"]
+
 [tool.setuptools.packages.find]
 include = ["physics*", "geometry*", "cases*", "postprocess*", "mcp_server*", "worker*", "surrogate*", "analysis*", "conceptual*", "measurement*"]
 

@@ -1,6 +1,10 @@
 """Turboprop cycle, Mattingly, Aircraft Engine Design, 2nd ed., Appendix K, with the modified
 specific heat (MSH) gas model: constant cp and gamma ahead of the burner (c) and behind it (t).
 
+Burner fuel flow: the default burner is constant-cp ("csh"), kept to reproduce earlier records.
+burner "msh" (key "burner" in the gas dict) is Mattingly's MSH fuel flow, the variable-cp energy
+balance (4.10a) with enthalpies from measurement/gas_props.py.
+
 Design point: the parametric sequence (K.1)-(K.14), p. 590-597, written for MSH.
 Off-design: (K.15)-(K.21), p. 597-601, under the book's Section 5.2.2 assumptions: the HP
 turbine entry (4) and LP turbine entry (4.5) are choked, so the HP turbine ratios tau_tH and pi_tH
@@ -138,8 +142,18 @@ def optimum_tau_t(M0, T0, P0, pi_c, k=BOOK_EXAMPLE, lo=0.2, hi=0.95):
             return -design_point(M0, T0, P0, pi_c, t, k)["C_total"]
         except ValueError:
             return float("inf")
+    # coarse scan: design_point is valid only on a middle interval of tau_t, so find it first
+    n = round((hi - lo) / 0.01)
+    grid = [lo + i * (hi - lo) / n for i in range(n + 1)]
+    vals = [neg(t) for t in grid]
+    best = min(range(len(grid)), key=lambda i: vals[i])
+    if vals[best] == float("inf"):
+        raise ValueError(f"no valid tau_t in [{lo}, {hi}] for pi_c {pi_c}, M0 {M0}")
+    # refine by golden section inside the neighbouring grid points (the minimum is bracketed;
+    # the neighbours may be invalid, i.e. inf, which the comparison below handles)
+    a = grid[max(best - 1, 0)]
+    b = grid[min(best + 1, n)]
     g = (math.sqrt(5.0) - 1.0) / 2.0
-    a, b = lo, hi
     for _ in range(80):
         c, d = b - g * (b - a), a + g * (b - a)
         if neg(c) < neg(d):
@@ -169,7 +183,7 @@ def off_design(ref, M0, T0, P0, Tt4, k=BOOK_EXAMPLE, eta_prop_max=None):
     tau_r, pi_r = _ram(M0, k)
     tau_lam = k["cp_t"] * Tt4 / (k["cp_c"] * T0)
     tau_tH, pi_tH = ref["tau_tH"], ref["pi_tH"]
-    # compressor and burner: fixed-point on (f, tau_m1, tau_c) from (K.15), (K.16) and (4.18)
+    # compressor and burner: fixed-point on (f, tau_m1, tau_c) from (K.15), (K.16) and the fuel/air ratio: (4.18) for burner csh (constant cp), (4.10a) for burner msh (variable cp)
     f, tm1, tau_c = ref["f"], ref["tau_m1"], ref["tau_c"]
     for _ in range(200):
         core = (1.0 - k["beta"] - k["eps1"] - k["eps2"]) * (1.0 + f)

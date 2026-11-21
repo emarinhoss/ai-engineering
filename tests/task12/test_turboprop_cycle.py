@@ -130,3 +130,20 @@ def test_tp100_power_falls_with_altitude():
     p = [tp.power_available(m, h, 95.0) for h in (0.0, 10000.0, 20000.0, 25000.0)]
     assert all(a > b for a, b in itertools.pairwise(p))
     assert tp.power_available(m, 20000.0, 95.0, hold_pi_c=False) > p[2]
+
+
+def test_tp100_family_msh_calibrates_to_datasheet():
+    fam = tp.family(burner="msh")
+    assert fam
+    sl = isa(0.0)
+    for m in fam:
+        assert m["k"]["burner"] == "msh"
+        r = tc.off_design(m["ref"], tp.M_RATING, sl["T"], sl["p"], m["ref"]["Tt4"], m["k"])
+        assert r["bsfc"] == pytest.approx(tp.BSFC_RATED, rel=1e-3)
+
+
+def test_optimum_tau_t_raises_when_nothing_valid():
+    k = dict(tc.BOOK_EXAMPLE, gamma_t=1.3)
+    sl = isa(0.0)
+    with pytest.raises(ValueError):
+        tc.optimum_tau_t(0.1, sl["T"], sl["p"], 8.0, k, lo=0.94, hi=0.95)
