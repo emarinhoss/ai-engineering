@@ -92,10 +92,21 @@ def _mirror(v):
     return v * np.array([1.0, -1.0, 1.0])
 
 
-def _influence(p, a, b):
+def _influence(p, a, b, ground_h=None):
     """Horseshoes of the right half plus their mirror images (bound leg again inboard-to-outboard
-    in +y order on the left wing: from mirror(b) to mirror(a))."""
-    return _horseshoe(p, a, b) + _horseshoe(p, _mirror(b), _mirror(a))
+    in +y order on the left wing: from mirror(b) to mirror(a)). With ground_h, the ground plane
+    z = -h is added by images: every horseshoe (both wings) is reflected, z -> -2h - z, and carries
+    the opposite circulation, so the normal velocity on the ground plane is zero."""
+    v = _horseshoe(p, a, b) + _horseshoe(p, _mirror(b), _mirror(a))
+    if ground_h is not None:
+        ga, gb = _reflect(a, ground_h), _reflect(b, ground_h)
+        v = v - _horseshoe(p, ga, gb) - _horseshoe(p, _mirror(gb), _mirror(ga))
+    return v
+
+
+def _reflect(v, h):
+    """Mirror image of points (n,3) about the ground plane z = -h."""
+    return v * np.array([1.0, 1.0, -1.0]) + np.array([0.0, 0.0, -2.0 * h])
 
 
 def reference(planform):
@@ -108,7 +119,7 @@ def reference(planform):
     return area, planform.span ** 2 / area, 2.0 / area * float(c2)
 
 
-def _lattice(planform, level, camber):
+def _lattice(planform, level, camber, ground_h=None):
     m, n = LEVELS[level]
     half = planform.span / 2.0
     eta = 0.5 * (1.0 - np.cos(np.pi * np.arange(n + 1) / n))           # strip edges
@@ -136,8 +147,8 @@ def _lattice(planform, level, camber):
     normal = np.stack([-slope, np.zeros_like(slope), np.ones_like(slope)], axis=-1)
     normal /= np.linalg.norm(normal, axis=-1)[..., None]
     a, b, cp, normal = (v.reshape(n * m, 3) for v in (a, b, cp, normal))
-    matrix = np.einsum("ijk,ik->ij", _influence(cp, a, b), normal)
-    v_mid = _influence(0.5 * (a + b), a, b)                             # at bound-leg midpoints
+    matrix = np.einsum("ijk,ik->ij", _influence(cp, a, b, ground_h), normal)
+    v_mid = _influence(0.5 * (a + b), a, b, ground_h)                           # at bound-leg midpoints
     return {"m": m, "n": n, "y": y, "eta": eta, "c_mid": c_mid, "a": a, "b": b,
             "normal": normal, "matrix": matrix, "v_mid": v_mid}
 
@@ -153,6 +164,8 @@ def _forces(planform, lat, alpha):
     mid = 0.5 * (lat["a"] + lat["b"])
     moment = mid[:, 2] * force[:, 0] - (mid[:, 0] - planform.x_ref) * force[:, 2]
     cl_wing = 2.0 * float(np.sum(force @ lift_dir)) / (0.5 * area)
+    # near-field induced drag: Kutta-Joukowski force along the free stream (positive = drag)
+    cdi_nf = 2.0 * float(np.sum(force @ v_inf)) / (0.5 * area)
     cm = 2.0 * float(np.sum(moment)) / (0.5 * area * c_mac)
     # far field, Trefftz plane: the strip loads as a Glauert series, then CDi exactly
     g_half = gamma.reshape(lat["n"], lat["m"]).sum(axis=1)             # strip circulation
@@ -164,18 +177,21 @@ def _forces(planform, lat, alpha):
     cdi = math.pi * ar * float(np.sum(odd * coef ** 2))
     e = cl_wing ** 2 / (math.pi * ar * cdi) if cdi != 0.0 else float("nan")
     eta_mid = 0.5 * (lat["eta"][:-1] + lat["eta"][1:])
-    return {"CL": cl_wing, "CDi": cdi, "e": e, "Cm": cm, "eta": eta_mid.tolist(),
+    return {"CL": cl_wing, "CDi": cdi, "CDi_nearfield": cdi_nf, "e": e, "Cm": cm, "eta": eta_mid.tolist(),
             "cl": (2.0 * g_half / lat["c_mid"]).tolist()}
 
 
-def solve(planform, alpha, level="medium", camber=None):
-    """Lift, induced drag, span efficiency, pitching moment and section lift at alpha (radians)."""
-    return _forces(planform, _lattice(planform, level, camber), alpha)
+def solve(planform, alpha, level="medium", camber=None, ground_h=None):
+    """Lift, induced drag, span efficiency, pitching moment and section lift at alpha (radians).
+    ground_h: height of the wing plane above a ground plane (same length unit as the planform),
+    None for free air. CDi_nearfield is the Kutta-Joukowski drag, with or without ground. The
+    far-field CDi and e are the free-air Trefftz-plane values and do not include the ground."""
+    return _forces(planform, _lattice(planform, level, camber, ground_h), alpha)
 
 
-def derivatives(planform, level="medium", camber=None):
+def derivatives(planform, level="medium", camber=None, ground_h=None):
     """CL_alpha and Cm_alpha per radian by central difference over +-2 deg; alpha_L0 = -CL(0)/CL_a."""
-    lat = _lattice(planform, level, camber)
+    lat = _lattice(planform, level, camber, ground_h)
     h = math.radians(2.0)
     lo, mid, hi = (_forces(planform, lat, a) for a in (-h, 0.0, h))
     cl_a = (hi["CL"] - lo["CL"]) / (2.0 * h)
@@ -183,21 +199,21 @@ def derivatives(planform, level="medium", camber=None):
             "Cm_alpha": (hi["Cm"] - lo["Cm"]) / (2.0 * h)}
 
 
-def induced_velocity(planform, alpha, points, level="medium", camber=None):
+def induced_velocity(planform, alpha, points, level="medium", camber=None, ground_h=None):
     """Velocity (n, 3) induced by the solved lattice at field points (n, 3) in the wing axes,
     free stream excluded. Added for Task 12 Stage 3 (downwash at the tail). The wake is the
-    planar one of this lattice (trailing legs along +x at z = 0)."""
-    lat = _lattice(planform, level, camber)
+    planar one of this lattice (trailing legs along +x at z = 0). ground_h as in solve()."""
+    lat = _lattice(planform, level, camber, ground_h)
     v_inf = np.array([math.cos(alpha), 0.0, math.sin(alpha)])
     gamma = np.linalg.solve(lat["matrix"], -lat["normal"] @ v_inf)
     p = np.atleast_2d(np.asarray(points, float))
-    return np.einsum("ijk,j->ik", _influence(p, lat["a"], lat["b"]), gamma)
+    return np.einsum("ijk,j->ik", _influence(p, lat["a"], lat["b"], ground_h), gamma)
 
 
-def downwash_gradient(planform, points, level="medium", camber=None):
+def downwash_gradient(planform, points, level="medium", camber=None, ground_h=None):
     """d(epsilon)/d(alpha) at field points: the mean over the points of -dw/dalpha (unit speed),
     by central difference over +-2 deg. epsilon is the downwash angle, positive down."""
     h = math.radians(2.0)
-    w_hi = induced_velocity(planform, h, points, level, camber)[:, 2]
-    w_lo = induced_velocity(planform, -h, points, level, camber)[:, 2]
+    w_hi = induced_velocity(planform, h, points, level, camber, ground_h)[:, 2]
+    w_lo = induced_velocity(planform, -h, points, level, camber, ground_h)[:, 2]
     return float(np.mean(-(w_hi - w_lo) / (2.0 * h)))

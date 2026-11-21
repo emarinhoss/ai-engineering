@@ -1,0 +1,116 @@
+{
+  "row": {
+    "quantity": "rotation tail CL needed (0.8 V_TO, forward CG, sea level)",
+    "stage1": -0.9875940659526694,
+    "stage3": -0.949585400760313,
+    "deviation_abs": 0.03800866519235646,
+    "deviation_rel": -0.03848612147713937,
+    "limit": 1.0,
+    "limit_met_stage1": true,
+    "limit_met_stage3": true,
+    "tolerance": null,
+    "tail_scale_record": 1.7289205619041055,
+    "tail_scale_estimate": 1.6417577246584554,
+    "note": "no 7.1a tolerance exists for this row; the scale is a proportional estimate, not a re-size"
+  },
+  "cases": {
+    "nominal": {
+      "h_ft": 6.400068889842668,
+      "h_over_b": 0.12529036635797003,
+      "alpha_deg": 1.1335445798535002,
+      "CL_free": 0.10014328983625187,
+      "CL_ground_effect": 0.1104580852748604,
+      "k_GE": 1.1030003653312632,
+      "CL_wing_rotation": 0.6265042075081575,
+      "CL_tail_needed": -0.949585400760313,
+      "main_wheel_load_lb": 3020.680083104792,
+      "limit_met": true,
+      "tail_scale_estimate": 1.6417577246584554
+    },
+    "minus_1ft": {
+      "h_ft": 5.400068889842668,
+      "h_over_b": 0.1057139573357462,
+      "alpha_deg": 1.1335445798535002,
+      "CL_free": 0.10014328983625187,
+      "CL_ground_effect": 0.11273190986046756,
+      "k_GE": 1.125706076211395,
+      "CL_wing_rotation": 0.6394010512880723,
+      "CL_tail_needed": -0.9412066565269767,
+      "main_wheel_load_lb": 2997.2988327755616,
+      "limit_met": true,
+      "tail_scale_estimate": 1.6272715414705048
+    },
+    "plus_1ft": {
+      "h_ft": 7.400068889842668,
+      "h_over_b": 0.14486677538019385,
+      "alpha_deg": 1.1335445798535002,
+      "CL_free": 0.10014328983625187,
+      "CL_ground_effect": 0.1088331977463267,
+      "k_GE": 1.086774739718298,
+      "CL_wing_rotation": 0.6172880521599934,
+      "CL_tail_needed": -0.9555728973753547,
+      "main_wheel_load_lb": 3037.3884529157135,
+      "limit_met": true,
+      "tail_scale_estimate": 1.6521096306705323
+    }
+  },
+  "rebuild_check": {
+    "fuel_lb": {
+      "record": 1065.3534932862146,
+      "rebuilt": 1065.3534932862146
+    },
+    "power_climb_sl_hp": {
+      "record": 178.136125171229,
+      "rebuilt": 178.136125171229
+    },
+    "power_ceiling_hp": {
+      "record": 233.7308734057639,
+      "rebuilt": 233.7308734057639
+    },
+    "power_takeoff_hp": {
+      "record": 109.63411635558317,
+      "rebuilt": 109.63411635558317
+    },
+    "power_turn_at_loiter_hp": {
+      "record": 203.10549078617026,
+      "rebuilt": 203.10549078617026
+    },
+    "power_cruise_at_altitude_hp": {
+      "record": 177.39286336964815,
+      "rebuilt": 177.39286336964815
+    }
+  },
+  "layout_check": {
+    "record": -0.9875940659526694,
+    "rebuilt_k1": -0.9875940639379115,
+    "relative_difference": 2.040066893194137e-09
+  },
+  "downwash_gradient_tail": {
+    "z_ft": 1.4137007072810917,
+    "x_ft": 14.704721399402379,
+    "free_air": 0.3897601984569456,
+    "ground_effect": {
+      "nominal": 0.2604084596180837,
+      "minus_1ft": 0.23865619186610648,
+      "plus_1ft": 0.2787258355429446
+    }
+  },
+  "assumptions": {
+    "wing_height": "h = h_cg - 0.1 D_f (render's wing station), plus/minus 1 ft",
+    "attitude": "free-air lattice CL = ledger cl_ground",
+    "flap": "flap increment scaled by the wing's k_GE (approximation)",
+    "lattice": "fine, planar, ground plane parallel to the wing plane"
+  },
+  "inputs": {
+    "design": "runs/task12/stage1/2026-11-21f/design_pusher.json",
+    "design_sha256": "1b416bf8f552478cca544812fdc81622660fac143500c353b5c5983034319fd1",
+    "ledger": "runs/task12/stage1/2026-11-21f/ledger.yaml",
+    "ledger_sha256": "cd522f2fa3c6d4ddbcb818e74b0554a7dc12c25a81ff92f1af8bb4bc20863b66",
+    "git_commit": "f4be624a4e8c7b731feff16307471b6387330435",
+    "python": "3.13.18",
+    "numpy": "2.5.3",
+    "out": "runs/task12/stage3/2026-11-21/rotation.json",
+    "report": "docs/validation/2026-11-21_task12_stage3_rotation.md",
+    "seed": null
+  }
+}
