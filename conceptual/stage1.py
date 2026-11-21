@@ -51,7 +51,9 @@ def engine_options():
         if name == CHOSEN_ENGINE and TP100_TABLE.exists():
             # Stage 3 return (Eder 2026-11-20): the TP100 as its Mattingly App. K cycle table, which
             # replaces the piston lapse (13.9) and the flat brochure SFC wherever the engine enters
-            eng["model"] = TableEngine(TP100_TABLE)
+            # Gate A round 5 ruling 2: SFC allowance on the table in sizing
+            allowance = uav.load_ledger()[0].get("engine_sfc_allowance", 1.0)
+            eng["model"] = TableEngine(TP100_TABLE).scaled(sfc=allowance)
         out[name] = eng
     return out, raw
 

@@ -285,7 +285,9 @@ def _mission(W0, geom, A, e, L, bhp, clmax, model=None):
     h_alt = L["mission_altitude_ft"]
     c_to = L["cbhp_cruise"] if model is None else model.bsfc(0.0, 60.0, bhp * model.lapse(0.0, 60.0))
     W = W0 * sizing.takeoff_fraction_power(c_to, bhp, L["takeoff_minutes"], W0)
-    rows.append(("takeoff", W0, W, 0.0, 0.0, c_to, 0.0, 0.0, 0.0))
+    # App. K choked-turbine validity at take-off power (Gate A round 5, G-1): a real check, not a placeholder
+    unch_to = 0.0 if model is None else float(not model.turbine_choked(0.0, 60.0, bhp * model.lapse(0.0, 60.0))[0])
+    rows.append(("takeoff", W0, W, 0.0, 0.0, c_to, unch_to, 0.0, 0.0))
     CD0_sl, _ = _polar(geom, L, 200.0, sl, bhp)
     v_lo = L["climb_speed_over_stall"] * perf.stall_speed(W / S, sl["rho"], clmax["clean"])
     _, V_cl = perf.best_rate_of_climb(W, S, sl["rho"], CD0_sl, K, bhp, L["eta_p"], v_lo,
@@ -302,7 +304,9 @@ def _mission(W0, geom, A, e, L, bhp, clmax, model=None):
             else model.bsfc(0.5 * h_alt, V_cl / KT, bhp * model.lapse(0.5 * h_alt, V_cl / KT)))
     C = sizing.equivalent_tsfc(c_cl, V_cl, L["eta_p"])
     W2 = W * sizing.climb_fraction_energy(C, dhe, V_cl, min(d_t, 0.95))
-    rows.append(("climb", W, W2, 0.0, 0.0, c_cl, 0.0, 0.0, 0.0))
+    unch_cl = (0.0 if model is None else
+               float(not model.turbine_choked(0.5 * h_alt, V_cl / KT, bhp * model.lapse(0.5 * h_alt, V_cl / KT))[0]))
+    rows.append(("climb", W, W2, 0.0, 0.0, c_cl, unch_cl, 0.0, 0.0))
     W = W2
 
     def leg(W, name, distance_ft=None, time_s=None):
@@ -580,6 +584,10 @@ def lattice_downwash(span, A, taper, arm, ht_span, z):
     """d(eps)/d(alpha) at the horizontal tail from the study's vortex lattice (drone/vlm.py, Task 10
     V6a-V6c; far wake checked to 3 %): mean of five spanwise points at the tail's quarter-MAC
     station, at height z above the wing plane; planar wake. Cached: the layout calls it often."""
+    if abs(z) < 0.5 * span / 30.0:
+        # within one trailing-leg spacing of the planar wake the lattice result is mesh noise
+        # (Gate A round 5, G-2)
+        raise ValueError(f"tail height {z:.2f} ft is inside the lattice wake sheet (needs |z| >= {span / 60:.2f} ft)")
     r = lambda v: round(float(v), 3)
     return _lattice_downwash_cached(r(span), r(A), r(taper), r(arm), r(ht_span), r(z))
 
@@ -855,4 +863,8 @@ def size_tail_for_rotation(concept, W_S, A, L, engine=None, max_iter=8):
         if lay["rotation_ok"]:
             return d, lay, scale
         scale *= need / L["tail_cl_max_rotation"] * 1.02
+    # the last update was not evaluated: evaluate it, and say if rotation still fails (G-5)
+    L2 = dict(L, ht_volume_scale=scale)
+    d = evaluate(concept, W_S, A, L2, engine=engine)
+    lay = layout(d, L2)
     return d, lay, scale

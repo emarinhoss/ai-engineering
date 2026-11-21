@@ -6,7 +6,10 @@ Required before the package is final: G-1 (engine text) and G-2 (tail-height ban
 
 ## Owner rulings
 
-To be recorded as given (asked one at a time).
+| Question | Ruling |
+|---|---|
+| 1. Rotation sizes the tail | **Measure it first**: keep the rule and sizes; the ground-effect rotation check is the next Stage 3 item |
+| 2. Engine model bias | **5 % SFC allowance** in sizing (ledger `engine_sfc_allowance` 1.05) |
 
 ## Author's disposition
 

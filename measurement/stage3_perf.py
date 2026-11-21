@@ -61,7 +61,8 @@ def rebuild(design_path):
     L, _ = uav.load_ledger(ledger_path)
     L = dict(L, ht_volume_scale=d["ht_volume_scale"], cbhp_cruise=0.901, cbhp_loiter=0.901)
     # the engine table the record was made with, not necessarily the current one
-    eng = dict(CHOSEN_ENGINE, model=TableEngine(table_for_run(path.parent)))
+    eng = dict(CHOSEN_ENGINE, model=TableEngine(table_for_run(path.parent)).scaled(
+        sfc=L.get("engine_sfc_allowance", 1.0)))
     b = uav._build(d["W0_lb"], d["concept"], d["W_S"], d["A"], L, d["fuel_lb"], eng)
     check = {"fuel_lb": [d["fuel_lb"], b["fuel"]]}
     for k, v in d["power_required_hp"].items():
