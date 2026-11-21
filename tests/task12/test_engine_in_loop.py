@@ -43,7 +43,8 @@ def test_leg_speed_is_a_fuel_minimum_above_the_floor():
 
     def cost(v):
         shp = uav.perf.drag(W, S, alt["rho"], v, d["CD0_alt"], d["K"]) * v / (550.0 * L["eta_p"])
-        return m.bsfc(L["mission_altitude_ft"], v / KT, shp) * shp / v
+        # fuel per ground distance against the R19 headwind
+        return m.bsfc(L["mission_altitude_ft"], v / KT, shp) * shp / (v - L.get("headwind_kt", 0.0) * KT)
     assert cost(V) <= cost(V * 1.04) and (floored or cost(V) <= cost(V / 1.04))
 
 

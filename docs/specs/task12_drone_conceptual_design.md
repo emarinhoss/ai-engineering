@@ -88,6 +88,7 @@ confirms them:
 | R16 | Manoeuvre at loiter | sustained 30 deg banked turn (n = 1.155) at loiter speed and 20,000 ft | accepted at Gate A round 3 |
 | R17 | Speed floor | every mission leg at least 1.3 V_stall | Gate A round 3 ruling |
 | R18 | Design cruise speed | one V_C placard of 100 kt EAS at every altitude, enforced by the autopilot; structure and gusts sized at it (was 150 kt EAS at round 3) | Gate A round 4 ruling, Éder 2026-11-21 |
+| R19 | Wind | both 200 nm transit legs against a 25 kt headwind at 20,000 ft; the loiter is sized in still air | Gate A round 4 ruling, Éder 2026-11-21 |
 
 **The figures Éder was shown** (hand arithmetic during the questions, not a record): Raymer (3.4)
 with the single-engine fit and Table 3.4 turboprop values, an assumed L/D of 18 in cruise at 200 kt

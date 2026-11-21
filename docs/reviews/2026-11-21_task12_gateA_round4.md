@@ -16,6 +16,8 @@ To be recorded as they are given (questions asked one at a time).
 | 2. V_C | **One low placard**: a single V_C in EAS at every altitude, enforced by the autopilot; structure and gusts sized at it; value set from a run with a margin over the fastest mission leg |
 | 4. Robustness | **Stated margins**: installed power at most 95 % of the engine's, service ceiling at least 500 ft above R12, negative gust at least 0.1 g inside the limit; every trade and band end (with the engine table's SFC and power at +-10 %) run through the full compliance check and reported |
 | 5. What measures the engine in Stage 3 | **Declare and fix the model**: the engine rows are declared not independent (spec 7.1b); Stage 3 implements the variable-cp burner, re-runs the App. K validation with fixed tolerances and reports the change; the maker's part-power curve closes it when available |
+| 6. Concept (closing) | **Keep the pusher** (3,087 lb against the tractor's 2,778 lb before the wind ruling; score 4.10 against 3.95) |
+| 7. Wind (closing) | **Size for a 25 kt headwind** on both transit legs (R19); loiter in still air |
 | 3. Ceiling and V_C values (from option runs: lightest compliant pusher for ceilings 25,000 / 23,000 / 22,000 ft and 300 ft/min at 20,000 ft, each at 100 and 110 kt EAS) | **Service ceiling 23,000 ft; V_C 100 kt EAS.** Probe result at that setting: W/S 15, A 9, W0 3,054 lb, span 42.8 ft (to be confirmed by the recorded Stage 1 run) |
 
 ## 2. Actions

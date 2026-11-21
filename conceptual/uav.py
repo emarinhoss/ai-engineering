@@ -205,7 +205,10 @@ def _leg_speed(W, S, atm, h_ft, CD0, K, clmax_clean, L, mode, model, bhp):
         if shp > bhp * model.lapse(h_ft, Vi / KT):
             continue
         c = model.bsfc(h_ft, Vi / KT, shp)
-        cost = c * shp / (Vi if mode == "range" else 1.0)
+        vw = L.get("headwind_kt", 0.0) * KT if mode == "range" else 0.0
+        if Vi <= vw:
+            continue
+        cost = c * shp / (Vi - vw if mode == "range" else 1.0)     # fuel per ground distance or per time
         if best is None or cost < best[0]:
             best = (cost, Vi, i == 0, c)
     if best is None:
@@ -322,7 +325,12 @@ def _mission(W0, geom, A, e, L, bhp, clmax, model=None):
             q = 0.5 * alt["rho"] * V ** 2
             LD = sizing.lift_to_drag(q, CD0, W / S, A, e)
             if distance_ft:
-                f = sizing.cruise_fraction_prop(distance_ft / n, cbhp, L["eta_p"], LD)
+                # R19 headwind (Gate A round 4, Eder 2026-11-21): (6.12) is written in air distance;
+                # the ground leg needs air distance = ground distance x V/(V - V_wind)
+                vw = L.get("headwind_kt", 0.0) * KT
+                if V <= vw:
+                    raise ValueError("cruise speed below the headwind")
+                f = sizing.cruise_fraction_prop(distance_ft / n * V / (V - vw), cbhp, L["eta_p"], LD)
             else:
                 f = sizing.loiter_fraction_prop(time_s / n, V, cbhp, L["eta_p"], LD)
             W *= f
