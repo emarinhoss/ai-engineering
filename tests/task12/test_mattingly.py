@@ -46,3 +46,50 @@ def test_shaft_power_loading_matches_level_flight_power():
     hpw = m.shaft_power_loading(W_S, q, V, 1.0, 1.0, K1, 0.0, CD0, eta)
     D_W = q * CD0 / W_S + K1 * W_S / q
     assert hpw == pytest.approx(D_W * V / (550 * eta))
+
+
+# ---- take-off, worked example p. 41-43 -------------------------------------------------------
+RHO_2000FT_HOT = 0.002047
+
+
+def test_takeoff_example_coefficients_p43():
+    # (2.E1): a = k^2 beta^2/(rho g CLmax) = 10.93 (alpha T/W = 1) and b = t_R k sqrt(2 beta/(rho CLmax))
+    #         = 79.57, with k_TO 1.2, t_R 3 s, CLmax 2.0, rho 0.002047, g 32.17
+    a = m.takeoff_ground_roll_thrust_limited(1.0, RHO_2000FT_HOT, 2.0, 1.2, 1.0, g=32.17)
+    assert a == pytest.approx(10.93, abs=0.01)
+    V1 = m.takeoff_V(1.0, RHO_2000FT_HOT, 2.0, 1.2)                  # V_TO for W/S = 1: b = 3 V_TO
+    assert m.rotation_distance(V1, 3.0) == pytest.approx(79.57, abs=0.05)
+
+
+@pytest.mark.parametrize("tw, ws_printed", [(0.4, 27.3), (0.8, 47.9), (1.2, 64.9), (2.4, 104.0)])
+def test_takeoff_boundary_matrix_p43(tw, ws_printed):
+    # TR = 1.00 row of the printed matrix: alpha_wet 0.6885, s_TO = 1500 ft, solved by (2.E2)
+    alpha = 0.6885
+    a = 10.93 / (alpha * tw)
+    b, c = 79.57, 1500.0
+    ws = ((-b + math.sqrt(b ** 2 + 4.0 * a * c)) / (2.0 * a)) ** 2
+    assert ws == pytest.approx(ws_printed, rel=0.005)
+    # and the module's (2.22) + (2.26) give the same 1500 ft at that wing loading
+    s = (m.takeoff_ground_roll_thrust_limited(ws, RHO_2000FT_HOT, 2.0, 1.2, alpha * tw, g=32.17)
+         + m.rotation_distance(m.takeoff_V(ws, RHO_2000FT_HOT, 2.0, 1.2), 3.0))
+    assert s == pytest.approx(1500.0, rel=0.002)
+
+
+def test_ground_roll_225_tends_to_222():
+    # the book states (2.25) recovers (2.22) as xi -> 0 (p. 29): a consistency check, not a printed value
+    args = (50.0, 0.002377, 1.8, 1.2, 0.4)
+    full = m.takeoff_ground_roll(*args, mu=0.0, xi=1e-6)
+    assert full == pytest.approx(m.takeoff_ground_roll_thrust_limited(*args), rel=1e-4)
+
+
+def test_transition_needs_positive_n_minus_1():
+    with pytest.raises(ValueError):
+        m.transition_and_climb(100.0, 1.1, 0.1, 50.0)     # 0.8 (1.1)^2 - 1 < 0
+
+
+def test_takeoff_power_meets_field_and_is_monotone():
+    thrust_factory = lambda hp: (lambda V: min(0.8 * 550.0 * hp / max(V, 1.0), 12.0 * hp))
+    args = (3000.0, 200.0, 0.002377, 0.05, 0.06, 1.8)
+    hp = m.takeoff_power(2000.0, thrust_factory, *args)
+    assert m.takeoff_distance(*args, thrust_factory(hp))["total"] == pytest.approx(2000.0, abs=1.0)
+    assert m.takeoff_power(1500.0, thrust_factory, *args) > hp

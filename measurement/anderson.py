@@ -110,3 +110,94 @@ def max_turn_rate(K, W_S, rho, T_W, CD0, g=G):
 def corner_speed(n_max, W_S, rho, CL_max):
     """V* = sqrt(2 n_max (W/S)/(rho CL_max)) (6.54), p. 343."""
     return math.sqrt(2.0 * n_max / (rho * CL_max) * W_S)
+
+
+# ---- take-off and landing, ch. 6.7-6.8 ----------------------------------------------------------
+# Anderson gives no gust load factor relation in ch. 6 (the V-n section 6.5, p. 341-344, only names
+# gusts as a reason for the red-line limit), so there is no gust function here.
+def stall_speed(W_S, rho, CL_max):
+    """V_stall = sqrt(2 (W/S)/(rho CL_max)) (5.67), reprinted p. 362."""
+    return math.sqrt(2.0 * W_S / (rho * CL_max))
+
+
+def ground_effect_factor(h_over_b):
+    """G = (16 h/b)^2/(1 + (16 h/b)^2) (6.77), p. 357: induced drag in over out of ground effect."""
+    x = (16.0 * h_over_b) ** 2
+    return x / (1.0 + x)
+
+
+def gear_cd0_increment(W_S_si, mass_kg, K_uc):
+    """Delta C_D0 = (W/S) K_uc m^-0.215 (6.76), p. 357; W/S in N/m^2, m in kg."""
+    return W_S_si * K_uc * mass_kg ** -0.215
+
+
+def takeoff_ground_roll(K_T, K_A, V_LO, N, g=G):
+    """s_g = ln(1 + (K_A/K_T) V_LO^2)/(2 g K_A) + N V_LO (6.90), p. 361, with K_T = T/W - mu_r
+    (6.85) and K_A (6.86) taken constant; N = 3 s large, 1 s small aircraft."""
+    return math.log(1.0 + K_A / K_T * V_LO ** 2) / (2.0 * g * K_A) + N * V_LO
+
+
+def takeoff_K_A(W_S, rho, CD0_total, k_induced, CL_ground, mu_r):
+    """K_A = -rho/(2 W/S) [C_D0 + dC_D0 + (k1 + G/(pi e AR)) C_L^2 - mu_r C_L] (6.86), p. 360.
+    CD0_total includes the gear increment; k_induced is k1 + G k3 (equal to K out of ground effect)."""
+    return -rho / (2.0 * W_S) * (CD0_total + k_induced * CL_ground ** 2 - mu_r * CL_ground)
+
+
+def takeoff_airborne(V_stall, h_OB, g=G):
+    """Airborne distance over the obstacle: R = 6.96 V_stall^2/g (6.98), theta_OB = acos(1 - h/R)
+    (6.99), s_a = R sin(theta_OB) (6.100), p. 364. Returns (R, theta_OB, s_a)."""
+    R = 6.96 * V_stall ** 2 / g
+    theta = math.acos(1.0 - h_OB / R)
+    return R, theta, R * math.sin(theta)
+
+
+def takeoff_distance(W, S, rho, CD0_total, k_induced, CL_max, thrust_at_0p7_VLO, mu_r, CL_ground,
+                     h_OB=50.0, N=1.0, g=G):
+    """Total take-off distance s_g + s_a (Section 6.7, p. 364): V_LO = 1.1 V_stall (p. 359),
+    thrust taken at 0.7 V_LO (p. 360), ground roll (6.90), airborne (6.98)-(6.100)."""
+    W_S = W / S
+    V_s = stall_speed(W_S, rho, CL_max)
+    V_LO = 1.1 * V_s
+    K_T = thrust_at_0p7_VLO / W - mu_r                                  # (6.85)
+    K_A = takeoff_K_A(W_S, rho, CD0_total, k_induced, CL_ground, mu_r)
+    if K_T <= 0.0:
+        raise ValueError("thrust does not overcome rolling friction")
+    s_g = takeoff_ground_roll(K_T, K_A, V_LO, N, g)
+    R, theta, s_a = takeoff_airborne(V_s, h_OB, g)
+    return {"V_stall": V_s, "V_LO": V_LO, "ground_roll": s_g, "R": R, "theta_OB": theta,
+            "airborne": s_a, "total": s_g + s_a}
+
+
+def landing_approach(V_f, h_OB, theta_a, g=G):
+    """R = V_f^2/(0.2 g) (6.107), h_f = R (1 - cos theta_a) (6.106), s_a = (h_OB - h_f)/tan(theta_a)
+    (6.108), s_f = R sin(theta_a) (6.109), p. 369-370. Returns (R, h_f, s_a, s_f)."""
+    R = V_f ** 2 / (0.2 * g)
+    h_f = R * (1.0 - math.cos(theta_a))
+    return R, h_f, (h_OB - h_f) / math.tan(theta_a), R * math.sin(theta_a)
+
+
+def landing_K_J(W_S, rho, CD0_total, k_induced, CL_ground, mu_r, T_rev_over_W=0.0):
+    """J_T = T_rev/W + mu_r (6.113), J_A (6.114), p. 371. J_A is the bracket of (6.114) times
+    rho/(2 W/S), so it is negative when the braking friction term outweighs the drag terms (as in
+    Example 6.7, whose printed sign is flagged in the notes)."""
+    J_T = T_rev_over_W + mu_r
+    J_A = rho / (2.0 * W_S) * (CD0_total + k_induced * CL_ground ** 2 - mu_r * CL_ground)
+    return J_T, J_A
+
+
+def landing_ground_roll(J_T, J_A, V_TD, N, g=G):
+    """s_g = N V_TD + ln(1 + (J_A/J_T) V_TD^2)/(2 g J_A) (6.119), p. 372; N = free roll 1-3 s."""
+    return N * V_TD + math.log(1.0 + J_A / J_T * V_TD ** 2) / (2.0 * g * J_A)
+
+
+def landing_distance(W, S, rho, CD0_total, k_induced, CL_max, mu_r, CL_ground, theta_a,
+                     h_OB=50.0, N=2.0, j=1.15, V_f_over_stall=1.23, T_rev_over_W=0.0, g=G):
+    """Total landing distance s_a + s_f + s_g (Section 6.8, p. 367-372): approach at theta_a,
+    flare at 1.23 V_stall, touchdown V_TD = j V_stall (j = 1.15 commercial), then (6.119)."""
+    W_S = W / S
+    V_s = stall_speed(W_S, rho, CL_max)
+    R, h_f, s_a, s_f = landing_approach(V_f_over_stall * V_s, h_OB, theta_a, g)
+    J_T, J_A = landing_K_J(W_S, rho, CD0_total, k_induced, CL_ground, mu_r, T_rev_over_W)
+    s_g = landing_ground_roll(J_T, J_A, j * V_s, N, g)
+    return {"V_stall": V_s, "approach": s_a, "flare": s_f, "ground_roll": s_g, "R": R,
+            "h_f": h_f, "total": s_a + s_f + s_g}

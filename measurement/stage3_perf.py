@@ -136,11 +136,27 @@ def power_rows(d, L, b):
                         "CD0 at the climb-speed floor and the App. K lapse there are recomputed "
                         "with conceptual code (not in the record); the lapse is the engine "
                         "table's, an input shared with Stage 1."))
+    # take-off: smallest hp meeting the field length over 50 ft, by Mattingly's (2.22)-(2.30) route
+    hp_to = M.takeoff_power(
+        L["field_length_ft"], lambda hp: uav._thrust_fn(hp, L, b["D_prop"]), W0, S, RHO0,
+        b["CD0_takeoff"], K, b["clmax"]["takeoff"], mu=L["rolling_mu"], CL_ground=L["cl_ground"])
     out.append(make_row("power_takeoff", "installed power, take-off over 50 ft in the field length",
-                        "hp", rec["takeoff"], RECORD, None, "Mattingly (2.22) take-off", 0.05,
+                        "hp", rec["takeoff"], RECORD, hp_to if math.isfinite(hp_to) else None,
+                        "Mattingly (2.25) p. 29, (2.26)-(2.30) p. 30-31 (M.takeoff_power)", 0.05,
                         "relative",
-                        "not computed: measurement/mattingly.py has no (2.22) take-off relation, "
-                        "and (2.11) alone does not give a distance-based power."))
+                        f"Inputs: field length {L['field_length_ft']:.0f} ft, obstacle 50 ft, W0 and S "
+                        "from the record, take-off CD0 (clean + gear + take-off flap) from the "
+                        "rebuilt Stage 1 state, K from the record, take-off CL_max "
+                        f"{b['clmax']['takeoff']:.3f}, rolling mu {L['rolling_mu']} and ground CL "
+                        f"{L['cl_ground']} from the ledger, thrust from the same propeller thrust "
+                        "function Stage 1 used (shaft power, eta_p, static-thrust cap; a shared "
+                        "input), evaluated at 0.7 V_TO for the roll (Anderson's rule, p. 360; "
+                        "Mattingly states no speed). Differences from Stage 1: k_TO 1.2 (the book's "
+                        "value, p. 43; at 1.1 the factor 0.8 k^2 - 1 of (2.27) is negative) against "
+                        "Stage 1's V_TO = 1.1 V_stall, rotation time 1 s as Stage 1 (the book "
+                        "'normally' uses 3 s), transition arc at n = 0.8 k_TO^2 against Raymer's "
+                        "1.15 V_stall arc. Only the take-off weight's field-length use is checked, "
+                        "not the take-off fuel."))
     # sustained turn at loiter speed and altitude
     V = b["V_loiter_start"]
     phi = math.radians(L["turn_bank_deg"])
@@ -375,19 +391,49 @@ def vn_rows(d, L, b):
     out.append(make_row("gust_n", "gust load factors (V_C and V_D points)", "-",
                         d["n_gust"], RECORD, None, "Anderson ch. 6 gust relation", 0.05,
                         "relative",
-                        "not computed: measurement/anderson.py has no gust load factor relation."))
+                        "not computed: Anderson's chapter 6 has no gust load factor relation (the V-n section 6.5, "
+                        "p. 341-344, only names gusts as the reason for the red-line speed limit; "
+                        "searched the library notes for 'gust'). Raymer (14.x) is Stage 1's "
+                        "own source, so using it here would not be independent and is not "
+                        "substituted; a second source (Mattingly has none) is needed."))
     return out
 
 
-def field_rows(d):
+def field_rows(d, L, b):
+    """Take-off over 50 ft and landing over 50 ft, sea level ISA, by Anderson 6.7-6.8 with the
+    inputs Stage 1 used: W0, S, K, take-off and landing CD0 (rebuilt Stage 1 state, gear and flap
+    included), CL_max take-off and landing, rolling mu, braking mu, ground CL and free-roll time
+    (ledger), thrust function (shared). Ground effect is not applied (G = 1, k_induced = K; the
+    lift-dependent roll drag is under 2 % of the total, Example 6.6); idle thrust zero as Stage 1."""
     p = d["performance"]
-    why = ("not computed: measurement/anderson.py has no ground-roll or landing relation "
-           "((6.95) p. 393 is not implemented).")
+    W0, S, K = d["W0_lb"], b["geom"]["S"], d["K"]
+    thrust = uav._thrust_fn(b["bhp"], L, b["D_prop"])
+    V_lo = 1.1 * A.stall_speed(W0 / S, RHO0, b["clmax"]["takeoff"])
+    to = A.takeoff_distance(W0, S, RHO0, b["CD0_takeoff"], K, b["clmax"]["takeoff"],
+                            thrust(0.7 * V_lo), L["rolling_mu"], L["cl_ground"], h_OB=50.0, N=1.0)
+    ld = A.landing_distance(W0, S, RHO0, b["CD0_landing"], K, b["clmax"]["landing"], L["braking_mu"],
+                            L["cl_ground"], perf.APPROACH_GAMMA, h_OB=50.0, N=L["free_roll_s"])
     return [make_row("takeoff_distance", "take-off distance over 50 ft, sea level", "ft",
-                     p["takeoff_ft"], RECORD, None, "Anderson (6.95) p. 393", 0.15, "relative", why),
+                     p["takeoff_ft"], RECORD, to["total"],
+                     "Anderson (6.90) p. 361, (6.98)-(6.100) p. 364", 0.15, "relative",
+                     f"Ground roll {to['ground_roll']:.0f} ft (with N = 1 s rotation, V_LO = 1.1 "
+                     f"V_stall, thrust at 0.7 V_LO from the shared propeller thrust function) plus "
+                     f"airborne {to['airborne']:.0f} ft (n = 1.19 arc). Stage 1 (Raymer 17.8): "
+                     f"{p['takeoff']['ground_roll']:.0f} ft roll, {p['takeoff']['rotation']:.0f} "
+                     f"rotation, {p['takeoff']['transition'] + p['takeoff']['climb']:.0f} airborne. "
+                     "Inputs as listed in field_rows: W0, S, K, take-off CD0, take-off CL_max, "
+                     "rolling mu, ground CL (ledger)."),
             make_row("landing_distance", "landing distance over 50 ft, sea level", "ft",
-                     p["landing_ft"], RECORD, None, "Anderson ch. 6 landing", 0.15, "relative",
-                     why)]
+                     p["landing_ft"], RECORD, ld["total"],
+                     "Anderson (6.104)-(6.109) p. 369-370, (6.119) p. 372", 0.15, "relative",
+                     f"Approach+flare {ld['approach'] + ld['flare']:.0f} ft (3 deg approach, flare "
+                     f"at 1.23 V_stall), ground roll incl. {L['free_roll_s']:.0f} s free roll "
+                     f"{ld['ground_roll']:.0f} ft (V_TD 1.15 V_stall, braking mu {L['braking_mu']}, "
+                     "idle thrust zero). Inputs: W0, S, K, landing CD0, landing CL_max, braking mu, "
+                     "ground CL, free-roll time (ledger). Anderson's approach and flare relations "
+                     "are the same speeds and geometry as Raymer's, so this is a coding and "
+                     "arithmetic cross-check on those segments."),
+            ]
 
 
 def stability_rows(d):
@@ -449,7 +495,7 @@ def compute(design_path):
                          "reading of a chart. Stage 1's CD0 includes engine, sensor and gear "
                          "terms the equivalent-skin-friction method has no separate place for."))
     rows += speed_rows(d, L, b)
-    rows += field_rows(d)
+    rows += field_rows(d, L, b)
     rows += vn_rows(d, L, b)
     rows += stability_rows(d)
     return {"rows": rows, "mission_legs": legs, "anderson_w0": aw, "cd0_detail": cd0,

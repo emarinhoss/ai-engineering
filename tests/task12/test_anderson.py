@@ -1,4 +1,6 @@
 """Anderson, Aircraft Performance and Design: Stage 3 methods against printed values."""
+import math
+
 import pytest
 
 from measurement import anderson as a
@@ -64,3 +66,59 @@ def test_endurance_169_matches_integral():
         W = W1 + (W0 - W1) * (i + 0.5) / n
         tot += eta / c * math.sqrt(rho * S / 2) * k * W ** -1.5 * (W0 - W1) / n
     assert a.endurance_s(eta, c, rho, S, k, W0, W1) == pytest.approx(tot, rel=1e-6)
+
+
+# ---- take-off and landing, Examples 6.6 and 6.7 (p. 364-375) ---------------------------------
+def test_ground_effect_factor_p365():
+    assert a.ground_effect_factor(5.6 / 75.0) == pytest.approx(0.588, abs=0.001)    # (6.77)
+
+
+def test_gear_increment_p365():
+    ws_si = 73000 * 4.448 / (950 * 0.3048 ** 2)
+    assert ws_si == pytest.approx(3679, abs=2)
+    assert a.gear_cd0_increment(ws_si, 73000 * 0.4536, 4.5e-5) == pytest.approx(0.0177, abs=0.0002)
+
+
+def test_takeoff_example_66_p365_367():
+    # Gulfstream-like: W 73,000 lb, W/S 76.84, CLmax 1.86, mu_r 0.04, 35-ft obstacle, N = 3 s
+    V_s = a.stall_speed(76.84, 0.002377, 1.86)
+    assert V_s == pytest.approx(186.4, abs=0.1)
+    V_LO = 1.1 * V_s
+    K_T = 24875.0 / 73000.0 - 0.04
+    assert K_T == pytest.approx(0.301, abs=0.001)
+    # printed K_A, from the printed bracket 0.015 + 0.0177 + [0.02 + 0.588/(pi 0.9 5.92)] 0.01 - 0.004
+    k_ind = 0.02 + 0.588 / (math.pi * 0.9 * 5.92)
+    K_A = a.takeoff_K_A(76.84, 0.002377, 0.015 + 0.0177, k_ind, 0.1, 0.04)
+    assert K_A == pytest.approx(-4.525e-7, rel=0.01)                                  # (6.86)
+    s_g = a.takeoff_ground_roll(K_T, K_A, V_LO, 3.0, g=32.2)
+    assert s_g == pytest.approx(2857, abs=5)                                          # (6.90)
+    R, theta, s_a = a.takeoff_airborne(V_s, 35.0, g=32.2)
+    assert R == pytest.approx(7510, abs=10)
+    assert math.degrees(theta) == pytest.approx(5.534, abs=0.01)
+    assert s_a == pytest.approx(724, abs=2)
+    assert s_g + s_a == pytest.approx(3581, abs=8)
+
+
+def test_landing_example_67_p374_375():
+    V_s = a.stall_speed(76.84, 0.002377, 2.39)
+    assert V_s == pytest.approx(164.5, abs=0.1)
+    R, h_f, s_a, s_f = a.landing_approach(1.23 * V_s, 50.0, math.radians(3.0), g=32.2)
+    assert R == pytest.approx(6354.9, abs=5)
+    assert h_f == pytest.approx(8.71, abs=0.02)
+    assert s_a == pytest.approx(788, abs=2)
+    assert s_f == pytest.approx(333, abs=1)
+    k_ind = 0.02 + 0.588 / (math.pi * 0.9 * 5.92)
+    J_T, J_A = a.landing_K_J(76.84, 0.002377, 0.015 + 0.0124, k_ind, 0.1, 0.4)
+    assert J_T == pytest.approx(0.4)
+    # the book prints +1.864e-7; its bracket is negative, so the sign is minus (flagged in the notes)
+    assert J_A == pytest.approx(-1.864e-7, rel=0.01)
+    s_g = a.landing_ground_roll(J_T, J_A, 1.15 * V_s, 3.0, g=32.2)
+    assert s_g == pytest.approx(1969, abs=5)                                          # (6.119)
+    assert s_a + s_f + s_g == pytest.approx(3090, abs=8)
+
+
+def test_takeoff_and_landing_totals_run():
+    t = a.takeoff_distance(3000.0, 200.0, 0.002377, 0.05, 0.06, 1.8, 600.0, 0.03, 0.1)
+    assert t["total"] == pytest.approx(t["ground_roll"] + t["airborne"])
+    ld = a.landing_distance(3000.0, 200.0, 0.002377, 0.05, 0.06, 2.1, 0.5, 0.1, math.radians(3.0))
+    assert ld["total"] > ld["approach"]
