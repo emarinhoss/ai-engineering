@@ -387,8 +387,10 @@ def _build(W0, concept, W_S, A, L, fuel_guess, engine=None):
         lo = L["climb_speed_over_stall"] * perf.stall_speed(W_S, atm["rho"], clmax["clean"])
         vmax = _vmax_consistent(W0, S, geom, L, atm, h, K, bhp, model, lo)
         v_c_eas[label] = (vmax or lo) * math.sqrt(atm["sigma"])
-        if L.get("vc_placard_kt_eas"):                           # Gate A: optional V_C placard
-            v_c_eas[label] = min(v_c_eas[label], L["vc_placard_kt_eas"] * KT)
+        if L.get("vc_placard_kt_eas"):
+            # R18 (Gate A round 4 ruling, Eder 2026-11-21): one V_C placard in EAS at every
+            # altitude, enforced by the autopilot; the structure and gusts are sized at it
+            v_c_eas[label] = L["vc_placard_kt_eas"] * KT
     W_zf = W0 - fuel_guess
     gusts = {}
     for label, atm in (("sea_level", sl), ("mission_altitude", alt)):
