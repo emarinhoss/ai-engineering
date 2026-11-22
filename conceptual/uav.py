@@ -353,7 +353,7 @@ def _mission(W0, geom, A, e, L, bhp, clmax, model=None):
     return fuel, rows
 
 
-def _build(W0, concept, W_S, A, L, fuel_guess, engine=None):
+def _build(W0, concept, W_S, A, L, fuel_guess, engine=None, mission=True):
     """Everything that depends on W0 at one guess. engine: None for a rubber engine (power from
     the binding requirement, weight from Table 10.4), or {"bhp", "weight_lb"} for a fixed engine
     (Raymer 6.3, p. 108-109)."""
@@ -454,7 +454,9 @@ def _build(W0, concept, W_S, A, L, fuel_guess, engine=None):
         "electrical": wts.electrical(W_fs, W_av),
     }
     We = sum(comp.values())
-    fuel, rows = _mission(W0, geom, A, e, L, bhp, clmax, model)
+    # mission=False skips the mission (fuel stays fuel_guess): for field-length studies of a built
+    # aircraft where a member of the uncertainty set cannot fly the transit (info-gap review IG-5)
+    fuel, rows = _mission(W0, geom, A, e, L, bhp, clmax, model) if mission else (fuel_guess, [])
     return {"geom": geom, "e": e, "K": K, "clmax": clmax, "bhp": bhp, "power_req": req, "engine_model": model,
             "D_prop": D_prop, "gear_length_in": gear_in, "gear_drag_area": gear_dq,
             "engine": eng, "CLa": CLa, "gusts": gusts, "n_gust": n_gust, "n_limit": n_limit,

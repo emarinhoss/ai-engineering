@@ -10,7 +10,11 @@ and will be regenerated after the corrected search (IG-1, IG-3) and the owner's 
 
 ## Owner rulings
 
-To be recorded as given.
+| Question | Ruling (Éder, 2026-11-22) |
+|---|---|
+| 1. Unflyable transit inside U(h) | **A mission failure (0 h); back to Stage 1 for power margin**, chosen from runs so the restated R5 guarantee passes the corrected search |
+| 2. Empty weight | **Uncertain: band it** - the build-up's variation feeds W0 = We(theta) + payload + fuel in the study |
+| 3. Headwind strength and Oswald e | **Kept out of the horizon**, listed as exclusions in the Gate B report |
 
 ## Independent review (verbatim)
 
