@@ -58,10 +58,14 @@ class TableEngine:
         self.crit = t["critical_pressure_ratio"]
         self.hp_ratio = t["hp_turbine_pressure_ratio"]
 
-    def scaled(self, sfc=1.0, power=1.0):
-        """A copy with every SFC and every full-throttle power multiplied (band-end trades)."""
+    def scaled(self, sfc=1.0, power=1.0, rerate=False):
+        """A copy with every SFC and every full-throttle power multiplied. rerate=False (band-end
+        trades): the engine keeps its rating, so the lapse moves with the power. rerate=True
+        (photo-scaled engine of another size): the rating scales with the power, so the lapse and
+        the part-power SFC curve are unchanged; the engine's bhp must then be the scaled rating."""
         out = copy.copy(self)
         out.sfc_scale, out.power_scale = self.sfc_scale * sfc, self.power_scale * power
+        out.rating_scale = getattr(self, "rating_scale", 1.0) * (power if rerate else 1.0)
         return out
 
     def power_available(self, h_ft, V_kt):
@@ -80,7 +84,7 @@ class TableEngine:
 
     def lapse(self, h_ft, V_kt):
         """Full-throttle power over the rated sea-level value."""
-        return self.power_available(h_ft, V_kt) / self.rated
+        return self.power_available(h_ft, V_kt) / (self.rated * getattr(self, "rating_scale", 1.0))
 
     def bsfc(self, h_ft, V_kt, shp):
         """Shaft SFC, lb/(hp h), at a shaft power. Raises ValueError above full throttle; below the

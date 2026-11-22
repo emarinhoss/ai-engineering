@@ -215,8 +215,9 @@ class Built:
         L.update({k: v for k, v in theta.items() if k not in ENGINE_VARS})
         if loiter_h is not None:
             L["loiter_h"] = loiter_h
-        model = self.base_engine.scaled(sfc=self.allowance * theta.get("engine_sfc_mult", 1.0),
-                                        power=self.engine_scale * theta.get("engine_power_mult", 1.0))
+        model = (self.base_engine.scaled(power=self.engine_scale, rerate=True)      # the record's engine size
+                 .scaled(sfc=self.allowance * theta.get("engine_sfc_mult", 1.0),
+                         power=theta.get("engine_power_mult", 1.0)))                 # band end
         eng = dict(self.engine_spec, model=model)
         d = self.d
         if W0 is None:

@@ -67,3 +67,13 @@ def test_mission_records_sfc_and_turbine_validity():
     d, _ = _design()
     loiter = next(m for m in d["mission"] if m[0] == "loiter")
     assert 0.8 < loiter[5] < 2.0 and 0.0 <= loiter[6] <= 1.0
+
+
+def test_photo_scaled_engine_keeps_lapse_and_sfc_shape():
+    big = ENG.scaled(power=260.0 / 241.0, rerate=True)
+    assert big.lapse(20000.0, 95.0) == pytest.approx(ENG.lapse(20000.0, 95.0), rel=1e-12)
+    assert big.power_available(20000.0, 95.0) == pytest.approx(260.0 / 241.0 * ENG.power_available(20000.0, 95.0))
+    p = 0.5 * ENG.power_available(20000.0, 95.0)
+    assert big.bsfc(20000.0, 95.0, p * 260.0 / 241.0) == pytest.approx(ENG.bsfc(20000.0, 95.0, p), rel=1e-12)
+    # a band-end multiplier (no rerate) moves the lapse with the power
+    assert ENG.scaled(power=0.9).lapse(20000.0, 95.0) == pytest.approx(0.9 * ENG.lapse(20000.0, 95.0))

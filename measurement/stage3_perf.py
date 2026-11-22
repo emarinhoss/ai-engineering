@@ -57,7 +57,7 @@ def record_engine(d, table_path, sfc_allowance=1.0):
     the record's engine weight."""
     bhp = float(d.get("bhp_sl", CHOSEN_ENGINE["bhp"]))
     weight = float(d.get("engine", {}).get("weight_lb", CHOSEN_ENGINE["weight_lb"]))
-    model = TableEngine(table_path).scaled(sfc=sfc_allowance, power=bhp / CHOSEN_ENGINE["bhp"])
+    model = TableEngine(table_path).scaled(sfc=sfc_allowance, power=bhp / CHOSEN_ENGINE["bhp"], rerate=True)
     return dict(CHOSEN_ENGINE, bhp=bhp, weight_lb=weight, model=model)
 
 

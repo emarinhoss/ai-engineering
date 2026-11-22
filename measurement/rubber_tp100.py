@@ -31,7 +31,8 @@ def scaled_engine(P, L):
     base = stage1.engine_options()[0][stage1.CHOSEN_ENGINE]
     w = turboprop_scaled({"weight_lb": base["weight_lb"], "length_in": 0.0, "diameter_in": 0.0},
                          base["bhp"], P)["weight_lb"]
-    model = TableEngine(TP100_TABLE).scaled(sfc=L.get("engine_sfc_allowance", 1.0), power=P / base["bhp"])
+    model = TableEngine(TP100_TABLE).scaled(sfc=L.get("engine_sfc_allowance", 1.0), power=P / base["bhp"],
+                                            rerate=True)
     return dict(base, name=f"TP100 scaled to {P:g} hp", bhp=P, weight_lb=w, model=model)
 
 
