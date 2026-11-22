@@ -51,6 +51,16 @@ def sha256(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
+def record_engine(d, table_path, sfc_allowance=1.0):
+    """The engine a record was sized with: the TP100 table scaled to the record's rated power
+    (a photo-scaled TP100 when the record's bhp differs from 241; power scale 1 otherwise), with
+    the record's engine weight."""
+    bhp = float(d.get("bhp_sl", CHOSEN_ENGINE["bhp"]))
+    weight = float(d.get("engine", {}).get("weight_lb", CHOSEN_ENGINE["weight_lb"]))
+    model = TableEngine(table_path).scaled(sfc=sfc_allowance, power=bhp / CHOSEN_ENGINE["bhp"])
+    return dict(CHOSEN_ENGINE, bhp=bhp, weight_lb=weight, model=model)
+
+
 def rebuild(design_path):
     """Record, ledger values (with the record's tail scale and the engine's datasheet SFC, as
     uav.evaluate does) and the rebuilt Stage 1 state at the record's W0. Raises if the rebuild
@@ -61,8 +71,7 @@ def rebuild(design_path):
     L, _ = uav.load_ledger(ledger_path)
     L = dict(L, ht_volume_scale=d["ht_volume_scale"], cbhp_cruise=0.901, cbhp_loiter=0.901)
     # the engine table the record was made with, not necessarily the current one
-    eng = dict(CHOSEN_ENGINE, model=TableEngine(table_for_run(path.parent)).scaled(
-        sfc=L.get("engine_sfc_allowance", 1.0)))
+    eng = record_engine(d, table_for_run(path.parent), L.get("engine_sfc_allowance", 1.0))
     b = uav._build(d["W0_lb"], d["concept"], d["W_S"], d["A"], L, d["fuel_lb"], eng)
     check = {"fuel_lb": [d["fuel_lb"], b["fuel"]]}
     for k, v in d["power_required_hp"].items():

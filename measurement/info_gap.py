@@ -181,6 +181,10 @@ class Built:
         self.band_weight = band_weight
         self.d, self.L, b, self.ledger_path, self.check = sp.rebuild(design_path)
         self.base_engine = TableEngine(table_for_run(self.path.parent))
+        # the record's engine: rated power and weight (a photo-scaled TP100 if bhp is not 241)
+        self.engine_scale = float(self.d.get("bhp_sl", sp.CHOSEN_ENGINE["bhp"])) / sp.CHOSEN_ENGINE["bhp"]
+        self.engine_spec = {k: v for k, v in sp.record_engine(self.d, table_for_run(self.path.parent)).items()
+                            if k != "model"}
         self.allowance = self.L.get("engine_sfc_allowance", 1.0)
         self.nominal_state = b
         self.S_record = self.d["W0_lb"] / self.d["W_S"]       # wing area is the record's
@@ -212,8 +216,8 @@ class Built:
         if loiter_h is not None:
             L["loiter_h"] = loiter_h
         model = self.base_engine.scaled(sfc=self.allowance * theta.get("engine_sfc_mult", 1.0),
-                                        power=theta.get("engine_power_mult", 1.0))
-        eng = dict(sp.CHOSEN_ENGINE, model=model)
+                                        power=self.engine_scale * theta.get("engine_power_mult", 1.0))
+        eng = dict(self.engine_spec, model=model)
         d = self.d
         if W0 is None:
             W0 = self.w0_for(theta)
