@@ -20,7 +20,8 @@ The aircraft is built: W0, wing loading, aspect ratio, tail scale and fuel load 
 
 | Requirement | h_hat | Status | Meets Gate B (>= 1) |
 |---|---|---|---|
-| R5, 8 h on station | 0.0000 | zero margin: fails at the first step above h = 0 | no |
+| R5, 8 h on station (nominal requirement; zero robustness by construction) | 0.0000 | zero margin: fails at the first step above h = 0 | no |
+| R5 as restated at Gate B: at least 3.5 h on station | 1.0615 | bracketed | yes |
 | R7 take-off | 1.6972 | bracketed | yes |
 | R7 landing | 1.9431 | bracketed | yes |
 | R7 combined (min) | 1.6972 | min of take-off and landing | yes |
@@ -113,4 +114,4 @@ At h = 1: 0 variables clipped. At h = 3: 13: takeoff_flap_fraction (upper), lami
 
 ## Record
 
-Design sha256 `1b416bf8f552478c...`, ledger sha256 `cd522f2fa3c6d4dd...`, git commit `d2f0c7e34fcd678c4976b2a42453b2e770c77c64`, Python 3.13.18, numpy 2.5.3, 4 CPUs, runtime 67 s.
+Design sha256 `1b416bf8f552478c...`, ledger sha256 `cd522f2fa3c6d4dd...`, git commit `06a9ab4d4444a5bd45e65dfa5e9e64fabd70526f`, Python 3.13.18, numpy 2.5.3, 4 CPUs, runtime 52 s.
