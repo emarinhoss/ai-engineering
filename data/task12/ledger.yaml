@@ -8,6 +8,7 @@ requirements:
   payload_lb:            {value: 500.0, units: lb, confidence: requirement, source: "R4, Eder 2026-11-20 (Q4)"}
   radius_nm:             {value: 200.0, units: nm, confidence: requirement, source: "R5, Eder 2026-11-20 (Q5): 200 nm out and 200 nm back"}
   loiter_h:              {value: 8.0, units: h, confidence: requirement, source: "R5, Eder 2026-11-20 (Q5): 8 h on station"}
+  r5_robust_hours:       {value: 3.5, units: h, confidence: requirement, source: "R5 as restated at Gate B (Eder 2026-11-22): 8 h on station at nominal values, and at least 3.5 h for every combination of the uncertain quantities within their ledger bands (info-gap horizon h = 1, DMDU (10.7)-(10.8)); measured worst case 3.75 h on the 2026-11-21f aircraft"}
   headwind_kt:           {value: 25.0, units: kt, confidence: requirement, source: "R19, Gate A round 4 (Eder 2026-11-21): both 200 nm transit legs flown against a 25 kt headwind at 20,000 ft (loiter in still air)"}
   mission_altitude_ft:   {value: 20000.0, units: ft, confidence: requirement, source: "R6, Eder 2026-11-20 (Q6), ISA"}
   field_length_ft:       {value: 2500.0, units: ft, confidence: requirement, source: "R7, Eder 2026-11-20 (Q7): take-off and landing over 50 ft, sea level ISA"}

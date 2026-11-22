@@ -68,7 +68,7 @@ decides whether preliminary design proper is worth starting.
 | R2 | Engines | one | Q2 (one / two) |
 | R3 | Engine selection | rubber-engine sizing first, then the nearest real turboprop and a fixed-engine re-size | Q3 (rubber then real / fixed PT6A-42 / own cycle design) |
 | R4 | Payload | 500 lb, mission equipment only (flight avionics are part of the empty weight) | Q4 (200 / 500 / 1,000 lb) |
-| R5 | Mission | take-off; climb to 20,000 ft; cruise 200 nm out; loiter 8 h on station; cruise 200 nm back; descend; land | Q5 (200 nm + 8 h / 12 h loiter / 16 h loiter / 200 nm + 10 h) |
+| R5 | Mission | take-off; climb to 20,000 ft; cruise 200 nm out; loiter 8 h on station; cruise 200 nm back; descend; land. **Restated at Gate B (Éder 2026-11-22):** 8 h on station at nominal values, and at least 3.5 h on station for every combination of the uncertain quantities within their ledger bands (info-gap horizon h = 1) | Q5; Gate B ruling |
 | R6 | Cruise and loiter altitude | 20,000 ft, ISA | Q6 (20,000 / 25,000 / 10,000 ft) |
 | R7 | Take-off and landing | paved runway, at most 2,500 ft over a 50 ft obstacle, sea level ISA; stall at most 70 kt clean | Q7 (runway with retractable gear / runway with fixed gear / catapult) |
 | R8 | Landing gear | retractable tricycle | Q7 |
@@ -262,7 +262,8 @@ design returns to Stage 1.
 | V-n points and gust load factors | ±5 % | same relations by a second source |
 
 Gate B robustness threshold (section 7.4): info-gap horizon at least 1 (the ledger's own bands)
-at R5 and R7.
+at R7 and at R5's robust endurance (3.5 h, as restated at Gate B on 2026-11-22; the 8 h nominal
+has zero info-gap robustness by construction, since the fuel is sized for it).
 
 ### 7.1b Engine rows after the return to Stage 1 (Gate A round 4 ruling 5, Éder 2026-11-21)
 

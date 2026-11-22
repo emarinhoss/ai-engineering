@@ -245,11 +245,13 @@ def _job(args):
         h = args[5]
         hrs, to, ld = worst(h)
         return {"R5": hrs, "TO": to, "LD": ld}[req]
-    # kind == "hhat"
+    # kind == "hhat"; an optional sixth argument is the hours to hold (default R5's 8 h)
+    hours_needed = args[5] if len(args) > 5 else R5_HOURS
+
     def met(h):
         if req == "R5":
             return _BUILT.hours_on_station(corner_theta(variables, h, direction[req]),
-                                           fuel_factor) >= R5_HOURS - R5_SLACK_H
+                                           fuel_factor) >= hours_needed - R5_SLACK_H
         _, to, ld = worst(h)
         return {"TO": to, "LD": ld}[req] <= _BUILT.L["field_length_ft"]
     return robustness(met)
@@ -364,9 +366,17 @@ def study(design_path, n_samples=N_SAMPLES, seed=SEED, processes=None):
         res["directions"] = dirs
         jobs = [("hhat", variables, dirs, req, 1.0) for req in ("R5", "TO", "LD")]
         jobs.append(("hhat", variables, dirs, "R5", sizing.RESERVE_FACTOR))
+        # R5 as restated at Gate B (Eder 2026-11-22): 8 h nominal, and at least the ledger's
+        # robust endurance (3.5 h) for every member of U(h); Gate B needs h_hat >= 1 for this
+        # the record's ledger copy predates the ruling, so the current ledger supplies it
+        guarantee = built.L.get("r5_robust_hours") or uav.load_ledger()[0].get("r5_robust_hours")
+        if guarantee:
+            jobs.append(("hhat", variables, dirs, "R5", 1.0, guarantee))
         hh = pool.map(_job, jobs, chunksize=1)
-        names = ("R5", "TO", "LD", "R5_reserve_usable")
+        names = ("R5", "TO", "LD", "R5_reserve_usable", "R5_guarantee")[:len(hh)]
         res["h_hat"] = {n: {"h_hat": r[0], "status": r[1]} for n, r in zip(names, hh)}
+        if guarantee:
+            res["h_hat"]["R5_guarantee"]["hours"] = guarantee
         r7 = min(hh[1][0], hh[2][0])
         res["h_hat"]["R7"] = {"h_hat": r7, "status": "min of take-off and landing"}
         curve = pool.map(_job, [("worst", variables, dirs, req, None, h)
@@ -466,7 +476,10 @@ def report_text(res):
          f"| Landing over 50 ft (ft) | {g(rec['landing_ft'], '.2f')} | {g(nom['landing_ft'], '.2f')} |", "",
          "## Robustness against the Gate B threshold (h = 1)", "",
          "| Requirement | h_hat | Status | Meets Gate B (>= 1) |", "|---|---|---|---|",
-         hrow("R5, 8 h on station", "R5", ""), hrow("R7 take-off", "TO", ""),
+         hrow("R5, 8 h on station (nominal requirement; zero robustness by construction)", "R5", ""),
+         *([hrow(f"R5 as restated at Gate B: at least {g(hh['R5_guarantee']['hours'])} h on station", "R5_guarantee", "")]
+           if "R5_guarantee" in hh else []),
+         hrow("R7 take-off", "TO", ""),
          hrow("R7 landing", "LD", ""), hrow("R7 combined (min)", "R7", ""), "",
          "Secondary, not the requirement: R5 if the 6 % reserve could be burned as well (target fuel = "
          f"{g(sizing.RESERVE_FACTOR)} x the record's): h_hat = {g(hh['R5_reserve_usable']['h_hat'], '.4f')} "
