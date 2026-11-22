@@ -1,4 +1,5 @@
 """Info-gap robustness (measurement/info_gap.py): fast checks, no full run."""
+import math
 from pathlib import Path
 
 import pytest
@@ -73,8 +74,9 @@ def test_r5_nominal_reproduces_eight_hours_and_the_record_fields(built, variable
     th = ig.nominal_theta(variables)
     assert built.hours_on_station(th) == pytest.approx(8.0, abs=0.01)
     to, ld = built.field_lengths(th)
-    assert to == pytest.approx(built.d["performance"]["takeoff_ft"], rel=1e-9)
-    assert ld == pytest.approx(built.d["performance"]["landing_ft"], rel=1e-9)
+    # the weight fixed point reproduces the record's W0 to 0.002 lb, hence rel 1e-5 here
+    assert to == pytest.approx(built.d["performance"]["takeoff_ft"], rel=1e-5)
+    assert ld == pytest.approx(built.d["performance"]["landing_ft"], rel=1e-5)
 
 
 def test_a_worse_engine_loses_hours_and_a_weaker_one_lengthens_take_off(built, variables):
@@ -89,3 +91,88 @@ def test_harm_direction():
     assert ig.harm_direction(8.0, 7.0, 8.5, True) == -1      # lower end loses hours
     assert ig.harm_direction(700.0, 700.0, 800.0, False) == 1
     assert ig.harm_direction(8.0, 8.0, 9.0, True) == 0       # neither end is harmful
+
+
+# ---- worst-case search (review IG-1 to IG-3) --------------------------------------------------------
+def _toy_variables():
+    return [{"name": n, "nominal": 0.0, "w_lower": 1.0, "w_upper": 1.0, "clip_lo": -9.0, "clip_hi": 9.0}
+            for n in ("a", "b")]
+
+
+def test_coordinate_search_finds_an_interaction_the_one_at_a_time_corner_misses():
+    # score = a b - 0.1 a: alone, a at its lower end is worse (0.1) and b does nothing, so the
+    # one-at-a-time corner is (a, b) = (-1, 0). The worst point is (-1, -1): 1.1.
+    def score(th):
+        return th["a"] * th["b"] - 0.1 * th["a"], None
+    variables = _toy_variables()
+    nominal = ig.nominal_theta(variables)
+    dirs = {n: ig.harm_direction(0.0, score(dict(nominal, **{n: -1.0}))[0], score(dict(nominal, **{n: 1.0}))[0], False)
+            for n in ("a", "b")}
+    assert dirs == {"a": -1, "b": 0}
+    start = ig.corner_theta(variables, 1.0, dirs)
+    assert score(start)[0] == pytest.approx(0.1)
+    res = ig.coordinate_search(score, variables, 1.0, start)
+    assert res["value"] == pytest.approx(1.1) and res["theta"] == {"a": -1.0, "b": -1.0}
+    # a limit stops the search at the first violation
+    res = ig.coordinate_search(score, variables, 1.0, start, limit=0.5)
+    assert res["stopped_at_violation"] and res["value"] > 0.5
+
+
+def test_interior_scan_finds_a_worst_point_between_the_ends():
+    def score(th):
+        return -(th["a"] - 0.4) ** 2, None                  # worst (largest) at a = 0.4, not at an end
+    variables = _toy_variables()
+    res = ig.coordinate_search(score, variables, 1.0, ig.nominal_theta(variables), n_interior=9)
+    assert res["theta"]["a"] == pytest.approx(0.4) and res["value"] == pytest.approx(0.0, abs=1e-12)
+
+
+def test_unknown_value_errors_are_reraised_and_known_ones_recorded():
+    assert "no speed on the leg" in ig.unflyable_reason(ValueError("no speed on the leg within the engine's power"))
+    with pytest.raises(ValueError, match="missing"):
+        try:
+            raise ValueError("x: missing value")
+        except ValueError as e:
+            ig.unflyable_reason(e)
+
+
+def test_w0_fixed_point_reproduces_the_record_at_nominal_and_responds_to_weight(built, variables):
+    th = ig.nominal_theta(variables)
+    assert built.w0_for(th) == pytest.approx(built.d["W0_lb"], abs=0.1)
+    heavier = dict(th, avionics_uninstalled_lb=th["avionics_uninstalled_lb"] + 50.0)
+    assert built.w0_for(heavier) > built.d["W0_lb"] + 40.0
+    fixed = ig.Built(DESIGN, band_weight=False)
+    assert fixed.w0_for(heavier) == fixed.d["W0_lb"]
+
+
+def test_reviewer_case_record_r5_corner_with_low_power_is_unflyable_and_the_search_finds_it(variables):
+    # IG-1: the corner of U(1) that is harmful one variable at a time (high power) is flyable; with
+    # engine power at its lower end the 20,000 ft transit cannot be flown (0 h)
+    built = ig.Built(DESIGN, band_weight=False)               # the record's weight, as the reviewer
+    spec = {"req": "R5", "need": 3.5, "fuel_factor": 1.0}
+    score = ig.make_score(built, spec)
+    nominal = ig.nominal_theta(variables)
+    dirs = {}
+    for v in variables:
+        lo, hi, _, _ = ig.bounds(v, 1.0)
+        dirs[v["name"]] = ig.harm_direction(0.0, score(dict(nominal, **{v["name"]: lo}))[0],
+                                            score(dict(nominal, **{v["name"]: hi}))[0], False)
+    assert dirs["engine_power_mult"] == 1                    # one at a time, high power looks harmful
+    start = ig.corner_theta(variables, 1.0, dirs)
+    assert built.hours_on_station(start) > 3.0               # the one-at-a-time corner is flyable
+    low = dict(start, engine_power_mult=ig.bounds(next(v for v in variables if v["name"] == "engine_power_mult"), 1.0)[0])
+    hours, reason = built.hours_detail(low)
+    assert hours == 0.0 and "no speed on the leg within the engine's power" in reason
+    res = ig.coordinate_search(score, variables, 1.0, start, limit=ig.limit_of(built, spec))
+    assert res["stopped_at_violation"] and res["value"] > ig.limit_of(built, spec)
+    assert res["theta"]["engine_power_mult"] < 1.0
+
+
+def test_pair_flips_cross_a_cliff_that_single_flips_cannot_see():
+    # unflyable (inf) only when a and b are both at their lower ends; either alone changes nothing
+    def score(th):
+        return (math.inf if th["a"] <= -1.0 and th["b"] <= -1.0 else 0.0), None
+    variables = _toy_variables()
+    start = ig.nominal_theta(variables)
+    assert ig.coordinate_search(score, variables, 1.0, start)["value"] == 0.0
+    res = ig.coordinate_search(score, variables, 1.0, start, pair_names=("a", "b"))
+    assert res["value"] == math.inf and res["n_unflyable"] >= 1
