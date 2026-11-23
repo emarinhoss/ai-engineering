@@ -157,3 +157,59 @@ def test_dirty_note_separates_untracked_outputs_from_modified_code():
     note = rs.dirty_note(["?? runs/x/", " M measurement/robust_sizing.py"])
     assert "1 tracked file(s) modified" in note and "1 untracked path(s)" in note and "not the commit alone" in note
     assert "clean" in rs.dirty_note([])
+
+
+# ---- review fixes: V_C outside the weight loop, unresolved cells, built ledger only ---------------------------------
+def test_limit_cycle_case_converges_and_vc_satisfies_the_rule():
+    """420 hp, W/S 12.5, A 8, 8.5 h: V_C inside the weight iteration cycled between 110 and 115 kt (did not converge)."""
+    a, L, rec = rs.sized_aircraft_guess(420.0, 12.5, 8.0, 8.5, rs.first_guess(420.0, 8.0), "per_design")
+    vc = rec["V_c_eas_kt"]["sea_level"]
+    info = rec["vc_placard"]
+    assert vc >= uav.per_design_vc_kt(rec["fastest_step_eas_kt"])
+    assert info["used_kt"] == vc and info["rule_kt"] == uav.per_design_vc_kt(rec["fastest_step_eas_kt"])
+    assert info["exact"] == (vc == info["rule_kt"]) and info["steps"][-1]["vc_kt"] == vc
+
+
+def test_vc_loop_steps_up_until_the_placard_holds_and_keeps_a_safe_value():
+    """Fake sizer: the fastest step is 104 kt at V_C 110 (rule 115), 100 kt at 115 (rule would be 110)."""
+    def size(Ls):
+        return {"fastest_step_eas_kt": 104.0 if Ls["vc_placard_kt_eas"] < 115.0 else 100.0}
+    d = uav.size_with_vc_rule({"vc_placard_rule": "per_design"}, size)
+    assert d["vc_placard"]["used_kt"] == 115.0 and d["vc_placard"]["rule_kt"] == 110.0
+    assert d["vc_placard"]["exact"] is False and [s["vc_kt"] for s in d["vc_placard"]["steps"]] == [110.0, 115.0]
+    fixed = uav.size_with_vc_rule({"vc_placard_rule": "fixed"}, lambda Ls: {"fastest_step_eas_kt": 104.0})
+    assert "vc_placard" not in fixed
+
+
+def test_did_not_converge_is_unresolved_not_heavy():
+    """close_with_retry gives None for 'did not converge'; classify must not call that 'heavy'."""
+    def never(Lh):
+        raise ValueError("take-off weight iteration did not converge (fractions may sum near 1)")
+    orig = rs.sized_aircraft_guess
+    rs.sized_aircraft_guess = lambda P, W_S, A, Lh, g, vc_rule=None: never(Lh)
+    try:
+        row = rs.evaluate_candidate_sets(400.0, 13.0, 8.0, [], [], 3.5, {}, vc_rule="per_design")
+    finally:
+        rs.sized_aircraft_guess = orig
+    assert row["ok"] is False and row["unresolved"] is True and "did not converge" in row["status"]
+    assert [t["class"] for t in row["trace"]] == ["unresolved"]
+    assert rs.reason_label(row).startswith("unresolved")
+
+
+def test_bisection_stops_at_unresolved():
+    seen = []
+
+    def classify(L):
+        seen.append(L)
+        return "unresolved" if L > 9.0 else "small"
+    L, status = rs.bisect_two_corner(classify)
+    assert L is None and status.startswith("unresolved") and len(seen) < 8
+
+
+def test_built_refuses_a_per_design_ledger_and_sized_aircraft_drops_the_rule():
+    from conceptual.engine_model import TP100_TABLE
+    a, L, rec = rs.sized_aircraft(400.0, 13.0, 8.0, 8.0)
+    assert "vc_placard_rule" not in L and L["vc_placard_kt_eas"] == pytest.approx(rec["V_c_eas_kt"]["sea_level"])
+    with pytest.raises(ValueError, match="per_design"):
+        info_gap.Built("in memory", True, record=(rec, dict(L, vc_placard_rule="per_design"), TP100_TABLE))
+    info_gap.Built("in memory", True, record=(rec, L, TP100_TABLE))

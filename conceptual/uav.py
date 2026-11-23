@@ -33,15 +33,39 @@ CONCEPTS = {
 }
 N_CRUISE_STEPS, N_LOITER_STEPS = 10, 16
 VC_FLOOR_KT = 110.0       # per-design V_C never below the round-4 placard (owner ruling 2026-11-23)
-VC_MARGIN = 1.10          # V_C at least 10 % above the fastest mission sub-step (R18)
+VC_MARGIN = 1.10          # V_C at least 10 % above the fastest cruise sub-step (R18)
+VC_MAX_STEPS = 20         # outer V_C loop: at most this many 5 kt steps above the floor
 VC_ROUND_KT = 5.0
 
 
 def per_design_vc_kt(fastest_step_eas_kt):
-    """V_C (kt EAS) of the per-design placard rule: 10 % above the fastest mission sub-step, rounded UP to
+    """V_C (kt EAS) of the per-design placard rule: 10 % above the fastest cruise sub-step, rounded UP to
     a multiple of 5 kt, never below 110 kt."""
     need = VC_MARGIN * fastest_step_eas_kt
     return max(VC_FLOOR_KT, VC_ROUND_KT * math.ceil(need / VC_ROUND_KT - 1e-9))
+
+
+def size_with_vc_rule(L, size):
+    """Run size(L_step) -> result (a design dict, or a tuple whose first item is one) for the V_C placard of
+    ledger values L. Fixed rule: one call. Per-design rule: V_C is NOT part of the weight iteration (its 5 kt
+    steps made that iteration cycle). Each call sizes with V_C held at vc_placard_kt_eas = the current step,
+    starting at the 110 kt floor; then the rule is read off the converged design's fastest cruise sub-step.
+    If the step is below the rule, size again 5 kt higher; stop at the first step that is at or above it.
+    A higher step can make the rule ask for less; the higher, safe V_C is kept and 'exact' is False.
+    The design gets d["vc_placard"] = {used_kt, rule_kt, exact, steps}."""
+    if L.get("vc_placard_rule") != "per_design":
+        return size(L)
+    vc, steps = VC_FLOOR_KT, []
+    for _ in range(VC_MAX_STEPS):
+        out = size(dict(L, vc_placard_kt_eas=vc))
+        d = out[0] if isinstance(out, tuple) else out
+        rule = per_design_vc_kt(d["fastest_step_eas_kt"])
+        steps.append({"vc_kt": vc, "rule_kt": rule})
+        if vc >= rule:
+            d["vc_placard"] = {"used_kt": vc, "rule_kt": rule, "exact": vc == rule, "steps": steps}
+            return out
+        vc += VC_ROUND_KT
+    raise ValueError(f"per-design V_C did not settle in {VC_MAX_STEPS} steps of {VC_ROUND_KT:g} kt: {steps}")
 
 
 def load_ledger(path=LEDGER):
@@ -412,11 +436,10 @@ def _build(W0, concept, W_S, A, L, fuel_guess, engine=None, mission=True):
     # the mission does not depend on the structure, so it comes first: the per-design V_C placard needs its
     # fastest sub-step. mission=False skips it (fuel stays fuel_guess): for field-length studies of a built
     # aircraft where a member of the uncertainty set cannot fly the transit (info-gap review IG-5); the
-    # per-design rule still runs it, because V_C needs it
+    # per-design rule still runs it, because size_with_vc_rule reads the fastest cruise sub-step from it
     per_design = L.get("vc_placard_rule") == "per_design"
     fuel, rows = (_mission(W0, geom, A, e, L, bhp, clmax, model) if mission or per_design else (fuel_guess, []))
     fastest_eas_kt = max((m[7] * math.sqrt(alt["sigma"]) for m in rows), default=0.0) / KT
-    vc_chosen = per_design_vc_kt(fastest_eas_kt) if per_design else None
     if not mission:
         fuel, rows = fuel_guess, []
     CLa = aero.lift_slope(A, V_cr / alt["a"], L["airfoil_efficiency"], 0.0,
@@ -426,12 +449,12 @@ def _build(W0, concept, W_S, A, L, fuel_guess, engine=None, mission=True):
         lo = L["climb_speed_over_stall"] * perf.stall_speed(W_S, atm["rho"], clmax["clean"])
         vmax = _vmax_consistent(W0, S, geom, L, atm, h, K, bhp, model, lo)
         v_c_eas[label] = (vmax or lo) * math.sqrt(atm["sigma"])
-        if per_design:
-            # owner ruling 2026-11-23: V_C per design (EAS, the same at every altitude) from the mission
-            v_c_eas[label] = vc_chosen * KT
-        elif L.get("vc_placard_kt_eas"):
+        if per_design and not L.get("vc_placard_kt_eas"):
+            raise ValueError("per_design V_C: size through size_with_vc_rule, which sets vc_placard_kt_eas")
+        if L.get("vc_placard_kt_eas"):
             # R18 (Gate A round 4 ruling, Eder 2026-11-21): one V_C placard in EAS at every
-            # altitude, enforced by the autopilot; the structure and gusts are sized at it
+            # altitude, enforced by the autopilot; the structure and gusts are sized at it. Under the
+            # per_design rule (owner ruling 2026-11-23) it is the current step of size_with_vc_rule
             v_c_eas[label] = L["vc_placard_kt_eas"] * KT
     W_zf = W0 - fuel_guess
     gusts = {}
@@ -489,9 +512,14 @@ def _build(W0, concept, W_S, A, L, fuel_guess, engine=None, mission=True):
 
 
 def evaluate(concept, W_S, A, L, W0_guess=3000.0, engine=None):
-    """Size one aircraft. Returns the converged state with W0, or raises ValueError if the
-    mission does not close. engine as in _build. With a fixed engine, power_ok says whether its
-    power meets every requirement."""
+    """Size one aircraft (V_C by the ledger's rule, see size_with_vc_rule). Returns the converged state with
+    W0, or raises ValueError if the mission does not close. engine as in _build. With a fixed engine,
+    power_ok says whether its power meets every requirement."""
+    return size_with_vc_rule(L, lambda Ls: _evaluate_at_vc(concept, W_S, A, Ls, W0_guess, engine))
+
+
+def _evaluate_at_vc(concept, W_S, A, L, W0_guess, engine):
+    """evaluate with V_C held fixed by L (the weight iteration does not change it)."""
     if engine is not None:
         # a fixed engine may carry its own fuel consumption (datasheet values replace Table 3.4)
         L = dict(L, **{k: engine[k] for k in ("cbhp_cruise", "cbhp_loiter") if engine.get(k)})
@@ -877,11 +905,17 @@ def size_tail_for_rotation(concept, W_S, A, L, engine=None, max_iter=8, W0_guess
     """Raymer p. 432-433: rotation can size the elevator and tail. Starting from the Table 6.4
     volume coefficient, enlarge the horizontal tail until the tail lift coefficient needed to
     rotate at 0.8 V_TO with the most-forward CG is within the available value, re-sizing the
-    aircraft each time. Returns (design, layout, scale)."""
+    aircraft each time. V_C by the ledger's rule: the tail loop runs inside each V_C step of
+    size_with_vc_rule. Returns (design, layout, scale)."""
+    return size_with_vc_rule(L, lambda Ls: _tail_loop(concept, W_S, A, Ls, engine, max_iter, W0_guess))
+
+
+def _tail_loop(concept, W_S, A, L, engine, max_iter, W0_guess):
+    """The tail-sizing loop at the V_C held fixed by L."""
     scale = 1.0
     for _ in range(max_iter):
         L2 = dict(L, ht_volume_scale=scale)
-        d = evaluate(concept, W_S, A, L2, W0_guess=W0_guess, engine=engine)
+        d = _evaluate_at_vc(concept, W_S, A, L2, W0_guess, engine)
         lay = layout(d, L2)
         need = abs(lay["rotation"]["CL_tail_needed"])
         if lay["rotation_ok"]:
@@ -889,6 +923,6 @@ def size_tail_for_rotation(concept, W_S, A, L, engine=None, max_iter=8, W0_guess
         scale *= need / L["tail_cl_max_rotation"] * 1.02
     # the last update was not evaluated: evaluate it, and say if rotation still fails (G-5)
     L2 = dict(L, ht_volume_scale=scale)
-    d = evaluate(concept, W_S, A, L2, W0_guess=W0_guess, engine=engine)
+    d = _evaluate_at_vc(concept, W_S, A, L2, W0_guess, engine)
     lay = layout(d, L2)
     return d, lay, scale

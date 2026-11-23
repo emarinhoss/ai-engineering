@@ -107,11 +107,9 @@ def _raw():
 
 
 def sized_aircraft(P, W_S, A, L_sized):
-    """Stage 1 analysis of the pusher at loiter time L_sized, its ledger values and its record."""
-    L, _ = uav.load_ledger()
-    L = dict(L, loiter_h=float(L_sized))
-    a = stage1.analyse("pusher", W_S, A, L, _engine(P))
-    return a, L, stage1.design_record(a, L, _raw())
+    """Stage 1 analysis of the pusher at loiter time L_sized, its ledger values and its record. The ledger
+    returned is the built aircraft's (built_ledger_values): never carries vc_placard_rule per_design."""
+    return sized_aircraft_guess(P, W_S, A, L_sized, 3000.0)
 
 
 def corner_hours(record, L, theta):
@@ -232,9 +230,10 @@ def write_record(row, folder):
     tp100_table.json (plus the sizing row)."""
     folder = Path(folder)
     folder.mkdir(parents=True, exist_ok=True)
-    rec = sized_aircraft(row["P_hp"], row["W_S"], row["A"], row["L_sized_h"])[2]
+    _, L_built, rec = sized_aircraft(row["P_hp"], row["W_S"], row["A"], row["L_sized_h"])
     (folder / "design_pusher.json").write_text(json.dumps(rec, indent=1, default=float))
-    (folder / "ledger.yaml").write_text(ledger_text(row["L_sized_h"]))
+    vc = L_built["vc_placard_kt_eas"] if rec.get("V_c_rule") == "per_design" else None
+    (folder / "ledger.yaml").write_text(ledger_text(row["L_sized_h"], vc))
     if uav.load_ledger(folder / "ledger.yaml")[0]["loiter_h"] != row["L_sized_h"]:
         raise ValueError("ledger copy does not carry L_sized")
     shutil.copyfile(TP100_TABLE, folder / "tp100_table.json")
@@ -520,10 +519,13 @@ def built_ledger_values(L, rec):
 def bisect_two_corner(classify, lo=L_LO, hi=L_HI, tol=L_TOL):
     """Smallest L in [lo, hi] (to tol) with classify(L) == 'ok'. classify returns 'small' (L too small:
     fewer hours than needed at an endurance corner), 'heavy' (L too large: the aircraft does not close or
-    cannot fly a cliff corner) or 'ok'. It is not assumed that hours rise with L everywhere: an
+    cannot fly a cliff corner) or 'ok'. A fourth outcome, 'unresolved' (the weight iteration did not
+    converge: no information about L), stops the bisection: (None, "unresolved at L h"). It is not assumed that hours rise with L everywhere: an
     unflyable point is 'heavy' and moves the upper bound down, not the lower bound up (RS-4).
     Returns (L, status); L is None with the reason if no L satisfies both."""
     c = classify(lo)
+    if c == "unresolved":
+        return None, f"unresolved at {lo:g} h"
     if c == "ok":
         return lo, f"{lo:g} h is enough"
     if c == "heavy":
@@ -533,6 +535,8 @@ def bisect_two_corner(classify, lo=L_LO, hi=L_HI, tol=L_TOL):
     while hi - lo > tol:
         mid = 0.5 * (lo + hi)
         c = classify(mid)
+        if c == "unresolved":
+            return None, f"unresolved at {mid:.3f} h"
         if c == "ok":
             hi, hi_state, best = mid, "ok", mid
         elif c == "heavy":
@@ -543,6 +547,8 @@ def bisect_two_corner(classify, lo=L_LO, hi=L_HI, tol=L_TOL):
         return best, "bisected"
     if hi_state is None:
         hi_state = classify(hi)
+        if hi_state == "unresolved":
+            return None, f"unresolved at {hi:g} h"
         if hi_state == "ok":
             return hi, "bisected"
     if hi_state == "heavy":
@@ -627,6 +633,11 @@ def evaluate_candidate_sets(P, W_S, A, E_set, C_set, need, cache_, vc_rule=None)
 
     def classify(Lh):
         got = sized(Lh)
+        if got is None and cache_[key_of(Lh)][1].get("no_retry"):
+            # the weight iteration did not converge: neither too heavy nor too small; the bisection stops here
+            row["status"] = closure_status(cache_[key_of(Lh)][1], Lh)
+            row["trace"].append({"L_h": Lh, "class": "unresolved", "why": row["status"]})
+            return "unresolved"
         if got is None:
             row["status"] = closure_status(cache_[key_of(Lh)][1], Lh)
             row["trace"].append({"L_h": Lh, "class": "heavy", "why": row["status"]})
@@ -653,6 +664,9 @@ def evaluate_candidate_sets(P, W_S, A, E_set, C_set, need, cache_, vc_rule=None)
 
     try:
         Ls, status = bisect_two_corner(classify)
+        if Ls is None and status.startswith("unresolved"):
+            row["unresolved"] = True               # row["status"] already holds the reason (classify)
+            return row
         if Ls is None:
             why = row["trace"][-1].get("why") if row["trace"] and row["trace"][-1]["class"] == "heavy" else None
             row["status"] = status + (f" (last heavy point: {why})" if why else "")
@@ -690,6 +704,7 @@ def curve_search(P, E_set, C_set, need, cache_, grid_ws=CURVE_WS, grid_a=CURVE_A
     for w0_8, w, a_, row, got in base:
         if got is None:
             row["status"] = closure_status(info_of[(w, a_)], L_LO)
+            row["unresolved"] = bool(info_of[(w, a_)].get("no_retry"))
             rows.append(row)
             continue
         if best is not None and w0_8 >= best["W0_lb"]:
@@ -1238,7 +1253,7 @@ def curve_report_text(c, figure_rel):
 #   - the lightest candidate with no failed Stage 1 compliance row is the design. The mode searches (corrected
 #     worst-case search at h_T, endurance and cliff) are run on it; a worst point that violates and is new is added
 #     to the sets and the power is sized again (at most MAX_CURVE_ITER = 3 iterations).
-# V_C placard (owner ruling): V_C per design, 10 % above the fastest mission sub-step (EAS), rounded up to 5 kt, at
+# V_C placard (owner ruling): V_C per design, 10 % above the fastest cruise sub-step (EAS), rounded up to 5 kt, at
 # least 110 kt (`vc_placard_rule: per_design`, uav._build); the built aircraft keeps that V_C fixed in its ledger
 # copy, so the info-gap rebuilds do not change the structure.
 # Only h_T = 1.05 (the ruling's target) gets the full `info_gap.study`, the mode h_hat scans and the doubled-steps
@@ -1283,6 +1298,8 @@ def reason_label(r):
     if r["ok"]:
         return "meets both corners but fails Stage 1 row: " + "; ".join(_short_row(f) for f in r["failed"])
     st = r["status"]
+    if r.get("unresolved"):
+        return "unresolved: weight iteration did not converge (not classified as too heavy or too small)"
     if st.startswith("pruned"):
         return "pruned (W0 at 8 h not below the lightest compliant design)"
     cause = ("cliff corner not flyable (no speed on the leg within the engine's power)" if "cliff corner" in st
@@ -1532,7 +1549,8 @@ def _f2(x):
     return "n/a" if x is None or (isinstance(x, float) and math.isnan(x)) else f"{x:.2f}"
 
 
-def targets_report_text(c, figure_rel):
+def targets_report_text(c, figure_rel, committed_after=""):
+    """committed_after: optional sentence for the inputs line when the code was committed after the run."""
     inp = c["inputs"]
     powers = sorted(c["powers"])
     L = []
@@ -1567,12 +1585,19 @@ def targets_report_text(c, figure_rel):
         "endurance corner and can fly the mission at every cliff corner. Only candidates with no failed Stage 1 "
         "compliance row count; the lightest W0 is the design of that cell.")
     add("- **V_C placard per design (owner ruling):** V_C (EAS, the same at every altitude) is 10 % above the fastest "
-        "mission sub-step of the design, rounded up to a multiple of 5 kt, never below 110 kt; V_D = 1.5 V_C; gusts "
-        "and the design dynamic pressure at that V_C. R18 then holds by construction. The ledger file keeps "
-        "`vc_placard_rule: fixed` so that earlier records and tests reproduce; this run sets `per_design` in the "
-        "ledger values it sizes with. **For the info-gap rebuilds the aircraft is the built one:** the record's ledger "
-        "copy carries the design's chosen V_C as a fixed `vc_placard_kt_eas` and no rule, so an info-gap member that "
-        "flies faster does not get a stronger structure.")
+        "cruise sub-step of the design, rounded up to a multiple of 5 kt, never below 110 kt; V_D = 1.5 V_C; gusts "
+        "and the design dynamic pressure at that V_C. R18 then holds by construction. The ledger file says "
+        "`vc_placard_rule: per_design`. V_C is kept out of the weight iteration: each design is sized with V_C held "
+        "fixed (110 kt first), the rule is read off the converged design, and if the held V_C is below it the design is "
+        "sized again 5 kt higher, until the held V_C is at or above the rule (`uav.size_with_vc_rule`; the steps "
+        "tried are in each record's `vc_placard`). **For the info-gap rebuilds the aircraft is the built one:** the "
+        "record's ledger copy carries the design's chosen V_C as a fixed `vc_placard_kt_eas` and no rule, so an "
+        "info-gap member that flies faster does not get a stronger structure.")
+    unres = sum(1 for h in c["targets"] for P in powers for r in _cell(c, P, h)["iterations"][-1]["candidates"]
+                if r.get("unresolved"))
+    add(f"- **Unresolved candidates:** a weight iteration that did not converge is neither 'too heavy' nor 'too light': "
+        "the bisection stops for that candidate and the candidate is reported as unresolved with the reason. "
+        f"Unresolved candidates in the last iteration of the cells of this report: {unres}.")
     add(f"- Only h_T = {c['study_h']:.2f} (the ruling's target) gets the full `info_gap.study`, the mode h scans and the "
         "step-doubling check. For the other targets only the mode searches' worst values at h_T are recorded; there is "
         "no full study for them.")
@@ -1667,7 +1692,10 @@ def targets_report_text(c, figure_rel):
             if r["design"]:
                 continue
             any_nd = True
-            add(f"- **{P:g} hp, h = {h:.2f}**: none of the {r['iterations'][-1]['n_candidates']} candidates is a design.")
+            cands = r["iterations"][-1]["candidates"]
+            n_un = sum(1 for x in cands if x.get("unresolved"))
+            add(f"- **{P:g} hp, h = {h:.2f}**: none of the {r['iterations'][-1]['n_candidates']} candidates is a design"
+                + (f" ({n_un} unresolved)." if n_un else "."))
             for k, v in reason_summary(r["iterations"][-1]["candidates"]).items():
                 add(f"  - {k} ({len(v)}): {_group_candidates(v)}")
     if not any_nd:
@@ -1698,7 +1726,8 @@ def targets_report_text(c, figure_rel):
     add("")
     add("## Inputs")
     add("")
-    add(f"- commit {inp['commit']}; {dirty_note(inp.get('git_dirty_files', []))}")
+    add(f"- commit {inp['commit']}; {dirty_note(inp.get('git_dirty_files', []))}"
+        + (f" {committed_after}" if committed_after else ""))
     add(f"- seed {inp['seed']}; ledger sha256 `{inp['ledger_sha256']}`; engine table sha256 `{inp['table_sha256']}`; seed "
         f"corners sha256 `{c['seed_corners_sha256']}`.")
     add(f"- python {inp['python']}, numpy {inp['numpy']}, pyyaml {inp['pyyaml']}; runtime {c['runtime_s']:.0f} s.")

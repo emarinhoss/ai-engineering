@@ -188,6 +188,10 @@ class Built:
             table = record[2]
             self.d, self.L, b, self.check = sp.rebuild_record(*record)
             self.ledger_path = None
+        if self.L.get("vc_placard_rule") == "per_design":
+            raise ValueError("Built needs the ledger of the built aircraft (V_C fixed as vc_placard_kt_eas, no "
+                             "vc_placard_rule: per_design); a rebuild must not choose V_C again "
+                             "(robust_sizing.built_ledger_values)")
         self.base_engine = TableEngine(table)
         # the record's engine: rated power and weight (a photo-scaled TP100 if bhp is not 241)
         self.engine_scale = float(self.d.get("bhp_sl", sp.CHOSEN_ENGINE["bhp"])) / sp.CHOSEN_ENGINE["bhp"]
