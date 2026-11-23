@@ -25,3 +25,23 @@ engines:
     cbhp_max: 0.601
     confidence: published
     source: "Mattingly, Aircraft Engine Design, 2nd ed., Table C.1 p. 519 (library): 850 eshp, SFC 0.601 at maximum, 391 lbf"
+  RR_M250_B17F:
+    bhp: 450.0
+    weight_lb: 212.0
+    cbhp_max: 0.613
+    output_shaft_rpm: 2030.0
+    confidence: datasheet
+    # Sea-level static ratings of the 450 shp engine from the brochure's performance table: (shp, SFC lb/(shp h), maximum values)
+    sl_static_ratings:
+      take_off:       {shp: 450.0, bsfc_max: 0.613, mgt_c: 810.0}
+      normal_cruise:  {shp: 380.0, bsfc_max: 0.635, mgt_c: 752.0}
+      cruise_a_90pct: {shp: 377.0, bsfc_max: 0.637}
+      cruise_b_75pct: {shp: 314.0, bsfc_max: 0.673}
+    # the brochure's second column (420 shp engine), the pessimistic reading of the label conflict below
+    sl_static_ratings_420_column:
+      take_off:       {shp: 420.0, bsfc_max: 0.657, mgt_c: 810.0}
+      normal_cruise:  {shp: 369.0, bsfc_max: 0.656, mgt_c: 738.0}
+      cruise_a_90pct: {shp: 332.0, bsfc_max: 0.670}
+      cruise_b_75pct: {shp: 277.0, bsfc_max: 0.715}
+    source: "Rolls-Royce brochure 'M250 turboprop' VCOM13797, December 2009, supplied by the owner 2026-11-23 (not committed: maker's copyright). p. 2: Power 450 shp, width 19.4 in, length 45 in, weight 212 lb, certification 1971. p. 4 'Performance', sea level static rating, delivered shp / measured gas temperature (C) / SFC lb/shp-hr (max), two columns headed 'B17C' and 'B17F, F/C, F/2'. Cross-checked with FAA TCDS E10CE Rev 15 (1 Sep 2000, drs.faa.gov): B17F, F/1, F/2 take-off and max continuous 450 shp at sea level, dry weight 212 lb (F/1 215 lb) including basic engine, fuel pump and filter, ignition and fuel control system (gearbox, starter-generator and exhaust not stated); prop drive 16.399:1 and 2030 rpm (inherited 'same as preceding model'); length x width x height 44.924 x 18.784 x 22.596 in; Jet A/A-1, JP-4/5/8."
+    label_conflict: "The brochure prints 450 shp (SFC 0.613) under 'B17C' and 420 shp (0.657) under 'B17F, F/C, F/2'; TCDS E10CE gives the B17F series 450 shp and the B17C/D/E 420 shp. Taken here as swapped column labels: the 450 shp column (a self-consistent row set) is the B17F. The 420 shp column is kept as the pessimistic case. Not confirmed by Rolls-Royce."
