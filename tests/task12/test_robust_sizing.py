@@ -166,7 +166,8 @@ def test_transit_power_ratio_reproduces_the_reviewers_cliff(p400_corners):
     _, cliff = p400_corners
     ratios = {}
     for Ls in (8.5, 9.0):
-        _, L, rec = rs.sized_aircraft_guess(400.0, 13.0, 8.0, Ls, rs.first_guess(400.0, Ls))
+        # the reviewer's numbers were with the fixed 110 kt placard (before the per-design ruling)
+        _, L, rec = rs.sized_aircraft_guess(400.0, 13.0, 8.0, Ls, rs.first_guess(400.0, Ls), vc_rule="fixed")
         B = info_gap.Built("in memory", True, record=(rec, L, TP100_TABLE))
         ratios[Ls] = info_gap.transit_power_ratio(B, cliff)
     assert ratios[8.5][0] == pytest.approx(0.986, abs=0.002) and ratios[8.5][1] is None

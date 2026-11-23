@@ -115,8 +115,9 @@ def test_overturn_uses_the_critical_cg(design, ledger):
 
 
 def test_vc_placard_caps_design_speed(ledger):
-    free = uav.evaluate("pusher", 12.0, 10.0, dict(ledger, vc_placard_kt_eas=0.0))
-    capped = uav.evaluate("pusher", 12.0, 10.0, dict(ledger, vc_placard_kt_eas=100.0))
+    # the fixed-placard behaviour (the ledger now sets V_C per design, ruling 2026-11-23)
+    free = uav.evaluate("pusher", 12.0, 10.0, dict(ledger, vc_placard_kt_eas=0.0, vc_placard_rule="fixed"))
+    capped = uav.evaluate("pusher", 12.0, 10.0, dict(ledger, vc_placard_kt_eas=100.0, vc_placard_rule="fixed"))
     from conceptual.units import KT
     assert max(capped["V_c_eas"].values()) <= 100.0 * KT + 1e-9
     assert capped["q_design"] < free["q_design"]

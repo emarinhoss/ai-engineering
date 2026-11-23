@@ -503,7 +503,8 @@ def sized_aircraft_guess(P, W_S, A, L_sized, W0_guess, vc_rule=None):
         L = dict(L, vc_placard_rule=vc_rule)
     a = stage1.analyse("pusher", W_S, A, L, _engine(P), W0_guess=W0_guess)
     rec = stage1.design_record(a, L, _raw())
-    if vc_rule == "per_design":
+    # the effective rule (explicit, else the ledger's): a per-design V_C is fixed once built
+    if L.get("vc_placard_rule") == "per_design":
         L = built_ledger_values(L, rec)
     return a, L, rec
 

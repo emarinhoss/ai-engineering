@@ -57,10 +57,11 @@ def test_built_aircraft_ledger_fixes_the_chosen_vc_and_drops_the_rule(fast_desig
     assert built.w0_for(nominal) == pytest.approx(rec["W0_lb"], abs=0.1)
 
 
-def test_without_the_rule_the_result_is_the_fixed_placard_and_unchanged():
+def test_fixed_rule_is_the_round4_placard_and_unchanged():
+    """With the rule set to fixed (the round-4 behaviour), sizing equals stage1.analyse without the rule."""
     L0, _ = uav.load_ledger()
-    assert L0["vc_placard_rule"] == "fixed"                 # the ledger file keeps the round-4 behaviour
-    _, _, rec = rs.sized_aircraft_guess(400.0, 13.0, 8.0, 8.0, rs.first_guess(400.0, 8.0))
+    assert L0["vc_placard_rule"] == "per_design"            # owner ruling 2026-11-23
+    _, _, rec = rs.sized_aircraft_guess(400.0, 13.0, 8.0, 8.0, rs.first_guess(400.0, 8.0), vc_rule="fixed")
     ref = stage1.analyse("pusher", 13.0, 8.0, {k: v for k, v in dict(L0, loiter_h=8.0).items() if k != "vc_placard_rule"},
                          rs._engine(400.0), W0_guess=rs.first_guess(400.0, 8.0))
     assert rec["W0_lb"] == pytest.approx(ref["design"]["W0"], rel=1e-12)
@@ -68,9 +69,10 @@ def test_without_the_rule_the_result_is_the_fixed_placard_and_unchanged():
     assert rec["V_c_eas_kt"]["sea_level"] == pytest.approx(110.0) and rec["V_c_rule"] == "fixed"
 
 
-def test_ledger_text_without_vc_is_the_old_copy():
+def test_ledger_text_without_vc_keeps_the_ledgers_rule():
     text = yaml.safe_load(rs.ledger_text(9.0))
-    assert {**text["requirements"], **text["assumptions"]}["vc_placard_rule"]["value"] == "fixed"
+    L0, _ = uav.load_ledger()
+    assert {**text["requirements"], **text["assumptions"]}["vc_placard_rule"]["value"] == L0["vc_placard_rule"]
 
 
 # ---- scaled corners at the target h ----------------------------------------------------------------------------
