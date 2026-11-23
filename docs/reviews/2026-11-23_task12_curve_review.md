@@ -12,6 +12,7 @@ h 1.10 about 450 hp.
 | Question | Ruling (Éder, 2026-11-23) |
 |---|---|
 | Robustness margin above h = 1 | **h = 1.05**, pointing to a 420-450 hp class engine with TP100-like consumption (about 4,500 lb); re-run the curve at fixed targets (1.00 / 1.05 / 1.10) with the report fixes, then search for real engines in that class |
+| V_C placard (R18) for that class | **Raise with the engine**: V_C set per design at 10 % above its fastest cruise sub-step (EAS), rounded up to 5 kt, never below the round-4 110 kt (author's reading: the floor keeps the earlier ruling as the minimum); gusts and structure sized at it |
 
 ## Independent review (verbatim)
 
