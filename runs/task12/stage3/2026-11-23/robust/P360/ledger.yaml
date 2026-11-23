@@ -1,0 +1,125 @@
+# Task 12 ledger: requirements and assumptions of the single-turboprop endurance UAV.
+# Spec: docs/specs/task12_drone_conceptual_design.md. Units are Raymer's (ft, lb, s, kt, nm, hp).
+# confidence: requirement (Eder's choice, spec section 3), default (spec section 3, confirmed at
+# Gate A), published (a printed value with its page), assumed (a judgement; must carry a band).
+# Raymer = Aircraft Design: A Conceptual Approach, 2nd ed. (1992), as held in the library.
+
+requirements:
+  payload_lb:            {value: 500.0, units: lb, confidence: requirement, source: "R4, Eder 2026-11-20 (Q4)"}
+  radius_nm:             {value: 200.0, units: nm, confidence: requirement, source: "R5, Eder 2026-11-20 (Q5): 200 nm out and 200 nm back"}
+  loiter_h:              {value: 8.78125, units: h, confidence: requirement, source: "R5, Eder 2026-11-20 (Q5): 8 h on station; sized loiter 8.781 h by measurement/robust_sizing.py so that r5_robust_hours holds at the design corner"}
+  r5_robust_hours:       {value: 3.5, units: h, confidence: requirement, source: "R5 as restated at Gate B (Eder 2026-11-22): 8 h on station at nominal values, and at least 3.5 h for every combination of the uncertain quantities within their ledger bands (info-gap horizon h = 1, DMDU (10.7)-(10.8)); measured worst case 3.75 h on the 2026-11-21f aircraft"}
+  headwind_kt:           {value: 25.0, units: kt, confidence: requirement, source: "R19, Gate A round 4 (Eder 2026-11-21): both 200 nm transit legs flown against a 25 kt headwind at 20,000 ft (loiter in still air)"}
+  mission_altitude_ft:   {value: 20000.0, units: ft, confidence: requirement, source: "R6, Eder 2026-11-20 (Q6), ISA"}
+  field_length_ft:       {value: 2500.0, units: ft, confidence: requirement, source: "R7, Eder 2026-11-20 (Q7): take-off and landing over 50 ft, sea level ISA"}
+  stall_speed_kt:        {value: 70.0, units: kt, confidence: requirement, source: "R7: clean stall at take-off weight, sea level"}
+  limit_load_factor:     {value: 3.8, units: "-", confidence: requirement, source: "R9, Eder (Q8): Raymer Table 14.2 p. 336 general aviation normal, top of band"}
+  negative_load_factor:  {value: -1.8, units: "-", confidence: requirement, source: "R9 as changed at Gate A (Eder 2026-11-20, raise the negative limit): the Stage 1 sea-level down-gust gave -1.65 against -1.5; -1.8 is Raymer Table 14.2 p. 336, general aviation utility"}
+  margin_power_fraction: {value: 0.0, units: "-", confidence: requirement, source: "Gate A round 4 ruling 4 set 5 %; relaxed to 0 at the round 4 close (Eder 2026-11-21) with the 110 kt EAS placard, which no grid point meets with a 5 % power margin; the achieved margin is reported"}
+  margin_ceiling_ft:     {value: 500.0, units: ft, confidence: requirement, source: "Gate A round 4 ruling 4: service ceiling at least 500 ft above R12"}
+  margin_gust_g:         {value: 0.1, units: "-", confidence: requirement, source: "Gate A round 4 ruling 4: negative gust load factor at least 0.1 inside the R9 negative limit"}
+  climb_rate_sl_fpm:     {value: 1000.0, units: ft/min, confidence: default, source: "R12, spec default: sea-level rate of climb at take-off weight"}
+  ceiling_ft:            {value: 23000.0, units: ft, confidence: requirement, source: "R12 as revised at Gate A round 4 (Eder 2026-11-21): service ceiling (100 ft/min) at take-off weight 23,000 ft, 3,000 ft above the loiter altitude; was the spec default 25,000 ft"}
+  ceiling_rate_fpm:      {value: 100.0, units: ft/min, confidence: default, source: "R12: service-ceiling definition"}
+  static_margin_min:     {value: 0.05, units: MAC, confidence: default, source: "R13, spec default"}
+  static_margin_max:     {value: 0.15, units: MAC, confidence: default, source: "R13, spec default"}
+  speed_over_stall:      {value: 1.3, units: "-", confidence: requirement, source: "R17, Gate A round 3 ruling (Eder 2026-11-20, keep): cruise and loiter fly at least 1.3 V_stall clean at the current weight, for gust and turn margin on a long orbit; first used in Task 10. Not from the library."}
+
+assumptions:
+  # engine and propeller, Raymer Table 3.4 p. 19 (turboprop)
+  cbhp_cruise:           {value: 0.5, units: lb/(hp h), confidence: published, band: [0.45, 0.60], source: "Raymer Table 3.4 p. 19, turboprop cruise; band set by judgement (Mattingly App. K measures it in Stage 3)"}
+  cbhp_loiter:           {value: 0.6, units: lb/(hp h), confidence: published, band: [0.50, 0.75], source: "Raymer Table 3.4 p. 19, turboprop loiter; band by judgement"}
+  eta_p:                 {value: 0.8, units: "-", confidence: published, band: [0.75, 0.85], source: "Raymer Table 3.4 p. 19, turboprop cruise and loiter propeller efficiency"}
+  takeoff_minutes:       {value: 5.0, units: min, confidence: published, source: "Raymer DR-1 refined sizing p. 586: warm-up and take-off at full power"}
+  propeller_rpm:         {value: 2158.0, units: rpm, confidence: datasheet, source: "PBS TP100 output shaft speed 2,158 RPM, maker's brochure p. 12 (Gate A round 4, R4-10); was an assumed 2,000 rpm"}
+  tip_speed_limit_fps:   {value: 950.0, units: ft/s, confidence: published, source: "Raymer p. 221: metal propeller helical tip speed at most 950 ft/s"}
+  static_ct_over_cp:     {value: 2.5, units: "-", confidence: published, band: [2.0, 2.8], source: "Raymer DR-1 p. 574, Fig. 13.8 reading for a variable-pitch propeller"}
+  installed_engine_factor: {value: 1.4, units: "-", confidence: published, source: "Raymer Table 15.2 p. 398, general aviation installed engine = 1.4 x engine weight (DR-1 p. 576 prefers Table 15.2 over (15.52))"}
+  fuel_density_lb_gal:   {value: 6.7, units: lb/gal, confidence: published, source: "Raymer Table 10.5 p. 227, JP-8 mil-spec density"}
+  # aerodynamics
+  airfoil_cl_max:        {value: 1.5, units: "-", confidence: assumed, band: [1.3, 1.7], source: "Section maximum lift of a 15 % cambered section at Re of a few million; a judgement, not from the library. Stage 3 measures it (SU2 polar and an open NACA data report)"}
+  airfoil_cm0:           {value: -0.08, units: "-", confidence: assumed, band: [-0.10, -0.04], source: "Section zero-lift pitching moment of a cambered section; a judgement for the trim check"}
+  airfoil_efficiency:    {value: 0.95, units: "-", confidence: published, source: "Raymer (12.8) p. 266 and DR-1 p. 571: airfoil efficiency about 0.95"}
+  wing_t_c:              {value: 0.15, units: "-", confidence: published, band: [0.12, 0.18], source: "Raymer Fig. 4.14 p. 47: historical t/c about 0.15 at low Mach"}
+  wing_x_c_max_t:        {value: 0.30, units: "-", confidence: published, source: "Raymer p. 283: chordwise maximum-thickness position about 0.3 for low-speed airfoils"}
+  wing_taper:            {value: 0.45, units: "-", confidence: published, source: "Raymer 4.3 p. 55-57: taper about 0.45 gives a near-elliptic loading on an unswept wing"}
+  flap_delta_cl_max:     {value: 1.3, units: "-", confidence: published, source: "Raymer Table 12.2 p. 279: slotted flap"}
+  flap_span_fraction:    {value: 0.60, units: "-", confidence: assumed, band: [0.5, 0.7], source: "Flapped area over reference area (Raymer Fig. 12.19 definition); a layout judgement"}
+  takeoff_flap_fraction: {value: 0.60, units: "-", confidence: assumed, band: [0.4, 0.8], source: "Take-off flap increment as a fraction of the landing increment; a judgement (Raymer p. 288 gives take-off deflections of 20-40 deg against 60-70 deg for landing)"}
+  laminar_fraction_wing: {value: 0.15, units: "-", confidence: published, band: [0.10, 0.50], source: "Raymer p. 282: 10-20 % typical on wings and tails, about 50 % for a carefully designed composite aircraft"}
+  laminar_fraction_fuselage: {value: 0.0, units: "-", confidence: published, band: [0.0, 0.2], source: "Raymer p. 282: essentially none on the fuselage of typical aircraft, 20-35 % for the GP180"}
+  roughness_k_ft:        {value: 1.7e-6, units: ft, confidence: published, source: "Raymer Table 12.4 p. 283: smooth molded composite"}
+  leakage_fraction:      {value: 0.05, units: "-", confidence: published, source: "Raymer DR-1 p. 572: 5 % for leaks and protuberances"}
+  tail_interference_q:   {value: 1.05, units: "-", confidence: published, source: "Raymer p. 284-285: conventional tail Q 1.04-1.05"}
+  sensor_drag_area_ft2:  {value: 0.4, units: ft^2, confidence: assumed, band: [0.2, 0.8], source: "Drag area D/q of an external sensor turret; a judgement, not from the library"}
+  fuselage_fineness:     {value: 8.0, units: "-", confidence: assumed, band: [6.0, 10.0], source: "Fuselage length over diameter; Raymer 6.4 p. 110 says packaging decides it; a judgement for a crewless body"}
+  fuselage_fill:         {value: 0.80, units: "-", confidence: assumed, band: [0.75, 0.85], source: "Projected top and side areas over length x diameter, for Raymer (7.12) p. 152; a judgement"}
+  fuselage_kf:           {value: 0.008, units: "-", confidence: published, band: [0.005, 0.015], source: "Raymer (16.22) p. 427 empirical factor from Fig. 16.14, as read in DR-1 p. 579; the chart itself is not readable from the notes"}
+  tail_eta_h:            {value: 0.9, units: "-", confidence: published, source: "Raymer (16.6) and DR-1 p. 579: q_h/q about 0.9"}
+  tail_height_over_df:   {value: 0.4, units: "-", confidence: assumed, band: [0.1, 0.9], source: "Horizontal-tail height above the wing plane over fuselage diameter for the lattice downwash (Stage 3 ruling 2026-11-21); 0.4 is the render's layout (wing at -0.1 D_f, tail at +0.3 D_f); band from just above the wing plane (the planar-wake lattice cannot evaluate a tail in the wing plane; Gate A round 5, G-2) to near the fuselage top"}
+  engine_sfc_allowance:  {value: 1.05, units: "-", confidence: requirement, source: "Gate A round 5 ruling 2 (Eder 2026-11-21): every SFC from the TP100 App. K table multiplied by 1.05 in sizing, covering the model's part-power optimism against the book (MSH reads 5-9 % low, calibration absorbs the design-point part)"}
+  ht_aspect_ratio:       {value: 4.0, units: "-", confidence: published, source: "Raymer Table 4.3 p. 76 range for horizontal tails; DR-1 p. 563"}
+  ht_taper:              {value: 0.5, units: "-", confidence: published, source: "Raymer Table 4.3 p. 76 range"}
+  vt_aspect_ratio:       {value: 1.5, units: "-", confidence: published, source: "Raymer Table 4.3 p. 76 range; DR-1 p. 563"}
+  vt_taper:              {value: 0.5, units: "-", confidence: published, source: "Raymer Table 4.3 p. 76 range"}
+  tail_t_c:              {value: 0.12, units: "-", confidence: published, source: "Raymer DR-1 p. 563, NACA 0012 tails"}
+  c_ht:                  {value: 0.70, units: "-", confidence: published, source: "Raymer Table 6.4 p. 112, general aviation single engine"}
+  c_vt:                  {value: 0.04, units: "-", confidence: published, source: "Raymer Table 6.4 p. 112, general aviation single engine"}
+  # weights
+  composite_factor:      {value: 0.95, units: "-", confidence: published, band: [0.90, 1.00], source: "Raymer p. 14: advanced composites, statistical empty fraction x 0.95 (judgement factor); band per Eder Q8"}
+  avionics_uninstalled_lb: {value: 60.0, units: lb, confidence: assumed, band: [40.0, 100.0], source: "Uninstalled flight avionics of a UAV (autopilot, datalink, navigation, transponder); a judgement, not from the library (R15)"}
+  gear_load_factor_ultimate: {value: 3.0, units: "-", confidence: published, source: "Raymer DR-1 p. 576: N_l W_l = 3 x W0 in (15.50)"}
+  main_gear_length_in:   {value: 30.0, units: in, confidence: assumed, band: [24.0, 40.0], source: "Main gear length; a layout judgement (pusher adds 10 in for propeller clearance, Raymer p. 222: at least 9 in)"}
+  nose_gear_length_in:   {value: 30.0, units: in, confidence: assumed, band: [24.0, 40.0], source: "Nose gear length; a layout judgement"}
+  gust_ude_fps:          {value: 30.0, units: ft/s, confidence: published, band: [30.0, 50.0], source: "Raymer p. 339: U_de = 30 ft/s up to cruise for civil normal category; band top is the transport value at cruise up to 20,000 ft, Fig. 14.6 p. 340"}
+  wing_tank_chord_fraction: {value: 0.45, units: "-", confidence: assumed, band: [0.40, 0.50], source: "Integral wing tank between the spars as a fraction of chord; a judgement"}
+  wing_tank_span_fraction: {value: 0.80, units: "-", confidence: assumed, band: [0.70, 0.85], source: "Spanwise extent of the wing tanks as a fraction of the semispan; a judgement"}
+  wing_tank_usable:      {value: 0.85, units: "-", confidence: published, source: "Raymer p. 228: integral wing tanks 85 % usable"}
+  # --- added at Gate A round 1 (reviewer finding F9): constants that were in the code ---
+  rolling_mu:            {value: 0.03, units: "-", confidence: published, band: [0.03, 0.05], source: "Raymer Table 17.1 p. 486, dry concrete or asphalt, brakes off"}
+  braking_mu:            {value: 0.5, units: "-", confidence: published, band: [0.3, 0.5], source: "Raymer p. 491: braking mu about 0.5 civil, 0.3 military, on hard runways"}
+  cl_ground:             {value: 0.1, units: "-", confidence: published, source: "Raymer p. 486: ground-attitude CL usually below 0.1 without large flaps"}
+  free_roll_s:           {value: 2.0, units: s, confidence: published, band: [1.0, 3.0], source: "Raymer p. 490: free roll 1-3 s before braking"}
+  climb_speed_over_stall: {value: 1.2, units: "-", confidence: published, source: "Raymer p. 489: climb at 1.2 V_stall in (17.110); used here as the lowest climb speed"}
+  flap_deflection_takeoff_deg: {value: 30.0, units: deg, confidence: published, band: [20.0, 40.0], source: "Raymer p. 288: take-off flap deflection typically 20-40 deg"}
+  flap_deflection_landing_deg: {value: 60.0, units: deg, confidence: published, band: [60.0, 70.0], source: "Raymer p. 288: landing flap deflection typically 60-70 deg; flap drag by (12.37) p. 288"}
+  tyre_drag_per_area:    {value: 0.25, units: "-", confidence: published, source: "Raymer Table 12.5 p. 287: regular wheel and tyre D/q per ft^2 of frontal area (0.13 is the faired value DR-1 used; Gate A round 2 finding)"}
+  strut_drag_per_area:   {value: 0.05, units: "-", confidence: published, source: "D/q per ft^2 of strut frontal area, Raymer gear-drag table as read in DR-1 p. 572"}
+  strut_width_in:        {value: 3.0, units: in, confidence: assumed, band: [2.0, 4.0], source: "Gear strut frontal width; a judgement"}
+  gear_interference:     {value: 1.284, units: "-", confidence: published, source: "Raymer p. 286-288: gear drag sum x 1.2 for mutual interference, plus about 7 % for a retractable gear with open wells (1.2 x 1.07)"}
+  tipback_angle_deg:     {value: 15.0, units: deg, confidence: published, source: "Raymer p. 232: angle from vertical at the main wheel to the CG at least the tipback angle or 15 deg"}
+  rotation_angle_deg:    {value: 15.0, units: deg, confidence: published, band: [10.0, 15.0], source: "Raymer p. 232: landing attitude for tail clearance typically 10-15 deg; used for propeller clearance"}
+  prop_clearance_in:     {value: 9.0, units: in, confidence: published, source: "Raymer p. 222: at least 9 in propeller ground clearance in all attitudes"}
+  nose_load_min:         {value: 0.08, units: "-", confidence: published, source: "Raymer p. 232-233: nose-wheel load optimum 8-15 % of weight (5-20 % limits)"}
+  nose_load_max:         {value: 0.15, units: "-", confidence: published, source: "Raymer p. 232-233"}
+  main_gear_station_guess: {value: 0.40, units: "-", confidence: assumed, band: [0.30, 0.50], source: "Main-wheel station as a fraction of fuselage length used only to size the gear length for propeller clearance before the layout places the wheels; the layout then checks the clearance at the placed station"}
+  tail_cl_max_trim:      {value: 0.5, units: "-", confidence: assumed, band: [0.4, 0.7], source: "Largest horizontal-tail lift coefficient allowed in steady trim, leaving elevator authority; a judgement, not from the library"}
+  tail_cl_max_rotation:  {value: 1.0, units: "-", confidence: assumed, band: [0.8, 1.2], source: "Horizontal-tail lift coefficient available with full elevator at rotation; a judgement, not from the library"}
+  turn_bank_deg:         {value: 30.0, units: deg, confidence: requirement, source: "R16 (accepted at Gate A round 3): sustained 30 deg banked turn (n = 1.155) at loiter speed and mission altitude, the turn the spec's step 4 names"}
+  # component stations as fractions of fuselage length (layout judgements; Raymer Table 15.2 p. 398
+  # puts fuselage and all-else at 40-50 % of length, wing and tails at 40 % MAC)
+  station_engine_pusher:   {value: 0.88, units: "-", confidence: assumed, band: [0.82, 0.92], source: "Aft-mounted engine ahead of the pusher propeller; layout judgement"}
+  station_engine_tractor:  {value: 0.07, units: "-", confidence: assumed, band: [0.05, 0.10], source: "Nose-mounted engine behind the tractor propeller; layout judgement"}
+  station_payload_pusher:  {value: 0.10, units: "-", confidence: assumed, band: [0.06, 0.15], source: "Sensor turret in the nose; layout judgement"}
+  station_payload_tractor: {value: 0.30, units: "-", confidence: assumed, band: [0.25, 0.35], source: "Sensor under the fuselage behind the engine; layout judgement"}
+  station_avionics:        {value: 0.21, units: "-", confidence: assumed, band: [0.15, 0.30], source: "Avionics bay; layout judgement"}
+  station_fuselage:        {value: 0.45, units: "-", confidence: published, band: [0.40, 0.50], source: "Raymer Table 15.2 p. 398: fuselage at 40-50 % of length"}
+  station_systems:         {value: 0.45, units: "-", confidence: published, band: [0.40, 0.50], source: "Raymer Table 15.2 p. 398: all-else at 40-50 % of length (hydraulics, electrical)"}
+  station_flight_controls: {value: 0.55, units: "-", confidence: assumed, band: [0.45, 0.65], source: "Servos and runs spread between wing and tail; layout judgement"}
+  station_nose_gear:       {value: 0.10, units: "-", confidence: assumed, band: [0.06, 0.15], source: "Nose-gear station; layout judgement, checked by the nose-load rule"}
+  # --- added at Gate A round 2 ---
+  rotation_angle_deg_pusher: {value: 10.0, units: deg, confidence: assumed, band: [10.0, 15.0], source: "Pusher rotation limited to 10 deg by a tail bumper (Gate A round 2: evaluate the pusher at the favourable end of Raymer's 10-15 deg band, p. 232); a layout assumption"}
+  nose_down_deg:         {value: 2.0, units: deg, confidence: assumed, band: [1.0, 3.0], source: "Nose-down pitch with the nose strut compressed, for tractor propeller clearance in all attitudes (Raymer p. 222); a judgement"}
+  overturn_max_deg:      {value: 63.0, units: deg, confidence: published, source: "Raymer p. 232: overturn angle at most 63 deg"}
+  station_nose_gear_min: {value: 0.04, units: "-", confidence: assumed, band: [0.03, 0.06], source: "Most-forward nose-gear station the nose can hold; a layout judgement (the nose wheel is moved forward to this when the nose load exceeds the 8-15 % optimum)"}
+  flap_cp_fraction:      {value: 0.44, units: "-", confidence: published, source: "Raymer Fig. 16.9 p. 423: centre of pressure of the slotted-flap lift increment at about 0.44-0.45 of the flapped chord"}
+  vc_placard_kt_eas:     {value: 110.0, units: kt, confidence: requirement, source: "R18 as revised at Gate A round 4 close (Eder 2026-11-21): one design cruise speed V_C of 110 kt EAS at every altitude, enforced by the autopilot including in descent; structure and gust loads sized at it (dive speed 165 kt EAS, Raymer p. 338). Chosen from the placard option runs (100/105/110/120 kt) after the R19 headwind made 100 kt the binding check; 100 kt EAS before, 150 kt EAS at round 3"}
+  # --- Gate A round 3 ruling: main gear retracts into sponsons (wheels outboard of the fuselage) ---
+  sponson_length_per_tyre: {value: 3.6, units: "-", confidence: assumed, band: [3.0, 4.8], source: "Sponson length as a multiple of the main-tyre diameter: 3 times the 1.2-tyre depth, the fineness ratio of least subsonic drag for a fixed volume (Raymer 6.4 p. 110); band fineness 2.5-4"}
+  sponson_depth_per_tyre:  {value: 1.2, units: "-", confidence: assumed, band: [1.1, 1.4], source: "Sponson depth as a multiple of the main-tyre diameter; a layout judgement"}
+  sponson_interference_q:  {value: 1.5, units: "-", confidence: published, band: [1.3, 1.5], source: "Raymer p. 284-285: nacelle or store mounted directly on the wing or fuselage Q about 1.5, within one diameter about 1.3"}
+  sponson_weight_per_wetted: {value: 1.4, units: lb/ft^2, confidence: published, band: [1.0, 1.8], source: "Raymer Table 15.2 p. 398: general-aviation fuselage 1.4 lb per ft^2 of wetted area, applied to the sponson skins (composite factor 0.90 of Table 15.4 applied in code)"}
+  # --- Gate A round 3 actions (constants that were in the code) ---
+  main_wheel_load_fraction: {value: 0.45, units: "-", confidence: published, source: "Raymer p. 233: main wheels carry about 90 % of the weight (Table 11.1 assumes it), so 45 % per main wheel"}
+  nose_tyre_scale:       {value: 0.8, units: "-", confidence: published, band: [0.6, 1.0], source: "Raymer p. 233: nose tyres about 60-100 % of the main tyre size"}
+  prop_hub_offset_ft:    {value: 0.0, units: ft, confidence: assumed, band: [0.0, 2.0], source: "Pusher propeller hub raised above the fuselage centreline (Gate A close: Eder required the nose-wheel load in Raymer's 8-15 % optimum; a raised thrust line shortens the gear the propeller clearance needs). Its nose-down thrust moment, -T z_t of (16.7) p. 416, is in the trim and rotation checks; Raymer p. 223 notes the pitch-down with power of a high thrust line"}
