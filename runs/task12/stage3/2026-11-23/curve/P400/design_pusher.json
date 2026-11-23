@@ -1,0 +1,423 @@
+{
+ "concept": "pusher",
+ "W_S": 13.0,
+ "A": 8.0,
+ "W0_lb": 4240.206938996608,
+ "We_lb": 2198.2058424774746,
+ "fuel_lb": 1542.0029224070424,
+ "payload_lb": 500.0,
+ "bhp_sl": 400.0,
+ "engine": {
+  "weight_lb": 203.98313296041405,
+  "length_in": 38.6873264275157,
+  "diameter_in": 19.45608864438652,
+  "in_range": true,
+  "fixed": "TP100 scaled to 400 hp"
+ },
+ "engine_source": "PBS Velka Bites, US brochure 'Turbine Engines', p. 12 (TP100 page) and p. 14 (specification table), supplied by the owner 2026-11-20 (not committed: maker's copyright). Max. output power 180 kW (241 HP); specific fuel consumption 0.548 kg/kW/h (0.901 lb/HP/hr), one value, printed beside the maximum output with no flight condition; weight 61.60 kg (135.80 lb); length 891 mm; output shaft 2,158 RPM; operating envelope max. altitude 9,000 m (29,528 ft); starting envelope max. altitude 6,000 m (19,685 ft). The brochure gives no part-power consumption. Stage 1 used 0.901 for cruise and loiter (key name cbhp_cruise kept for the code).",
+ "cbhp_used": {
+  "cruise": 0.944356330806487,
+  "loiter": 1.2871040689820599
+ },
+ "power_required_hp": {
+  "climb_sl": 230.24812025714493,
+  "ceiling": 314.2906664946104,
+  "takeoff": 148.90083160663175,
+  "turn_at_loiter": 276.0419461305094,
+  "cruise_at_altitude": 246.85026361433674
+ },
+ "power_ok": true,
+ "propeller_diameter_ft": 6.708203932499369,
+ "propeller_points": {
+  "climb_sea_level": {
+   "V_kt": 63.758683510186735,
+   "shaft_hp": 400.0,
+   "throttle": 1.0,
+   "J": 0.4460221737822706,
+   "C_P": 0.14644090989021438
+  },
+  "cruise_out": {
+   "V_kt": 133.8620229006957,
+   "shaft_hp": 154.40726650009685,
+   "throttle": 0.8404928235280368,
+   "J": 0.9364282189346215,
+   "C_P": 0.10602983996386471
+  },
+  "loiter": {
+   "V_kt": 85.7962368907817,
+   "shaft_hp": 85.59078560443264,
+   "throttle": 0.4909489917791279,
+   "J": 0.6001852920042046,
+   "C_P": 0.05877428896789489
+  },
+  "cruise_back": {
+   "V_kt": 122.20627893714139,
+   "shaft_hp": 110.72155571900818,
+   "throttle": 0.6115005552671535,
+   "J": 0.8548907722142314,
+   "C_P": 0.07603132352212973
+  }
+ },
+ "gear_length_in": 65.51181600859353,
+ "gear_drag_area_ft2": 1.1993618227205785,
+ "ht_volume_scale": 1.495124452405821,
+ "e": 0.8105923299393963,
+ "K": 0.04908600082108922,
+ "CD0": {
+  "mission_altitude": 0.020987366175108543,
+  "sea_level": 0.019573204036975496,
+  "takeoff": 0.0646503131780348,
+  "landing": 0.1060503131780348
+ },
+ "CL_max": {
+  "clean": 1.35,
+  "landing": 2.13,
+  "takeoff": 1.818
+ },
+ "CL_alpha_wing": 5.286086910633741,
+ "gusts": {
+  "sea_level/takeoff_weight": 2.526127597682103,
+  "sea_level/zero_fuel_weight": 2.9935162858916806,
+  "mission_altitude/takeoff_weight": 2.848025383945094,
+  "mission_altitude/zero_fuel_weight": 3.567580720829182
+ },
+ "n_gust": 3.567580720829182,
+ "n_limit": 3.8,
+ "n_negative_gust": -1.567580720829182,
+ "Nz_ultimate": 5.699999999999999,
+ "q_design_psf": 40.96504126405404,
+ "V_c_eas_kt": {
+  "sea_level": 110.0,
+  "mission_altitude": 110.0
+ },
+ "components_lb": {
+  "wing": 542.8726708436607,
+  "horizontal_tail": 122.70769176114997,
+  "vertical_tail": 40.68761922663777,
+  "fuselage": 254.29419352664402,
+  "main_gear": 256.5660529076309,
+  "nose_gear": 104.87386209153871,
+  "installed_engine": 285.57638614457966,
+  "sponsons": 91.3909288557128,
+  "fuel_system": 118.73920252795276,
+  "flight_controls": 85.09718228620457,
+  "hydraulics": 4.240206938996608,
+  "avionics": 96.54637556475544,
+  "electrical": 194.61346980201083
+ },
+ "mission": [
+  {
+   "segment": "takeoff",
+   "W_start": 4240.206938996608,
+   "W_end": 4208.61484155698,
+   "V_kt": 0.0,
+   "speed_floor_fraction": 0.0,
+   "cbhp_mean": 0.9477629231888587,
+   "turbine_unchoked_fraction": 1.0,
+   "V_top_kt": 0.0,
+   "leg_time_h": 0.0,
+   "ground_speed_kt": null
+  },
+  {
+   "segment": "climb",
+   "W_start": 4208.61484155698,
+   "W_end": 4128.149681151318,
+   "V_kt": 0.0,
+   "speed_floor_fraction": 0.0,
+   "cbhp_mean": 0.9325060643382486,
+   "turbine_unchoked_fraction": 1.0,
+   "V_top_kt": 0.0,
+   "leg_time_h": 0.0,
+   "ground_speed_kt": null
+  },
+  {
+   "segment": "cruise_out",
+   "W_start": 4128.149681151318,
+   "W_end": 3864.066021118038,
+   "V_kt": 133.8620229006957,
+   "speed_floor_fraction": 0.0,
+   "cbhp_mean": 0.944356330806487,
+   "turbine_unchoked_fraction": 1.0,
+   "V_top_kt": 135.45739143455756,
+   "leg_time_h": 1.8374067989794427,
+   "ground_speed_kt": 108.84913007513772
+  },
+  {
+   "segment": "loiter",
+   "W_start": 3864.066021118038,
+   "W_end": 3041.972651877016,
+   "V_kt": 85.7962368907817,
+   "speed_floor_fraction": 1.0,
+   "cbhp_mean": 1.2871040689820599,
+   "turbine_unchoked_fraction": 1.0,
+   "V_top_kt": 90.64275505166103,
+   "leg_time_h": 8.53125,
+   "ground_speed_kt": null
+  },
+  {
+   "segment": "cruise_back",
+   "W_start": 3041.972651877016,
+   "W_end": 2799.4846239967405,
+   "V_kt": 122.20627893714139,
+   "speed_floor_fraction": 0.0,
+   "cbhp_mean": 1.0763493852831238,
+   "turbine_unchoked_fraction": 1.0,
+   "V_top_kt": 122.94368906792285,
+   "leg_time_h": 2.0575359783841356,
+   "ground_speed_kt": 97.20371053736022
+  },
+  {
+   "segment": "landing",
+   "W_start": 2799.4846239967405,
+   "W_end": 2785.487200876757,
+   "V_kt": 0.0,
+   "speed_floor_fraction": 0.0,
+   "cbhp_mean": 0.0,
+   "turbine_unchoked_fraction": 0.0,
+   "V_top_kt": 0.0,
+   "leg_time_h": 0.0,
+   "ground_speed_kt": null
+  }
+ ],
+ "wing": {
+  "area": 326.16976453820064,
+  "aspect_ratio": 8.0,
+  "taper": 0.45,
+  "span": 51.0818765934221,
+  "root_chord": 8.807220102314158,
+  "tip_chord": 3.9632490460413714,
+  "mac": 6.691462629459376,
+  "mac_y": 11.15581212959793
+ },
+ "horizontal_tail": {
+  "area": 161.16327074822487,
+  "aspect_ratio": 4.0,
+  "taper": 0.5,
+  "span": 25.390019357867757,
+  "root_chord": 8.46333978595592,
+  "tip_chord": 4.23166989297796,
+  "mac": 6.582597611299049,
+  "mac_y": 5.642226523970613
+ },
+ "vertical_tail": {
+  "area": 47.021498613733165,
+  "height": 8.398347928051072,
+  "root_chord": 7.465198158267622,
+  "mac": 5.80626523420815
+ },
+ "fuselage": {
+  "length": 29.83873854228841,
+  "diameter": 3.7298423177860514,
+  "s_wet": 302.7191080503163
+ },
+ "tail_arm_ft": 14.173400807586994,
+ "layout": {
+  "x_le": 9.852871854025665,
+  "x_ac": 11.525737511390508,
+  "x_np": 13.501346412470614,
+  "cg_full": 12.76491806954453,
+  "cg_empty": 12.899482229504816,
+  "sm_full": 0.11005491380672665,
+  "sm_empty": 0.08994508619327439,
+  "x_ht": 26.68652796067236,
+  "x_vt": 26.570078104108728,
+  "x_main": 14.862006197494493,
+  "h_cg": 7.324239159609153,
+  "dah_da": 0.5387906180868656,
+  "Cma_fus": 0.08717847456553354,
+  "CLa_h": 3.7728989439165788,
+  "trim": {
+   "cruise_out_start": {
+    "CL_wing": 0.3912995862821981,
+    "CL_tail": 0.010286741654106384
+   },
+   "cruise_out_end": {
+    "CL_wing": 0.36626759013469135,
+    "CL_tail": 0.005923954152083785
+   },
+   "loiter_start": {
+    "CL_wing": 0.8916137946556949,
+    "CL_tail": 0.12140345675722457
+   },
+   "loiter_end": {
+    "CL_wing": 0.7019198855702109,
+    "CL_tail": 0.08872203593012869
+   },
+   "cruise_back_start": {
+    "CL_wing": 0.34596883942295165,
+    "CL_tail": 0.005700344950252689
+   },
+   "cruise_back_end": {
+    "CL_wing": 0.3183902543466086,
+    "CL_tail": 0.0008548839902613882
+   }
+  },
+  "trim_ok": true,
+  "rotation": {
+   "V_kt": 40.44300300539497,
+   "CL_wing": 0.568,
+   "Cm_without_tail": -0.8087694267375289,
+   "CL_tail_needed": -0.9408938902748444,
+   "main_wheel_load_lb": 3970.0280816020104
+  },
+  "rotation_ok": true,
+  "nose_load": {
+   "full": 0.1534253779163606,
+   "empty": 0.14358050930033023
+  },
+  "prop_clearance_in": 15.098199167642296,
+  "gear_track": {
+   "half_track_ft": 4.657064811395264,
+   "fuselage_half_width_ft": 1.8649211588930257,
+   "retracts_into": "sponsons",
+   "wing_depth_at_wheel_in": 14.263170610620202,
+   "tyre_diameter_in": 21.081727524314374,
+   "wheel_under_wing_chord": true,
+   "fits_wing": false,
+   "sponson_length_ft": 6.324518257294312,
+   "sponson_depth_ft": 2.1081727524314373,
+   "fits": true
+  },
+  "nose_station": 0.04,
+  "cm_wing": -0.064
+ },
+ "stations": {
+  "fuselage": {
+   "weight": 254.29419352664402,
+   "x": 13.427432344029786
+  },
+  "nose_gear": {
+   "weight": 104.87386209153871,
+   "x": 1.1935495416915365
+  },
+  "installed_engine": {
+   "weight": 285.57638614457966,
+   "x": 26.258089917213802
+  },
+  "flight_controls": {
+   "weight": 85.09718228620457,
+   "x": 16.41130619825863
+  },
+  "hydraulics": {
+   "weight": 4.240206938996608,
+   "x": 13.427432344029786
+  },
+  "avionics": {
+   "weight": 96.54637556475544,
+   "x": 6.266135093880566
+  },
+  "electrical": {
+   "weight": 194.61346980201083,
+   "x": 13.427432344029786
+  },
+  "payload": {
+   "weight": 500.0,
+   "x": 2.9838738542288414
+  },
+  "wing": {
+   "weight": 542.8726708436607,
+   "x": 12.529456905809415
+  },
+  "horizontal_tail": {
+   "weight": 122.70769176114997,
+   "x": 26.68652796067236
+  },
+  "vertical_tail": {
+   "weight": 40.68761922663777,
+   "x": 26.570078104108728
+  },
+  "fuel_system": {
+   "weight": 118.73920252795276,
+   "x": 12.529456905809415
+  },
+  "sponsons": {
+   "weight": 91.3909288557128,
+   "x": 12.529456905809415
+  },
+  "main_gear": {
+   "weight": 256.5660529076309,
+   "x": 14.862006197494493
+  }
+ },
+ "performance": {
+  "V_stall_clean_kt": 53.33128280676374,
+  "V_stall_landing_kt": 42.45795893498661,
+  "takeoff_ft": 665.8992621067171,
+  "takeoff": {
+   "V_stall": 77.56830102560873,
+   "V_TO": 85.32513112816962,
+   "ground_roll": 232.49370347843598,
+   "rotation": 85.32513112816962,
+   "transition": 348.0804275001114,
+   "climb": 0.0,
+   "total": 665.8992621067171
+  },
+  "landing_ft": 1348.7896421087053,
+  "landing": {
+   "V_stall": 71.66096767005975,
+   "approach": 922.4840578729255,
+   "flare": 63.188881800459534,
+   "free_roll": 164.8202256411374,
+   "braking": 198.29647679418292,
+   "total": 1348.7896421087053,
+   "far_field_length": 2247.0835437531027
+  },
+  "roc_sl_fpm": 2056.894083162803,
+  "v_best_climb_kt": 63.997539368116485,
+  "service_ceiling_ft": 26896.583259949693,
+  "vmax_alt_kt": 145.9061254646589,
+  "vmax_alt_kt_eas": 106.53769627548816,
+  "vmax_sl_kt_eas": 167.59330634546876
+ },
+ "fuel_volume_ft3": {
+  "needed": 30.766538408308005,
+  "available": 97.64034557388804
+ },
+ "empty_fraction_comparison": {
+  "table_3_1": 0.4985468066703063,
+  "table_3_1_metal": 0.524786112284533,
+  "table_6_2": 0.45768611095322337,
+  "build_up": 0.5184194719981409,
+  "build_up_metal": 0.5600555608477827,
+  "crew_items_furnishings": 0.04287055949505582,
+  "build_up_metal_with_crew_items": 0.6029261203428384,
+  "table_15_2_approximate": 0.5954345525186073
+ },
+ "vn": {
+  "V_corner_eas_kt": 103.9639034016122,
+  "gust_sea_level_takeoff_weight": {
+   "V_cruise_eas_kt": 110.0,
+   "V_dive_eas_kt": 165.0,
+   "n_cruise": 2.5267422519841403,
+   "n_dive": 2.145056688988105,
+   "n_cruise_neg": -0.5267422519841403,
+   "n_dive_neg": -0.1450566889881051
+  },
+  "gust_sea_level_zero_fuel_weight": {
+   "V_cruise_eas_kt": 110.0,
+   "V_dive_eas_kt": 165.0,
+   "n_cruise": 2.9941974536362452,
+   "n_dive": 2.495648090227184,
+   "n_cruise_neg": -0.9941974536362452,
+   "n_dive_neg": -0.49564809022718403
+  },
+  "gust_mission_altitude_takeoff_weight": {
+   "V_cruise_eas_kt": 110.0,
+   "V_dive_eas_kt": 165.0,
+   "n_cruise": 2.830462847362338,
+   "n_dive": 2.3728471355217535,
+   "n_cruise_neg": -0.8304628473623379,
+   "n_dive_neg": -0.3728471355217535
+  },
+  "gust_mission_altitude_zero_fuel_weight": {
+   "V_cruise_eas_kt": 110.0,
+   "V_dive_eas_kt": 165.0,
+   "n_cruise": 3.545984518193961,
+   "n_dive": 2.909488388645471,
+   "n_cruise_neg": -1.5459845181939609,
+   "n_dive_neg": -0.909488388645471
+  }
+ },
+ "operating_limits": {},
+ "speeds_by_altitude": []
+}
