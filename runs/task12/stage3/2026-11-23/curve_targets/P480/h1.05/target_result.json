@@ -1,0 +1,2298 @@
+{
+ "P_hp": 480.0,
+ "h_T": 1.05,
+ "iterations": [
+  {
+   "iteration": 1,
+   "n_endurance_corners": 1,
+   "n_cliff_corners": 1,
+   "n_candidates": 18,
+   "search_s": 929.3170464038849,
+   "candidates": [
+    {
+     "P_hp": 480.0,
+     "W_S": 15.0,
+     "A": 8.0,
+     "ok": false,
+     "L_sized_h": null,
+     "failed": [],
+     "status": "no L satisfies both on the lattice (bisection grid of 1/32 h): too few hours at an endurance corner below 8.34 h, too heavy (not flyable or not closing) from 8.38 h",
+     "closure": [
+      {
+       "L_h": 8.0,
+       "guess_lb": 4434.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 12.0,
+       "guess_lb": 6034.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 10.0,
+       "guess_lb": 5234.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 9.0,
+       "guess_lb": 4834.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.5,
+       "guess_lb": 4634.0,
+       "retried": false,
+       "error": "take-off weight iteration did not converge (fractions may sum near 1)",
+       "no_retry": true,
+       "closed": false
+      },
+      {
+       "L_h": 8.25,
+       "guess_lb": 4534.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.375,
+       "guess_lb": 4584.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.3125,
+       "guess_lb": 4559.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.34375,
+       "guess_lb": 4571.5,
+       "retried": false,
+       "closed": true
+      }
+     ],
+     "trace": [
+      {
+       "L_h": 8.0,
+       "class": "small",
+       "hours_E": [
+        3.0840624505117464
+       ],
+       "ratio_C": [
+        0.9835648412402785
+       ]
+      },
+      {
+       "L_h": 12.0,
+       "class": "heavy",
+       "why": "cliff corner not flyable: no speed on the leg within the engine's power",
+       "ratio": 1.1522389944177196
+      },
+      {
+       "L_h": 10.0,
+       "class": "heavy",
+       "why": "cliff corner not flyable: no speed on the leg within the engine's power",
+       "ratio": 1.0604279557196137
+      },
+      {
+       "L_h": 9.0,
+       "class": "heavy",
+       "why": "cliff corner not flyable: no speed on the leg within the engine's power",
+       "ratio": 1.0277241316675452
+      },
+      {
+       "L_h": 8.5,
+       "class": "heavy",
+       "why": "weight iteration did not converge at 8.500 h (not retried): take-off weight iteration did not converge (fractions may sum near 1)"
+      },
+      {
+       "L_h": 8.25,
+       "class": "small",
+       "hours_E": [
+        3.231489501201161
+       ],
+       "ratio_C": [
+        0.9945180534509201
+       ]
+      },
+      {
+       "L_h": 8.375,
+       "class": "heavy",
+       "why": "cliff corner not flyable: no speed on the leg within the engine's power",
+       "ratio": 1.000008245722954
+      },
+      {
+       "L_h": 8.3125,
+       "class": "small",
+       "hours_E": [
+        3.2681098528634718
+       ],
+       "ratio_C": [
+        0.9972497308940436
+       ]
+      },
+      {
+       "L_h": 8.34375,
+       "class": "small",
+       "hours_E": [
+        3.286616667198218
+       ],
+       "ratio_C": [
+        0.9986308375117489
+       ]
+      }
+     ],
+     "W0_at_8h_lb": 4415.097934050032
+    },
+    {
+     "P_hp": 480.0,
+     "W_S": 15.0,
+     "A": 9.0,
+     "ok": true,
+     "L_sized_h": 8.75,
+     "failed": [],
+     "status": "bisected",
+     "closure": [
+      {
+       "L_h": 8.0,
+       "guess_lb": 4434.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 12.0,
+       "guess_lb": 6034.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 10.0,
+       "guess_lb": 5234.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 9.0,
+       "guess_lb": 4834.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.5,
+       "guess_lb": 4634.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.75,
+       "guess_lb": 4734.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.625,
+       "guess_lb": 4684.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.6875,
+       "guess_lb": 4709.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.71875,
+       "guess_lb": 4721.5,
+       "retried": false,
+       "closed": true
+      }
+     ],
+     "trace": [
+      {
+       "L_h": 8.0,
+       "class": "small",
+       "hours_E": [
+        3.070135536002757
+       ],
+       "ratio_C": [
+        0.9562523755819213
+       ]
+      },
+      {
+       "L_h": 12.0,
+       "class": "heavy",
+       "why": "cliff corner not flyable: no speed on the leg within the engine's power",
+       "ratio": 1.132706205765359
+      },
+      {
+       "L_h": 10.0,
+       "class": "heavy",
+       "why": "cliff corner not flyable: no speed on the leg within the engine's power",
+       "ratio": 1.0423004410680705
+      },
+      {
+       "L_h": 9.0,
+       "class": "ok",
+       "hours_E": [
+        3.658108964912514
+       ],
+       "ratio_C": [
+        0.9987481465083364
+       ]
+      },
+      {
+       "L_h": 8.5,
+       "class": "small",
+       "hours_E": [
+        3.364251175978354
+       ],
+       "ratio_C": [
+        0.9773470861986635
+       ]
+      },
+      {
+       "L_h": 8.75,
+       "class": "ok",
+       "hours_E": [
+        3.5114618691049273
+       ],
+       "ratio_C": [
+        0.9880106672259862
+       ]
+      },
+      {
+       "L_h": 8.625,
+       "class": "small",
+       "hours_E": [
+        3.4381184594051453
+       ],
+       "ratio_C": [
+        0.9826594247942836
+       ]
+      },
+      {
+       "L_h": 8.6875,
+       "class": "small",
+       "hours_E": [
+        3.4747272977500283
+       ],
+       "ratio_C": [
+        0.9853348397327443
+       ]
+      },
+      {
+       "L_h": 8.71875,
+       "class": "small",
+       "hours_E": [
+        3.493118532723049
+       ],
+       "ratio_C": [
+        0.9866721376797398
+       ]
+      }
+     ],
+     "corner_hours": [
+      3.5114618691049273
+     ],
+     "corner_ratio": [
+      0.9880106672259862
+     ],
+     "W0_lb": 4622.414412277992,
+     "fuel_lb": 1757.6116691162201,
+     "We_lb": 2364.800688784825,
+     "engine_weight_lb": 236.14393636520688,
+     "span_ft": 52.663541918169486,
+     "power_margin": 0.2713091899716742,
+     "W0_at_8h_lb": 4422.70876313313
+    },
+    {
+     "P_hp": 480.0,
+     "W_S": 14.0,
+     "A": 8.0,
+     "ok": true,
+     "L_sized_h": 8.6875,
+     "failed": [],
+     "status": "bisected",
+     "closure": [
+      {
+       "L_h": 8.0,
+       "guess_lb": 4434.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 12.0,
+       "guess_lb": 6034.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 10.0,
+       "guess_lb": 5234.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 9.0,
+       "guess_lb": 4834.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.5,
+       "guess_lb": 4634.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.75,
+       "guess_lb": 4734.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.625,
+       "guess_lb": 4684.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.6875,
+       "guess_lb": 4709.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.65625,
+       "guess_lb": 4696.5,
+       "retried": false,
+       "closed": true
+      }
+     ],
+     "trace": [
+      {
+       "L_h": 8.0,
+       "class": "small",
+       "hours_E": [
+        3.1053609146880063
+       ],
+       "ratio_C": [
+        0.9408799292792188
+       ]
+      },
+      {
+       "L_h": 12.0,
+       "class": "heavy",
+       "why": "cliff corner not flyable: no speed on the leg within the engine's power",
+       "ratio": 1.1186671539673023
+      },
+      {
+       "L_h": 10.0,
+       "class": "heavy",
+       "why": "cliff corner not flyable: no speed on the leg within the engine's power",
+       "ratio": 1.0277999870202126
+      },
+      {
+       "L_h": 9.0,
+       "class": "ok",
+       "hours_E": [
+        3.700689524816812
+       ],
+       "ratio_C": [
+        0.9836653254789103
+       ]
+      },
+      {
+       "L_h": 8.5,
+       "class": "small",
+       "hours_E": [
+        3.4034851962463115
+       ],
+       "ratio_C": [
+        0.9623519604714307
+       ]
+      },
+      {
+       "L_h": 8.75,
+       "class": "ok",
+       "hours_E": [
+        3.552512432603353
+       ],
+       "ratio_C": [
+        0.9730977416404265
+       ]
+      },
+      {
+       "L_h": 8.625,
+       "class": "small",
+       "hours_E": [
+        3.4782498097449714
+       ],
+       "ratio_C": [
+        0.9677282175361019
+       ]
+      },
+      {
+       "L_h": 8.6875,
+       "class": "ok",
+       "hours_E": [
+        3.515263895587643
+       ],
+       "ratio_C": [
+        0.9703975146893382
+       ]
+      },
+      {
+       "L_h": 8.65625,
+       "class": "small",
+       "hours_E": [
+        3.4968812545670946
+       ],
+       "ratio_C": [
+        0.9690725465706519
+       ]
+      }
+     ],
+     "corner_hours": [
+      3.515263895587643
+     ],
+     "corner_ratio": [
+      0.9703975146893382
+     ],
+     "W0_lb": 4641.0138315717295,
+     "fuel_lb": 1767.4669597417353,
+     "We_lb": 2373.5442107923577,
+     "engine_weight_lb": 236.14393636520688,
+     "span_ft": 51.49764949738264,
+     "power_margin": 0.2604536764332591,
+     "W0_at_8h_lb": 4454.500625612467
+    },
+    {
+     "P_hp": 480.0,
+     "W_S": 15.0,
+     "A": 10.0,
+     "ok": true,
+     "L_sized_h": 8.84375,
+     "failed": [],
+     "status": "bisected",
+     "closure": [
+      {
+       "L_h": 8.0,
+       "guess_lb": 4434.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 12.0,
+       "guess_lb": 6034.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 10.0,
+       "guess_lb": 5234.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 9.0,
+       "guess_lb": 4834.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.5,
+       "guess_lb": 4634.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.75,
+       "guess_lb": 4734.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.875,
+       "guess_lb": 4784.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.8125,
+       "guess_lb": 4759.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.84375,
+       "guess_lb": 4771.5,
+       "retried": false,
+       "closed": true
+      }
+     ],
+     "trace": [
+      {
+       "L_h": 8.0,
+       "class": "small",
+       "hours_E": [
+        3.020038212889679
+       ],
+       "ratio_C": [
+        0.9529465609339095
+       ]
+      },
+      {
+       "L_h": 12.0,
+       "class": "heavy",
+       "why": "cliff corner not flyable: no speed on the leg within the engine's power",
+       "ratio": 1.1212236274254703
+      },
+      {
+       "L_h": 10.0,
+       "class": "heavy",
+       "why": "cliff corner not flyable: no speed on the leg within the engine's power",
+       "ratio": 1.0370646683875644
+      },
+      {
+       "L_h": 9.0,
+       "class": "ok",
+       "hours_E": [
+        3.6011324457298515
+       ],
+       "ratio_C": [
+        0.9945323521741928
+       ]
+      },
+      {
+       "L_h": 8.5,
+       "class": "small",
+       "hours_E": [
+        3.3111429205469722
+       ],
+       "ratio_C": [
+        0.9736414321918806
+       ]
+      },
+      {
+       "L_h": 8.75,
+       "class": "small",
+       "hours_E": [
+        3.4561464046757955
+       ],
+       "ratio_C": [
+        0.9840540942106039
+       ]
+      },
+      {
+       "L_h": 8.875,
+       "class": "ok",
+       "hours_E": [
+        3.5286184200636415
+       ],
+       "ratio_C": [
+        0.9892816587921361
+       ]
+      },
+      {
+       "L_h": 8.8125,
+       "class": "small",
+       "hours_E": [
+        3.4921799936085556
+       ],
+       "ratio_C": [
+        0.9866665968933431
+       ]
+      },
+      {
+       "L_h": 8.84375,
+       "class": "ok",
+       "hours_E": [
+        3.5103895852426668
+       ],
+       "ratio_C": [
+        0.9879647840248487
+       ]
+      }
+     ],
+     "corner_hours": [
+      3.5103895852426668
+     ],
+     "corner_ratio": [
+      0.9879647840248487
+     ],
+     "W0_lb": 4704.39151371017,
+     "fuel_lb": 1765.1671639440056,
+     "We_lb": 2439.2221045364113,
+     "engine_weight_lb": 236.14393636520688,
+     "span_ft": 56.00233039026246,
+     "power_margin": 0.2847920672725316,
+     "W0_at_8h_lb": 4478.922862561492
+    },
+    {
+     "P_hp": 480.0,
+     "W_S": 14.0,
+     "A": 9.0,
+     "ok": true,
+     "L_sized_h": 8.78125,
+     "failed": [],
+     "status": "bisected",
+     "closure": [
+      {
+       "L_h": 8.0,
+       "guess_lb": 4434.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 12.0,
+       "guess_lb": 6034.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 10.0,
+       "guess_lb": 5234.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 9.0,
+       "guess_lb": 4834.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.5,
+       "guess_lb": 4634.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.75,
+       "guess_lb": 4734.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.875,
+       "guess_lb": 4784.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.8125,
+       "guess_lb": 4759.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.78125,
+       "guess_lb": 4746.5,
+       "retried": false,
+       "closed": true
+      }
+     ],
+     "trace": [
+      {
+       "L_h": 8.0,
+       "class": "small",
+       "hours_E": [
+        3.0446164263298234
+       ],
+       "ratio_C": [
+        0.9266247307480473
+       ]
+      },
+      {
+       "L_h": 12.0,
+       "class": "heavy",
+       "why": "cliff corner not flyable: no speed on the leg within the engine's power",
+       "ratio": 1.100330721360751
+      },
+      {
+       "L_h": 10.0,
+       "class": "heavy",
+       "why": "cliff corner not flyable: no speed on the leg within the engine's power",
+       "ratio": 1.0112728402539823
+      },
+      {
+       "L_h": 9.0,
+       "class": "ok",
+       "hours_E": [
+        3.6336271714889814
+       ],
+       "ratio_C": [
+        0.9683698527475307
+       ]
+      },
+      {
+       "L_h": 8.5,
+       "class": "small",
+       "hours_E": [
+        3.3389391103896204
+       ],
+       "ratio_C": [
+        0.947331997457226
+       ]
+      },
+      {
+       "L_h": 8.75,
+       "class": "small",
+       "hours_E": [
+        3.486270182649034
+       ],
+       "ratio_C": [
+        0.957799828038755
+       ]
+      },
+      {
+       "L_h": 8.875,
+       "class": "ok",
+       "hours_E": [
+        3.5601969761713064
+       ],
+       "ratio_C": [
+        0.9630741440962299
+       ]
+      },
+      {
+       "L_h": 8.8125,
+       "class": "ok",
+       "hours_E": [
+        3.523043419240256
+       ],
+       "ratio_C": [
+        0.9604289372276053
+       ]
+      },
+      {
+       "L_h": 8.78125,
+       "class": "ok",
+       "hours_E": [
+        3.5046477099099205
+       ],
+       "ratio_C": [
+        0.9591122570611385
+       ]
+      }
+     ],
+     "corner_hours": [
+      3.5046477099099205
+     ],
+     "corner_ratio": [
+      0.9591122570611385
+     ],
+     "W0_lb": 4699.828226373206,
+     "fuel_lb": 1761.563658649013,
+     "We_lb": 2438.2674161833756,
+     "engine_weight_lb": 236.14393636520688,
+     "span_ft": 54.966518404621844,
+     "power_margin": 0.2850772064054836,
+     "W0_at_8h_lb": 4489.094232793408
+    },
+    {
+     "P_hp": 480.0,
+     "W_S": 13.0,
+     "A": 8.0,
+     "ok": true,
+     "L_sized_h": 8.71875,
+     "failed": [],
+     "status": "bisected",
+     "closure": [
+      {
+       "L_h": 8.0,
+       "guess_lb": 4434.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 12.0,
+       "guess_lb": 6034.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 10.0,
+       "guess_lb": 5234.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 9.0,
+       "guess_lb": 4834.0,
+       "retried": false,
+       "error": "take-off weight iteration did not converge (fractions may sum near 1)",
+       "no_retry": true,
+       "closed": false
+      },
+      {
+       "L_h": 8.5,
+       "guess_lb": 4634.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.75,
+       "guess_lb": 4734.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.625,
+       "guess_lb": 4684.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.6875,
+       "guess_lb": 4709.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.71875,
+       "guess_lb": 4721.5,
+       "retried": false,
+       "closed": true
+      }
+     ],
+     "trace": [
+      {
+       "L_h": 8.0,
+       "class": "small",
+       "hours_E": [
+        3.1240884611152073
+       ],
+       "ratio_C": [
+        0.8997389364488317
+       ]
+      },
+      {
+       "L_h": 12.0,
+       "class": "heavy",
+       "why": "cliff corner not flyable: no speed on the leg within the engine's power",
+       "ratio": 1.0725794988646347
+      },
+      {
+       "L_h": 10.0,
+       "class": "ok",
+       "hours_E": [
+        4.263636707811724
+       ],
+       "ratio_C": [
+        0.9971376510906576
+       ]
+      },
+      {
+       "L_h": 9.0,
+       "class": "heavy",
+       "why": "weight iteration did not converge at 9.000 h (not retried): take-off weight iteration did not converge (fractions may sum near 1)"
+      },
+      {
+       "L_h": 8.5,
+       "class": "small",
+       "hours_E": [
+        3.375826811509646
+       ],
+       "ratio_C": [
+        0.9326797112085621
+       ]
+      },
+      {
+       "L_h": 8.75,
+       "class": "ok",
+       "hours_E": [
+        3.5249473305834207
+       ],
+       "ratio_C": [
+        0.9432398174589959
+       ]
+      },
+      {
+       "L_h": 8.625,
+       "class": "small",
+       "hours_E": [
+        3.449957157571877
+       ],
+       "ratio_C": [
+        0.9379491381638276
+       ]
+      },
+      {
+       "L_h": 8.6875,
+       "class": "small",
+       "hours_E": [
+        3.4876711634530495
+       ],
+       "ratio_C": [
+        0.9405927018543914
+       ]
+      },
+      {
+       "L_h": 8.71875,
+       "class": "ok",
+       "hours_E": [
+        3.506423477443939
+       ],
+       "ratio_C": [
+        0.9419245206548985
+       ]
+      }
+     ],
+     "corner_hours": [
+      3.506423477443939
+     ],
+     "corner_ratio": [
+      0.9419245206548985
+     ],
+     "W0_lb": 4729.159514286801,
+     "fuel_lb": 1773.7552163249024,
+     "We_lb": 2455.4068587428765,
+     "engine_weight_lb": 236.14393636520688,
+     "span_ft": 53.94675160555895,
+     "power_margin": 0.2741244613770043,
+     "W0_at_8h_lb": 4510.007032016021
+    },
+    {
+     "P_hp": 480.0,
+     "W_S": 14.0,
+     "A": 10.0,
+     "ok": true,
+     "L_sized_h": 9.0,
+     "failed": [],
+     "status": "bisected",
+     "closure": [
+      {
+       "L_h": 8.0,
+       "guess_lb": 4434.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 12.0,
+       "guess_lb": 6034.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 10.0,
+       "guess_lb": 5234.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 9.0,
+       "guess_lb": 4834.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.5,
+       "guess_lb": 4634.0,
+       "retried": false,
+       "error": "take-off weight iteration did not converge (fractions may sum near 1)",
+       "no_retry": true,
+       "closed": false
+      },
+      {
+       "L_h": 8.25,
+       "guess_lb": 4534.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.375,
+       "guess_lb": 4584.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.4375,
+       "guess_lb": 4609.0,
+       "retried": false,
+       "error": "take-off weight iteration did not converge (fractions may sum near 1)",
+       "no_retry": true,
+       "closed": false
+      },
+      {
+       "L_h": 8.40625,
+       "guess_lb": 4596.5,
+       "retried": false,
+       "closed": true
+      }
+     ],
+     "trace": [
+      {
+       "L_h": 8.0,
+       "class": "small",
+       "hours_E": [
+        2.9903469291339855
+       ],
+       "ratio_C": [
+        0.9224463727904599
+       ]
+      },
+      {
+       "L_h": 12.0,
+       "class": "heavy",
+       "why": "cliff corner not flyable: no speed on the leg within the engine's power",
+       "ratio": 1.0755051755547607
+      },
+      {
+       "L_h": 10.0,
+       "class": "ok",
+       "hours_E": [
+        4.213830508771218
+       ],
+       "ratio_C": [
+        0.9886301174307349
+       ]
+      },
+      {
+       "L_h": 9.0,
+       "class": "ok",
+       "hours_E": [
+        3.627114748887721
+       ],
+       "ratio_C": [
+        0.9502193795763763
+       ]
+      },
+      {
+       "L_h": 8.5,
+       "class": "heavy",
+       "why": "weight iteration did not converge at 8.500 h (not retried): take-off weight iteration did not converge (fractions may sum near 1)"
+      },
+      {
+       "L_h": 8.25,
+       "class": "small",
+       "hours_E": [
+        3.136426509641263
+       ],
+       "ratio_C": [
+        0.9325286429862469
+       ]
+      },
+      {
+       "L_h": 8.375,
+       "class": "small",
+       "hours_E": [
+        3.2092379886719926
+       ],
+       "ratio_C": [
+        0.9375858156015023
+       ]
+      },
+      {
+       "L_h": 8.4375,
+       "class": "heavy",
+       "why": "weight iteration did not converge at 8.438 h (not retried): take-off weight iteration did not converge (fractions may sum near 1)"
+      },
+      {
+       "L_h": 8.40625,
+       "class": "small",
+       "hours_E": [
+        3.2275464014099726
+       ],
+       "ratio_C": [
+        0.9388426217993953
+       ]
+      }
+     ],
+     "corner_hours": [
+      3.627114748887721
+     ],
+     "corner_ratio": [
+      0.9502193795763763
+     ],
+     "W0_lb": 4795.390714561044,
+     "fuel_lb": 1783.1411869733793,
+     "We_lb": 2512.2524326194202,
+     "engine_weight_lb": 236.14393636520688,
+     "span_ft": 58.525883862008584,
+     "power_margin": 0.29744166884088996,
+     "W0_at_8h_lb": 4546.478704607373
+    },
+    {
+     "P_hp": 480.0,
+     "W_S": 13.0,
+     "A": 9.0,
+     "ok": true,
+     "L_sized_h": 8.75,
+     "failed": [],
+     "status": "bisected",
+     "closure": [
+      {
+       "L_h": 8.0,
+       "guess_lb": 4434.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 12.0,
+       "guess_lb": 6034.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 10.0,
+       "guess_lb": 5234.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 9.0,
+       "guess_lb": 4834.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.5,
+       "guess_lb": 4634.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.75,
+       "guess_lb": 4734.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.625,
+       "guess_lb": 4684.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.6875,
+       "guess_lb": 4709.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.71875,
+       "guess_lb": 4721.5,
+       "retried": false,
+       "closed": true
+      }
+     ],
+     "trace": [
+      {
+       "L_h": 8.0,
+       "class": "small",
+       "hours_E": [
+        3.059716170781956
+       ],
+       "ratio_C": [
+        0.8866191480468116
+       ]
+      },
+      {
+       "L_h": 12.0,
+       "class": "heavy",
+       "why": "cliff corner not flyable: no speed on the leg within the engine's power",
+       "ratio": 1.0560404291095702
+      },
+      {
+       "L_h": 10.0,
+       "class": "ok",
+       "hours_E": [
+        4.250466651502976
+       ],
+       "ratio_C": [
+        0.9690177438504178
+       ]
+      },
+      {
+       "L_h": 9.0,
+       "class": "ok",
+       "hours_E": [
+        3.6564301058133037
+       ],
+       "ratio_C": [
+        0.927053701614831
+       ]
+      },
+      {
+       "L_h": 8.5,
+       "class": "small",
+       "hours_E": [
+        3.358799718945176
+       ],
+       "ratio_C": [
+        0.9066900792804157
+       ]
+      },
+      {
+       "L_h": 8.75,
+       "class": "ok",
+       "hours_E": [
+        3.5081500013383833
+       ],
+       "ratio_C": [
+        0.916839353191764
+       ]
+      },
+      {
+       "L_h": 8.625,
+       "class": "small",
+       "hours_E": [
+        3.433760189621868
+       ],
+       "ratio_C": [
+        0.9117667511182743
+       ]
+      },
+      {
+       "L_h": 8.6875,
+       "class": "small",
+       "hours_E": [
+        3.470977904603003
+       ],
+       "ratio_C": [
+        0.9143004183223991
+       ]
+      },
+      {
+       "L_h": 8.71875,
+       "class": "small",
+       "hours_E": [
+        3.489571062357544
+       ],
+       "ratio_C": [
+        0.9155684618770149
+       ]
+      }
+     ],
+     "corner_hours": [
+      3.5081500013383833
+     ],
+     "corner_ratio": [
+      0.916839353191764
+     ],
+     "W0_lb": 4757.152533875433,
+     "fuel_lb": 1754.5389656012685,
+     "We_lb": 2502.6157240258535,
+     "engine_weight_lb": 236.14393636520688,
+     "span_ft": 57.38826790105267,
+     "power_margin": 0.3028157050378475,
+     "W0_at_8h_lb": 4552.4376264924595
+    },
+    {
+     "P_hp": 480.0,
+     "W_S": 13.0,
+     "A": 10.0,
+     "ok": true,
+     "L_sized_h": 8.84375,
+     "failed": [],
+     "status": "bisected",
+     "closure": [
+      {
+       "L_h": 8.0,
+       "guess_lb": 4434.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 12.0,
+       "guess_lb": 6034.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 10.0,
+       "guess_lb": 5234.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 9.0,
+       "guess_lb": 4834.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.5,
+       "guess_lb": 4634.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.75,
+       "guess_lb": 4734.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.875,
+       "guess_lb": 4784.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.8125,
+       "guess_lb": 4759.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.84375,
+       "guess_lb": 4771.5,
+       "retried": false,
+       "closed": true
+      }
+     ],
+     "trace": [
+      {
+       "L_h": 8.0,
+       "class": "small",
+       "hours_E": [
+        3.002499185963393
+       ],
+       "ratio_C": [
+        0.8799334592860036
+       ]
+      },
+      {
+       "L_h": 12.0,
+       "class": "heavy",
+       "why": "cliff corner not flyable: no speed on the leg within the engine's power",
+       "ratio": 1.0478051615319701
+      },
+      {
+       "L_h": 10.0,
+       "class": "ok",
+       "hours_E": [
+        4.1801631261854695
+       ],
+       "ratio_C": [
+        0.9615469687395196
+       ]
+      },
+      {
+       "L_h": 9.0,
+       "class": "ok",
+       "hours_E": [
+        3.5929428214303405
+       ],
+       "ratio_C": [
+        0.9202896092339025
+       ]
+      },
+      {
+       "L_h": 8.5,
+       "class": "small",
+       "hours_E": [
+        3.298493162280181
+       ],
+       "ratio_C": [
+        0.9001150186112066
+       ]
+      },
+      {
+       "L_h": 8.75,
+       "class": "small",
+       "hours_E": [
+        3.446048666115429
+       ],
+       "ratio_C": [
+        0.9101463404799337
+       ]
+      },
+      {
+       "L_h": 8.875,
+       "class": "ok",
+       "hours_E": [
+        3.5195022898355828
+       ],
+       "ratio_C": [
+        0.9151996314931891
+       ]
+      },
+      {
+       "L_h": 8.8125,
+       "class": "small",
+       "hours_E": [
+        3.4824692139140527
+       ],
+       "ratio_C": [
+        0.9126715963678116
+       ]
+      },
+      {
+       "L_h": 8.84375,
+       "class": "ok",
+       "hours_E": [
+        3.501063883449427
+       ],
+       "ratio_C": [
+        0.9139338423975873
+       ]
+      }
+     ],
+     "corner_hours": [
+      3.501063883449427
+     ],
+     "corner_ratio": [
+      0.9139338423975873
+     ],
+     "W0_lb": 4839.976891154931,
+     "fuel_lb": 1758.8165541595688,
+     "We_lb": 2581.162506642873,
+     "engine_weight_lb": 236.14393636520688,
+     "span_ft": 61.01687592004571,
+     "power_margin": 0.31747301604114364,
+     "W0_at_8h_lb": 4605.943026899675
+    },
+    {
+     "P_hp": 480.0,
+     "W_S": 12.0,
+     "A": 8.0,
+     "ok": true,
+     "L_sized_h": 8.6875,
+     "failed": [],
+     "status": "bisected",
+     "closure": [
+      {
+       "L_h": 8.0,
+       "guess_lb": 4434.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 12.0,
+       "guess_lb": 6034.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 10.0,
+       "guess_lb": 5234.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 9.0,
+       "guess_lb": 4834.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.5,
+       "guess_lb": 4634.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.75,
+       "guess_lb": 4734.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.625,
+       "guess_lb": 4684.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.6875,
+       "guess_lb": 4709.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 8.65625,
+       "guess_lb": 4696.5,
+       "retried": false,
+       "closed": true
+      }
+     ],
+     "trace": [
+      {
+       "L_h": 8.0,
+       "class": "small",
+       "hours_E": [
+        3.0892299403403176
+       ],
+       "ratio_C": [
+        0.87275170852344
+       ]
+      },
+      {
+       "L_h": 12.0,
+       "class": "heavy",
+       "why": "cliff corner not flyable: no speed on the leg within the engine's power",
+       "ratio": 1.0441848049228646
+      },
+      {
+       "L_h": 10.0,
+       "class": "ok",
+       "hours_E": [
+        4.294629857011059
+       ],
+       "ratio_C": [
+        0.9558673287067841
+       ]
+      },
+      {
+       "L_h": 9.0,
+       "class": "ok",
+       "hours_E": [
+        3.694435186093134
+       ],
+       "ratio_C": [
+        0.913670204674655
+       ]
+      },
+      {
+       "L_h": 8.5,
+       "class": "small",
+       "hours_E": [
+        3.392469923672027
+       ],
+       "ratio_C": [
+        0.8930631678274681
+       ]
+      },
+      {
+       "L_h": 8.75,
+       "class": "ok",
+       "hours_E": [
+        3.5434046700035844
+       ],
+       "ratio_C": [
+        0.9033229963553573
+       ]
+      },
+      {
+       "L_h": 8.625,
+       "class": "small",
+       "hours_E": [
+        3.4679164969398215
+       ],
+       "ratio_C": [
+        0.898175942956723
+       ]
+      },
+      {
+       "L_h": 8.6875,
+       "class": "ok",
+       "hours_E": [
+        3.506214290406814
+       ],
+       "ratio_C": [
+        0.9007490994887796
+       ]
+      },
+      {
+       "L_h": 8.65625,
+       "class": "small",
+       "hours_E": [
+        3.4873075763561205
+       ],
+       "ratio_C": [
+        0.8994643654106717
+       ]
+      }
+     ],
+     "corner_hours": [
+      3.506214290406814
+     ],
+     "corner_ratio": [
+      0.9007490994887796
+     ],
+     "W0_lb": 4802.104398214349,
+     "fuel_lb": 1770.2051015695588,
+     "We_lb": 2531.901997849652,
+     "engine_weight_lb": 236.14393636520688,
+     "span_ft": 56.580941421497215,
+     "power_margin": 0.2915085884872005,
+     "W0_at_8h_lb": 4609.967156022709
+    },
+    {
+     "P_hp": 480.0,
+     "W_S": 12.0,
+     "A": 9.0,
+     "ok": false,
+     "L_sized_h": null,
+     "failed": [],
+     "status": "pruned: W0 at 8 h 4663 lb is not below the lightest compliant design (4622 lb)",
+     "closure": [
+      {
+       "L_h": 8.0,
+       "guess_lb": 4434.0,
+       "retried": false,
+       "closed": true
+      }
+     ],
+     "trace": [],
+     "W0_at_8h_lb": 4663.309609348811
+    },
+    {
+     "P_hp": 480.0,
+     "W_S": 11.5,
+     "A": 8.0,
+     "ok": false,
+     "L_sized_h": null,
+     "failed": [],
+     "status": "pruned: W0 at 8 h 4671 lb is not below the lightest compliant design (4622 lb)",
+     "closure": [
+      {
+       "L_h": 8.0,
+       "guess_lb": 4434.0,
+       "retried": false,
+       "closed": true
+      }
+     ],
+     "trace": [],
+     "W0_at_8h_lb": 4671.474688459823
+    },
+    {
+     "P_hp": 480.0,
+     "W_S": 12.0,
+     "A": 10.0,
+     "ok": false,
+     "L_sized_h": null,
+     "failed": [],
+     "status": "pruned: W0 at 8 h 4729 lb is not below the lightest compliant design (4622 lb)",
+     "closure": [
+      {
+       "L_h": 8.0,
+       "guess_lb": 4434.0,
+       "retried": false,
+       "closed": true
+      }
+     ],
+     "trace": [],
+     "W0_at_8h_lb": 4729.354952536333
+    },
+    {
+     "P_hp": 480.0,
+     "W_S": 11.5,
+     "A": 9.0,
+     "ok": false,
+     "L_sized_h": null,
+     "failed": [],
+     "status": "pruned: W0 at 8 h 4732 lb is not below the lightest compliant design (4622 lb)",
+     "closure": [
+      {
+       "L_h": 8.0,
+       "guess_lb": 4434.0,
+       "retried": false,
+       "closed": true
+      }
+     ],
+     "trace": [],
+     "W0_at_8h_lb": 4731.712901842003
+    },
+    {
+     "P_hp": 480.0,
+     "W_S": 11.0,
+     "A": 8.0,
+     "ok": false,
+     "L_sized_h": null,
+     "failed": [],
+     "status": "pruned: W0 at 8 h 4743 lb is not below the lightest compliant design (4622 lb)",
+     "closure": [
+      {
+       "L_h": 8.0,
+       "guess_lb": 4434.0,
+       "retried": false,
+       "closed": true
+      }
+     ],
+     "trace": [],
+     "W0_at_8h_lb": 4743.238905299604
+    },
+    {
+     "P_hp": 480.0,
+     "W_S": 11.5,
+     "A": 10.0,
+     "ok": false,
+     "L_sized_h": null,
+     "failed": [],
+     "status": "pruned: W0 at 8 h 4805 lb is not below the lightest compliant design (4622 lb)",
+     "closure": [
+      {
+       "L_h": 8.0,
+       "guess_lb": 4434.0,
+       "retried": false,
+       "closed": true
+      }
+     ],
+     "trace": [],
+     "W0_at_8h_lb": 4805.005670733264
+    },
+    {
+     "P_hp": 480.0,
+     "W_S": 11.0,
+     "A": 9.0,
+     "ok": false,
+     "L_sized_h": null,
+     "failed": [],
+     "status": "pruned: W0 at 8 h 4811 lb is not below the lightest compliant design (4622 lb)",
+     "closure": [
+      {
+       "L_h": 8.0,
+       "guess_lb": 4434.0,
+       "retried": false,
+       "closed": true
+      }
+     ],
+     "trace": [],
+     "W0_at_8h_lb": 4811.379573450257
+    },
+    {
+     "P_hp": 480.0,
+     "W_S": 11.0,
+     "A": 10.0,
+     "ok": false,
+     "L_sized_h": null,
+     "failed": [],
+     "status": "pruned: W0 at 8 h 4906 lb is not below the lightest compliant design (4622 lb)",
+     "closure": [
+      {
+       "L_h": 8.0,
+       "guess_lb": 4434.0,
+       "retried": false,
+       "closed": true
+      }
+     ],
+     "trace": [],
+     "W0_at_8h_lb": 4905.988516969697
+    }
+   ],
+   "reasons_not_selected": {
+    "no L on the lattice satisfies both corners: too few hours at an endurance corner below some L, too heavy above it": [
+     "W/S 15 A 8"
+    ],
+    "pruned (W0 at 8 h not below the lightest compliant design)": [
+     "W/S 12 A 9",
+     "W/S 11.5 A 8",
+     "W/S 12 A 10",
+     "W/S 11.5 A 9",
+     "W/S 11 A 8",
+     "W/S 11.5 A 10",
+     "W/S 11 A 9",
+     "W/S 11 A 10"
+    ]
+   },
+   "winner": {
+    "P_hp": 480.0,
+    "W_S": 15.0,
+    "A": 9.0,
+    "L_sized_h": 8.75,
+    "W0_lb": 4622.414412277992,
+    "fuel_lb": 1757.6116691162201,
+    "We_lb": 2364.800688784825,
+    "engine_weight_lb": 236.14393636520688,
+    "span_ft": 52.663541918169486,
+    "power_margin": 0.2713091899716742,
+    "failed": [],
+    "status": "bisected",
+    "corner_hours": [
+     3.5114618691049273
+    ],
+    "corner_ratio": [
+     0.9880106672259862
+    ]
+   },
+   "worst_at_target": {
+    "endurance": {
+     "moved": {
+      "eta_p": 0.7475,
+      "airfoil_cl_max": 1.29,
+      "wing_t_c": 0.1185,
+      "laminar_fraction_wing": 0.0975,
+      "sensor_drag_area_ft2": 0.8200000000000001,
+      "fuselage_fineness": 5.9,
+      "fuselage_fill": 0.8525,
+      "avionics_uninstalled_lb": 102.0,
+      "gust_ude_fps": 51.0,
+      "main_gear_station_guess": 0.295,
+      "rotation_angle_deg_pusher": 15.25,
+      "sponson_length_per_tyre": 2.9699999999999998,
+      "sponson_depth_per_tyre": 1.41,
+      "sponson_weight_per_wetted": 1.82,
+      "engine_sfc_mult": 1.105,
+      "engine_power_mult": 1.105
+     },
+     "score": 1755.6417780725405,
+     "reason": null,
+     "hours": 3.5114618691049273,
+     "hours_reason": null,
+     "flyable": true,
+     "n_evals": 572
+    },
+    "cliff": {
+     "moved": {
+      "eta_p": 0.7475,
+      "airfoil_cl_max": 1.29,
+      "wing_t_c": 0.1185,
+      "laminar_fraction_wing": 0.0975,
+      "sensor_drag_area_ft2": 0.8200000000000001,
+      "fuselage_fineness": 5.9,
+      "fuselage_fill": 0.8525,
+      "avionics_uninstalled_lb": 102.0,
+      "gust_ude_fps": 51.0,
+      "main_gear_station_guess": 0.295,
+      "rotation_angle_deg_pusher": 15.25,
+      "sponson_length_per_tyre": 2.9699999999999998,
+      "sponson_depth_per_tyre": 1.41,
+      "sponson_weight_per_wetted": 1.82,
+      "engine_sfc_mult": 0.895,
+      "engine_power_mult": 0.895
+     },
+     "score": 0.9880106672259862,
+     "reason": null,
+     "transit_ratio": 0.9880106672259862,
+     "flyable": true,
+     "n_evals": 572
+    }
+   },
+   "violating_modes": [],
+   "corners_added": [],
+   "converged": true,
+   "stopped_by_budget": false
+  }
+ ],
+ "corner_sets": {
+  "endurance": [
+   {
+    "label": "E1@h1.05",
+    "moved": {
+     "eta_p": 0.7475,
+     "airfoil_cl_max": 1.29,
+     "wing_t_c": 0.1185,
+     "laminar_fraction_wing": 0.0975,
+     "sensor_drag_area_ft2": 0.8200000000000001,
+     "fuselage_fineness": 5.9,
+     "fuselage_fill": 0.8525,
+     "avionics_uninstalled_lb": 102.0,
+     "gust_ude_fps": 51.0,
+     "main_gear_station_guess": 0.295,
+     "rotation_angle_deg_pusher": 15.25,
+     "sponson_length_per_tyre": 2.9699999999999998,
+     "sponson_depth_per_tyre": 1.41,
+     "sponson_weight_per_wetted": 1.82,
+     "engine_sfc_mult": 1.105,
+     "engine_power_mult": 1.105
+    }
+   }
+  ],
+  "cliff": [
+   {
+    "label": "C1@h1.05",
+    "moved": {
+     "eta_p": 0.7475,
+     "airfoil_cl_max": 1.29,
+     "wing_t_c": 0.1185,
+     "laminar_fraction_wing": 0.0975,
+     "sensor_drag_area_ft2": 0.8200000000000001,
+     "fuselage_fineness": 5.9,
+     "fuselage_fill": 0.8525,
+     "avionics_uninstalled_lb": 102.0,
+     "gust_ude_fps": 51.0,
+     "main_gear_station_guess": 0.295,
+     "rotation_angle_deg_pusher": 15.25,
+     "sponson_length_per_tyre": 2.9699999999999998,
+     "sponson_depth_per_tyre": 1.41,
+     "sponson_weight_per_wetted": 1.82,
+     "engine_sfc_mult": 0.895,
+     "engine_power_mult": 0.895
+    }
+   }
+  ]
+ },
+ "full_study": true,
+ "design": {
+  "P_hp": 480.0,
+  "W_S": 15.0,
+  "A": 9.0,
+  "L_sized_h": 8.75,
+  "W0_lb": 4622.414412277992,
+  "fuel_lb": 1757.6116691162201,
+  "We_lb": 2364.800688784825,
+  "engine_weight_lb": 236.14393636520688,
+  "span_ft": 52.663541918169486,
+  "power_margin": 0.2713091899716742,
+  "failed": [],
+  "status": "bisected",
+  "corner_hours": [
+   3.5114618691049273
+  ],
+  "corner_ratio": [
+   0.9880106672259862
+  ]
+ },
+ "final_iteration": 1,
+ "converged": true,
+ "violating_modes": [],
+ "worst_at_target": {
+  "endurance": {
+   "moved": {
+    "eta_p": 0.7475,
+    "airfoil_cl_max": 1.29,
+    "wing_t_c": 0.1185,
+    "laminar_fraction_wing": 0.0975,
+    "sensor_drag_area_ft2": 0.8200000000000001,
+    "fuselage_fineness": 5.9,
+    "fuselage_fill": 0.8525,
+    "avionics_uninstalled_lb": 102.0,
+    "gust_ude_fps": 51.0,
+    "main_gear_station_guess": 0.295,
+    "rotation_angle_deg_pusher": 15.25,
+    "sponson_length_per_tyre": 2.9699999999999998,
+    "sponson_depth_per_tyre": 1.41,
+    "sponson_weight_per_wetted": 1.82,
+    "engine_sfc_mult": 1.105,
+    "engine_power_mult": 1.105
+   },
+   "score": 1755.6417780725405,
+   "reason": null,
+   "hours": 3.5114618691049273,
+   "hours_reason": null,
+   "flyable": true,
+   "n_evals": 572
+  },
+  "cliff": {
+   "moved": {
+    "eta_p": 0.7475,
+    "airfoil_cl_max": 1.29,
+    "wing_t_c": 0.1185,
+    "laminar_fraction_wing": 0.0975,
+    "sensor_drag_area_ft2": 0.8200000000000001,
+    "fuselage_fineness": 5.9,
+    "fuselage_fill": 0.8525,
+    "avionics_uninstalled_lb": 102.0,
+    "gust_ude_fps": 51.0,
+    "main_gear_station_guess": 0.295,
+    "rotation_angle_deg_pusher": 15.25,
+    "sponson_length_per_tyre": 2.9699999999999998,
+    "sponson_depth_per_tyre": 1.41,
+    "sponson_weight_per_wetted": 1.82,
+    "engine_sfc_mult": 0.895,
+    "engine_power_mult": 0.895
+   },
+   "score": 0.9880106672259862,
+   "reason": null,
+   "transit_ratio": 0.9880106672259862,
+   "flyable": true,
+   "n_evals": 572
+  }
+ },
+ "vc_kt": 115.0,
+ "fastest_step_eas_kt": 104.02270869404623,
+ "design_row": {
+  "P_hp": 480.0,
+  "W_S": 15.0,
+  "A": 9.0,
+  "ok": true,
+  "L_sized_h": 8.75,
+  "failed": [],
+  "status": "bisected",
+  "closure": [
+   {
+    "L_h": 8.0,
+    "guess_lb": 4434.0,
+    "retried": false,
+    "closed": true
+   },
+   {
+    "L_h": 12.0,
+    "guess_lb": 6034.0,
+    "retried": false,
+    "closed": true
+   },
+   {
+    "L_h": 10.0,
+    "guess_lb": 5234.0,
+    "retried": false,
+    "closed": true
+   },
+   {
+    "L_h": 9.0,
+    "guess_lb": 4834.0,
+    "retried": false,
+    "closed": true
+   },
+   {
+    "L_h": 8.5,
+    "guess_lb": 4634.0,
+    "retried": false,
+    "closed": true
+   },
+   {
+    "L_h": 8.75,
+    "guess_lb": 4734.0,
+    "retried": false,
+    "closed": true
+   },
+   {
+    "L_h": 8.625,
+    "guess_lb": 4684.0,
+    "retried": false,
+    "closed": true
+   },
+   {
+    "L_h": 8.6875,
+    "guess_lb": 4709.0,
+    "retried": false,
+    "closed": true
+   },
+   {
+    "L_h": 8.71875,
+    "guess_lb": 4721.5,
+    "retried": false,
+    "closed": true
+   }
+  ],
+  "trace": [
+   {
+    "L_h": 8.0,
+    "class": "small",
+    "hours_E": [
+     3.070135536002757
+    ],
+    "ratio_C": [
+     0.9562523755819213
+    ]
+   },
+   {
+    "L_h": 12.0,
+    "class": "heavy",
+    "why": "cliff corner not flyable: no speed on the leg within the engine's power",
+    "ratio": 1.132706205765359
+   },
+   {
+    "L_h": 10.0,
+    "class": "heavy",
+    "why": "cliff corner not flyable: no speed on the leg within the engine's power",
+    "ratio": 1.0423004410680705
+   },
+   {
+    "L_h": 9.0,
+    "class": "ok",
+    "hours_E": [
+     3.658108964912514
+    ],
+    "ratio_C": [
+     0.9987481465083364
+    ]
+   },
+   {
+    "L_h": 8.5,
+    "class": "small",
+    "hours_E": [
+     3.364251175978354
+    ],
+    "ratio_C": [
+     0.9773470861986635
+    ]
+   },
+   {
+    "L_h": 8.75,
+    "class": "ok",
+    "hours_E": [
+     3.5114618691049273
+    ],
+    "ratio_C": [
+     0.9880106672259862
+    ]
+   },
+   {
+    "L_h": 8.625,
+    "class": "small",
+    "hours_E": [
+     3.4381184594051453
+    ],
+    "ratio_C": [
+     0.9826594247942836
+    ]
+   },
+   {
+    "L_h": 8.6875,
+    "class": "small",
+    "hours_E": [
+     3.4747272977500283
+    ],
+    "ratio_C": [
+     0.9853348397327443
+    ]
+   },
+   {
+    "L_h": 8.71875,
+    "class": "small",
+    "hours_E": [
+     3.493118532723049
+    ],
+    "ratio_C": [
+     0.9866721376797398
+    ]
+   }
+  ],
+  "corner_hours": [
+   3.5114618691049273
+  ],
+  "corner_ratio": [
+   0.9880106672259862
+  ],
+  "W0_lb": 4622.414412277992,
+  "fuel_lb": 1757.6116691162201,
+  "We_lb": 2364.800688784825,
+  "engine_weight_lb": 236.14393636520688,
+  "span_ft": 52.663541918169486,
+  "power_margin": 0.2713091899716742,
+  "W0_at_8h_lb": 4422.70876313313
+ },
+ "modes": {
+  "endurance": {
+   "h_hat": 1.0523681640625,
+   "status": "bracketed",
+   "limit": 1757.6116691162201,
+   "h_hat_search_evals_at_1": 572,
+   "worst_at_h1": {
+    "moved": {
+     "eta_p": 0.75,
+     "airfoil_cl_max": 1.3,
+     "wing_t_c": 0.12,
+     "laminar_fraction_wing": 0.1,
+     "sensor_drag_area_ft2": 0.8,
+     "fuselage_fineness": 6.0,
+     "fuselage_fill": 0.85,
+     "avionics_uninstalled_lb": 100.0,
+     "gust_ude_fps": 50.0,
+     "main_gear_station_guess": 0.3,
+     "rotation_angle_deg_pusher": 15.0,
+     "sponson_length_per_tyre": 3.0,
+     "sponson_depth_per_tyre": 1.4,
+     "sponson_weight_per_wetted": 1.8,
+     "engine_sfc_mult": 1.1,
+     "engine_power_mult": 1.1
+    },
+    "score": 1716.3899454736047,
+    "reason": null,
+    "hours": 3.744535003281891,
+    "hours_reason": null,
+    "flyable": true
+   },
+   "worst_at_h_hat": {
+    "moved": {
+     "eta_p": 0.747381591796875,
+     "airfoil_cl_max": 1.2895263671875001,
+     "wing_t_c": 0.118428955078125,
+     "laminar_fraction_wing": 0.097381591796875,
+     "sensor_drag_area_ft2": 0.8209472656250001,
+     "fuselage_fineness": 5.895263671875,
+     "fuselage_fill": 0.852618408203125,
+     "avionics_uninstalled_lb": 102.0947265625,
+     "gust_ude_fps": 51.04736328125,
+     "main_gear_station_guess": 0.29476318359375,
+     "rotation_angle_deg_pusher": 15.2618408203125,
+     "sponson_length_per_tyre": 2.9685791015625,
+     "sponson_depth_per_tyre": 1.4104736328124998,
+     "sponson_weight_per_wetted": 1.820947265625,
+     "engine_sfc_mult": 1.10523681640625,
+     "engine_power_mult": 1.10523681640625
+    },
+    "score": 1757.5704258578282,
+    "reason": null,
+    "hours": 3.4999194844038706,
+    "hours_reason": null,
+    "flyable": true
+   }
+  },
+  "cliff": {
+   "h_hat": 1.065673828125,
+   "status": "bracketed",
+   "limit": 1.0,
+   "h_hat_search_evals_at_1": 572,
+   "worst_at_h1": {
+    "moved": {
+     "eta_p": 0.75,
+     "airfoil_cl_max": 1.3,
+     "wing_t_c": 0.12,
+     "laminar_fraction_wing": 0.1,
+     "sensor_drag_area_ft2": 0.8,
+     "fuselage_fineness": 6.0,
+     "fuselage_fill": 0.85,
+     "avionics_uninstalled_lb": 100.0,
+     "gust_ude_fps": 50.0,
+     "main_gear_station_guess": 0.3,
+     "rotation_angle_deg_pusher": 15.0,
+     "sponson_length_per_tyre": 3.0,
+     "sponson_depth_per_tyre": 1.4,
+     "sponson_weight_per_wetted": 1.8,
+     "engine_sfc_mult": 0.9,
+     "engine_power_mult": 0.9
+    },
+    "score": 0.9514308520104151,
+    "reason": null,
+    "transit_ratio": 0.9514308520104151,
+    "flyable": true
+   },
+   "worst_at_h_hat": {
+    "moved": {
+     "eta_p": 0.74671630859375,
+     "airfoil_cl_max": 1.286865234375,
+     "wing_t_c": 0.11802978515625,
+     "laminar_fraction_wing": 0.09671630859375001,
+     "sensor_drag_area_ft2": 0.82626953125,
+     "fuselage_fineness": 5.86865234375,
+     "fuselage_fill": 0.8532836914062499,
+     "avionics_uninstalled_lb": 102.626953125,
+     "gust_ude_fps": 51.3134765625,
+     "main_gear_station_guess": 0.29343261718749997,
+     "rotation_angle_deg_pusher": 15.328369140625,
+     "sponson_length_per_tyre": 2.960595703125,
+     "sponson_depth_per_tyre": 1.413134765625,
+     "sponson_weight_per_wetted": 1.8262695312500001,
+     "engine_sfc_mult": 0.8934326171875,
+     "engine_power_mult": 0.8934326171875
+    },
+    "score": 0.9999448729387006,
+    "reason": null,
+    "transit_ratio": 0.9999448729387006,
+    "flyable": true
+   }
+  },
+  "R5_guarantee_min": 1.0523681640625,
+  "binding_mode": "endurance"
+ },
+ "step_bias": {
+  "closed": true,
+  "n_cruise_steps": 20,
+  "n_loiter_steps": 32,
+  "W0_as_run_lb": 4622.414412277992,
+  "W0_x2_lb": 4626.657400857346,
+  "W0_bias_lb": 4.24298857935446,
+  "fuel_as_run_lb": 1757.6116691162201,
+  "fuel_x2_lb": 1760.1693921749986,
+  "fuel_bias_lb": 2.5577230587784925,
+  "vc_as_run_kt": 115.0,
+  "vc_x2_kt": 115.0
+ },
+ "study": {
+  "h_hat": {
+   "R5": 0.14959716796875,
+   "TO": 1.46649169921875,
+   "LD": 1.6549072265625,
+   "R5_reserve_usable": 0.31805419921875,
+   "R5_guarantee": 1.05230712890625,
+   "R7": 1.46649169921875
+  },
+  "R5_guarantee": 1.05230712890625,
+  "R7": 1.46649169921875,
+  "runtime_s": 2814.436467885971,
+  "min_of_modes": 1.0523681640625
+ },
+ "runtime_s": 3869.226664543152
+}

@@ -307,6 +307,20 @@ class Built:
 
 
 # ---- the transit cliff (review RS-2) ----------------------------------------------------------------
+def leg_power_ratio(W, S, atm, h_ft, CD0, K, clmax_clean, L, model, bhp):
+    """Smallest, over the speed grid of uav._leg_speed (76 points from 1.3 V_stall in 2 % steps), of the
+    shaft power needed over the power available there. A ratio above 1 is the case where _leg_speed
+    raises "no speed on the leg". The grid is copied from uav._leg_speed; tests/task12/test_info_gap.py
+    fails if the two drift apart."""
+    floor = L["speed_over_stall"] * perf.stall_speed(W / S, atm["rho"], clmax_clean)
+    best = math.inf
+    for i in range(76):
+        Vi = floor * (1.0 + 0.02 * i)
+        shp = perf.drag(W, S, atm["rho"], Vi, CD0, K) * Vi / (uav.HP * L["eta_p"])
+        best = min(best, shp / (bhp * model.lapse(h_ft, Vi / uav.KT)))
+    return best
+
+
 def transit_power_ratio(built, theta):
     """(ratio, reason): the largest, over the sub-steps of the mission legs, of the shaft power
     needed at the best speed on the grid of uav._leg_speed over the power available there. A mission
@@ -319,13 +333,7 @@ def transit_power_ratio(built, theta):
     state = {"worst": 0.0}
 
     def spy(W, S, atm, h_ft, CD0, K, clmax_clean, L, mode, model, bhp):
-        floor = L["speed_over_stall"] * perf.stall_speed(W / S, atm["rho"], clmax_clean)
-        best = math.inf
-        for i in range(76):
-            Vi = floor * (1.0 + 0.02 * i)
-            shp = perf.drag(W, S, atm["rho"], Vi, CD0, K) * Vi / (uav.HP * L["eta_p"])
-            best = min(best, shp / (bhp * model.lapse(h_ft, Vi / uav.KT)))
-        state["worst"] = max(state["worst"], best)
+        state["worst"] = max(state["worst"], leg_power_ratio(W, S, atm, h_ft, CD0, K, clmax_clean, L, model, bhp))
         return orig(W, S, atm, h_ft, CD0, K, clmax_clean, L, mode, model, bhp)
 
     uav._leg_speed = spy

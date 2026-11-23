@@ -32,6 +32,16 @@ CONCEPTS = {
     "pusher": {"tail_arm_fraction": geo.TAIL_ARM_FRACTION["aft_engine"]},
 }
 N_CRUISE_STEPS, N_LOITER_STEPS = 10, 16
+VC_FLOOR_KT = 110.0       # per-design V_C never below the round-4 placard (owner ruling 2026-11-23)
+VC_MARGIN = 1.10          # V_C at least 10 % above the fastest mission sub-step (R18)
+VC_ROUND_KT = 5.0
+
+
+def per_design_vc_kt(fastest_step_eas_kt):
+    """V_C (kt EAS) of the per-design placard rule: 10 % above the fastest mission sub-step, rounded UP to
+    a multiple of 5 kt, never below 110 kt."""
+    need = VC_MARGIN * fastest_step_eas_kt
+    return max(VC_FLOOR_KT, VC_ROUND_KT * math.ceil(need / VC_ROUND_KT - 1e-9))
 
 
 def load_ledger(path=LEDGER):
@@ -48,7 +58,8 @@ def load_ledger(path=LEDGER):
                 lo, hi = q.get("band", (None, None))
                 if lo is None or not lo <= q["value"] <= hi:
                     raise ValueError(f"{name}: assumed without a band containing its value")
-            values[name] = float(q["value"])
+            # a text value (a rule such as vc_placard_rule: per_design) is kept as text
+            values[name] = q["value"] if isinstance(q["value"], str) else float(q["value"])
             entries[name] = q
     return values, entries
 
@@ -398,6 +409,16 @@ def _build(W0, concept, W_S, A, L, fuel_guess, engine=None, mission=True):
     # loads: gust at the maximum level speed (the V-n cruise point, p. 338-340) at sea level and
     # mission altitude, at take-off and at zero-fuel weight (a lighter aircraft takes a larger gust
     # load factor, p. 340); equivalent airspeeds
+    # the mission does not depend on the structure, so it comes first: the per-design V_C placard needs its
+    # fastest sub-step. mission=False skips it (fuel stays fuel_guess): for field-length studies of a built
+    # aircraft where a member of the uncertainty set cannot fly the transit (info-gap review IG-5); the
+    # per-design rule still runs it, because V_C needs it
+    per_design = L.get("vc_placard_rule") == "per_design"
+    fuel, rows = (_mission(W0, geom, A, e, L, bhp, clmax, model) if mission or per_design else (fuel_guess, []))
+    fastest_eas_kt = max((m[7] * math.sqrt(alt["sigma"]) for m in rows), default=0.0) / KT
+    vc_chosen = per_design_vc_kt(fastest_eas_kt) if per_design else None
+    if not mission:
+        fuel, rows = fuel_guess, []
     CLa = aero.lift_slope(A, V_cr / alt["a"], L["airfoil_efficiency"], 0.0,
                           geom["s_exposed"] / S, aero.fuselage_lift_factor(geom["d_f"], wing.span))
     v_c_eas = {}
@@ -405,7 +426,10 @@ def _build(W0, concept, W_S, A, L, fuel_guess, engine=None, mission=True):
         lo = L["climb_speed_over_stall"] * perf.stall_speed(W_S, atm["rho"], clmax["clean"])
         vmax = _vmax_consistent(W0, S, geom, L, atm, h, K, bhp, model, lo)
         v_c_eas[label] = (vmax or lo) * math.sqrt(atm["sigma"])
-        if L.get("vc_placard_kt_eas"):
+        if per_design:
+            # owner ruling 2026-11-23: V_C per design (EAS, the same at every altitude) from the mission
+            v_c_eas[label] = vc_chosen * KT
+        elif L.get("vc_placard_kt_eas"):
             # R18 (Gate A round 4 ruling, Eder 2026-11-21): one V_C placard in EAS at every
             # altitude, enforced by the autopilot; the structure and gusts are sized at it
             v_c_eas[label] = L["vc_placard_kt_eas"] * KT
@@ -454,13 +478,11 @@ def _build(W0, concept, W_S, A, L, fuel_guess, engine=None, mission=True):
         "electrical": wts.electrical(W_fs, W_av),
     }
     We = sum(comp.values())
-    # mission=False skips the mission (fuel stays fuel_guess): for field-length studies of a built
-    # aircraft where a member of the uncertainty set cannot fly the transit (info-gap review IG-5)
-    fuel, rows = _mission(W0, geom, A, e, L, bhp, clmax, model) if mission else (fuel_guess, [])
     return {"geom": geom, "e": e, "K": K, "clmax": clmax, "bhp": bhp, "power_req": req, "engine_model": model,
             "D_prop": D_prop, "gear_length_in": gear_in, "gear_drag_area": gear_dq,
             "engine": eng, "CLa": CLa, "gusts": gusts, "n_gust": n_gust, "n_limit": n_limit,
             "n_negative_gust": 2.0 - n_gust, "Nz": Nz, "V_c_eas": v_c_eas, "q_design": q_design,
+            "V_c_rule": "per_design" if per_design else "fixed", "fastest_step_eas_kt": fastest_eas_kt,
             "components": comp, "We": We, "fuel": fuel, "mission": rows,
             "V_cruise_start": V_cr, "V_loiter_start": V_lt, "CD0_alt": CD0_alt, "CD0_sl": CD0_sl,
             "CD0_takeoff": CD0_to, "CD0_landing": CD0_land}

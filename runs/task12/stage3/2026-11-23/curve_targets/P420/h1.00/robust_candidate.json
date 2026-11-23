@@ -1,0 +1,155 @@
+{
+ "P_hp": 420.0,
+ "W_S": 14.0,
+ "A": 9.0,
+ "ok": true,
+ "L_sized_h": 8.5,
+ "failed": [],
+ "status": "bisected",
+ "closure": [
+  {
+   "L_h": 8.0,
+   "guess_lb": 4074.0,
+   "retried": false,
+   "closed": true
+  },
+  {
+   "L_h": 12.0,
+   "guess_lb": 5674.0,
+   "retried": false,
+   "closed": true
+  },
+  {
+   "L_h": 10.0,
+   "guess_lb": 4874.0,
+   "retried": false,
+   "closed": true
+  },
+  {
+   "L_h": 9.0,
+   "guess_lb": 4474.0,
+   "retried": false,
+   "closed": true
+  },
+  {
+   "L_h": 8.5,
+   "guess_lb": 4274.0,
+   "retried": false,
+   "closed": true
+  },
+  {
+   "L_h": 8.25,
+   "guess_lb": 4174.0,
+   "retried": false,
+   "closed": true
+  },
+  {
+   "L_h": 8.375,
+   "guess_lb": 4224.0,
+   "retried": false,
+   "error": "take-off weight iteration did not converge (fractions may sum near 1)",
+   "no_retry": true,
+   "closed": false
+  },
+  {
+   "L_h": 8.3125,
+   "guess_lb": 4199.0,
+   "retried": false,
+   "closed": true
+  },
+  {
+   "L_h": 8.34375,
+   "guess_lb": 4211.5,
+   "retried": false,
+   "closed": true
+  }
+ ],
+ "trace": [
+  {
+   "L_h": 8.0,
+   "class": "small",
+   "hours_E": [
+    3.152760080196011
+   ],
+   "ratio_C": [
+    0.9650508528458465
+   ]
+  },
+  {
+   "L_h": 12.0,
+   "class": "heavy",
+   "why": "cliff corner not flyable: no speed on the leg within the engine's power",
+   "ratio": 1.123946446845156
+  },
+  {
+   "L_h": 10.0,
+   "class": "heavy",
+   "why": "cliff corner not flyable: no speed on the leg within the engine's power",
+   "ratio": 1.0364670031245276
+  },
+  {
+   "L_h": 9.0,
+   "class": "heavy",
+   "why": "cliff corner not flyable: no speed on the leg within the engine's power",
+   "ratio": 1.0069191264139499
+  },
+  {
+   "L_h": 8.5,
+   "class": "ok",
+   "hours_E": [
+    3.5030892568028764
+   ],
+   "ratio_C": [
+    0.9733911108144375
+   ]
+  },
+  {
+   "L_h": 8.25,
+   "class": "small",
+   "hours_E": [
+    3.3026571737220345
+   ],
+   "ratio_C": [
+    0.9754263280540734
+   ]
+  },
+  {
+   "L_h": 8.375,
+   "class": "heavy",
+   "why": "weight iteration did not converge at 8.375 h (not retried): take-off weight iteration did not converge (fractions may sum near 1)"
+  },
+  {
+   "L_h": 8.3125,
+   "class": "small",
+   "hours_E": [
+    3.3399512992812768
+   ],
+   "ratio_C": [
+    0.978018376484177
+   ]
+  },
+  {
+   "L_h": 8.34375,
+   "class": "small",
+   "hours_E": [
+    3.358327655304411
+   ],
+   "ratio_C": [
+    0.9793204910762526
+   ]
+  }
+ ],
+ "corner_hours": [
+  3.5030892568028764
+ ],
+ "corner_ratio": [
+  0.9733911108144375
+ ],
+ "W0_lb": 4297.267164022096,
+ "fuel_lb": 1567.4948453586348,
+ "We_lb": 2229.7748061806274,
+ "engine_weight_lb": 212.1335036535243,
+ "span_ft": 52.55976494579348,
+ "power_margin": 0.24865263069283283,
+ "W0_at_8h_lb": 4195.511508119588
+}

@@ -496,6 +496,7 @@ def design_record(r, L, eng_raw):
         "CL_max": d["clmax"], "CL_alpha_wing": d["CLa"], "gusts": d["gusts"],
         "n_gust": d["n_gust"], "n_limit": d["n_limit"], "n_negative_gust": d["n_negative_gust"],
         "Nz_ultimate": d["Nz"], "q_design_psf": d["q_design"], "V_c_eas_kt": {k: v / KT for k, v in d["V_c_eas"].items()},
+        "V_c_rule": d["V_c_rule"], "fastest_step_eas_kt": d["fastest_step_eas_kt"],
         "components_lb": d["components"],
         "mission": [{"segment": m[0], "W_start": m[1], "W_end": m[2], "V_kt": m[3] / KT,
                      "speed_floor_fraction": m[4], "cbhp_mean": m[5],
