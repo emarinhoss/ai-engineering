@@ -7,7 +7,8 @@ import pytest
 from conceptual import uav
 from measurement import info_gap as ig
 
-DESIGN = Path(__file__).resolve().parents[2] / "runs/task12/stage1/2026-11-21f/design_pusher.json"
+REPO = Path(__file__).resolve().parents[2]
+DESIGN = REPO / "runs/task12/stage1/2026-11-21f/design_pusher.json"
 
 
 @pytest.fixture(scope="module")
@@ -181,7 +182,8 @@ def test_pair_flips_cross_a_cliff_that_single_flips_cannot_see():
 # ---- the power multiplier as a cap or a rescale (ruling R-c, review M-2) -------------------------------------------
 def test_power_band_cap_keeps_sfc_at_a_given_power_and_rescale_moves_it(variables):
     th = dict(ig.nominal_theta(variables), engine_power_mult=0.9)
-    cap, rescale = ig.Built(DESIGN, power_band="cap"), ig.Built(DESIGN, power_band="rescale")
+    cap, rescale = (ig.Built(DESIGN, power_band="cap", allow_band_mismatch=True),
+                      ig.Built(DESIGN, power_band="rescale"))
     m_cap, m_re = cap.build(th, mission=False)[0]["engine_model"], rescale.build(th, mission=False)[0]["engine_model"]
     nominal = cap.build(ig.nominal_theta(variables), mission=False)[0]["engine_model"]
     assert m_cap.power_available(20000.0, 95.0) == pytest.approx(m_re.power_available(20000.0, 95.0))   # same limit
@@ -190,7 +192,31 @@ def test_power_band_cap_keeps_sfc_at_a_given_power_and_rescale_moves_it(variable
     assert m_re.bsfc(20000.0, 95.0, shp) != pytest.approx(nominal.bsfc(20000.0, 95.0, shp), rel=1e-6)
 
 
-def test_default_power_band_is_the_tp100_rescale_and_a_bad_name_is_refused():
-    assert ig.POWER_BAND == "rescale" and ig.Built(DESIGN).power_band == "rescale"
+def test_power_band_default_comes_from_the_engine_table_and_a_bad_name_is_refused():
+    assert ig.Built(DESIGN).power_band == "rescale"          # a TP100 record
     with pytest.raises(ValueError):
         ig.Built(DESIGN, power_band="nonsense")
+
+
+def test_a_band_that_contradicts_the_engine_is_refused_unless_overridden():
+    with pytest.raises(ValueError, match="contradicts the record's engine"):
+        ig.Built(DESIGN, power_band="cap")                   # TP100 record, cap form
+    assert ig.Built(DESIGN, power_band="cap", allow_band_mismatch=True).power_band == "cap"
+    assert ig.Built(DESIGN, power_band="rescale").power_band == "rescale"      # explicit and consistent
+
+
+def test_m250_record_takes_cap_by_default_and_refuses_rescale():
+    m250 = REPO / "runs/task12/stage3/2026-11-23/m250_info_gap/record/design_pusher.json"
+    assert ig.Built(m250).power_band == "cap"
+    with pytest.raises(ValueError, match="contradicts"):
+        ig.Built(m250, power_band="rescale")
+
+
+def test_study_and_command_line_have_the_same_default_and_the_override_flag_exists():
+    import inspect
+    a = ig.make_parser().parse_args(["--design", "d", "--out", "o"])
+    assert a.power_band is None and a.allow_band_mismatch is False       # no form: the engine's
+    assert inspect.signature(ig.study).parameters["power_band"].default is None
+    assert inspect.signature(ig.study).parameters["allow_band_mismatch"].default is False
+    assert ig.make_parser().parse_args(["--design", "d", "--out", "o", "--power-band", "cap",
+                                        "--allow-band-mismatch"]).allow_band_mismatch is True

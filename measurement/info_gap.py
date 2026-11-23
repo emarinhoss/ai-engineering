@@ -3,14 +3,14 @@ Spec docs/specs/task12_drone_conceptual_design.md sections 7.1a, 7.2, 7.4 (Gate 
 
     python -m measurement.info_gap --design runs/task12/stage1/2026-11-21f/design_pusher.json \
         --out runs/task12/stage3/2026-11-22/info_gap.json \
-        --report docs/validation/2026-11-22_task12_stage3_info_gap.md --power-band rescale
+        --report docs/validation/2026-11-22_task12_stage3_info_gap.md
     python -m measurement.info_gap --design runs/task12/stage1/2026-11-23/design_pusher.json \
-        --out ... --report ...                       (M250 records: the power band is a cap, the default of the command)
+        --out ... --report ...      (the power band is taken from the record's engine: M250 cap, TP100 rescale)
 
 Method: Ben-Haim's info-gap as used in Marchau et al., DMDU, ch. 10, (10.4)-(10.8), p. 212-218.
   Uncertain quantities theta_k: every ledger assumption with a band, plus two engine multipliers
   (SFC and full-throttle power of the engine's table, nominal 1, weights 0.10 each side). The power
-  multiplier has two forms (POWER_BAND). "cap" (owner ruling R-c, review M-2; the M250 records): it
+  multiplier has two forms (Built.power_band, taken from the engine table). "cap" (owner ruling R-c, review M-2; the M250 records): it
   caps the available power only, so SFC at a given shaft power does not change. "rescale" (the TP100
   records, 2026-11-22): it also rescales the part-power fraction axis, as if the whole engine were
   larger or smaller.
@@ -65,15 +65,14 @@ import yaml
 
 from conceptual import raymer_performance as perf
 from conceptual import sizing, uav
-from conceptual.engine_model import TableEngine, table_for_run
+from conceptual.engine_model import ENGINE_POWER_BAND, TableEngine, table_for_run
 from conceptual.units import isa
 from measurement import stage3_perf as sp
 
 REPO = Path(__file__).resolve().parents[1]
 LEDGER_NOW = REPO / "data" / "task12" / "ledger.yaml"
 SEED = 20261122
-POWER_BAND = "rescale"        # form of the engine power multiplier: "rescale" (TP100 records) or "cap" (M250, ruling R-c)
-POWER_BANDS = ("cap", "rescale")
+POWER_BANDS = ("cap", "rescale")    # forms of the engine power multiplier; the engine table says which one a record uses
 N_SAMPLES = 200
 N_CORNER_VARS = 5
 N_INTERIOR = 5                # interior points per variable in the interior scan
@@ -146,7 +145,7 @@ def uncertain_variables(entries):
                     "clip_lo": 0.0 if lo >= 0.0 else -math.inf,
                     "clip_hi": 1.0 if in_unit else math.inf})
     for name, what in (("engine_sfc_mult", "SFC of every engine table entry, on top of the ledger's SFC allowance"),
-                       ("engine_power_mult", "full-throttle shaft power of the engine table (form: POWER_BAND)")):
+                       ("engine_power_mult", "full-throttle shaft power of the engine table (form: the engine's, Built.power_band)")):
         out.append({"name": name, "kind": "engine", "units": what, "nominal": 1.0,
                     "band_lo": 1.0 - ENGINE_WEIGHT, "band_hi": 1.0 + ENGINE_WEIGHT,
                     "w_lower": ENGINE_WEIGHT, "w_upper": ENGINE_WEIGHT,
@@ -184,15 +183,16 @@ class Built:
     """The record, the ledger values and the engine table of the run; rebuild at any theta.
     band_weight False keeps W0 at the record's (the earlier study, kept for comparison)."""
 
-    def __init__(self, design_path, band_weight=True, record=None, power_band=None):
+    def __init__(self, design_path, band_weight=True, record=None, power_band=None, allow_band_mismatch=False):
         """record=(d, ledger values, engine table path) builds from a record held in memory
         (measurement/robust_sizing.py); design_path is then only a label. power_band is the form of the
-        power multiplier ("cap" or "rescale"); None takes the module's POWER_BAND."""
+        power multiplier ("cap" or "rescale"); None (the one default) takes it from the record's engine
+        table: M250 cap, TP100 rescale. A form that contradicts the engine raises ValueError unless
+        allow_band_mismatch=True (review MD-5)."""
         self.path = Path(design_path)
         self.band_weight = band_weight
-        self.power_band = power_band or POWER_BAND
-        if self.power_band not in POWER_BANDS:
-            raise ValueError(f"power_band must be one of {POWER_BANDS}, not {self.power_band!r}")
+        if power_band is not None and power_band not in POWER_BANDS:
+            raise ValueError(f"power_band must be one of {POWER_BANDS}, not {power_band!r}")
         if record is None:
             self.d, self.L, b, self.ledger_path, self.check = sp.rebuild(design_path)
             table = table_for_run(self.path.parent)
@@ -205,6 +205,12 @@ class Built:
                              "vc_placard_rule: per_design); a rebuild must not choose V_C again "
                              "(robust_sizing.built_ledger_values)")
         self.base_engine = TableEngine(table)
+        natural = ENGINE_POWER_BAND[self.base_engine.engine]
+        self.power_band = power_band or natural
+        if self.power_band != natural and not allow_band_mismatch:
+            raise ValueError(f"power band {self.power_band!r} contradicts the record's engine "
+                             f"{self.base_engine.engine} (its form is {natural!r}); pass allow_band_mismatch=True "
+                             "(--allow-band-mismatch) to override")
         # the record's engine: rated power and weight (a photo-scaled engine if bhp is not the table's rated power)
         self.engine_scale = float(self.d.get("bhp_sl", self.base_engine.rated)) / self.base_engine.rated
         self.engine_spec = {k: v for k, v in sp.record_engine(self.d, table).items() if k != "model"}
@@ -562,9 +568,9 @@ def requirement_study(built, spec, variables, dirs, top_names, pair_names, n_sam
 _BUILT = None
 
 
-def _init(design_path, band_weight=True):
+def _init(design_path, band_weight=True, power_band=None, allow_band_mismatch=False):
     global _BUILT
-    _BUILT = Built(design_path, band_weight)
+    _BUILT = Built(design_path, band_weight, power_band=power_band, allow_band_mismatch=allow_band_mismatch)
 
 
 def evaluate(theta):
@@ -646,23 +652,22 @@ def clipping_report(variables, h):
             for v in variables if bounds(v, h)[2] or bounds(v, h)[3]]
 
 
-def study(design_path, n_samples=N_SAMPLES, seed=SEED, processes=None, band_weight=True, power_band=None):
-    """power_band, if given, sets the module's POWER_BAND for this study (the pool's workers are forked after
-    it is set, so they use it too)."""
-    global POWER_BAND
-    if power_band:
-        POWER_BAND = power_band
+def study(design_path, n_samples=N_SAMPLES, seed=SEED, processes=None, band_weight=True, power_band=None,
+          allow_band_mismatch=False):
+    """The power band is the record's engine's (Built); power_band overrides it only with allow_band_mismatch."""
     t0 = time.time()
-    built = Built(design_path, band_weight)
+    built = Built(design_path, band_weight, power_band=power_band, allow_band_mismatch=allow_band_mismatch)
     _, entries = uav.load_ledger(built.ledger_path)
     variables = uncertain_variables(entries)
     nom_th = nominal_theta(variables)
     ctx = mp.get_context("fork")
-    with ctx.Pool(processes, initializer=_init, initargs=(design_path, band_weight)) as pool:
-        _init(design_path, band_weight)
+    with ctx.Pool(processes, initializer=_init, initargs=(design_path, band_weight, power_band, allow_band_mismatch)) as pool:
+        _init(design_path, band_weight, power_band, allow_band_mismatch)
         nom = evaluate(nom_th)
         w0 = built.w0_for(nom_th)
-        res = {"band_weight": band_weight, "power_band": POWER_BAND,
+        res = {"band_weight": band_weight, "power_band": built.power_band,
+               "engine": {"name": built.base_engine.engine, "rated_shp": built.base_engine.rated,
+                          "sfc_allowance": built.allowance, "propeller_rpm": built.L.get("propeller_rpm")},
                "nominal": {"R5_hours": nom[0], "takeoff_ft": nom[1], "landing_ft": nom[2]},
                "record": {"fuel_lb": built.d["fuel_lb"], "W0_lb": built.d["W0_lb"],
                           "takeoff_ft": built.d["performance"]["takeoff_ft"],
@@ -734,19 +739,26 @@ def _json_safe(x):
     return x
 
 
-def main(argv=None):
+def make_parser():
     ap = argparse.ArgumentParser()
     ap.add_argument("--design", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--report")
     ap.add_argument("--samples", type=int, default=N_SAMPLES)
-    ap.add_argument("--power-band", choices=POWER_BANDS, default="cap",
-                    help="form of the engine power multiplier: cap (default; owner ruling R-c, M250 records) or "
-                         "rescale (the earlier TP100 records)")
+    ap.add_argument("--power-band", choices=POWER_BANDS, default=None,
+                    help="form of the engine power multiplier. Default: the record's engine's (M250 cap, TP100 "
+                         "rescale); a form that contradicts the engine is refused unless --allow-band-mismatch")
+    ap.add_argument("--allow-band-mismatch", action="store_true",
+                    help="accept a --power-band that contradicts the record's engine")
     ap.add_argument("--no-weight-band", action="store_true",
                     help="keep W0 at the record's (no empty-weight uncertainty), as before the review")
-    a = ap.parse_args(argv)
-    res = study(a.design, a.samples, band_weight=not a.no_weight_band, power_band=a.power_band)
+    return ap
+
+
+def main(argv=None):
+    a = make_parser().parse_args(argv)
+    res = study(a.design, a.samples, band_weight=not a.no_weight_band, power_band=a.power_band,
+                 allow_band_mismatch=a.allow_band_mismatch)
     ledger = Path(a.design).parent / "ledger.yaml"
     table = table_for_run(Path(a.design).parent)
     dirty = git_dirty()
@@ -761,13 +773,16 @@ def main(argv=None):
         "pyyaml": yaml.__version__, "seed": SEED, "n_random_samples": a.samples,
         "n_corner_variables": N_CORNER_VARS, "n_interior_points": N_INTERIOR, "h_max": H_MAX,
         "h_gate": H_GATE, "engine_weight": ENGINE_WEIGHT, "r5_slack_h": R5_SLACK_H, "h_tolerance": H_TOL,
-        "weight_band": not a.no_weight_band, "power_band": a.power_band, "cpu_count": mp.cpu_count(),
+        "weight_band": not a.no_weight_band, "power_band": res["power_band"],
+        "power_band_overridden": a.power_band is not None and a.allow_band_mismatch, "cpu_count": mp.cpu_count(),
         "command": "python -m measurement.info_gap " + " ".join(argv if argv is not None else sys.argv[1:])}
     Path(a.out).parent.mkdir(parents=True, exist_ok=True)
     Path(a.out).write_text(json.dumps(_json_safe(res), indent=2, default=float))
     if a.report:
         Path(a.report).parent.mkdir(parents=True, exist_ok=True)
-        Path(a.report).write_text(report_text(json.loads(Path(a.out).read_text())))
+        modes_file = Path(a.out).parent / "modes.json"        # the endurance and cliff modes of the same record
+        modes = json.loads(modes_file.read_text()) if modes_file.exists() else None
+        Path(a.report).write_text(report_text(json.loads(Path(a.out).read_text()), modes))
     for k, v in res["h_hat"].items():
         print(k, v["h_hat"], v["status"])
     print(f"runtime {res['runtime_s']:.0f} s")
@@ -796,8 +811,44 @@ def _worst_point_lines(label, w, g, oat, key):
     return L
 
 
-def report_text(res):
-    """Markdown report from the JSON record (no number is typed here)."""
+M250_CAVEAT = ("Engine model checked at sea level, 70-100 % power only; the +-10 % SFC band stands in for the "
+               "missing data (part-power and altitude fuel flow).")
+
+
+def _is_m250(res):
+    return res.get("engine", {}).get("name") == "RR_M250_B17F"
+
+
+def engine_lines(res):
+    """Which engine and allowance the h_hat values below are for, and, for the M250, the validation caveat."""
+    e = res.get("engine")
+    if not e:
+        return []
+    out = [f"**Engine: {e['name']}**, rated {e['rated_shp']:g} shp, SFC allowance x{e['sfc_allowance']:g} "
+           f"(`engine_sfc_allowance` of the record's ledger copy, kept in under the +-10 % SFC band), power band "
+           f"form: {res['power_band']}. The cap is clipped at the rating: a multiplier above 1 cannot take the "
+           "available power above the rated power; one below 1 still cuts it."]
+    if _is_m250(res):
+        out.append("**Caveat: " + M250_CAVEAT + " Every h_hat below rests on that model.**")
+    return out + [""]
+
+
+def mode_lines(res, modes):
+    """The two failure modes of the R5 guarantee (endurance, transit cliff) from modes.json, next to the h_hat table."""
+    caveat = [" " + M250_CAVEAT] if _is_m250(res) else []
+    if not modes:
+        return ["Failure modes of the R5 guarantee (endurance, transit cliff): no `modes.json` beside this record."
+                + "".join(caveat), ""]
+    m = modes["modes"]
+    return [f"R5 guarantee by failure mode (`modes.json`, the same record): endurance h_hat = "
+            f"{m['endurance']['h_hat']:.4f} ({m['endurance']['status']}), transit **cliff** h_hat = "
+            f"{m['cliff']['h_hat']:.4f} ({m['cliff']['status']}); binding mode: {m['binding_mode']}; the smaller of the two "
+            f"is {m['R5_guarantee_min']:.4f}." + "".join(caveat), ""]
+
+
+def report_text(res, modes=None):
+    """Markdown report from the JSON record (no number is typed here). modes is the content of modes.json
+    (measurement/robust_sizing.py --modes) of the same record, if there is one: the cliff-mode h_hat."""
     inp, nom, hh = res["inputs"], res["nominal"], res["h_hat"]
     rec, oat = res["record"], res["one_at_a_time"]
 
@@ -812,6 +863,7 @@ def report_text(res):
     L = ["# Task 12 Stage 3: info-gap robustness of the built design (R5, R7)", "",
          f"Generated from `{inp['design']}` by `python -m measurement.info_gap`; the numbers below are "
          "read from the run record `info_gap.json` (inputs, versions, seed there).", "",
+         *engine_lines(res),
          "## Method", "",
          "Ben-Haim's info-gap as in Marchau et al., DMDU, ch. 10. Uncertainty model (10.7), p. 213: "
          "theta_k in [theta_k0 - h W_k_lower, theta_k0 + h W_k_upper], weights W set so that h = 1 gives "
@@ -872,6 +924,7 @@ def report_text(res):
           *([hrow(f"R5 as restated at Gate B: at least {g(hh['R5_guarantee']['hours'])} h on station",
                   "R5_guarantee")] if "R5_guarantee" in hh else []),
           hrow("R7 take-off", "TO"), hrow("R7 landing", "LD"), hrow("R7 combined (min)", "R7"), "",
+          *mode_lines(res, modes),
           "Secondary, not the requirement: R5 if the 6 % reserve could be burned as well (target fuel = "
           f"{g(sizing.RESERVE_FACTOR)} x the record's): h_hat = {g(hh['R5_reserve_usable']['h_hat'], '.4f')} "
           f"({hh['R5_reserve_usable']['status']}). Reported to show how far the design is from the "

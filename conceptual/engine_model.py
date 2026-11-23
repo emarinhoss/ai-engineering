@@ -14,6 +14,9 @@ TP100_TABLE = Path(__file__).resolve().parents[1] / "data" / "task12" / "tp100_t
 M250_TABLE = Path(__file__).resolve().parents[1] / "data" / "task12" / "m250_table.json"
 # engine name (engines.yaml) -> (short name used in file names, its table)
 ENGINE_TABLES = {"PBS_TP100": ("tp100", TP100_TABLE), "RR_M250_B17F": ("m250", M250_TABLE)}
+# engine name -> form of the power band (info-gap power multiplier): the TP100 records rescale the power and the
+# fraction axis together; the M250 records cap the available power only (owner ruling R-c, review M-2, MD-5)
+ENGINE_POWER_BAND = {"PBS_TP100": "rescale", "RR_M250_B17F": "cap"}
 
 
 def table_for_run(run_dir):
@@ -61,6 +64,7 @@ class TableEngine:
         self.p_full = np.array(t["full_throttle_shp"])
         self.sfc = np.array(t["bsfc"])
         self.rated = t["rated_shp"]
+        self.engine = t.get("engine", "PBS_TP100")      # the TP100 table predates the key
         self.meta = {k: t[k] for k in ("member", "calibration_bsfc", "control_law")}
         self.sfc_scale, self.power_scale, self.power_cap = 1.0, 1.0, 1.0
         self.lp_ratio = np.array(t["lp_turbine_pressure_ratio"])
@@ -86,8 +90,14 @@ class TableEngine:
         """Full-throttle shaft hp (bilinear in altitude and speed), capped at the rated power: the
         brochure gives 241 hp as the maximum output, so ram recovery above it (the cycle reaches
         about 250 hp at 140 kt at sea level) is not credited (Gate A round 4, R4-1). The rated power
-        is the engine's own (241 for the TP100, 450 for the M250-B17F)."""
-        return min(self.rated, self._full_throttle(h_ft, V_kt)) * self.power_scale * self.power_cap
+        is the engine's own (241 for the TP100, 450 for the M250-B17F).
+
+        The power cap (an uncertain control limit, ruling R-c) can lower the available power, but
+        it cannot raise it above the rating: the rating is a gearbox and torque limit, not a thermal
+        one (owner ruling R-e, review MD-4). So the capped value is clipped at rated x power_scale.
+        For power_cap = 1 (every TP100 record) the clip never acts and the value is as before."""
+        capped = min(self.rated, self._full_throttle(h_ft, V_kt)) * self.power_scale * self.power_cap
+        return min(self.rated * self.power_scale, capped)
 
     def _full_throttle(self, h_ft, V_kt):
         """Uncapped full-throttle shaft hp of the cycle: the reference for the table's fractions."""

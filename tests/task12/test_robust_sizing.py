@@ -216,12 +216,26 @@ def test_engine_as_is_is_the_m250_with_its_own_ledger_values_and_table_and_the_s
             rs._engine(360.0)                                     # not a rating of this engine
         L = rs.ledger_values()
         assert L["engine_sfc_allowance"] == 1.02 and L["propeller_rpm"] == 2030.0
-        assert rs.engine_table_file() == "m250_table.json" and info_gap.POWER_BAND == "cap"
+        assert rs.engine_table_file() == "m250_table.json" and rs.power_band() == "cap"
         text = rs.ledger_text(9.0)
         assert yaml.safe_load(text)["assumptions"]["propeller_rpm"]["value"] == 2030.0
     finally:
         rs.use_engine_as_is(False)
-    assert info_gap.POWER_BAND == "rescale" and rs.engine_table_file() == "tp100_table.json"
+    assert rs.power_band() == "rescale" and rs.engine_table_file() == "tp100_table.json"
     assert rs.ledger_values()["engine_sfc_allowance"] == 1.05 and rs.ledger_values()["propeller_rpm"] == 2158.0
     tp = yaml.safe_load(rs.ledger_text(9.0))["assumptions"]
     assert tp["propeller_rpm"]["value"] == 2158.0 and tp["engine_sfc_allowance"]["value"] == 1.05
+
+
+def test_records_name_the_power_band_of_the_engine_in_use(tmp_path):
+    row = {"P_hp": 450.0, "W_S": 17.0, "A": 8.0, "L_sized_h": 9.0, "ok": True, "failed": []}
+    try:
+        rs.use_engine_as_is(True)
+        rs.write_record_rec(row, tmp_path / "m250", {"V_c_rule": None})
+        assert json.loads((tmp_path / "m250" / "robust_candidate.json").read_text())["power_band"] == "cap"
+        assert rs.inputs_block()["power_band"] == "cap"
+    finally:
+        rs.use_engine_as_is(False)
+    rs.write_record_rec(row, tmp_path / "tp", {"V_c_rule": None})
+    assert json.loads((tmp_path / "tp" / "robust_candidate.json").read_text())["power_band"] == "rescale"
+    assert rs.inputs_block()["power_band"] == "rescale"

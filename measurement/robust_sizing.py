@@ -55,7 +55,7 @@ import numpy as np
 import yaml
 
 from conceptual import stage1, uav
-from conceptual.engine_model import ENGINE_TABLES, TP100_TABLE
+from conceptual.engine_model import ENGINE_POWER_BAND, ENGINE_TABLES, TP100_TABLE
 from measurement import info_gap
 from measurement.rubber_tp100 import TP100, scaled_engine, tp100_ledger_text, tp100_ledger_values
 
@@ -100,12 +100,16 @@ def bisect_sized(endurance, need, lo=L_LO, hi=L_HI, tol=L_TOL):
 # ---- one candidate -----------------------------------------------------------------------------------
 def use_engine_as_is(flag=True):
     """Switch the module between the photo-scaled TP100 (default) and the chosen engine as is. The caches are
-    cleared; the info-gap power band follows (cap for the real engine, rescale for the TP100 records)."""
+    cleared. The info-gap power band follows the engine table (cap for the real engine, rescale for the TP100)."""
     global ENGINE_AS_IS
     ENGINE_AS_IS = flag
-    info_gap.POWER_BAND = "cap" if flag else "rescale"
     _engine.cache_clear()
     _raw.cache_clear()
+
+
+def power_band():
+    """Form of the power multiplier of the engine in use (the one info_gap.Built takes from its table)."""
+    return ENGINE_POWER_BAND[stage1.CHOSEN_ENGINE if ENGINE_AS_IS else "PBS_TP100"]
 
 
 def engine_name():
@@ -307,7 +311,7 @@ def write_record(row, folder):
     if uav.load_ledger(folder / "ledger.yaml")[0]["loiter_h"] != row["L_sized_h"]:
         raise ValueError("ledger copy does not carry L_sized")
     shutil.copyfile(engine_table(), folder / engine_table_file())
-    (folder / "robust_candidate.json").write_text(json.dumps(row, indent=1, default=float))
+    (folder / "robust_candidate.json").write_text(json.dumps(dict(row, power_band=power_band()), indent=1, default=float))
     return folder / "design_pusher.json"
 
 
@@ -377,10 +381,11 @@ def main(argv=None):
         use_engine_as_is(True)
     if a.modes:
         need = uav.load_ledger()[0]["r5_robust_hours"]
-        res = mode_study(a.modes, need)[0]
+        res, built_m = mode_study(a.modes, need)[:2]
         Path(a.out).mkdir(parents=True, exist_ok=True)
         (Path(a.out) / "modes.json").write_text(json.dumps(info_gap._json_safe(
-            {"inputs": inputs_block("endurance and cliff modes of a built record"), "design": a.modes, "need_h": need,
+            {"inputs": dict(inputs_block("endurance and cliff modes of a built record"), power_band=built_m.power_band),
+             "design": a.modes, "need_h": need,
              "modes": res, "command": "python -m measurement.robust_sizing " + " ".join(argv if argv is not None else sys.argv[1:])}),
             indent=1, default=float))
         print({m: res[m]["h_hat"] for m in ("endurance", "cliff")}, res["binding_mode"])
@@ -990,7 +995,7 @@ def inputs_block(note=""):
             "seed": info_gap.SEED, "n_samples": info_gap.N_SAMPLES, "ledger": str(uav.LEDGER.relative_to(REPO)),
             "ledger_sha256": sha256(uav.LEDGER), "table_sha256": sha256(engine_table()),
             "python": platform.python_version(), "numpy": np.__version__, "pyyaml": yaml.__version__,
-            "engine_as_is": ENGINE_AS_IS, "power_band": info_gap.POWER_BAND,
+            "engine_as_is": ENGINE_AS_IS, "power_band": power_band(),
             "engine": (f"{stage1.CHOSEN_ENGINE} as is: rated {as_is_engine()['bhp']:g} hp, {as_is_engine()['weight_lb']:g} lb, its table, "
                        "the ledger's SFC allowance and propeller rpm" if ENGINE_AS_IS else
                        "photo-scaled TP100 (TP100 table, allowance 1.05, 2,158 rpm)"),
@@ -1006,7 +1011,8 @@ def write_record_rec(row, folder, rec):
     vc = round(rec["V_c_eas_kt"]["sea_level"], 6) if rec.get("V_c_rule") == "per_design" else None
     (folder / "ledger.yaml").write_text(ledger_text(row["L_sized_h"], vc))
     shutil.copyfile(engine_table(), folder / engine_table_file())
-    (folder / "robust_candidate.json").write_text(json.dumps(info_gap._json_safe(row), indent=1, default=float))
+    (folder / "robust_candidate.json").write_text(json.dumps(info_gap._json_safe(dict(row, power_band=power_band())),
+                                                              indent=1, default=float))
     return folder / "design_pusher.json"
 
 
@@ -1472,7 +1478,8 @@ def run_target(P, h_T, out, cache_, need, grid_ws, grid_a, t_start, budget_min, 
             rec_it["stopped_by_budget"] = bool(added)
             break
     result = {"P_hp": P, "h_T": h_T, "iterations": iterations,
-              "corner_sets": {"endurance": E_set, "cliff": C_set}, "full_study": full_study}
+              "corner_sets": {"endurance": E_set, "cliff": C_set}, "full_study": full_study,
+              "power_band": power_band()}
     if final is None:
         result.update(design=None, reasons=iterations[-1]["reasons_not_selected"], runtime_s=time.time() - t0)
         (folder / "target_result.json").write_text(json.dumps(info_gap._json_safe(result), indent=1, default=float))
@@ -1633,6 +1640,41 @@ def _group_candidates(cands):
     return "; ".join(f"W/S {w} (A {', '.join(a)})" for w, a in by.items())
 
 
+def _problem_candidates(c, powers):
+    """(h, P, row) of every candidate of the last iteration of every cell that is unresolved or ended in an error."""
+    return [(h, P, r) for h in c["targets"] for P in powers for r in _cell(c, P, h)["iterations"][-1]["candidates"]
+            if r.get("unresolved") or (not r["ok"] and r["status"].startswith("error"))]
+
+
+def valley_lines(cell):
+    """Markdown table of W0 (lb) over the grid of the last iteration: a compliant design shows its W0, a candidate
+    that meets both corner sets but fails a Stage 1 row shows W0 and 'F', a pruned one '>= W0 at 8 h' (it cannot be
+    lighter than the best design found before it), any other '-' with the reason in the list below."""
+    cands = cell["iterations"][-1]["candidates"]
+    ws = sorted({r["W_S"] for r in cands})
+    As = sorted({r["A"] for r in cands})
+    by = {(r["W_S"], r["A"]): r for r in cands}
+    L = ["| A \\ W/S | " + " | ".join(f"{w:g}" for w in ws) + " |", "|---|" + "---|" * len(ws)]
+    why = []
+    for a in As:
+        cells = []
+        for w in ws:
+            r = by[(w, a)]
+            if r["ok"] and not r["failed"]:
+                cells.append(f"{r['W0_lb']:.0f}")
+            elif r["ok"]:
+                cells.append(f"{r['W0_lb']:.0f} F")
+            elif r["status"].startswith("pruned"):
+                cells.append(f">= {r['W0_at_8h_lb']:.0f}")
+            else:
+                cells.append("-")
+                why.append(f"- W/S {w:g}, A {a:g} (-): {reason_label(r)}")
+        L.append(f"| {a:g} | " + " | ".join(cells) + " |")
+    return L + ["", "'>= x' is a pruned candidate: its W0 at 8 h already is x, not below the lightest design found "
+                   "before it, and W0 only grows with the sized loiter time. 'F' fails a Stage 1 row."] + (
+        ["", *why] if why else [])
+
+
 def target_summary(c, h):
     """One sentence per target from the cells: where designs exist, the lightest, where none."""
     powers = sorted(c["powers"])
@@ -1641,9 +1683,11 @@ def target_summary(c, h):
     if not ok:
         return f"h = {h:.2f}: no design at any power of the grid."
     best = min(ok, key=lambda t: t[1]["W0_lb"])
-    return (f"h = {h:.2f}: designs from {ok[0][0]:g} hp up (W0 {min(d['W0_lb'] for _, d in ok):.0f} to "
-            f"{max(d['W0_lb'] for _, d in ok):.0f} lb over the powers that have one; lightest {best[1]['W0_lb']:.0f} lb at "
-            f"{best[0]:g} hp)" + (f"; no design at {', '.join(nd)} hp." if nd else "."))
+    lo, hi = min(d["W0_lb"] for _, d in ok), max(d["W0_lb"] for _, d in ok)
+    span = (f"W0 {lo:.0f} lb" if f"{lo:.0f}" == f"{hi:.0f}" else f"W0 {lo:.0f} to {hi:.0f} lb over the powers that have one")
+    where = f"{ok[0][0]:g} hp" if len(ok) == 1 else f"designs from {ok[0][0]:g} hp up"
+    return (f"h = {h:.2f}: {where} ({span}; lightest {best[1]['W0_lb']:.0f} lb at {best[0]:g} hp)"
+            + (f"; no design at {', '.join(nd)} hp." if nd else "."))
 
 
 def _f2(x):
@@ -1714,11 +1758,11 @@ def targets_report_text(c, figure_rel, committed_after=""):
         "tried are in each record's `vc_placard`). **For the info-gap rebuilds the aircraft is the built one:** the "
         "record's ledger copy carries the design's chosen V_C as a fixed `vc_placard_kt_eas` and no rule, so an "
         "info-gap member that flies faster does not get a stronger structure.")
-    unres = sum(1 for h in c["targets"] for P in powers for r in _cell(c, P, h)["iterations"][-1]["candidates"]
-                if r.get("unresolved"))
+    problems = _problem_candidates(c, powers)
     add(f"- **Unresolved candidates:** a weight iteration that did not converge is neither 'too heavy' nor 'too light': "
         "the bisection stops for that candidate and the candidate is reported as unresolved with the reason. "
-        f"Unresolved candidates in the last iteration of the cells of this report: {unres}.")
+        f"Unresolved or errored candidates in the last iteration of the cells of this report: {len(problems)}"
+        + (" (each listed with its error in the section 'Unresolved and errored candidates')." if problems else "."))
     add(f"- Only h_T = {c['study_h']:.2f} (the ruling's target) gets the full `info_gap.study`, the mode h scans and the "
         "step-doubling check. For the other targets only the mode searches' worst values at h_T are recorded; there is "
         "no full study for them.")
@@ -1817,6 +1861,23 @@ def targets_report_text(c, figure_rel, committed_after=""):
                         "(70 to 100 % power, sea level). That fuel rests on the model alone; the 10 % SFC band stands in for the "
                         "missing data.")
         add("")
+    add("## Unresolved and errored candidates")
+    add("")
+    problems = _problem_candidates(c, powers)
+    if not problems:
+        add("None: in the last iteration of every cell every candidate was classified (design, too heavy, too light, "
+            "pruned or failing a Stage 1 row) and none ended in an error.")
+    for h, P, r in problems:
+        add(f"- h = {h:.2f}, {P:g} hp, W/S {r['W_S']:g} A {r['A']:g}: "
+            + ("unresolved: " if r.get("unresolved") else "") + r["status"])
+    add("")
+    for h in c["targets"]:
+        for P in powers:
+            if _cell(c, P, h)["design"]:
+                add(f"## W0 over the grid (h = {h:.2f}, {P:g} hp, last iteration)")
+                add("")
+                L.extend(valley_lines(_cell(c, P, h)))
+                add("")
     add("## Powers with no design, and why")
     add("")
     any_nd = False

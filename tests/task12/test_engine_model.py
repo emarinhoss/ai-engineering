@@ -1,7 +1,10 @@
 """The TP100 table (data/task12/tp100_table.json) against the App. K cycle it was built from."""
+import json
+
+import numpy as np
 import pytest
 
-from conceptual.engine_model import TableEngine
+from conceptual.engine_model import M250_TABLE, TP100_TABLE, TableEngine
 from conceptual.units import KT, isa
 from measurement import tp100_engine as tp
 from measurement import turboprop_cycle as tc
@@ -78,3 +81,32 @@ def test_table_for_run_uses_the_recorded_hash_old_and_new_style(tmp_path):
                                                  "engine_table_sha256": "0" * 64}))
     with pytest.raises(ValueError):                               # no table with that hash at that commit
         table_for_run(new)
+
+
+def test_power_cap_is_clipped_at_the_rating_and_a_cap_below_one_cuts_power():
+    """Owner ruling R-e, review MD-4: a cap above 1 cannot take the available power above the rating."""
+    e = TableEngine(M250_TABLE)
+    assert e.rated == 450.0
+    for h, v in ((0.0, 90.0), (0.0, 140.0), (10000.0, 120.0), (20000.0, 120.0)):
+        base = e.power_available(h, v)
+        assert e.scaled(power_cap=1.1).power_available(h, v) <= 450.0 + 1e-9
+        assert e.scaled(power_cap=1.1).power_available(h, v) == pytest.approx(min(450.0, base * 1.1))
+        assert e.scaled(power_cap=0.9).power_available(h, v) == pytest.approx(0.9 * base)
+    assert e.power_available(0.0, 140.0) == pytest.approx(450.0)            # sea level at the rating
+    assert e.scaled(power_cap=1.1).power_available(0.0, 140.0) == pytest.approx(450.0)      # clipped
+    assert e.power_available(20000.0, 120.0) < 400.0                         # well below the rating aloft
+    assert e.scaled(power_cap=1.1).power_available(20000.0, 120.0) == pytest.approx(
+        1.1 * e.power_available(20000.0, 120.0))                             # the cap still acts there
+    assert json.loads(M250_TABLE.read_text())["rated_shp"] == 450.0
+
+
+def test_tp100_available_power_is_bit_for_bit_the_pre_clip_formula():
+    """The clip never acts for power_cap = 1 (every TP100 record, rescale path): same floats as min(rated, full) x scale."""
+    e = TableEngine(TP100_TABLE)
+    for power in (1.0, 0.9, 1.1, 360.0 / 241.0):
+        for rerate in (False, True):
+            m = e.scaled(sfc=1.05, power=power, rerate=rerate)
+            for h in np.linspace(0.0, 25000.0, 11):
+                for v in np.linspace(60.0, 160.0, 7):
+                    old = min(m.rated, m._full_throttle(h, v)) * m.power_scale * m.power_cap
+                    assert m.power_available(h, v) == old
