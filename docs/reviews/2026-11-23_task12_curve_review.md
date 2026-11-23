@@ -9,7 +9,9 @@ h 1.10 about 450 hp.
 
 ## Owner rulings
 
-To be recorded as given.
+| Question | Ruling (Éder, 2026-11-23) |
+|---|---|
+| Robustness margin above h = 1 | **h = 1.05**, pointing to a 420-450 hp class engine with TP100-like consumption (about 4,500 lb); re-run the curve at fixed targets (1.00 / 1.05 / 1.10) with the report fixes, then search for real engines in that class |
 
 ## Independent review (verbatim)
 
