@@ -851,7 +851,7 @@ def propeller_points(d, L):
     return out
 
 
-def size_tail_for_rotation(concept, W_S, A, L, engine=None, max_iter=8):
+def size_tail_for_rotation(concept, W_S, A, L, engine=None, max_iter=8, W0_guess=3000.0):
     """Raymer p. 432-433: rotation can size the elevator and tail. Starting from the Table 6.4
     volume coefficient, enlarge the horizontal tail until the tail lift coefficient needed to
     rotate at 0.8 V_TO with the most-forward CG is within the available value, re-sizing the
@@ -859,7 +859,7 @@ def size_tail_for_rotation(concept, W_S, A, L, engine=None, max_iter=8):
     scale = 1.0
     for _ in range(max_iter):
         L2 = dict(L, ht_volume_scale=scale)
-        d = evaluate(concept, W_S, A, L2, engine=engine)
+        d = evaluate(concept, W_S, A, L2, W0_guess=W0_guess, engine=engine)
         lay = layout(d, L2)
         need = abs(lay["rotation"]["CL_tail_needed"])
         if lay["rotation_ok"]:
@@ -867,6 +867,6 @@ def size_tail_for_rotation(concept, W_S, A, L, engine=None, max_iter=8):
         scale *= need / L["tail_cl_max_rotation"] * 1.02
     # the last update was not evaluated: evaluate it, and say if rotation still fails (G-5)
     L2 = dict(L, ht_volume_scale=scale)
-    d = evaluate(concept, W_S, A, L2, engine=engine)
+    d = evaluate(concept, W_S, A, L2, W0_guess=W0_guess, engine=engine)
     lay = layout(d, L2)
     return d, lay, scale

@@ -466,9 +466,10 @@ def speeds_by_altitude(d, L, altitudes=(0.0, 5000.0, 10000.0, 15000.0, 20000.0))
     return out
 
 
-def analyse(concept, W_S, A, L, engine):
-    """Size the tail for rotation, lay out and analyse one design."""
-    d, lay, scale = uav.size_tail_for_rotation(concept, W_S, A, L, engine=engine)
+def analyse(concept, W_S, A, L, engine, W0_guess=3000.0):
+    """Size the tail for rotation, lay out and analyse one design. W0_guess starts the weight
+    iteration (default unchanged); a design that is heavy for its engine closes from a larger guess."""
+    d, lay, scale = uav.size_tail_for_rotation(concept, W_S, A, L, engine=engine, W0_guess=W0_guess)
     Lu = d["ledger_used"]
     per = uav.performance(d, Lu)
     need, avail = uav.fuel_volume_check(d, Lu)

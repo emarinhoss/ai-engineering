@@ -306,6 +306,40 @@ class Built:
         return r["TO"][0], r["LD"][0]
 
 
+# ---- the transit cliff (review RS-2) ----------------------------------------------------------------
+def transit_power_ratio(built, theta):
+    """(ratio, reason): the largest, over the sub-steps of the mission legs, of the shaft power
+    needed at the best speed on the grid of uav._leg_speed over the power available there. A mission
+    sub-step with ratio > 1 has no speed within the engine's power ("no speed on the leg ...": the
+    transit cliff). The mission is built with no loiter (the legs are the same sub-steps, the
+    heaviest is the first cruise step). A point that cannot be built for another listed reason
+    (weight fixed point) gives (inf, reason). The ratio is the spy's view of the call uav._mission
+    makes; the grid and the power test are copied from uav._leg_speed."""
+    orig = uav._leg_speed
+    state = {"worst": 0.0}
+
+    def spy(W, S, atm, h_ft, CD0, K, clmax_clean, L, mode, model, bhp):
+        floor = L["speed_over_stall"] * perf.stall_speed(W / S, atm["rho"], clmax_clean)
+        best = math.inf
+        for i in range(76):
+            Vi = floor * (1.0 + 0.02 * i)
+            shp = perf.drag(W, S, atm["rho"], Vi, CD0, K) * Vi / (uav.HP * L["eta_p"])
+            best = min(best, shp / (bhp * model.lapse(h_ft, Vi / uav.KT)))
+        state["worst"] = max(state["worst"], best)
+        return orig(W, S, atm, h_ft, CD0, K, clmax_clean, L, mode, model, bhp)
+
+    uav._leg_speed = spy
+    try:
+        try:
+            built.build(theta, 0.0)
+        except ValueError as e:
+            reason = unflyable_reason(e)
+            return (state["worst"] if state["worst"] > 1.0 else math.inf), reason
+    finally:
+        uav._leg_speed = orig
+    return state["worst"], None
+
+
 # ---- the worst-case search at one h (IG-1, IG-3) -----------------------------------------------------
 def coordinate_search(score, variables, h, start, limit=None, n_interior=N_INTERIOR,
                       max_sweeps=MAX_SWEEPS, pair_names=()):
