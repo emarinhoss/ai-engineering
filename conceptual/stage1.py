@@ -31,6 +31,8 @@ from conceptual.units import KT, NM, RHO0, isa
 REPO = uav.LEDGER.parents[2]
 ENGINES = REPO / "data" / "task12" / "engines.yaml"
 TP100_TABLE = REPO / "data" / "task12" / "tp100_table.json"
+M250_TABLE = REPO / "data" / "task12" / "m250_table.json"
+M250_NAME = "RR_M250_B17F"
 WS_GRID = [8.0 + i for i in range(15)]          # 8 to 22 lb/ft^2
 A_GRID = [6.0 + i for i in range(17)]           # 6 to 22
 CHOSEN_ENGINE = "PBS_TP100"                     # Gate A round 1: a small production turboprop
@@ -54,6 +56,10 @@ def engine_options():
             # Gate A round 5 ruling 2: SFC allowance on the table in sizing
             allowance = uav.load_ledger()[0].get("engine_sfc_allowance", 1.0)
             eng["model"] = TableEngine(TP100_TABLE).scaled(sfc=allowance)
+        if name == M250_NAME and M250_TABLE.exists():
+            # the M250-B17F as its App. K table (measurement/m250_engine.py), same SFC allowance; it is
+            # an option for comparison, not the chosen engine
+            eng["model"] = TableEngine(M250_TABLE).scaled(sfc=uav.load_ledger()[0].get("engine_sfc_allowance", 1.0))
         out[name] = eng
     return out, raw
 

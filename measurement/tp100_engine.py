@@ -105,9 +105,12 @@ TABLE_V = [30.0 + 20.0 * i for i in range(11)]           # 30 to 230 kt TAS
 TABLE_F = [0.10 + 0.05 * i for i in range(19)]           # shaft power / full-throttle power
 
 
-def table(member=None, burner=DEFAULT_BURNER):
+def table(member=None, burner=DEFAULT_BURNER, rated_shp=RATED_SHP, calibration_bsfc=BSFC_RATED, extra=None):
     """Full-throttle shaft hp and part-power shaft SFC of one family member on a grid of altitude,
-    true airspeed and power fraction, for conceptual/engine_model.py to interpolate."""
+    true airspeed and power fraction, for conceptual/engine_model.py to interpolate. The rated power
+    and calibration SFC are only labels written into the table (the member already carries its
+    own calibration); another engine (measurement/m250_engine.py) passes its own and `extra`
+    keys such as its name."""
     if member is None:
         k, ref = calibrated(**NOMINAL, burner=burner)
         member = {"k": k, "ref": ref, **NOMINAL}
@@ -129,14 +132,15 @@ def table(member=None, burner=DEFAULT_BURNER):
         lp_ratio.append(row_r)
     gt = k["gamma_t"]
     return {"h_ft": TABLE_H, "V_kt": TABLE_V, "power_fraction": TABLE_F, "full_throttle_shp": p_full,
-            "bsfc": sfc, "rated_shp": RATED_SHP,
+            "bsfc": sfc, "rated_shp": rated_shp,
             # validity (Gate A round 4, R4-4): App. K off-design holds the HP turbine ratios fixed
             # because stations 4 and 4.5 are choked; a turbine pressure ratio below the critical
             # value means that assumption fails in that cell
             "lp_turbine_pressure_ratio": lp_ratio, "hp_turbine_pressure_ratio": 1.0 / ref["pi_tH"],
             "critical_pressure_ratio": ((gt + 1.0) / 2.0) ** (gt / (gt - 1.0)),
             "member": {x: member[x] for x in ("Tt4", "e_c", "e_t")} | {"pi_c": ref["pi_c"], "tau_t": ref["tau_t"]},
-            "calibration_bsfc": BSFC_RATED, "burner": k.get("burner", "csh"), "control_law": "Tt4 <= rated, pi_c <= sea-level rated value"}
+            "calibration_bsfc": calibration_bsfc, "burner": k.get("burner", "csh"),
+            "control_law": "Tt4 <= rated, pi_c <= sea-level rated value"} | (extra or {})
 
 
 if __name__ == "__main__":
