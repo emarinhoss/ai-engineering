@@ -10,7 +10,9 @@ and `docs/validation/2026-11-23_task12_robust_sizing.md`, superseded on these po
 
 ## Owner rulings
 
-To be recorded as given.
+| Question | Ruling (Éder, 2026-11-23) |
+|---|---|
+| How Gate B judges R5 robustness | **A robustness-against-power curve per failure mode** (endurance and transit cliff), with the engine chosen from it later; Gate B's R5 line stays open as a decision, not a pass/fail |
 
 ## Independent review (verbatim)
 
