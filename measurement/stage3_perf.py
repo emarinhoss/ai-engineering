@@ -69,9 +69,16 @@ def rebuild(design_path):
     d = json.loads(path.read_text())
     ledger_path = path.parent / "ledger.yaml"
     L, _ = uav.load_ledger(ledger_path)
-    L = dict(L, ht_volume_scale=d["ht_volume_scale"], cbhp_cruise=0.901, cbhp_loiter=0.901)
     # the engine table the record was made with, not necessarily the current one
-    eng = record_engine(d, table_for_run(path.parent), L.get("engine_sfc_allowance", 1.0))
+    d, L, b, check = rebuild_record(d, L, table_for_run(path.parent))
+    return d, L, b, ledger_path, check
+
+
+def rebuild_record(d, L, table_path):
+    """The same rebuild from a record already in memory: d the record (dict), L the ledger values
+    it was sized with, table_path the engine table it used. Returns (d, ledger values, state, check)."""
+    L = dict(L, ht_volume_scale=d["ht_volume_scale"], cbhp_cruise=0.901, cbhp_loiter=0.901)
+    eng = record_engine(d, table_path, L.get("engine_sfc_allowance", 1.0))
     b = uav._build(d["W0_lb"], d["concept"], d["W_S"], d["A"], L, d["fuel_lb"], eng)
     check = {"fuel_lb": [d["fuel_lb"], b["fuel"]]}
     for k, v in d["power_required_hp"].items():
@@ -79,7 +86,7 @@ def rebuild(design_path):
     for k, (rec, new) in check.items():
         if abs(new / rec - 1.0) > REBUILD_TOLERANCE:
             raise ValueError(f"rebuild does not reproduce the record: {k} {rec} against {new}")
-    return d, L, b, ledger_path, {k: {"record": r, "rebuilt": n} for k, (r, n) in check.items()}
+    return d, L, b, {k: {"record": r, "rebuilt": n} for k, (r, n) in check.items()}
 
 
 # ---- rows -----------------------------------------------------------------------------------------

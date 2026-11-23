@@ -176,15 +176,22 @@ class Built:
     """The record, the ledger values and the engine table of the run; rebuild at any theta.
     band_weight False keeps W0 at the record's (the earlier study, kept for comparison)."""
 
-    def __init__(self, design_path, band_weight=True):
+    def __init__(self, design_path, band_weight=True, record=None):
+        """record=(d, ledger values, engine table path) builds from a record held in memory
+        (measurement/robust_sizing.py); design_path is then only a label."""
         self.path = Path(design_path)
         self.band_weight = band_weight
-        self.d, self.L, b, self.ledger_path, self.check = sp.rebuild(design_path)
-        self.base_engine = TableEngine(table_for_run(self.path.parent))
+        if record is None:
+            self.d, self.L, b, self.ledger_path, self.check = sp.rebuild(design_path)
+            table = table_for_run(self.path.parent)
+        else:
+            table = record[2]
+            self.d, self.L, b, self.check = sp.rebuild_record(*record)
+            self.ledger_path = None
+        self.base_engine = TableEngine(table)
         # the record's engine: rated power and weight (a photo-scaled TP100 if bhp is not 241)
         self.engine_scale = float(self.d.get("bhp_sl", sp.CHOSEN_ENGINE["bhp"])) / sp.CHOSEN_ENGINE["bhp"]
-        self.engine_spec = {k: v for k, v in sp.record_engine(self.d, table_for_run(self.path.parent)).items()
-                            if k != "model"}
+        self.engine_spec = {k: v for k, v in sp.record_engine(self.d, table).items() if k != "model"}
         self.allowance = self.L.get("engine_sfc_allowance", 1.0)
         self.nominal_state = b
         self.S_record = self.d["W0_lb"] / self.d["W_S"]       # wing area is the record's
