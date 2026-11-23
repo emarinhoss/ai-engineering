@@ -176,3 +176,21 @@ def test_pair_flips_cross_a_cliff_that_single_flips_cannot_see():
     assert ig.coordinate_search(score, variables, 1.0, start)["value"] == 0.0
     res = ig.coordinate_search(score, variables, 1.0, start, pair_names=("a", "b"))
     assert res["value"] == math.inf and res["n_unflyable"] >= 1
+
+
+# ---- the power multiplier as a cap or a rescale (ruling R-c, review M-2) -------------------------------------------
+def test_power_band_cap_keeps_sfc_at_a_given_power_and_rescale_moves_it(variables):
+    th = dict(ig.nominal_theta(variables), engine_power_mult=0.9)
+    cap, rescale = ig.Built(DESIGN, power_band="cap"), ig.Built(DESIGN, power_band="rescale")
+    m_cap, m_re = cap.build(th, mission=False)[0]["engine_model"], rescale.build(th, mission=False)[0]["engine_model"]
+    nominal = cap.build(ig.nominal_theta(variables), mission=False)[0]["engine_model"]
+    assert m_cap.power_available(20000.0, 95.0) == pytest.approx(m_re.power_available(20000.0, 95.0))   # same limit
+    shp = 0.4 * m_cap.power_available(20000.0, 95.0)
+    assert m_cap.bsfc(20000.0, 95.0, shp) == pytest.approx(nominal.bsfc(20000.0, 95.0, shp), rel=1e-12)
+    assert m_re.bsfc(20000.0, 95.0, shp) != pytest.approx(nominal.bsfc(20000.0, 95.0, shp), rel=1e-6)
+
+
+def test_default_power_band_is_the_tp100_rescale_and_a_bad_name_is_refused():
+    assert ig.POWER_BAND == "rescale" and ig.Built(DESIGN).power_band == "rescale"
+    with pytest.raises(ValueError):
+        ig.Built(DESIGN, power_band="nonsense")

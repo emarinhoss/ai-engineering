@@ -13,6 +13,7 @@ written as a record, and its robustness found with measurement/info_gap.py (empt
 import argparse
 import hashlib
 import json
+import re
 import shutil
 import subprocess
 import time
@@ -25,10 +26,33 @@ from conceptual.units import KT, RHO0
 from measurement import info_gap
 
 POWERS = (260.0, 280.0, 300.0, 330.0, 360.0)
+TP100 = "PBS_TP100"
+# The ledger now holds the M250's values (ruling R-b 1.02, TCDS rpm 2,030); the TP100 sweeps used these
+TP100_LEDGER = {"engine_sfc_allowance": 1.05, "propeller_rpm": 2158.0}
+
+
+def tp100_ledger_values():
+    """The current ledger's values with the two engine-specific ones the TP100 records were sized with."""
+    return dict(uav.load_ledger()[0], **TP100_LEDGER)
+
+
+TP100_LEDGER_LINES = {      # the two ledger lines as the TP100 records had them (git show 1b11d3b:data/task12/ledger.yaml)
+    "engine_sfc_allowance": '  engine_sfc_allowance:  {value: 1.05, units: "-", confidence: requirement, source: "Gate A round 5 ruling 2 (Eder 2026-11-21): every SFC from the TP100 App. K table multiplied by 1.05 in sizing, covering the model\'s part-power optimism against the book (MSH reads 5-9 % low, calibration absorbs the design-point part)"}',
+    "propeller_rpm": '  propeller_rpm:         {value: 2158.0, units: rpm, confidence: datasheet, source: "PBS TP100 output shaft speed 2,158 RPM, maker\'s brochure p. 12 (Gate A round 4, R4-10); was an assumed 2,000 rpm"}',
+}
+
+
+def tp100_ledger_text(text):
+    """Ledger text with the TP100's two engine-specific lines (TP100_LEDGER_LINES) in place of the M250's."""
+    for key, line in TP100_LEDGER_LINES.items():
+        text, n = re.subn(rf"^\s*{key}:.*$", lambda m, line=line: line, text, flags=re.MULTILINE)
+        if n != 1:
+            raise ValueError(f"{key} line not found in the ledger")
+    return text
 
 
 def scaled_engine(P, L):
-    base = stage1.engine_options()[0][stage1.CHOSEN_ENGINE]
+    base = stage1.engine_options(TP100)[0][TP100]
     w = turboprop_scaled({"weight_lb": base["weight_lb"], "length_in": 0.0, "diameter_in": 0.0},
                          base["bhp"], P)["weight_lb"]
     model = TableEngine(TP100_TABLE).scaled(sfc=L.get("engine_sfc_allowance", 1.0), power=P / base["bhp"],
@@ -38,16 +62,16 @@ def scaled_engine(P, L):
 
 def size(P, out):
     """Stage 1 selection with the scaled engine; writes a record folder; returns a summary."""
-    L, _ = uav.load_ledger()
+    L = tp100_ledger_values()
     eng = scaled_engine(P, L)
-    raw = stage1.engine_options()[1][stage1.CHOSEN_ENGINE]
+    raw = stage1.engine_options(TP100)[1][TP100]
     rows = stage1.carpet("pusher", L, eng, eng["name"])
     ws = constraints.ws_stall(RHO0, L["stall_speed_kt"] * KT, uav._cl_max(L)["clean"])
     a, comp, tried = stage1.first_compliant("pusher", rows, ws, L, eng, raw)
     rec = out / f"P{P:g}"
     rec.mkdir(parents=True, exist_ok=True)
     (rec / "design_pusher.json").write_text(json.dumps(stage1.design_record(a, L, raw), indent=1, default=float))
-    shutil.copyfile(uav.LEDGER, rec / "ledger.yaml")
+    (rec / "ledger.yaml").write_text(tp100_ledger_text(uav.LEDGER.read_text()))   # TP100 values, see TP100_LEDGER
     shutil.copyfile(TP100_TABLE, rec / "tp100_table.json")
     (rec / "selection_pusher.json").write_text(json.dumps(tried, indent=1, default=float))
     d = a["design"]

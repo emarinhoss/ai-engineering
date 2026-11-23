@@ -32,6 +32,9 @@ engines:
     output_shaft_rpm: 2030.0
     confidence: datasheet
     # Sea-level static ratings of the 450 shp engine from the brochure's performance table: (shp, SFC lb/(shp h), maximum values)
+    # 377 and 314 shp (Cruise A 90 %, Cruise B 75 %) were rechecked against the image of brochure p. 4 on 2026-11-23: printed as
+    # such (90 % and 75 % of 419 shp), not a transcription error (review M-8). Take-off MGT 810 C is a limit (brochure footnote);
+    # the cruise MGT values are printed as rating values without a footnote.
     sl_static_ratings:
       take_off:       {shp: 450.0, bsfc_max: 0.613, mgt_c: 810.0}
       normal_cruise:  {shp: 380.0, bsfc_max: 0.635, mgt_c: 752.0}

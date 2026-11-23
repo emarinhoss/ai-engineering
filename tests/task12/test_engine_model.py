@@ -44,3 +44,37 @@ def test_above_full_throttle_is_refused():
 
 def test_lapse_is_rated_power_at_sea_level():
     assert ENG.lapse(0.0, 66.0) == pytest.approx(1.0, abs=0.01)
+
+
+# ---- table_for_run: the engine table of a Stage 1 run, TP100 or M250 -------------------------------------------------
+def test_table_for_run_finds_the_copy_in_the_run_folder(tmp_path):
+    import shutil
+
+    from conceptual.engine_model import M250_TABLE, TP100_TABLE, table_for_run
+    shutil.copyfile(M250_TABLE, tmp_path / "m250_table.json")
+    assert table_for_run(tmp_path) == tmp_path / "m250_table.json"
+    other = tmp_path / "b"
+    other.mkdir()
+    shutil.copyfile(TP100_TABLE, other / "tp100_table.json")
+    assert table_for_run(other) == other / "tp100_table.json"
+
+
+def test_table_for_run_uses_the_recorded_hash_old_and_new_style(tmp_path):
+    import hashlib
+    import json
+
+    from conceptual.engine_model import M250_TABLE, TP100_TABLE, table_for_run
+    old = tmp_path / "old"
+    old.mkdir()
+    (old / "inputs.json").write_text(json.dumps({"tp100_table_sha256": hashlib.sha256(TP100_TABLE.read_bytes()).hexdigest(),
+                                                 "commit": "HEAD"}))
+    assert table_for_run(old) == TP100_TABLE                      # records before the M250 name only the TP100
+    new = tmp_path / "new"
+    new.mkdir()
+    (new / "inputs.json").write_text(json.dumps({"engine_table_file": "m250_table.json", "commit": "HEAD",
+                                                 "engine_table_sha256": hashlib.sha256(M250_TABLE.read_bytes()).hexdigest()}))
+    assert table_for_run(new) == M250_TABLE
+    (new / "inputs.json").write_text(json.dumps({"engine_table_file": "m250_table.json", "commit": "HEAD",
+                                                 "engine_table_sha256": "0" * 64}))
+    with pytest.raises(ValueError):                               # no table with that hash at that commit
+        table_for_run(new)

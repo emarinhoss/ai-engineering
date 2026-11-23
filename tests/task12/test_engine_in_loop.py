@@ -5,6 +5,7 @@ import pytest
 from conceptual import stage1, uav
 from conceptual.engine_model import TableEngine
 from conceptual.units import KT, isa
+from measurement.rubber_tp100 import tp100_ledger_values
 
 ENG = TableEngine()
 
@@ -31,8 +32,8 @@ def test_turbine_flag_follows_the_pressure_ratio():
 
 
 def _design():
-    L, _ = uav.load_ledger()
-    engs, _ = stage1.engine_options()
+    L = tp100_ledger_values()                                   # the TP100 records' ledger values (1.05, 2,158 rpm)
+    engs, _ = stage1.engine_options("PBS_TP100", 1.05)
     return uav.evaluate("pusher", 15.0, 9.0, L, engine=engs["PBS_TP100"]), L
 
 
@@ -77,3 +78,28 @@ def test_photo_scaled_engine_keeps_lapse_and_sfc_shape():
     assert big.bsfc(20000.0, 95.0, p * 260.0 / 241.0) == pytest.approx(ENG.bsfc(20000.0, 95.0, p), rel=1e-12)
     # a band-end multiplier (no rerate) moves the lapse with the power
     assert ENG.scaled(power=0.9).lapse(20000.0, 95.0) == pytest.approx(0.9 * ENG.lapse(20000.0, 95.0))
+
+
+# ---- the power band as a cap (ruling R-c, review M-2) -------------------------------------------------------------
+def test_power_cap_limits_available_power_but_leaves_sfc_at_a_given_power_unchanged():
+    c = ENG.scaled(power_cap=0.9)
+    assert c.power_available(20000.0, 95.0) == pytest.approx(0.9 * ENG.power_available(20000.0, 95.0))
+    p = 0.5 * c.power_available(20000.0, 95.0)
+    assert c.bsfc(20000.0, 95.0, p) == pytest.approx(ENG.bsfc(20000.0, 95.0, p), rel=1e-12)
+    # the rescale form moves the fraction axis: the same shaft power sits at another fraction, so SFC differs
+    r = ENG.scaled(power=0.9)
+    assert r.bsfc(20000.0, 95.0, p) != pytest.approx(ENG.bsfc(20000.0, 95.0, p), rel=1e-6)
+    assert c.lapse(20000.0, 95.0) == pytest.approx(0.9 * ENG.lapse(20000.0, 95.0))
+    assert ENG.power_cap == 1.0                                   # the original is untouched
+
+
+def test_power_cap_above_one_saturates_the_fraction_axis_not_the_sfc_table():
+    c = ENG.scaled(power_cap=1.1)
+    avail = c.power_available(20000.0, 95.0)            # at altitude the table is below the rating, so the cap raises it
+    assert avail == pytest.approx(1.1 * ENG.power_available(20000.0, 95.0))
+    # shaft power above the uncapped full throttle sits at fraction 1.0 of the SFC table (clamped), not beyond it
+    assert c.bsfc(20000.0, 95.0, avail) == pytest.approx(ENG.bsfc(20000.0, 95.0, ENG.power_available(20000.0, 95.0)))
+
+
+def test_caps_multiply():
+    assert ENG.scaled(power_cap=0.9).scaled(power_cap=0.9).power_cap == pytest.approx(0.81)

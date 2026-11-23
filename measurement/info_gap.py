@@ -3,11 +3,17 @@ Spec docs/specs/task12_drone_conceptual_design.md sections 7.1a, 7.2, 7.4 (Gate 
 
     python -m measurement.info_gap --design runs/task12/stage1/2026-11-21f/design_pusher.json \
         --out runs/task12/stage3/2026-11-22/info_gap.json \
-        --report docs/validation/2026-11-22_task12_stage3_info_gap.md
+        --report docs/validation/2026-11-22_task12_stage3_info_gap.md --power-band rescale
+    python -m measurement.info_gap --design runs/task12/stage1/2026-11-23/design_pusher.json \
+        --out ... --report ...                       (M250 records: the power band is a cap, the default of the command)
 
 Method: Ben-Haim's info-gap as used in Marchau et al., DMDU, ch. 10, (10.4)-(10.8), p. 212-218.
   Uncertain quantities theta_k: every ledger assumption with a band, plus two engine multipliers
-  (SFC and full-throttle power of the TP100 table, nominal 1, weights 0.10 each side).
+  (SFC and full-throttle power of the engine's table, nominal 1, weights 0.10 each side). The power
+  multiplier has two forms (POWER_BAND). "cap" (owner ruling R-c, review M-2; the M250 records): it
+  caps the available power only, so SFC at a given shaft power does not change. "rescale" (the TP100
+  records, 2026-11-22): it also rescales the part-power fraction axis, as if the whole engine were
+  larger or smaller.
   U(h) (10.7): theta_k0 - h W_k_lower <= theta_k <= theta_k0 + h W_k_upper, with W chosen so that
   h = 1 gives the ledger band ends (W_lower = nominal - band_lo, W_upper = band_hi - nominal).
   Robustness (10.8): h_hat = largest h such that the requirement holds for every theta in U(h).
@@ -66,6 +72,8 @@ from measurement import stage3_perf as sp
 REPO = Path(__file__).resolve().parents[1]
 LEDGER_NOW = REPO / "data" / "task12" / "ledger.yaml"
 SEED = 20261122
+POWER_BAND = "rescale"        # form of the engine power multiplier: "rescale" (TP100 records) or "cap" (M250, ruling R-c)
+POWER_BANDS = ("cap", "rescale")
 N_SAMPLES = 200
 N_CORNER_VARS = 5
 N_INTERIOR = 5                # interior points per variable in the interior scan
@@ -137,8 +145,8 @@ def uncertain_variables(entries):
                     "band_lo": lo, "band_hi": hi, "w_lower": nom - lo, "w_upper": hi - nom,
                     "clip_lo": 0.0 if lo >= 0.0 else -math.inf,
                     "clip_hi": 1.0 if in_unit else math.inf})
-    for name, what in (("engine_sfc_mult", "SFC of every TP100 table entry, on top of the 1.05 allowance"),
-                       ("engine_power_mult", "full-throttle shaft power of the TP100 table")):
+    for name, what in (("engine_sfc_mult", "SFC of every engine table entry, on top of the ledger's SFC allowance"),
+                       ("engine_power_mult", "full-throttle shaft power of the engine table (form: POWER_BAND)")):
         out.append({"name": name, "kind": "engine", "units": what, "nominal": 1.0,
                     "band_lo": 1.0 - ENGINE_WEIGHT, "band_hi": 1.0 + ENGINE_WEIGHT,
                     "w_lower": ENGINE_WEIGHT, "w_upper": ENGINE_WEIGHT,
@@ -176,11 +184,15 @@ class Built:
     """The record, the ledger values and the engine table of the run; rebuild at any theta.
     band_weight False keeps W0 at the record's (the earlier study, kept for comparison)."""
 
-    def __init__(self, design_path, band_weight=True, record=None):
+    def __init__(self, design_path, band_weight=True, record=None, power_band=None):
         """record=(d, ledger values, engine table path) builds from a record held in memory
-        (measurement/robust_sizing.py); design_path is then only a label."""
+        (measurement/robust_sizing.py); design_path is then only a label. power_band is the form of the
+        power multiplier ("cap" or "rescale"); None takes the module's POWER_BAND."""
         self.path = Path(design_path)
         self.band_weight = band_weight
+        self.power_band = power_band or POWER_BAND
+        if self.power_band not in POWER_BANDS:
+            raise ValueError(f"power_band must be one of {POWER_BANDS}, not {self.power_band!r}")
         if record is None:
             self.d, self.L, b, self.ledger_path, self.check = sp.rebuild(design_path)
             table = table_for_run(self.path.parent)
@@ -193,8 +205,8 @@ class Built:
                              "vc_placard_rule: per_design); a rebuild must not choose V_C again "
                              "(robust_sizing.built_ledger_values)")
         self.base_engine = TableEngine(table)
-        # the record's engine: rated power and weight (a photo-scaled TP100 if bhp is not 241)
-        self.engine_scale = float(self.d.get("bhp_sl", sp.CHOSEN_ENGINE["bhp"])) / sp.CHOSEN_ENGINE["bhp"]
+        # the record's engine: rated power and weight (a photo-scaled engine if bhp is not the table's rated power)
+        self.engine_scale = float(self.d.get("bhp_sl", self.base_engine.rated)) / self.base_engine.rated
         self.engine_spec = {k: v for k, v in sp.record_engine(self.d, table).items() if k != "model"}
         self.allowance = self.L.get("engine_sfc_allowance", 1.0)
         self.nominal_state = b
@@ -220,15 +232,17 @@ class Built:
     def build(self, theta, loiter_h=None, mission=True, W0=None):
         """uav._build at W0 (default: the weight of theta, see w0_for) and the record's fuel with
         the ledger values in theta replaced and the engine table scaled: SFC by allowance x theta
-        SFC multiplier (the 1.05 allowance stays, the multiplier is on top of it), power by the
-        theta power multiplier. Wing area stays the record's (W_S = W0 / S)."""
+        SFC multiplier (the allowance stays, the multiplier is on top of it), power by the theta power
+        multiplier: as a cap on the available power (power_band "cap") or as a rescale of the power and
+        of the fraction axis ("rescale"). Wing area stays the record's (W_S = W0 / S)."""
         L = dict(self.L)
         L.update({k: v for k, v in theta.items() if k not in ENGINE_VARS})
         if loiter_h is not None:
             L["loiter_h"] = loiter_h
+        mult = theta.get("engine_power_mult", 1.0)
         model = (self.base_engine.scaled(power=self.engine_scale, rerate=True)      # the record's engine size
-                 .scaled(sfc=self.allowance * theta.get("engine_sfc_mult", 1.0),
-                         power=theta.get("engine_power_mult", 1.0)))                 # band end
+                 .scaled(sfc=self.allowance * theta.get("engine_sfc_mult", 1.0),    # band ends
+                         **({"power_cap": mult} if self.power_band == "cap" else {"power": mult})))
         eng = dict(self.engine_spec, model=model)
         d = self.d
         if W0 is None:
@@ -632,7 +646,12 @@ def clipping_report(variables, h):
             for v in variables if bounds(v, h)[2] or bounds(v, h)[3]]
 
 
-def study(design_path, n_samples=N_SAMPLES, seed=SEED, processes=None, band_weight=True):
+def study(design_path, n_samples=N_SAMPLES, seed=SEED, processes=None, band_weight=True, power_band=None):
+    """power_band, if given, sets the module's POWER_BAND for this study (the pool's workers are forked after
+    it is set, so they use it too)."""
+    global POWER_BAND
+    if power_band:
+        POWER_BAND = power_band
     t0 = time.time()
     built = Built(design_path, band_weight)
     _, entries = uav.load_ledger(built.ledger_path)
@@ -643,7 +662,7 @@ def study(design_path, n_samples=N_SAMPLES, seed=SEED, processes=None, band_weig
         _init(design_path, band_weight)
         nom = evaluate(nom_th)
         w0 = built.w0_for(nom_th)
-        res = {"band_weight": band_weight,
+        res = {"band_weight": band_weight, "power_band": POWER_BAND,
                "nominal": {"R5_hours": nom[0], "takeoff_ft": nom[1], "landing_ft": nom[2]},
                "record": {"fuel_lb": built.d["fuel_lb"], "W0_lb": built.d["W0_lb"],
                           "takeoff_ft": built.d["performance"]["takeoff_ft"],
@@ -721,10 +740,13 @@ def main(argv=None):
     ap.add_argument("--out", required=True)
     ap.add_argument("--report")
     ap.add_argument("--samples", type=int, default=N_SAMPLES)
+    ap.add_argument("--power-band", choices=POWER_BANDS, default="cap",
+                    help="form of the engine power multiplier: cap (default; owner ruling R-c, M250 records) or "
+                         "rescale (the earlier TP100 records)")
     ap.add_argument("--no-weight-band", action="store_true",
                     help="keep W0 at the record's (no empty-weight uncertainty), as before the review")
     a = ap.parse_args(argv)
-    res = study(a.design, a.samples, band_weight=not a.no_weight_band)
+    res = study(a.design, a.samples, band_weight=not a.no_weight_band, power_band=a.power_band)
     ledger = Path(a.design).parent / "ledger.yaml"
     table = table_for_run(Path(a.design).parent)
     dirty = git_dirty()
@@ -739,7 +761,7 @@ def main(argv=None):
         "pyyaml": yaml.__version__, "seed": SEED, "n_random_samples": a.samples,
         "n_corner_variables": N_CORNER_VARS, "n_interior_points": N_INTERIOR, "h_max": H_MAX,
         "h_gate": H_GATE, "engine_weight": ENGINE_WEIGHT, "r5_slack_h": R5_SLACK_H, "h_tolerance": H_TOL,
-        "weight_band": not a.no_weight_band, "cpu_count": mp.cpu_count(),
+        "weight_band": not a.no_weight_band, "power_band": a.power_band, "cpu_count": mp.cpu_count(),
         "command": "python -m measurement.info_gap " + " ".join(argv if argv is not None else sys.argv[1:])}
     Path(a.out).parent.mkdir(parents=True, exist_ok=True)
     Path(a.out).write_text(json.dumps(_json_safe(res), indent=2, default=float))
@@ -797,9 +819,14 @@ def report_text(res):
          "the nominal is a band end). Robustness (10.8), p. 214: h_hat is the largest h at which the "
          "worst case over U(h) still meets the requirement, found by bisection on h in [0, "
          f"{g(inp['h_max'])}]. Uncertain quantities: {res['n_variables']}, the ledger assumptions that "
-         "carry a band plus two engine multipliers (SFC and full-throttle power of the TP100 table, "
+         "carry a band plus two engine multipliers (SFC and full-throttle power of the engine's table, "
          f"+-{g(inp['engine_weight'] * 100)} % at h = 1). The SFC multiplier is applied on top of the "
-         "ledger's 1.05 SFC allowance (`engine_sfc_allowance`), which stays in.", "",
+         "ledger's SFC allowance (`engine_sfc_allowance` of the record's ledger copy), which stays in. "
+         + ("The power multiplier is a **cap** on the available power only (owner ruling R-c, review M-2): "
+            "the part-power fraction axis, and so SFC at a given shaft power, does not change."
+            if res.get("power_band") == "cap" else
+            "The power multiplier **rescales** the power and the part-power fraction axis together "
+            "(the form of the TP100 records)."), "",
          f"**{res['n_act']} of {res['n_variables']} uncertain quantities act** on R5 or R7; "
          f"{len(res['inert_variables'])} have exactly zero effect on every output at their band ends "
          "and are excluded from the headline count (listed below).", "",

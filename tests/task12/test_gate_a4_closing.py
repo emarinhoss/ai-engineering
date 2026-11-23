@@ -3,11 +3,12 @@ import pytest
 
 from conceptual import stage1, uav
 from conceptual.units import HP, KT, isa
+from measurement.rubber_tp100 import tp100_ledger_values
 
 
 def _design():
-    L, _ = uav.load_ledger()
-    engs, _ = stage1.engine_options()
+    L = tp100_ledger_values()
+    engs, _ = stage1.engine_options("PBS_TP100", 1.05)
     return uav.evaluate("pusher", 14.0, 9.5, L, engine=engs["PBS_TP100"]), L
 
 
@@ -57,7 +58,7 @@ def test_refine_moves_to_a_lighter_compliant_neighbour(monkeypatch):
 
 def test_wind_limit_at_design_payload_is_the_design_wind_and_payload_buys_wind():
     d, L = _design()
-    engs, _ = stage1.engine_options()
+    engs, _ = stage1.engine_options("PBS_TP100", 1.05)
     lim = stage1.wind_limits(d, engs["PBS_TP100"], payloads=(500.0, 400.0))
     assert lim["500"] == pytest.approx(L["headwind_kt"], abs=0.1)
     assert lim["400"] > lim["500"]

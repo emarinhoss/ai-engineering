@@ -1,0 +1,31 @@
+requirement,units,value,limit,rule,met
+"R1/R2 single turboprop, one engine",-,RR_M250_B17F,,by construction,
+R4 payload,lb,500.0,500.0,by construction,
+R5 mission 200 nm + 8 h + 200 nm,fuel lb,919.6061101966898,919.6061101966898,sized to it,
+R6 note: no starting (relight) envelope in our sources for this engine; an in-flight relight is not assessed (the TP100's envelope is not reused),ft,,20000.0,note,
+"R6 mission altitude 20,000 ft: no maximum operating altitude in our sources for this engine (not checked, none invented)",ft,20000.0,,note,
+R7 take-off over 50 ft,ft,779.4083420953058,2500.0,<=,True
+R7 landing over 50 ft,ft,1532.9045818833836,2500.0,<=,True
+"R7 clean stall at W0, sea level",kt,67.78287748511946,70.0,<=,True
+R8 retractable tricycle gear,-,yes,,by construction,
+"R9 positive limit load (manoeuvre or gust, both weights)",-,3.8,3.8,>=,True
+"R9 negative gust within the negative limit, with the round-4 margin",-,-1.0069149138418663,-1.7,>=,True
+R10 6 % reserve and trapped fuel,-,1.06,1.06,by construction,
+R12 sea-level rate of climb,ft/min,3336.757015237645,1000.0,>=,True
+"R12 service ceiling (last altitude with 100 ft/min), with the round-4 margin",ft,29421.796841616015,23500.0,ceiling,True
+"R13 static margin, full fuel",MAC,0.13480240943032246,0.05-0.15,in band,True
+"R13 static margin, empty fuel",MAC,0.06519759056967739,0.05-0.15,in band,True
+R14 no crew items in the weights,-,yes,,by construction,
+R15 flight avionics 60 lb uninstalled,lb,60.0,60.0,by construction,
+R18 V_C placard covers the fastest cruise sub-step with 10 % margin (study margin),kt EAS,119.74552508149475,120.0,<=,True
+R17 every mission sub-step at or above 1.3 V_stall (enforced in the speed choice),-,yes,,by construction,
+R19 both transit legs flown against a 25 kt headwind (air distance V/(V - V_w)),kt,25.0,25.0,by construction,
+R16 sustained 30 deg bank at loiter (power),hp,276.28804898283204,450.0,<=,True
+engine power meets every requirement (achieved margin 33.1%),hp,300.9144989468708,450.0,<=,True
+fuel fits integral wing tanks,ft^3,18.34827697065327,26.59362376803391,<=,True
+"nose-wheel load, full fuel (p. 232-233; optimum 0.08-0.15)",-,0.188987111168008,0.05-0.20,nose,True
+"nose-wheel load, empty fuel",-,0.1628999902760306,0.05-0.20,nose,True
+main gear stows: sponsons at the 63 deg overturn track (p. 232; ruling round 3),ft,4.884207401601278,,stow,True
+propeller clearance at rotation (p. 222),in,12.952807606587298,8.95,>=,True
+"trim within tail CL limit, all mission legs",-,yes,,flag,True
+"nose rotation at 0.8 V_TO (p. 432-433), tail download",tail CL,0.9964418785450164,1.0,<=,True

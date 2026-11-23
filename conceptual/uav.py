@@ -311,7 +311,9 @@ def _mission(W0, geom, A, e, L, bhp, clmax, model=None):
     """Mission fuel (R5): take-off at full power (DR-1 p. 586), climb by the energy method (19.8),
     cruise out and back by (6.12) and loiter by (6.15) in sub-segments at the current weight,
     landing 0.995 (Table 3.2), 6 % reserve and trapped fuel (3.11). Returns (fuel, rows); a row is
-    (segment, W start, W end, mean TAS ft/s, fraction of sub-segments where the floor set speed)."""
+    (segment, W start, W end, mean TAS ft/s, fraction of sub-segments where the floor set speed, mean
+    C_bhp, fraction of sub-steps in unchoked table cells, top speed, time, fuel lb burned in those
+    unchoked sub-steps); see unchoked_fuel_share."""
     S = geom["S"]
     K = aero.induced_drag_factor(A, e)
     alt = isa(L["mission_altitude_ft"])
@@ -322,7 +324,7 @@ def _mission(W0, geom, A, e, L, bhp, clmax, model=None):
     W = W0 * sizing.takeoff_fraction_power(c_to, bhp, L["takeoff_minutes"], W0)
     # App. K choked-turbine validity at take-off power (Gate A round 5, G-1): a real check, not a placeholder
     unch_to = 0.0 if model is None else float(not model.turbine_choked(0.0, 60.0, bhp * model.lapse(0.0, 60.0))[0])
-    rows.append(("takeoff", W0, W, 0.0, 0.0, c_to, unch_to, 0.0, 0.0))
+    rows.append(("takeoff", W0, W, 0.0, 0.0, c_to, unch_to, 0.0, 0.0, unch_to * (W0 - W)))
     CD0_sl, _ = _polar(geom, L, 200.0, sl, bhp)
     v_lo = L["climb_speed_over_stall"] * perf.stall_speed(W / S, sl["rho"], clmax["clean"])
     _, V_cl = perf.best_rate_of_climb(W, S, sl["rho"], CD0_sl, K, bhp, L["eta_p"], v_lo,
@@ -341,7 +343,7 @@ def _mission(W0, geom, A, e, L, bhp, clmax, model=None):
     W2 = W * sizing.climb_fraction_energy(C, dhe, V_cl, min(d_t, 0.95))
     unch_cl = (0.0 if model is None else
                float(not model.turbine_choked(0.5 * h_alt, V_cl / KT, bhp * model.lapse(0.5 * h_alt, V_cl / KT))[0]))
-    rows.append(("climb", W, W2, 0.0, 0.0, c_cl, unch_cl, 0.0, 0.0))
+    rows.append(("climb", W, W2, 0.0, 0.0, c_cl, unch_cl, 0.0, 0.0, unch_cl * (W - W2)))
     W = W2
 
     def leg(W, name, distance_ft=None, time_s=None):
@@ -350,13 +352,16 @@ def _mission(W0, geom, A, e, L, bhp, clmax, model=None):
         mode = "range" if distance_ft else "loiter"
         cbhp = L["cbhp_cruise"] if distance_ft else L["cbhp_loiter"]
         v_sum, floor_steps, c_sum, unchoked, v_top, t_sum = 0.0, 0, 0.0, 0, 0.0, 0.0
+        unchoked_fuel = 0.0                          # fuel burned in sub-steps whose table cell is unchoked
         for _ in range(n):
+            step_unchoked, W_before = False, W
             CD0, _ = _polar(geom, L, 250.0, alt, bhp)
             V, floored, c_tab = _leg_speed(W, S, alt, h_alt, CD0, K, clmax["clean"], L, mode, model, bhp)
             if c_tab is not None:
                 cbhp = c_tab
                 shp = perf.drag(W, S, alt["rho"], V, CD0, K) * V / (HP * L["eta_p"])
-                unchoked += not model.turbine_choked(h_alt, V / KT, shp)[0]
+                step_unchoked = not model.turbine_choked(h_alt, V / KT, shp)[0]
+                unchoked += step_unchoked
             v_sum += V / n
             v_top = max(v_top, V)
             c_sum += cbhp / n
@@ -376,16 +381,28 @@ def _mission(W0, geom, A, e, L, bhp, clmax, model=None):
                 f = sizing.loiter_fraction_prop(time_s / n, V, cbhp, L["eta_p"], LD)
                 t_sum += time_s / n
             W *= f
-        rows.append((name, W_in, W, v_sum, floor_steps / n, c_sum, unchoked / n, v_top, t_sum))
+            if step_unchoked:
+                unchoked_fuel += W_before - W
+        rows.append((name, W_in, W, v_sum, floor_steps / n, c_sum, unchoked / n, v_top, t_sum, unchoked_fuel))
         return W
 
     W = leg(W, "cruise_out", distance_ft=L["radius_nm"] * NM)
     W = leg(W, "loiter", time_s=L["loiter_h"] * 3600.0)
     W = leg(W, "cruise_back", distance_ft=L["radius_nm"] * NM)
     W_end = W * sizing.LANDING_FRACTION
-    rows.append(("landing", W, W_end, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0))
+    rows.append(("landing", W, W_end, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0))
     fuel = sizing.RESERVE_FACTOR * (W0 - W_end)
     return fuel, rows
+
+
+def unchoked_fuel_share(rows):
+    """(share, by segment): the fraction of the mission fuel burned (weight lost from take-off to the
+    end of the last cruise, before the landing allowance and the reserve) in sub-steps whose table
+    cell fails App. K's choked-turbine assumption (TableEngine.turbine_choked). By segment:
+    {name: (unchoked lb, burned lb)}. No table (rubber engine): 0."""
+    by = {r[0]: (r[9], r[1] - r[2]) for r in rows if r[0] != "landing"}
+    burned = sum(b for _, b in by.values())
+    return sum(u for u, _ in by.values()) / burned, by
 
 
 def _build(W0, concept, W_S, A, L, fuel_guess, engine=None, mission=True):

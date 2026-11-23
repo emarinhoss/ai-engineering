@@ -59,7 +59,7 @@ def test_built_aircraft_ledger_fixes_the_chosen_vc_and_drops_the_rule(fast_desig
 
 def test_fixed_rule_is_the_round4_placard_and_unchanged():
     """With the rule set to fixed (the round-4 behaviour), sizing equals stage1.analyse without the rule."""
-    L0, _ = uav.load_ledger()
+    L0 = rs.ledger_values()
     assert L0["vc_placard_rule"] == "per_design"            # owner ruling 2026-11-23
     _, _, rec = rs.sized_aircraft_guess(400.0, 13.0, 8.0, 8.0, rs.first_guess(400.0, 8.0), vc_rule="fixed")
     ref = stage1.analyse("pusher", 13.0, 8.0, {k: v for k, v in dict(L0, loiter_h=8.0).items() if k != "vc_placard_rule"},

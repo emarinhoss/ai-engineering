@@ -3,6 +3,7 @@ and the corner endurance as a function of the sized loiter time."""
 import json
 
 import pytest
+import yaml
 
 from conceptual import stage1, uav
 from conceptual.engine_model import TP100_TABLE
@@ -35,7 +36,7 @@ def sized8():
 
 def test_sized_aircraft_at_8_h_is_stage1_analyse(sized8):
     _, L, rec = sized8
-    L0, _ = uav.load_ledger()
+    L0 = rs.ledger_values()                                     # photo-scaled TP100 mode: its allowance and rpm
     ref = stage1.analyse("pusher", 15.0, 10.0, L0, rs._engine(360.0))
     assert rec["W0_lb"] == pytest.approx(ref["design"]["W0"], rel=1e-12)
     assert rec["fuel_lb"] == pytest.approx(ref["design"]["fuel"], rel=1e-12)
@@ -202,3 +203,25 @@ def test_robustness_scan_is_not_fooled_by_a_vacuous_upper_end():
     assert h == pytest.approx(1.1, abs=2e-4) and status == "bracketed"
     assert rs.robustness_scan(lambda h: True) == (3.0, "above h_max")
     assert rs.robustness_scan(lambda h: h < 0.3)[0] == pytest.approx(0.3, abs=2e-4)
+
+
+# ---- the chosen engine as is (M250-B17F), against the photo-scaled TP100 ----------------------------------------------
+def test_engine_as_is_is_the_m250_with_its_own_ledger_values_and_table_and_the_switch_restores_the_tp100():
+    try:
+        rs.use_engine_as_is(True)
+        eng = rs._engine(450.0)
+        assert eng["name"] == "RR_M250_B17F" and eng["bhp"] == 450.0 and eng["weight_lb"] == 212.0
+        assert eng["model"].sfc_scale == pytest.approx(1.02) and eng["model"].rated == 450.0
+        with pytest.raises(ValueError):
+            rs._engine(360.0)                                     # not a rating of this engine
+        L = rs.ledger_values()
+        assert L["engine_sfc_allowance"] == 1.02 and L["propeller_rpm"] == 2030.0
+        assert rs.engine_table_file() == "m250_table.json" and info_gap.POWER_BAND == "cap"
+        text = rs.ledger_text(9.0)
+        assert yaml.safe_load(text)["assumptions"]["propeller_rpm"]["value"] == 2030.0
+    finally:
+        rs.use_engine_as_is(False)
+    assert info_gap.POWER_BAND == "rescale" and rs.engine_table_file() == "tp100_table.json"
+    assert rs.ledger_values()["engine_sfc_allowance"] == 1.05 and rs.ledger_values()["propeller_rpm"] == 2158.0
+    tp = yaml.safe_load(rs.ledger_text(9.0))["assumptions"]
+    assert tp["propeller_rpm"]["value"] == 2158.0 and tp["engine_sfc_allowance"]["value"] == 1.05

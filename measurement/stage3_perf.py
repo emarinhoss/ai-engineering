@@ -38,7 +38,7 @@ from measurement import anderson as A
 from measurement import mattingly as M
 
 REPO = Path(__file__).resolve().parents[1]
-CHOSEN_ENGINE = {"name": "PBS_TP100", "bhp": 241.0, "weight_lb": 135.8}
+CHOSEN_ENGINE = {"name": "PBS_TP100", "bhp": 241.0, "weight_lb": 135.8}     # the TP100 records' defaults
 REBUILD_TOLERANCE = 1e-6          # relative; the rebuild must reproduce the record to this
 # Fig. 2.55 (p. 129) draws 1.5 x the Karman-Schoenherr flat-plate friction as the dashed curve
 # above which most of the book's jet data lie; (2.29) (p. 108) is its explicit form.
@@ -52,13 +52,16 @@ def sha256(path):
 
 
 def record_engine(d, table_path, sfc_allowance=1.0):
-    """The engine a record was sized with: the TP100 table scaled to the record's rated power
-    (a photo-scaled TP100 when the record's bhp differs from 241; power scale 1 otherwise), with
-    the record's engine weight."""
-    bhp = float(d.get("bhp_sl", CHOSEN_ENGINE["bhp"]))
+    """The engine a record was sized with: its table scaled to the record's rated power (a
+    photo-scaled engine when the record's bhp differs from the table's rated power, as for the TP100
+    records of 300-480 hp; power scale 1 for the engine as is, TP100 241 hp or M250-B17F 450 hp),
+    with the record's engine weight."""
+    base = TableEngine(table_path)
+    bhp = float(d.get("bhp_sl", base.rated))
     weight = float(d.get("engine", {}).get("weight_lb", CHOSEN_ENGINE["weight_lb"]))
-    model = TableEngine(table_path).scaled(sfc=sfc_allowance, power=bhp / CHOSEN_ENGINE["bhp"], rerate=True)
-    return dict(CHOSEN_ENGINE, bhp=bhp, weight_lb=weight, model=model)
+    model = base.scaled(sfc=sfc_allowance, power=bhp / base.rated, rerate=True)
+    return dict(CHOSEN_ENGINE, name=d.get("engine", {}).get("fixed") or CHOSEN_ENGINE["name"],
+                bhp=bhp, weight_lb=weight, model=model)
 
 
 def rebuild(design_path):
@@ -77,7 +80,11 @@ def rebuild(design_path):
 def rebuild_record(d, L, table_path):
     """The same rebuild from a record already in memory: d the record (dict), L the ledger values
     it was sized with, table_path the engine table it used. Returns (d, ledger values, state, check)."""
-    L = dict(L, ht_volume_scale=d["ht_volume_scale"], cbhp_cruise=0.901, cbhp_loiter=0.901)
+    L = dict(L, ht_volume_scale=d["ht_volume_scale"])
+    # the TP100's datasheet cruise consumption (0.901) replaced Table 3.4 when its records were sized (as in
+    # stage1.engine_options); the M250 has none, keeps the ledger values, and its table replaces them anyway
+    if not d.get("engine", {}).get("fixed", "").startswith("RR_M250"):
+        L = dict(L, cbhp_cruise=0.901, cbhp_loiter=0.901)
     eng = record_engine(d, table_path, L.get("engine_sfc_allowance", 1.0))
     b = uav._build(d["W0_lb"], d["concept"], d["W_S"], d["A"], L, d["fuel_lb"], eng)
     check = {"fuel_lb": [d["fuel_lb"], b["fuel"]]}
@@ -382,7 +389,7 @@ def speed_rows(d, L, b):
                         d["performance"]["roc_sl_fpm"], RECORD, rc,
                         "Anderson (5.121) p. 277 (5.122 misprinted, per the notes)", 0.03,
                         "relative",
-                        "Rated 241 hp at sea level, eta_p 0.8, CD0 at sea level from the record, "
+                        f"Rated {d['bhp_sl']:g} hp at sea level, eta_p 0.8, CD0 at sea level from the record, "
                         "as Stage 1."))
     out.append(make_row("v_best_climb", "best-climb speed, sea level", "kt",
                         d["performance"]["v_best_climb_kt"], RECORD, v_cl,

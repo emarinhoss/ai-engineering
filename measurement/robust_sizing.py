@@ -55,11 +55,14 @@ import numpy as np
 import yaml
 
 from conceptual import stage1, uav
-from conceptual.engine_model import TP100_TABLE
+from conceptual.engine_model import ENGINE_TABLES, TP100_TABLE
 from measurement import info_gap
-from measurement.rubber_tp100 import scaled_engine
+from measurement.rubber_tp100 import TP100, scaled_engine, tp100_ledger_text, tp100_ledger_values
 
 REPO = Path(__file__).resolve().parents[1]
+ENGINE_AS_IS = False      # True (--engine-as-is): the chosen engine itself (stage1.CHOSEN_ENGINE: its rated power, weight and
+                          # table, the ledger's own SFC allowance and rpm, the power band as a cap); False: the photo-scaled
+                          # TP100 of the 2026-11-22/23 runs (its table, 1.05 allowance, 2,158 rpm, power band rescaled)
 POWERS = (300.0, 330.0, 360.0, 400.0, 450.0)
 WS_LEVELS = (11.0, 13.0, 15.0, 17.0)
 A_LEVELS = (8.0, 10.0, 12.0, 14.0)
@@ -95,15 +98,55 @@ def bisect_sized(endurance, need, lo=L_LO, hi=L_HI, tol=L_TOL):
 
 
 # ---- one candidate -----------------------------------------------------------------------------------
+def use_engine_as_is(flag=True):
+    """Switch the module between the photo-scaled TP100 (default) and the chosen engine as is. The caches are
+    cleared; the info-gap power band follows (cap for the real engine, rescale for the TP100 records)."""
+    global ENGINE_AS_IS
+    ENGINE_AS_IS = flag
+    info_gap.POWER_BAND = "cap" if flag else "rescale"
+    _engine.cache_clear()
+    _raw.cache_clear()
+
+
+def engine_name():
+    return stage1.CHOSEN_ENGINE if ENGINE_AS_IS else TP100
+
+
+def engine_table():
+    """Path of the engine table in use."""
+    return ENGINE_TABLES[stage1.CHOSEN_ENGINE][1] if ENGINE_AS_IS else TP100_TABLE
+
+
+def engine_table_file():
+    """Name the table takes in a record folder (tp100_table.json or m250_table.json: engine_model.table_for_run)."""
+    return ENGINE_TABLES[stage1.CHOSEN_ENGINE][0] + "_table.json" if ENGINE_AS_IS else "tp100_table.json"
+
+
+def ledger_values():
+    """Ledger values of the sizing: the current ledger; for the photo-scaled TP100 the two engine-specific values
+    its records were sized with (rubber_tp100.TP100_LEDGER)."""
+    return uav.load_ledger()[0] if ENGINE_AS_IS else tp100_ledger_values()
+
+
+def as_is_engine():
+    """The chosen engine as stage 1 builds it: rated power, weight, table model with the ledger's SFC allowance."""
+    return stage1.engine_options()[0][stage1.CHOSEN_ENGINE]
+
+
 @cache
 def _engine(P):
-    L, _ = uav.load_ledger()
-    return scaled_engine(P, L)
+    """The engine at rated power P: the chosen engine as is (P must be its rating) or the photo-scaled TP100."""
+    if not ENGINE_AS_IS:
+        return scaled_engine(P, ledger_values())
+    eng = as_is_engine()
+    if P != eng["bhp"]:
+        raise ValueError(f"the chosen engine is rated {eng['bhp']:g} hp, not {P:g} hp")
+    return eng
 
 
 @lru_cache(maxsize=1)
 def _raw():
-    return stage1.engine_options()[1][stage1.CHOSEN_ENGINE]
+    return stage1.engine_options(engine_name())[1][engine_name()]
 
 
 def sized_aircraft(P, W_S, A, L_sized):
@@ -114,7 +157,7 @@ def sized_aircraft(P, W_S, A, L_sized):
 
 def corner_hours(record, L, theta):
     """Hours the built aircraft (info-gap weight banding) flies at theta; 0 if not flyable."""
-    return info_gap.Built("in memory", True, record=(record, L, TP100_TABLE)).hours_on_station(theta)
+    return info_gap.Built("in memory", True, record=(record, L, engine_table())).hours_on_station(theta)
 
 
 def evaluate_candidate(P, W_S, A, theta, need):
@@ -205,18 +248,45 @@ def search(theta, need, processes=4):
 
 
 # ---- records ----------------------------------------------------------------------------------------
+def fix_vc(text, vc_kt):
+    """Ledger text of the built aircraft of a per-design-V_C design: no vc_placard_rule, V_C fixed at vc_kt."""
+    text = re.sub(r"^\s*vc_placard_rule:.*\n", "", text, flags=re.MULTILINE)
+    pat_v = re.compile(r'^(\s*vc_placard_kt_eas:\s*\{value: )[0-9.]+(,.*?source: ")(.*?)("\}\s*)$', re.MULTILINE)
+    note_v = (f"; THIS DESIGN: V_C {vc_kt:g} kt EAS chosen by the per-design rule (owner ruling 2026-11-23), "
+              "kept fixed for the info-gap rebuilds of the built aircraft")
+    text, n = pat_v.subn(lambda m: f"{m.group(1)}{vc_kt!r}{m.group(2)}{m.group(3)}{note_v}{m.group(4)}", text)
+    if n != 1:
+        raise ValueError("vc_placard_kt_eas line not found in the ledger")
+    return text
+
+
+def built_record(design_path, folder):
+    """Info-gap record folder of a Stage 1 design sized with the per-design V_C rule: the design record, the ledger copy
+    of that run with the design's V_C fixed and no rule (info_gap.Built refuses a rule), and the engine table the run
+    used. Nothing in the Stage 1 run folder is changed. Returns the path of the written design record."""
+    from conceptual.engine_model import table_for_run
+    src = Path(design_path)
+    rec = json.loads(src.read_text())
+    folder = Path(folder)
+    folder.mkdir(parents=True, exist_ok=True)
+    text = (src.parent / "ledger.yaml").read_text()
+    if rec.get("V_c_rule") == "per_design":
+        text = fix_vc(text, round(rec["V_c_eas_kt"]["sea_level"], 6))
+    (folder / "design_pusher.json").write_text(src.read_text())
+    (folder / "ledger.yaml").write_text(text)
+    table = table_for_run(src.parent)
+    shutil.copyfile(table, folder / table.name)
+    return folder / "design_pusher.json"
+
+
 def ledger_text(L_sized, vc_kt=None):
     """Copy of the current ledger with loiter_h set to L_sized and a note on why. With vc_kt (a design sized
     with the per-design V_C rule) the copy carries that V_C as the fixed vc_placard_kt_eas and no rule."""
     text = uav.LEDGER.read_text()
+    if not ENGINE_AS_IS:
+        text = tp100_ledger_text(text)
     if vc_kt is not None:
-        text = re.sub(r"^\s*vc_placard_rule:.*\n", "", text, flags=re.MULTILINE)
-        pat_v = re.compile(r'^(\s*vc_placard_kt_eas:\s*\{value: )[0-9.]+(,.*?source: ")(.*?)("\}\s*)$', re.MULTILINE)
-        note_v = (f"; THIS DESIGN: V_C {vc_kt:g} kt EAS chosen by the per-design rule (owner ruling 2026-11-23), "
-                  "kept fixed for the info-gap rebuilds of the built aircraft")
-        text, n = pat_v.subn(lambda m: f"{m.group(1)}{vc_kt!r}{m.group(2)}{m.group(3)}{note_v}{m.group(4)}", text)
-        if n != 1:
-            raise ValueError("vc_placard_kt_eas line not found in the ledger")
+        text = fix_vc(text, vc_kt)
     pat = re.compile(r'^(\s*loiter_h:\s*\{value: )[0-9.]+(,.*?source: ")(.*?)("\}\s*)$', re.MULTILINE)
     note = f"; sized loiter {L_sized:.3f} h by measurement/robust_sizing.py so that r5_robust_hours holds at the design corner"
     new, n = pat.subn(lambda m: f"{m.group(1)}{L_sized!r}{m.group(2)}{m.group(3)}{note}{m.group(4)}", text)
@@ -236,7 +306,7 @@ def write_record(row, folder):
     (folder / "ledger.yaml").write_text(ledger_text(row["L_sized_h"], vc))
     if uav.load_ledger(folder / "ledger.yaml")[0]["loiter_h"] != row["L_sized_h"]:
         raise ValueError("ledger copy does not carry L_sized")
-    shutil.copyfile(TP100_TABLE, folder / "tp100_table.json")
+    shutil.copyfile(engine_table(), folder / engine_table_file())
     (folder / "robust_candidate.json").write_text(json.dumps(row, indent=1, default=float))
     return folder / "design_pusher.json"
 
@@ -288,9 +358,33 @@ def main(argv=None):
     ap.add_argument("--curve-targets", action="store_true",
                     help="W0 against power at fixed targets h = 1.00, 1.05, 1.10 with the per-design V_C (2026-11-23)")
     ap.add_argument("--targets", help="curve-targets only: comma-separated target h values")
+    ap.add_argument("--ws", dest="ws_levels", help="curve-targets only: comma-separated wing loadings (lb/ft^2)")
+    ap.add_argument("--modes", metavar="DESIGN",
+                    help="endurance and transit-cliff h_hat of a built record (info-gap record folder, see --built-record) "
+                         "against r5_robust_hours; writes OUT/modes.json and stops")
+    ap.add_argument("--built-record", metavar="DESIGN",
+                    help="write the info-gap record folder OUT of a Stage 1 design (V_C of the per-design rule fixed) and stop")
+    ap.add_argument("--engine-as-is", action="store_true",
+                    help="curve-targets only: size with the chosen engine itself (the M250-B17F: 450 hp, 212 lb, its "
+                         "table; the power band is a cap) instead of the photo-scaled TP100; --powers is then 450")
     ap.add_argument("--report-only", action="store_true",
                     help="curve-targets only: rewrite the report and plot from OUT/curve.json without running")
     a = ap.parse_args(argv)
+    if a.built_record:
+        print(built_record(a.built_record, a.out))
+        return None
+    if a.engine_as_is:
+        use_engine_as_is(True)
+    if a.modes:
+        need = uav.load_ledger()[0]["r5_robust_hours"]
+        res = mode_study(a.modes, need)[0]
+        Path(a.out).mkdir(parents=True, exist_ok=True)
+        (Path(a.out) / "modes.json").write_text(json.dumps(info_gap._json_safe(
+            {"inputs": inputs_block("endurance and cliff modes of a built record"), "design": a.modes, "need_h": need,
+             "modes": res, "command": "python -m measurement.robust_sizing " + " ".join(argv if argv is not None else sys.argv[1:])}),
+            indent=1, default=float))
+        print({m: res[m]["h_hat"] for m in ("endurance", "cliff")}, res["binding_mode"])
+        return None
     if a.curve_targets:
         return targets_report_only(a) if a.report_only else targets_main(a, argv)
     if a.curve:
@@ -345,7 +439,7 @@ def main(argv=None):
     dirty = git("status", "--porcelain")
     meta = {"commit": git("rev-parse", "HEAD"), "git_dirty": bool(dirty), "git_dirty_files": dirty.splitlines(),
             "ledger": str(uav.LEDGER.relative_to(REPO)), "ledger_sha256": sha256(uav.LEDGER),
-            "table_sha256": sha256(TP100_TABLE), "theta_source": str(THETA_SOURCE.relative_to(REPO)),
+            "table_sha256": sha256(engine_table()), "theta_source": str(THETA_SOURCE.relative_to(REPO)),
             "theta_source_sha256": sha256(THETA_SOURCE), "r5_robust_hours": need,
             "grid": {"P_hp": POWERS, "W_S": WS_LEVELS, "A": A_LEVELS, "L_sized_range_h": [L_LO, L_HI],
                      "L_tol_h": L_TOL}, "max_iterations": MAX_ITERATIONS,
@@ -496,8 +590,7 @@ def sized_aircraft_guess(P, W_S, A, L_sized, W0_guess, vc_rule=None):
     vc_rule="per_design" sizes with the per-design V_C placard (uav._build); the ledger returned is then the
     one of the BUILT aircraft: the design's chosen V_C as a fixed vc_placard_kt_eas and no rule, so that every
     info-gap rebuild keeps that V_C (the structure is fixed once built)."""
-    L, _ = uav.load_ledger()
-    L = dict(L, loiter_h=float(L_sized))
+    L = dict(ledger_values(), loiter_h=float(L_sized))
     if vc_rule:
         L = dict(L, vc_placard_rule=vc_rule)
     a = stage1.analyse("pusher", W_S, A, L, _engine(P), W0_guess=W0_guess)
@@ -643,7 +736,7 @@ def evaluate_candidate_sets(P, W_S, A, E_set, C_set, need, cache_, vc_rule=None)
             row["trace"].append({"L_h": Lh, "class": "heavy", "why": row["status"]})
             return "heavy"
         _, L, rec = got
-        B = info_gap.Built("in memory", True, record=(rec, L, TP100_TABLE))
+        B = info_gap.Built("in memory", True, record=(rec, L, engine_table()))
         hours, ratios = [], []
         for th in C_th:
             r, reason = info_gap.transit_power_ratio(B, th)
@@ -674,7 +767,7 @@ def evaluate_candidate_sets(P, W_S, A, E_set, C_set, need, cache_, vc_rule=None)
         a, L, rec = sized(Ls)
         d = a["design"]
         comp = stage1.compliance(d, d["ledger_used"], a["layout"], a["performance"], *a["fuel_volume"], _raw())
-        B = info_gap.Built("in memory", True, record=(rec, L, TP100_TABLE))
+        B = info_gap.Built("in memory", True, record=(rec, L, engine_table()))
         row.update(ok=True, status=status, L_sized_h=Ls, failed=[c["requirement"] for c in comp if c["met"] is False],
                    corner_hours=[B.hours_detail(t)[0] for t in E_th],
                    corner_ratio=[info_gap.transit_power_ratio(B, t)[0] for t in C_th],
@@ -895,9 +988,14 @@ def inputs_block(note=""):
     dirty = git("status", "--porcelain")
     return {"commit": git("rev-parse", "HEAD"), "git_dirty": bool(dirty), "git_dirty_files": dirty.splitlines(),
             "seed": info_gap.SEED, "n_samples": info_gap.N_SAMPLES, "ledger": str(uav.LEDGER.relative_to(REPO)),
-            "ledger_sha256": sha256(uav.LEDGER), "table_sha256": sha256(TP100_TABLE),
+            "ledger_sha256": sha256(uav.LEDGER), "table_sha256": sha256(engine_table()),
             "python": platform.python_version(), "numpy": np.__version__, "pyyaml": yaml.__version__,
-            "weight_law": "W = 135.8 (P/241)^0.803, Raymer Table 10.3 p. 224", "note": note}
+            "engine_as_is": ENGINE_AS_IS, "power_band": info_gap.POWER_BAND,
+            "engine": (f"{stage1.CHOSEN_ENGINE} as is: rated {as_is_engine()['bhp']:g} hp, {as_is_engine()['weight_lb']:g} lb, its table, "
+                       "the ledger's SFC allowance and propeller rpm" if ENGINE_AS_IS else
+                       "photo-scaled TP100 (TP100 table, allowance 1.05, 2,158 rpm)"),
+            "weight_law": ("engine weight 212 lb (FAA TCDS E10CE), no scaling" if ENGINE_AS_IS else
+                           "W = 135.8 (P/241)^0.803, Raymer Table 10.3 p. 224"), "note": note}
 
 
 def write_record_rec(row, folder, rec):
@@ -907,7 +1005,7 @@ def write_record_rec(row, folder, rec):
     (folder / "design_pusher.json").write_text(json.dumps(rec, indent=1, default=float))
     vc = round(rec["V_c_eas_kt"]["sea_level"], 6) if rec.get("V_c_rule") == "per_design" else None
     (folder / "ledger.yaml").write_text(ledger_text(row["L_sized_h"], vc))
-    shutil.copyfile(TP100_TABLE, folder / "tp100_table.json")
+    shutil.copyfile(engine_table(), folder / engine_table_file())
     (folder / "robust_candidate.json").write_text(json.dumps(info_gap._json_safe(row), indent=1, default=float))
     return folder / "design_pusher.json"
 
@@ -981,7 +1079,7 @@ def run_power(P, out, seeds_path=SEED_CORNERS, grid_ws=CURVE_WS, grid_a=CURVE_A,
         (folder / "power_result.json").write_text(json.dumps(info_gap._json_safe(result), indent=1, default=float))
         return result
     it, best, modes, built, variables, pairs, dirs, ifolder = final
-    for f in ("design_pusher.json", "ledger.yaml", "tp100_table.json", "robust_candidate.json"):
+    for f in ("design_pusher.json", "ledger.yaml", engine_table_file(), "robust_candidate.json"):
         shutil.copyfile(ifolder / f, folder / f)
     result["converged"] = iterations[-1].get("converged", False)
     result["final_iteration"] = it
@@ -1380,7 +1478,7 @@ def run_target(P, h_T, out, cache_, need, grid_ws, grid_a, t_start, budget_min, 
         (folder / "target_result.json").write_text(json.dumps(info_gap._json_safe(result), indent=1, default=float))
         return result
     it, best, worst, path, ifolder, rec = final
-    for f in ("design_pusher.json", "ledger.yaml", "tp100_table.json", "robust_candidate.json"):
+    for f in ("design_pusher.json", "ledger.yaml", engine_table_file(), "robust_candidate.json"):
         shutil.copyfile(ifolder / f, folder / f)
     result.update(design=summary_of(best), final_iteration=it, converged=iterations[-1]["converged"],
                   violating_modes=iterations[-1]["violating_modes"], worst_at_target=worst,
@@ -1428,11 +1526,13 @@ def _run_power_targets_job(args):
 def targets_main(a, argv=None):
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
-    powers = tuple(float(x) for x in a.powers.split(",")) if a.powers else TARGET_POWERS
+    powers = tuple(float(x) for x in a.powers.split(",")) if a.powers else (
+        (as_is_engine()["bhp"],) if ENGINE_AS_IS else TARGET_POWERS)
     targets = tuple(float(x) for x in a.targets.split(",")) if a.targets else TARGET_HS
     grid_a = tuple(float(x) for x in a.A_levels.split(",")) if a.A_levels else TARGET_A
+    grid_ws = tuple(float(x) for x in a.ws_levels.split(",")) if a.ws_levels else TARGET_WS
     t0 = time.time()
-    jobs = [(P, str(out), targets, TARGET_WS, grid_a, a.budget_min, t0) for P in sorted(powers, reverse=True)]
+    jobs = [(P, str(out), targets, grid_ws, grid_a, a.budget_min, t0) for P in sorted(powers, reverse=True)]
     results = {}
     with ProcessPoolExecutor(max_workers=a.workers, mp_context=mp.get_context("fork")) as ex:
         for job, r in zip(jobs, ex.map(_run_power_targets_job, jobs)):
@@ -1444,10 +1544,10 @@ def targets_main(a, argv=None):
                 previous[P] = {k: r["design"][k] for k in ("W0_lb", "W_S", "A", "L_sized_h")}
     curve = {"inputs": inputs_block("robustness targets"), "targets": list(targets), "study_h": STUDY_H,
              "powers": list(powers), "vc_rule": VC_RULE,
-             "grid": {"P_hp": list(powers), "W_S": list(TARGET_WS), "A": list(grid_a), "L_sized_range_h": [L_LO, L_HI],
+             "grid": {"P_hp": list(powers), "W_S": list(grid_ws), "A": list(grid_a), "L_sized_range_h": [L_LO, L_HI],
                       "L_tol_h": L_TOL}, "max_iterations": MAX_CURVE_ITER, "seed_corners": str(SEED_CORNERS.relative_to(REPO)),
              "seed_corners_sha256": sha256(SEED_CORNERS), "step_refinement_factor": REFINE_FACTOR,
-             "previous_fixed_placard_h1": previous,
+             "previous_fixed_placard_h1": previous, "out": str(out),
              "previous_curve": str(PREVIOUS_CURVE.relative_to(REPO)) if previous else None,
              "per_P": {f"{P:g}": results[P] for P in powers}, "runtime_s": time.time() - t0,
              "command": "python -m measurement.robust_sizing " + " ".join(argv if argv is not None else sys.argv[1:])}
@@ -1492,9 +1592,10 @@ def plot_targets(c, path):
         ax.plot(nd, [lo + 25.0 * k] * len(nd), "x", color=colors[k], ms=8, mew=2,
                 label=f"h = {h:.2f}: no design" if nd else None)
     ax.set_ylim(bottom=lo - 40.0)
-    ax.set_xlabel("rated shaft power of the hypothetical engine (hp)")
+    ax.set_xlabel("rated shaft power of the engine (hp)")
     ax.set_ylabel("lightest compliant take-off weight W0 (lb)")
-    ax.set_title("Cost of robustness margin: W0 against power at fixed targets h (hypothetical TP100 scaling)")
+    ax.set_title("Cost of robustness margin: W0 against power at fixed targets h ("
+                 + ("RR M250-B17F as is)" if c["inputs"].get("engine_as_is") else "hypothetical TP100 scaling)"))
     ax.title.set_fontsize(9)
     ax.grid(alpha=0.3)
     ax.legend(fontsize=8, loc="upper left")
@@ -1555,19 +1656,36 @@ def targets_report_text(c, figure_rel, committed_after=""):
     powers = sorted(c["powers"])
     L = []
     add = L.append
-    add("# Task 12: the cost of robustness margin against engine power")
+    as_is = bool(inp.get("engine_as_is"))
+    where = c.get("out", "runs/task12/stage3/2026-11-23/curve_targets")
+    add("# Task 12: robust sizing with the real engine (RR M250-B17F)" if as_is else
+        "# Task 12: the cost of robustness margin against engine power")
     add("")
-    add("Generated by `measurement/robust_sizing.py --curve-targets` from "
-        "`runs/task12/stage3/2026-11-23/curve_targets/curve.json`; every number is from that run. It answers the owner's "
-        "ruling of 2026-11-23: the target h is the input (1.00, 1.05, 1.10), each power is sized to it, and the "
-        "result is the lightest take-off weight W0 that meets it. The first curve "
+    add("Generated by `measurement/robust_sizing.py --curve-targets" + (" --engine-as-is" if as_is else "") + f"` from "
+        f"`{where}/curve.json`; every number is from that run. "
+        + ("It sizes the pusher around the real engine (owner ruling R-a, 2026-11-23) to the target h_T chosen as the input "
+           "(ruling of 2026-11-23: 1.05); the result is the lightest take-off weight W0 that meets it. The photo-scaled TP100 "
+           "curve (`2026-11-23_task12_robustness_curve_targets_v2.md`, kept) is a different, hypothetical engine. "
+           if as_is else
+           "It answers the owner's ruling of 2026-11-23: the target h is the input (1.00, 1.05, 1.10), each power is sized to it, and the "
+           "result is the lightest take-off weight W0 that meets it. ")
+        + "The first curve "
         "(`2026-11-23_task12_robustness_curve.md`, kept) sized every power to h = 1 and then measured h, so its "
         "endurance h was 1.00 by construction and it could not show the price of margin (review RC2-1).")
     add("")
-    add("**The engine is hypothetical.** It is the TP100 App. K table scaled in power by P/241 (same lapse, same "
-        "part-power SFC curve, 5 % SFC allowance) and in weight by Raymer Table 10.3, W = 135.8 (P/241)^0.803. No "
-        "turboprop with these powers and that table is known to exist; the result says which power class to look for, "
-        "not that one exists. Whether a real engine of this class has this consumption is not shown here.")
+    if as_is:
+        add("**The engine is the Rolls-Royce M250-B17F as it is**: 450 shp, 212 lb (FAA TCDS E10CE: basic engine, fuel pump "
+            "and filter, ignition and fuel control; Stage 1 applies Raymer's installed-engine factor to it as it does to every "
+            "engine), its App. K table (`data/task12/m250_table.json`, calibrated to the brochure's take-off SFC and "
+            "MGT, validated at 70 to 100 % power at sea level only), the ledger's SFC allowance (ruling R-b) and "
+            "propeller rpm 2,030. Not a photo-scaled engine. The info-gap power band is a **cap** on the available power "
+            "(ruling R-c, review M-2): SFC at a given shaft power does not change with it. The model has no altitude or "
+            "low-power fuel-flow data behind it (review M-1).")
+    else:
+        add("**The engine is hypothetical.** It is the TP100 App. K table scaled in power by P/241 (same lapse, same "
+            "part-power SFC curve, 5 % SFC allowance) and in weight by Raymer Table 10.3, W = 135.8 (P/241)^0.803. No "
+            "turboprop with these powers and that table is known to exist; the result says which power class to look for, "
+            "not that one exists. Whether a real engine of this class has this consumption is not shown here.")
     add("")
     add("## Method")
     add("")
@@ -1575,7 +1693,10 @@ def targets_report_text(c, figure_rel, committed_after=""):
         "member that flies the mission gives at least 3.5 h) and **transit cliff** (every member can fly the mission: "
         "the shaft power needed over the power available on the worst sub-step, the transit power ratio, is at most 1).")
     add(f"- Targets h_T = {', '.join(f'{h:.2f}' for h in c['targets'])}. Corner sets: the two seed corners "
-        f"(`{c['seed_corners']}`, the harmful directions found at h = 1 on the 400 hp study) moved to their harmful "
+        f"(`{c['seed_corners']}`, the harmful directions found at h = 1 on the 400 hp study"
+        + (" of the photo-scaled TP100, not of the M250: the directions of the ledger quantities carry over, the engine "
+           "power multiplier is here a cap, and the mode searches below add the M250's own worst points" if as_is else "")
+        + ") moved to their harmful "
         "ends of U(h_T). After each design the two mode searches (corrected worst-case search, no early stop) run at "
         f"h_T; a worst point that violates and is new joins the set and the power is sized again (at most "
         f"{c['max_iterations']} iterations).")
@@ -1629,7 +1750,7 @@ def targets_report_text(c, figure_rel, committed_after=""):
     add("Crosses on the plot mark the powers with no design at a target (their height has no meaning). Each cell is the lightest design of the grid "
         "only; a lighter design off the grid (W/S or A between the levels) is not excluded.")
     add("")
-    prev = c.get("previous_fixed_placard_h1") or {}
+    prev = {} if as_is else (c.get("previous_fixed_placard_h1") or {})
     if prev:
         add("For reference, the first curve (h = 1 sizing, fixed 110 kt placard, grid W/S 11 to 15, A 8 to 12) at the "
             "powers both runs share: " + "; ".join(f"{float(P):g} hp {v['W0_lb']:.0f} lb" for P, v in prev.items()
@@ -1683,6 +1804,19 @@ def targets_report_text(c, figure_rel, committed_after=""):
                    "limit or a duplicate corner)." if bad else
                    "At every final design the mode searches at h_T found no violation."))
         add("")
+    if as_is:
+        add("## Fuel burned outside the choked-turbine assumption (review M-1)")
+        add("")
+        for h in c["targets"]:
+            for P in powers:
+                f = Path(where) / f"P{P:g}" / f"h{h:.2f}" / "design_pusher.json"
+                if _cell(c, P, h)["design"] and f.exists():
+                    share = json.loads(f.read_text())["unchoked_fuel_share"]
+                    add(f"- h = {h:.2f}, {P:g} hp: {share:.1%} of the mission fuel (take-off to the end of the last cruise) is "
+                        "burned in table cells outside App. K's choked-turbine assumption and outside the part-power validation "
+                        "(70 to 100 % power, sea level). That fuel rests on the model alone; the 10 % SFC band stands in for the "
+                        "missing data.")
+        add("")
     add("## Powers with no design, and why")
     add("")
     any_nd = False
@@ -1718,7 +1852,11 @@ def targets_report_text(c, figure_rel, committed_after=""):
     add("")
     add("- The exclusions of the info-gap study apply to every h above: " + "; ".join(info_gap.EXCLUSIONS) + ".")
     add("- R12 (ceiling) and R16 (turn at loiter) are not inside Gate B's horizon.")
-    add("- The engine is the photo-scaled TP100 with weight from Raymer Table 10.3; a real engine of this class would "
+    add("- The M250 table is validated at sea level, 70 to 100 % power only; the mission cells are outside that and part of "
+        "them outside the choked-turbine assumption (review M-1; the unchoked fuel share of each design is in its record). "
+        "The SFC band (10 %) and the power cap band (10 %) stand in for that, not data."
+        if as_is else
+        "- The engine is the photo-scaled TP100 with weight from Raymer Table 10.3; a real engine of this class would "
         "have its own SFC curve and weight.")
     add("- Each mode's worst case is a search, not a proof (see `measurement/info_gap.py`); the grid is coarse in W/S and A.")
     add("- The per-design V_C changes the gust loads and structure with the engine; those loads were not re-checked "
@@ -1733,7 +1871,7 @@ def targets_report_text(c, figure_rel, committed_after=""):
     add(f"- python {inp['python']}, numpy {inp['numpy']}, pyyaml {inp['pyyaml']}; runtime {c['runtime_s']:.0f} s.")
     add(f"- command: `{c['command']}`")
     add("")
-    add("Records: `runs/task12/stage3/2026-11-23/curve_targets/P<power>/h<target>/` (design record, ledger copy with the "
+    add(f"Records: `{where}/P<power>/h<target>/` (design record, ledger copy with the "
         "design's fixed V_C, engine table, `target_result.json`, per-iteration folders; `info_gap.json` for h = 1.05).")
     add("")
     return "\n".join(L)

@@ -4,7 +4,8 @@
 
 Steps follow docs/specs/task12_drone_conceptual_design.md section 4: first-pass sizing (step 3),
 refined sizing over a wing-loading by aspect-ratio grid for both concepts, first with a rubber
-engine and then with the fixed engine chosen at Gate A round 1 (steps 5 and 8), the horizontal
+engine and then with the fixed engine (CHOSEN_ENGINE: the TP100 from Gate A round 1, the Rolls-Royce
+M250-B17F since owner ruling R-a of 2026-11-23; steps 5 and 8), the horizontal
 tail enlarged where nose rotation needs it (p. 432-433), layout and analysis of both concepts
 (steps 6, 7), the concept scoring (step 2), the constraint diagram (step 4), the alternative
 engines and one-at-a-time trades. Every table is written next to the ledger it used.
@@ -25,41 +26,36 @@ from conceptual import constraints, sizing, uav
 from conceptual import raymer_aero as aero
 from conceptual import raymer_loads as loads
 from conceptual import raymer_performance as perf
-from conceptual.engine_model import TableEngine
+from conceptual.engine_model import ENGINE_TABLES, TableEngine
 from conceptual.units import KT, NM, RHO0, isa
 
 REPO = uav.LEDGER.parents[2]
 ENGINES = REPO / "data" / "task12" / "engines.yaml"
-TP100_TABLE = REPO / "data" / "task12" / "tp100_table.json"
-M250_TABLE = REPO / "data" / "task12" / "m250_table.json"
-M250_NAME = "RR_M250_B17F"
 WS_GRID = [8.0 + i for i in range(15)]          # 8 to 22 lb/ft^2
 A_GRID = [6.0 + i for i in range(17)]           # 6 to 22
-CHOSEN_ENGINE = "PBS_TP100"                     # Gate A round 1: a small production turboprop
+CHOSEN_ENGINE = "RR_M250_B17F"                  # owner ruling R-a 2026-11-23 (was PBS_TP100 from Gate A round 1 to round 5)
 FROZEN_CONCEPT = "pusher"                       # Gate A round 3 ruling (Eder 2026-11-20)
 
 
-def engine_options():
+def engine_options(chosen=None, sfc_allowance=None):
     """Fixed engines from data/task12/engines.yaml as evaluate() expects them; the chosen engine
-    also carries its App. K table model (conceptual/engine_model.py). A datasheet cruise
-    consumption replaces Table 3.4 for cruise and, lacking a part-power value, for loiter too
-    (stated in the package); an engine without one keeps the ledger values."""
+    (default CHOSEN_ENGINE; another, such as the TP100 for its records, by name) also carries its
+    App. K table model (conceptual/engine_model.py, ENGINE_TABLES), every SFC multiplied by the
+    allowance (default the ledger's engine_sfc_allowance: 1.02 for the M250, ruling R-b; the TP100
+    records used 1.05). A datasheet cruise consumption replaces Table 3.4 for cruise and, lacking a
+    part-power value, for loiter too (stated in the package); an engine without one keeps the ledger
+    values. Engines other than the chosen one have no table here (flat datasheet value or Table 3.4,
+    piston lapse)."""
+    chosen = chosen or CHOSEN_ENGINE
     raw = yaml.safe_load(ENGINES.read_text())["engines"]
     out = {}
     for name, e in raw.items():
         eng = {"name": name, "bhp": float(e["bhp"]), "weight_lb": float(e["weight_lb"])}
         if e.get("cbhp_cruise"):
             eng["cbhp_cruise"] = eng["cbhp_loiter"] = float(e["cbhp_cruise"])
-        if name == CHOSEN_ENGINE and TP100_TABLE.exists():
-            # Stage 3 return (Eder 2026-11-20): the TP100 as its Mattingly App. K cycle table, which
-            # replaces the piston lapse (13.9) and the flat brochure SFC wherever the engine enters
-            # Gate A round 5 ruling 2: SFC allowance on the table in sizing
-            allowance = uav.load_ledger()[0].get("engine_sfc_allowance", 1.0)
-            eng["model"] = TableEngine(TP100_TABLE).scaled(sfc=allowance)
-        if name == M250_NAME and M250_TABLE.exists():
-            # the M250-B17F as its App. K table (measurement/m250_engine.py), same SFC allowance; it is
-            # an option for comparison, not the chosen engine
-            eng["model"] = TableEngine(M250_TABLE).scaled(sfc=uav.load_ledger()[0].get("engine_sfc_allowance", 1.0))
+        if name == chosen:
+            allowance = sfc_allowance or uav.load_ledger()[0].get("engine_sfc_allowance", 1.0)
+            eng["model"] = TableEngine(ENGINE_TABLES[name][1]).scaled(sfc=allowance)
         out[name] = eng
     return out, raw
 
@@ -184,7 +180,8 @@ def vn_diagram(d, L):
 
 def trades(concept, W_S, A, L, engine, eng_raw):
     """One-at-a-time trades at the chosen point with the chosen engine: loiter time, payload,
-    altitude, the engine table's SFC and power at +-10 % (Stage 3 tolerances), and each banded
+    altitude, the engine table's SFC (+-10 % on top of the allowance) and its available-power cap at
+    +-10 % (Stage 3 tolerances; the cap leaves SFC at a given shaft power unchanged), and each banded
     ledger assumption at its band ends. Each case is re-sized with the rotation tail resize and
     run through the full compliance check (Gate A round 4, R4-2); failed rows are listed."""
     out = []
@@ -217,8 +214,8 @@ def trades(concept, W_S, A, L, engine, eng_raw):
     if engine.get("model") is not None:
         for f in (0.9, 1.1):
             run(f"engine table SFC x{f:g}", eng=dict(engine, model=engine["model"].scaled(sfc=f)))
-        for f in (0.9, 1.1):
-            run(f"engine table power x{f:g}", eng=dict(engine, model=engine["model"].scaled(power=f)))
+        for f in (0.9, 1.1):        # a cap on available power; SFC at a given shaft power unchanged (ruling R-c)
+            run(f"engine table power cap x{f:g}", eng=dict(engine, model=engine["model"].scaled(power_cap=f)))
     _, entries = uav.load_ledger()
     for name, q in entries.items():
         if "band" in q and name in L and name != "composite_factor" and not name.startswith("cbhp"):
@@ -282,15 +279,24 @@ def _jsonable(x):
 
 
 def compliance(d, L, lay, per, need, avail, eng_raw):
+    if "starting_altitude_max_ft" in eng_raw:
+        r6_start = (("R6 note: brochure starting (relight) envelope ends below the loiter altitude; an in-flight relight "
+                     "needs a descent (round 4, R4-10)"), "ft", eng_raw["starting_altitude_max_ft"],
+                    L["mission_altitude_ft"], "note")
+    else:
+        r6_start = (("R6 note: no starting (relight) envelope in our sources for this engine; an in-flight relight is not "
+                    "assessed (the TP100's envelope is not reused)"), "ft", "", L["mission_altitude_ft"], "note")
+    if "max_operating_altitude_ft" in eng_raw:
+        r6_ceiling = ("R6 mission altitude 20,000 ft within engine limit", "ft", L["mission_altitude_ft"],
+                      eng_raw["max_operating_altitude_ft"], "<=")
+    else:
+        r6_ceiling = (("R6 mission altitude 20,000 ft: no maximum operating altitude in our sources for this engine "
+                       "(not checked, none invented)"), "ft", L["mission_altitude_ft"], "", "note")
     rows = [
         ("R1/R2 single turboprop, one engine", "-", d["engine"].get("fixed", "rubber"), "", "by construction"),
         ("R4 payload", "lb", L["payload_lb"], L["payload_lb"], "by construction"),
         ("R5 mission 200 nm + 8 h + 200 nm", "fuel lb", d["fuel"], d["fuel"], "sized to it"),
-        (("R6 note: brochure starting (relight) envelope ends below the loiter altitude; an in-flight relight "
-         "needs a descent (round 4, R4-10)"), "ft", eng_raw.get("starting_altitude_max_ft", ""),
-         L["mission_altitude_ft"], "note"),
-        ("R6 mission altitude 20,000 ft within engine limit", "ft", L["mission_altitude_ft"],
-         eng_raw.get("max_operating_altitude_ft", 1e9), "<="),
+        r6_start, r6_ceiling,
         ("R7 take-off over 50 ft", "ft", per["takeoff_ft"], L["field_length_ft"], "<="),
         ("R7 landing over 50 ft", "ft", per["landing_ft"], L["field_length_ft"], "<="),
         ("R7 clean stall at W0, sea level", "kt", per["V_stall_clean_kt"], L["stall_speed_kt"], "<="),
@@ -505,9 +511,11 @@ def design_record(r, L, eng_raw):
         "V_c_rule": d["V_c_rule"], "fastest_step_eas_kt": d["fastest_step_eas_kt"],
         **({"vc_placard": d["vc_placard"]} if "vc_placard" in d else {}),
         "components_lb": d["components"],
+        "unchoked_fuel_share": uav.unchoked_fuel_share(d["mission"])[0],
         "mission": [{"segment": m[0], "W_start": m[1], "W_end": m[2], "V_kt": m[3] / KT,
                      "speed_floor_fraction": m[4], "cbhp_mean": m[5],
                      "turbine_unchoked_fraction": m[6], "V_top_kt": m[7] / KT, "leg_time_h": m[8] / 3600.0,
+                     "unchoked_fuel_lb": m[9], "burned_lb": m[1] - m[2],
                      "ground_speed_kt": (L["radius_nm"] * NM / m[8] / KT
                                          if m[0].startswith("cruise") and m[8] else None)} for m in d["mission"]],
         "wing": g["wing"], "horizontal_tail": g["ht"],
@@ -538,13 +546,16 @@ def main(argv=None):
     commit = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True,
                             check=False, cwd=REPO).stdout.strip()
     engines, eng_raw = engine_options()
+    short, table_path = ENGINE_TABLES[CHOSEN_ENGINE]
+    table_file = f"{short}_table.json"
     (out / "inputs.json").write_text(json.dumps({
         "commit": commit, "ledger": "data/task12/ledger.yaml",
         "ledger_sha256": hashlib.sha256(ledger_bytes).hexdigest(),
         "engines_sha256": hashlib.sha256(ENGINES.read_bytes()).hexdigest(),
-        "tp100_table_sha256": hashlib.sha256(TP100_TABLE.read_bytes()).hexdigest(),
-        "tp100_table_commit": subprocess.run(["git", "log", "-1", "--format=%H", "--", str(TP100_TABLE)],
-                                             capture_output=True, text=True, check=False, cwd=REPO).stdout.strip(),
+        "engine_table_file": table_file, "engine_table_sha256": hashlib.sha256(table_path.read_bytes()).hexdigest(),
+        "engine_table_commit": subprocess.run(["git", "log", "-1", "--format=%H", "--", str(table_path)],
+                                              capture_output=True, text=True, check=False, cwd=REPO).stdout.strip(),
+        "engine_sfc_allowance": L.get("engine_sfc_allowance", 1.0),
         "uncommitted_code_changes": bool(subprocess.run(
             ["git", "status", "--porcelain", "--", "conceptual", "measurement", "data"],
             capture_output=True, text=True, check=False, cwd=REPO).stdout.strip()),
@@ -552,7 +563,7 @@ def main(argv=None):
         "chosen_engine": CHOSEN_ENGINE, "ws_grid": WS_GRID, "a_grid": A_GRID}, indent=2))
     (out / "ledger.yaml").write_bytes(ledger_bytes)
     (out / "engines.yaml").write_bytes(ENGINES.read_bytes())
-    (out / "tp100_table.json").write_bytes(TP100_TABLE.read_bytes())    # the engine the run used
+    (out / table_file).write_bytes(table_path.read_bytes())             # the engine the run used
     (out / "first_pass.json").write_text(json.dumps(first_pass(L), indent=2))
 
     stall_ws = constraints.ws_stall(RHO0, L["stall_speed_kt"] * KT, uav._cl_max(L)["clean"])
@@ -592,12 +603,14 @@ def main(argv=None):
     (out / "constraint_limits.json").write_text(json.dumps(limits, indent=2))
 
     alt_rows = []
-    tp_table34 = {k: v for k, v in engines[CHOSEN_ENGINE].items() if not k.startswith("cbhp") and k != "model"}
-    tp_table34["name"] = CHOSEN_ENGINE + " at Table 3.4 consumption, piston lapse"
-    tp_gate_a = {k: v for k, v in engines[CHOSEN_ENGINE].items() if k != "model"}
-    tp_gate_a["name"] = CHOSEN_ENGINE + " as at Gate A: flat 0.901, piston lapse"
+    chosen_no_table = {k: v for k, v in engines[CHOSEN_ENGINE].items() if k != "model"}
+    extra = []
+    if chosen_no_table.get("cbhp_cruise"):          # a datasheet cruise value: the Gate A treatment
+        extra.append(dict(chosen_no_table, name=CHOSEN_ENGINE + " as at Gate A: flat datasheet SFC, piston lapse"))
+    table34 = {k: v for k, v in chosen_no_table.items() if not k.startswith("cbhp")}
+    extra.append(dict(table34, name=CHOSEN_ENGINE + " at Table 3.4 consumption, piston lapse"))
     for name, e in ([("rubber", None)] + list(engines.items())
-                    + [(tp_gate_a["name"], tp_gate_a), (tp_table34["name"], tp_table34)]):
+                    + [(e["name"], e) for e in extra]):
         try:
             f = uav.evaluate(recommended, d["W_S"], d["A"], dict(L, ht_volume_scale=res[recommended]["ht_scale"]),
                              engine=e)

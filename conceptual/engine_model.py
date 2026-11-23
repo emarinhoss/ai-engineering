@@ -1,7 +1,8 @@
 """A fixed engine described by a table: full-throttle shaft power and part-power SFC against
-altitude, true airspeed and power fraction. For the TP100 the table is generated from the
-Mattingly App. K cycle (python -m measurement.tp100_engine data/task12/tp100_table.json) so the
-sizing loop does not run the cycle itself. Linear interpolation; inputs are clamped to the table.
+altitude, true airspeed and power fraction. The tables are generated from the Mattingly App. K cycle
+(TP100: python -m measurement.tp100_engine data/task12/tp100_table.json; M250-B17F:
+python -m measurement.m250_engine data/task12/m250_table.json) so the sizing loop does not run the
+cycle itself. Linear interpolation; inputs are clamped to the table.
 """
 import copy
 import json
@@ -10,28 +11,36 @@ from pathlib import Path
 import numpy as np
 
 TP100_TABLE = Path(__file__).resolve().parents[1] / "data" / "task12" / "tp100_table.json"
+M250_TABLE = Path(__file__).resolve().parents[1] / "data" / "task12" / "m250_table.json"
+# engine name (engines.yaml) -> (short name used in file names, its table)
+ENGINE_TABLES = {"PBS_TP100": ("tp100", TP100_TABLE), "RR_M250_B17F": ("m250", M250_TABLE)}
 
 
 def table_for_run(run_dir):
-    """Path of the engine table a Stage 1 run used: the copy in the run folder if there is one,
-    else the committed table at the run's recorded commit if its hash differs from the current file
-    (read with `git show`), else the current file. Raises if the recorded hash cannot be matched."""
+    """Path of the engine table a Stage 1 run used: the copy in the run folder (`<short>_table.json`,
+    tp100 or m250), else the committed table at the run's recorded commit if its hash differs from the
+    current file (read with `git show`), else the current file. Raises if the recorded hash cannot be
+    matched. Runs before the M250 record the TP100 hash as `tp100_table_sha256`; later ones record
+    `engine_table_file` and `engine_table_sha256`."""
     import hashlib
     import subprocess
     import tempfile
     run_dir = Path(run_dir)
-    if (run_dir / "tp100_table.json").exists():
-        return run_dir / "tp100_table.json"
+    for short, current in ENGINE_TABLES.values():
+        if (run_dir / f"{short}_table.json").exists():
+            return run_dir / f"{short}_table.json"
     inp = json.loads((run_dir / "inputs.json").read_text())
-    want = inp.get("tp100_table_sha256")
-    if want is None or hashlib.sha256(TP100_TABLE.read_bytes()).hexdigest() == want:
-        return TP100_TABLE
-    repo = TP100_TABLE.parents[2]
-    blob = subprocess.run(["git", "show", f"{inp['commit']}:data/task12/tp100_table.json"], cwd=repo,
+    short = inp.get("engine_table_file", "tp100_table.json").removesuffix("_table.json")
+    current = next(t for s_, t in ENGINE_TABLES.values() if s_ == short)
+    want = inp.get("engine_table_sha256", inp.get("tp100_table_sha256"))
+    if want is None or hashlib.sha256(current.read_bytes()).hexdigest() == want:
+        return current
+    repo = current.parents[2]
+    blob = subprocess.run(["git", "show", f"{inp['commit']}:data/task12/{short}_table.json"], cwd=repo,
                           capture_output=True, check=True).stdout
     if hashlib.sha256(blob).hexdigest() != want:
         raise ValueError(f"no engine table with the recorded hash for {run_dir}")
-    out = Path(tempfile.mkdtemp()) / "tp100_table.json"
+    out = Path(tempfile.mkdtemp()) / f"{short}_table.json"
     out.write_bytes(blob)
     return out
 
@@ -53,26 +62,32 @@ class TableEngine:
         self.sfc = np.array(t["bsfc"])
         self.rated = t["rated_shp"]
         self.meta = {k: t[k] for k in ("member", "calibration_bsfc", "control_law")}
-        self.sfc_scale, self.power_scale = 1.0, 1.0
+        self.sfc_scale, self.power_scale, self.power_cap = 1.0, 1.0, 1.0
         self.lp_ratio = np.array(t["lp_turbine_pressure_ratio"])
         self.crit = t["critical_pressure_ratio"]
         self.hp_ratio = t["hp_turbine_pressure_ratio"]
 
-    def scaled(self, sfc=1.0, power=1.0, rerate=False):
+    def scaled(self, sfc=1.0, power=1.0, rerate=False, power_cap=1.0):
         """A copy with every SFC and every full-throttle power multiplied. rerate=False (band-end
         trades): the engine keeps its rating, so the lapse moves with the power. rerate=True
         (photo-scaled engine of another size): the rating scales with the power, so the lapse and
-        the part-power SFC curve are unchanged; the engine's bhp must then be the scaled rating."""
+        the part-power SFC curve are unchanged; the engine's bhp must then be the scaled rating.
+        power_cap multiplies only the available power: the power fraction (the SFC table's axis) is
+        still shaft power over the uncapped table value, so SFC at a given shaft power does not
+        change. It is how an uncertain power limit (a control-limit uncertainty) is carried, against
+        `power`, which also rescales the fraction axis (review M-2, ruling R-c)."""
         out = copy.copy(self)
         out.sfc_scale, out.power_scale = self.sfc_scale * sfc, self.power_scale * power
+        out.power_cap = self.power_cap * power_cap
         out.rating_scale = getattr(self, "rating_scale", 1.0) * (power if rerate else 1.0)
         return out
 
     def power_available(self, h_ft, V_kt):
         """Full-throttle shaft hp (bilinear in altitude and speed), capped at the rated power: the
         brochure gives 241 hp as the maximum output, so ram recovery above it (the cycle reaches
-        about 250 hp at 140 kt at sea level) is not credited (Gate A round 4, R4-1)."""
-        return min(self.rated, self._full_throttle(h_ft, V_kt)) * self.power_scale
+        about 250 hp at 140 kt at sea level) is not credited (Gate A round 4, R4-1). The rated power
+        is the engine's own (241 for the TP100, 450 for the M250-B17F)."""
+        return min(self.rated, self._full_throttle(h_ft, V_kt)) * self.power_scale * self.power_cap
 
     def _full_throttle(self, h_ft, V_kt):
         """Uncapped full-throttle shaft hp of the cycle: the reference for the table's fractions."""

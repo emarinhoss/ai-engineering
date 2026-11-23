@@ -5,6 +5,7 @@ import pytest
 
 from conceptual import sizing, stage1, uav
 from conceptual.units import HP, KT, isa
+from measurement.rubber_tp100 import tp100_ledger_values
 
 
 def test_headwind_air_distance_factor_matches_constant_speed_integration():
@@ -32,8 +33,8 @@ def test_headwind_air_distance_factor_matches_constant_speed_integration():
 
 
 def _design():
-    L, _ = uav.load_ledger()
-    d = uav.evaluate("pusher", 13.5, 10.5, L, engine=stage1.engine_options()[0]["PBS_TP100"])
+    L = tp100_ledger_values()
+    d = uav.evaluate("pusher", 13.5, 10.5, L, engine=stage1.engine_options("PBS_TP100", 1.05)[0]["PBS_TP100"])
     return d, L
 
 

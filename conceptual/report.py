@@ -331,29 +331,47 @@ def main(argv=None):
     rub = next(r for r in engines if r["engine"] == "rubber")
     lines = []
     add = lines.append
-    appk = "tp100_table_sha256" in inp
+    appk = "engine_table_sha256" in inp or "tp100_table_sha256" in inp      # runs before the M250 name only the TP100
+    table_file = inp.get("engine_table_file", "tp100_table.json")
+    table_sha = inp.get("engine_table_sha256", inp.get("tp100_table_sha256", ""))
+    m250 = inp["chosen_engine"] == "RR_M250_B17F"
+    ename = "RR M250-B17F" if m250 else "TP100"                     # the engine's name in the running text
     tab_meta = {}
-    if (run / "tp100_table.json").exists():
-        t_ = json.loads((run / "tp100_table.json").read_text())
+    if (run / table_file).exists():
+        t_ = json.loads((run / table_file).read_text())
         tab_meta = {k: t_.get(k) for k in ("member", "burner", "calibration_bsfc", "hp_turbine_pressure_ratio",
-                                            "critical_pressure_ratio")}
-    L_allow = ledger["requirements"].get("engine_sfc_allowance", {}).get("value", 1.0)
+                                            "critical_pressure_ratio", "control_law")}
+    L_allow = {**ledger["requirements"], **ledger["assumptions"]}.get("engine_sfc_allowance", {}).get("value", 1.0)
     val_text = ""
     vpath = Path("runs/task12/stage3/2026-11-21/appk_validation.json")
-    if tab_meta.get("burner") == "msh" and vpath.exists():
+    if m250:
+        val_text = ("`docs/validation/2026-11-23_task12_m250_engine_v2.md`: consistent with the brochure from 70 to 100 % "
+                    "power at sea level; nothing below 70 % power or at altitude")
+    elif tab_meta.get("burner") == "msh" and vpath.exists():
         v_ = json.loads(vpath.read_text())
         sm = v_.get("summary", {}).get("msh", {})
         val_text = (f"`{vpath}`: {sm.get('pass', '?')} of {sm.get('total', '?')} rows within the pre-fixed tolerances; "
                     "fuel consumption reads 5-9 % below the book")
     lat_dw = "tail_height_over_df" in ledger.get("assumptions", {})
     if appk:
-        add(f"# Task 12 Stage 1, re-sized around the TP100's App. K engine model ({run.name})")
+        add(f"# Task 12 Stage 1, re-sized around the {ename}'s App. K engine model ({run.name})")
         add("")
-        add("**Status: Stage 1 repeated after Stage 3 (Éder, 2026-11-20: \"go back to Stage 1 and design around "
-            "this engine\"). The TP100 now enters through its Mattingly App. K cycle table "
-            f"(`data/task12/tp100_table.json`, sha256 `{inp['tp100_table_sha256'][:12]}`): power lapse and "
-            "part-power SFC replace the piston lapse (13.9) and the flat brochure SFC. Gate A round 4: passed "
-            "with actions; rulings 1-10 in docs/reviews/2026-11-21_task12_gateA_round4.md.**")
+        if m250:
+            add("**Status: Stage 1 re-sized around the Rolls-Royce M250-B17F (owner ruling R-a, Éder 2026-11-23; the "
+                "TP100 design and records are kept for comparison). The engine enters through its Mattingly App. K "
+                f"cycle table (`data/task12/m250_table.json`, sha256 `{table_sha[:12]}`): power lapse and part-power SFC "
+                "replace the piston lapse (13.9) and a flat SFC. SFC allowance 1.02 (ruling R-b: the table is calibrated to "
+                "the brochure's guaranteed maximum SFC, so 1.02 covers installation losses only). No low-power or altitude "
+                "fuel-flow data exist for this engine (ruling R-c): the sizing numbers carry an SFC band of 10 % on top of the "
+                "allowance and a power-cap band of 10 %, and the share of the mission fuel burned in table cells outside the "
+                "choked-turbine assumption is reported below (review M-1). Engine review: "
+                "docs/reviews/2026-11-23_task12_m250_engine_review.md.**")
+        else:
+            add("**Status: Stage 1 repeated after Stage 3 (Éder, 2026-11-20: \"go back to Stage 1 and design around "
+                "this engine\"). The TP100 now enters through its Mattingly App. K cycle table "
+                f"(`data/task12/tp100_table.json`, sha256 `{table_sha[:12]}`): power lapse and "
+                "part-power SFC replace the piston lapse (13.9) and the flat brochure SFC. Gate A round 4: passed "
+                "with actions; rulings 1-10 in docs/reviews/2026-11-21_task12_gateA_round4.md.**")
         add("")
         add("Gate A history: rounds 1-3 reviewed earlier designs (round 3 passed with actions, "
             "docs/reviews/2026-11-20_task12_gateA_round3.md); round 4 the TP100-table design "
@@ -362,16 +380,22 @@ def main(argv=None):
         if tab_meta:
             mem = tab_meta.get("member", {})
             add("")
-            add(f"**Engine as sized**: TP100 table built with the {tab_meta.get('burner', 'csh').upper()} burner "
+            add(f"**Engine as sized**: {ename} table built with the {tab_meta.get('burner', 'csh').upper()} burner "
                 + ("(Mattingly's variable-cp fuel flow) " if tab_meta.get("burner") == "msh" else "(constant cp) ")
                 + f"for the nominal cycle Tt4 {mem.get('Tt4', 0):,.0f} R, e_c {mem.get('e_c', 0):.2f}, e_t {mem.get('e_t', 0):.2f}, "
                 f"pi_c {mem.get('pi_c', 0):.2f}, calibrated to the brochure SFC {tab_meta.get('calibration_bsfc', 0):.3f}"
-                + (f"; every SFC multiplied by {L_allow:.2f} in sizing (round 5 ruling 2)" if L_allow != 1.0 else "")
-                + (". Validation against the book (spec 7.1b, " + val_text + ")" if val_text else "")
-                + f". App. K's choked-turbine assumption fails for this engine (HP turbine ratio "
-                f"{tab_meta.get('hp_turbine_pressure_ratio', 0):.3f} against the critical "
-                f"{tab_meta.get('critical_pressure_ratio', 0):.3f}); its off-design predictions are used outside the "
-                "method's stated validity (spec 7.1c).")
+                + (f"; every SFC multiplied by {L_allow:.2f} in sizing ("
+                   + ("ruling R-b" if m250 else "round 5 ruling 2") + ")" if L_allow != 1.0 else "")
+                + (". Validation (" + ("" if m250 else "against the book, spec 7.1b, ") + val_text + ")" if val_text else "")
+                + (f". App. K's choked-turbine assumption fails for this engine at design (HP turbine ratio "
+                   f"{tab_meta.get('hp_turbine_pressure_ratio', 0):.3f} against the critical "
+                   f"{tab_meta.get('critical_pressure_ratio', 0):.3f}); its off-design predictions are used outside the "
+                   "method's stated validity (spec 7.1c)."
+                   if tab_meta.get("hp_turbine_pressure_ratio", 9) < tab_meta.get("critical_pressure_ratio", 0) else
+                   ". The assumption holds at the design point (HP turbine ratio "
+                   f"{tab_meta.get('hp_turbine_pressure_ratio', 0):.3f} against the critical "
+                   f"{tab_meta.get('critical_pressure_ratio', 0):.3f}) but not at part power in the LP turbine: see the "
+                   "unchoked fuel share below."))
         add("")
         add("Generated by "
         f"`python -m conceptual.report` from `{run}` (commit `{inp['commit'][:10]}`, ledger sha256 "
@@ -396,7 +420,10 @@ def main(argv=None):
         f"{float(rub['W0']):,.0f} lb ({float(rub['bhp']):.0f} shp). The {inp['chosen_engine']} gives "
         f"{d['bhp_sl']:.0f} shp against {max(pr.values()):.0f} needed ({binding} binds). Split of the "
         f"{d['W0_lb'] - float(rub['W0']):+,.0f} lb: the larger engine itself "
-        + ("(its weight and installation drag; V_C is one placard for every engine, so the design q is "
+        + ("(its weight and installation drag; V_C is set by one rule for every engine, so the design q follows the "
+           "design's own fastest cruise step and the gust factors through the wing geometry) "
+           if d.get("V_c_rule") == "per_design" else
+           "(its weight and installation drag; V_C is one placard for every engine, so the design q is "
            "the same and the gust factors differ only through the wing geometry) " if ledger["assumptions"]["vc_placard_kt_eas"]["value"] else
            "(weight, drag, and through its higher top speed the design q and gust loads) ")
         + f"{float(t34['W0']) - float(rub['W0']):+,.0f} lb, "
@@ -426,6 +453,15 @@ def main(argv=None):
         + (": " + "; ".join(r["requirement"] for r in unmet) if unmet else "") + ".")
     add(f"- Empty weight: build-up {stat['build_up']:.3f} of W0, Table 3.1 x 0.95 {stat['table_3_1']:.3f} "
         "(decomposition in section 4).")
+    if "unchoked_fuel_share" in d:
+        segs = "; ".join(f"{m['segment']} {m['unchoked_fuel_lb']:.0f} of {m['burned_lb']:.0f} lb"
+                         for m in d["mission"] if m["segment"] != "landing")
+        add(f"- **Fuel burned in table cells outside the choked-turbine assumption (review M-1): "
+            f"{d['unchoked_fuel_share']:.1%}** of the {sum(m['burned_lb'] for m in d['mission'] if m['segment'] != 'landing'):,.0f} lb "
+            f"burned from take-off to the end of the last cruise (before the landing allowance and the reserve). By segment, "
+            f"unchoked of burned: {segs}. These cells are also outside the part-power validation (70 to 100 % power, "
+            "sea level), so the fuel in them rests on the model alone: carry the SFC band (10 %) and ask for low-power "
+            "and altitude fuel-flow data.")
     if appk:
         L0 = {k: v["value"] for g in ("requirements", "assumptions") for k, v in ledger[g].items()}
         pw = next((r for r in comp_rows if r["requirement"].startswith("engine power")), None)
@@ -435,8 +471,11 @@ def main(argv=None):
             + (f"; SFC allowance x{L_allow:.2f}" if L_allow != 1.0 else "")
             + "; the rotation rule keeps sizing the tail until Stage 3 measures rotation with ground effect.")
         add(f"- **Round 4 rulings in force**: service ceiling {L0['ceiling_ft']:,.0f} ft (R12) with a "
-            f"{L0.get('margin_ceiling_ft', 0):,.0f} ft margin; one V_C placard of {L0['vc_placard_kt_eas']:.0f} kt EAS "
-            f"(R18); both transit legs against a {L0.get('headwind_kt', 0):.0f} kt headwind (R19); negative-gust margin "
+            f"{L0.get('margin_ceiling_ft', 0):,.0f} ft margin; "
+            + (f"V_C set per design (owner ruling 2026-11-23: 10 % over the fastest cruise step, 5 kt steps, 110 kt floor): "
+               f"{d['V_c_eas_kt']['sea_level']:.0f} kt EAS for this design " if d.get("V_c_rule") == "per_design" else
+               f"one V_C placard of {L0['vc_placard_kt_eas']:.0f} kt EAS ")
+            + f"(R18); both transit legs against a {L0.get('headwind_kt', 0):.0f} kt headwind (R19); negative-gust margin "
             f"{L0.get('margin_gust_g', 0):.1f} g; power margin "
             + (f"{L0['margin_power_fraction']:.0%} required" if L0.get("margin_power_fraction") else
                "relaxed to the bare requirement (ruling 8)")
@@ -639,13 +678,13 @@ def main(argv=None):
         "carry Table 3.4 consumption (no published values in hand); the TP-R90 lacks the power for the "
         "ceiling."
         + (" They and the rubber engine fly the headwind legs at Raymer's still-air best-range speed (no engine "
-           "table to optimise against), so their W0 is not like for like with the TP100 row." if appk else ""))
+           "table to optimise against), so their W0 is not like for like with the " + ename + " row." if appk else ""))
     full = [k for k, p in d["propeller_points"].items() if p["throttle"] >= 0.99 and k.startswith("cruise")]
     if appk and full:
         add("")
         add(f"At full throttle (99 % or more of the power available): {', '.join(full)}. The minimum-fuel speed "
             "against the headwind sits on the power limit there, so the transit has no power margin; the "
-            "brochure gives 241 hp as maximum output and no continuous rating (action 1).")
+            f"brochure gives {d['bhp_sl']:.0f} hp as maximum output and no continuous rating (action 1).")
     add("")
     add("## 6. Constraint diagram and carpet plots")
     add("")
@@ -657,7 +696,8 @@ def main(argv=None):
     add("")
     add("Required sea-level shp: " + ", ".join(f"{k} {v:.0f}" for k, v in pr.items())
         + f"; engine {d['bhp_sl']:.0f}. "
-        + ("The ceiling and altitude rows use the TP100's App. K lapse (pi_c held at its sea-level rating); "
+        + (f"The ceiling and altitude rows use the {ename}'s App. K lapse (pi_c not above its sea-level rated value, a "
+           "ceiling; the other control limit, Tt4 only, would give more power at altitude: the true lapse lies between); "
            "rubber-engine rows keep the piston lapse (13.9). " if appk else
            "The ceiling and altitude rows use Raymer's piston lapse (13.9); Stage 3 measures the turboprop "
            "lapse (Mattingly App. K). ")
@@ -773,14 +813,18 @@ def main(argv=None):
     for item in [
         "Table 3.1 and Table 6.2 empty-weight fits and the GA group weights (15.46)-(15.57): crewed aircraft, used without crew items.",
         "Table 6.3 fuselage length: crewed aircraft; it sets the tail arm and the fuselage wetted area.",
-        (("Table 3.4 consumption (rubber, TP-R90 and PT6A-42 rows): large turboprops. The TP100 uses its App. K table"
-          + (", built with the variable-cp burner; it reads below the book's fuel consumption by 5-9 % (spec 7.1b "
+        ((f"Table 3.4 consumption (rubber, TP-R90 and PT6A-42 rows): large turboprops. The {ename} uses its App. K table"
+          + (", calibrated to the brochure's take-off SFC and MGT and validated at 70 to 100 % power at sea level only; "
+             "below that and at altitude it is unvalidated (SFC band 10 % on the allowance)" if m250 else
+             ", built with the variable-cp burner; it reads below the book's fuel consumption by 5-9 % (spec 7.1b "
              "re-validation), covered in sizing by the SFC allowance" if tab_meta.get("burner") == "msh" else
              ", whose part-throttle trend did not validate against the book's example (11-14 % offset; Stage 3 engine report)")
           + ".")
          if appk else
          "Table 3.4 consumption (rubber, TP-R90 and PT6A-42 rows): large turboprops. The TP100 uses its datasheet cruise value also at loiter; its part-power value is unknown."),
-        "Table 10.4 turboprop weight and size: 400-5,000 bhp; the rubber engine and the TP100 are below it.",
+        f"Table 10.4 turboprop weight and size: 400-5,000 bhp; the rubber engine and the {ename} are below it"
+        + (" (the 212 lb is the TCDS dry weight of the basic engine with fuel pump, filter, ignition and fuel control; "
+           "gearbox inclusion is not stated; Raymer's installed-engine factor 1.4 is applied to it as to every engine)." if m250 else "."),
         ("(13.9) power lapse: piston engines, applied only to the rubber and comparison engines."
          if appk else "(13.9) power lapse: piston engines, applied to turboprops."),
         "(12.49) span efficiency: a straight-wing fit; it sets the optimum aspect ratio.",
@@ -830,11 +874,14 @@ def main(argv=None):
     ]
     if appk:
         loit = next((m for m in d["mission"] if m["segment"] == "loiter"), {})
-        risks[0] = ("TP100 cycle unknown (a calibrated family; nominal member used)",
+        risks[0] = (f"{ename} cycle unknown (a calibrated family; nominal member used)",
                     ("power at altitude and SFC; the family members share App. K's assumptions, so their spread is not an "
                     "uncertainty band; the sizing carries SFC and power at +-10 % as trades (section 9)"),
                     "maker's cycle data or a test-cell curve")
-        risks[1] = ((("Part-power SFC from App. K with the variable-cp burner: reads 5-9 % below the book "
+        risks[1] = (((f"Part-power SFC from App. K, calibrated to the brochure's guaranteed maximum SFC and validated at 70 to 100 % "
+                      f"power at sea level only (allowance x{L_allow:.2f} covers installation losses); the mission cells are "
+                      "outside that validation, and the choked-turbine assumption fails in " if m250 else
+                      "Part-power SFC from App. K with the variable-cp burner: reads 5-9 % below the book "
                       f"(allowance x{L_allow:.2f} applied); choked-turbine assumption fails in "
                       if tab_meta.get("burner") == "msh" else
                       "Part-power SFC from App. K: part-throttle trend unvalidated (11-14 % offset), constant-cp burner "

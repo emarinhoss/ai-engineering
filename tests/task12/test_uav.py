@@ -122,3 +122,22 @@ def test_vc_placard_caps_design_speed(ledger):
     assert max(capped["V_c_eas"].values()) <= 100.0 * KT + 1e-9
     assert capped["q_design"] < free["q_design"]
     assert capped["W0"] < free["W0"]
+
+
+# ---- the unchoked share of the mission fuel (review M-1) ---------------------------------------------------------
+def test_unchoked_fuel_share_is_burned_fuel_in_unchoked_substeps():
+    from conceptual import stage1
+    L, _ = uav.load_ledger()
+    d = uav.evaluate("pusher", 15.0, 9.0, L, engine=stage1.engine_options()[0]["RR_M250_B17F"])
+    share, by = uav.unchoked_fuel_share(d["mission"])
+    assert 0.0 <= share <= 1.0
+    assert set(by) == {"takeoff", "climb", "cruise_out", "loiter", "cruise_back"}
+    for name, (unchoked_lb, burned_lb) in by.items():
+        assert 0.0 <= unchoked_lb <= burned_lb + 1e-9, name
+    assert share == pytest.approx(sum(u for u, _ in by.values()) / sum(b for _, b in by.values()))
+    # a mission leg with no unchoked sub-step burns no unchoked fuel; with all, all of it
+    for row in d["mission"]:
+        if row[0] in by and row[6] == 0.0:
+            assert row[9] == 0.0
+        if row[0] in ("cruise_out", "loiter", "cruise_back") and row[6] == 1.0:
+            assert row[9] == pytest.approx(row[1] - row[2])
