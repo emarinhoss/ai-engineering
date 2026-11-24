@@ -297,7 +297,8 @@ class Built:
     def field_detail(self, theta, which=("TO", "LD")):
         """{'TO': (distance ft, reason), 'LD': ...} over 50 ft; (inf, reason) for a case the model
         cannot fly. Same two calls as uav.performance. The power multiplier scales the take-off
-        shaft power (uav._takeoff uses the rated bhp directly, not the table)."""
+        shaft power (uav._takeoff uses the rated bhp directly, not the table). For the cap form the
+        multiplier is clipped at 1 (ruling R-e), the same as TableEngine.power_available."""
         try:
             W0 = self.w0_for(theta)
             b, L = self.build(theta, mission=False, W0=W0)
@@ -307,7 +308,10 @@ class Built:
         S, K = b["geom"]["S"], b["K"]
         out = {}
         if "TO" in which:
-            bhp = b["bhp"] * theta.get("engine_power_mult", 1.0)
+            mult = theta.get("engine_power_mult", 1.0)
+            if self.power_band == "cap":     # R-e: a cap cuts the power but cannot raise it above the rating
+                mult = min(1.0, mult)
+            bhp = b["bhp"] * mult
             try:
                 out["TO"] = (uav._takeoff(W0, S, b["CD0_takeoff"], K, b["clmax"]["takeoff"], L, bhp,
                                           b["D_prop"])["total"], None)

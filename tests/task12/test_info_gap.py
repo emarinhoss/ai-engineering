@@ -220,3 +220,22 @@ def test_study_and_command_line_have_the_same_default_and_the_override_flag_exis
     assert inspect.signature(ig.study).parameters["allow_band_mismatch"].default is False
     assert ig.make_parser().parse_args(["--design", "d", "--out", "o", "--power-band", "cap",
                                         "--allow-band-mismatch"]).allow_band_mismatch is True
+
+
+def test_m250_takeoff_power_is_clipped_at_the_rating_for_the_cap_form():
+    """Ruling R-e (review MB-2): +10 % power cannot take the take-off shaft power above the rating."""
+    m250 = REPO / "runs/task12/stage3/2026-11-23/m250_info_gap/record/design_pusher.json"
+    b = ig.Built(m250)
+    _, entries = uav.load_ledger(b.ledger_path)
+    th = ig.nominal_theta(ig.uncertain_variables(entries))
+    nominal = b.field_detail(th, ("TO",))["TO"][0]
+    assert b.field_detail(dict(th, engine_power_mult=1.1), ("TO",))["TO"][0] == nominal      # clipped, not 495 shp
+    assert b.field_detail(dict(th, engine_power_mult=0.9), ("TO",))["TO"][0] > nominal       # a cut still counts
+    seen = []                # the take-off row's own call is the last one (sizing bisects on _takeoff before it)
+    orig = uav._takeoff
+    uav._takeoff = lambda W0, S, cd0, K, clmax, L, bhp, d: (seen.append(bhp), orig(W0, S, cd0, K, clmax, L, bhp, d))[1]
+    try:
+        b.field_detail(dict(th, engine_power_mult=1.1), ("TO",))
+    finally:
+        uav._takeoff = orig
+    assert seen[-1] <= 450.0 + 1e-9
