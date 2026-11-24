@@ -333,3 +333,39 @@ theta1 = theta2 = 8 deg.
 7. Active-learning comparison done as a pool-based offline replay (7).
 8. A `physics/` package (analytic relations and gates) and a `runs/` folder of committed run
    records are added to the layout.
+
+## 9. Task 12 owner rulings (M250 engine, drone conceptual design)
+
+Added 2026-11-24. These are owner (Éder) rulings on Task 12, recorded here because until now they
+were only in commit messages, a docstring and the review files. Each points to the commit and
+record that carry it out. Nothing below is a new result.
+
+- **R-a (2026-11-23).** Re-size the pusher around the Rolls-Royce M250-B17F (`RR_M250_B17F`, 450 shp,
+  212 lb). The TP100 design and its records are kept for comparison. Commit 72bbec7; record
+  `runs/task12/stage1/2026-11-23`; report `docs/validation/2026-11-23_task12_conceptual_m250.md`.
+- **R-b (2026-11-23).** M250 SFC allowance 1.02 (the table is calibrated to the brochure's guaranteed
+  maximum SFC, so 1.02 covers installation losses only); propeller rpm 2,030. TP100 records keep
+  1.05 and 2,158. Commit 72bbec7; ledger copy in `runs/task12/stage1/2026-11-23/ledger.yaml`.
+- **R-c (2026-11-23).** SFC +-10 % on top of the allowance and power +-10 %, with the power band as a
+  cap on the available power: SFC at a given shaft power does not change with it. Commit 72bbec7;
+  records `runs/task12/stage3/2026-11-23/m250_info_gap` and `m250_robust_105`.
+- **R-d (2026-11-23).** The baseline is the robust design at h_T = 1.05, from a refined grid. Commit
+  4d6dac6; record `runs/task12/stage3/2026-11-23/m250_robust_105_refined`; report
+  `docs/validation/2026-11-23_task12_m250_robust_refined.md`. Superseded in its cell by the
+  baseline-cell choice below; the rule (h_T 1.05) stands.
+- **R-e (2026-11-24).** The power cap is clipped at the rated power: a multiplier above 1 cannot take
+  the available power above the rating, one below 1 still cuts it. Commits ee68128
+  (`TableEngine.power_available`) and 319a20e (the info-gap take-off row, review MB-2). The TP100
+  "rescale" records are unchanged.
+- **Baseline cell (2026-11-24).** After review MB-1 (`docs/reviews/2026-11-24_task12_m250_baseline_review.md`),
+  Éder chose W/S 16, A 7 over W/S 18, A 7 for its cliff margin (cliff h 1.194 against 1.084, for 1 lb
+  of take-off weight). Commit 27e1cda; record `runs/task12/stage3/2026-11-24/m250_baseline_ws16_a7`;
+  report `docs/validation/2026-11-24_task12_m250_baseline_ws16_a7.md`.
+- **MD-1 erratum (2026-11-24).** One candidate of `m250_robust_105` was lost to a working-tree stash.
+  The erratum is in `docs/reviews/2026-11-24_task12_m250_baseline_review.md` (section "Draft erratum
+  for MD-1"); the report was not changed.
+- **R-f (2026-11-24, R6).** The M250-B17F engine's maximum operating altitude and its in-flight
+  relight envelope are declared **design assumptions**. No public source gives either one. The
+  Stage 1 R6 rows stay "no source". The 23,000 ft ceiling requirement is above every certified B17
+  installation found, all at 20,000 ft. Cross-references and the searches that came back empty:
+  `docs/validation/2026-11-24_task12_m250_r6_sources.md`. Not re-run: no report was regenerated.
