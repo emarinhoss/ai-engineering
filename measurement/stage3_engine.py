@@ -268,8 +268,8 @@ def measure_m250(design_path):
         rows.append(_m250_row(f"sfc_{seg}", f"shaft SFC over {seg} (leg average)", "lb/(hp h)",
                               sp_[0]["stage1_cbhp_leg"], "App. K family, part power at the leg's level-flight power",
                               band, TOL_SFC, "relative", False,
-                              "Stage 1's value is the record's leg-mean SFC from the table, with the 1.02 allowance "
-                              f"({L.get('engine_sfc_allowance', 1.0)}); the family is raw App. K without it."))
+                              "Stage 1's value is the record's leg-mean SFC from the table, with the SFC allowance "
+                              f"{L.get('engine_sfc_allowance', 1.0)}; the family is raw App. K without it."))
     bd = dict(b, W0=d["W0_lb"], W_S=d["W_S"])
 
     def climb_power(m):
@@ -315,7 +315,8 @@ def measure_m250(design_path):
                           "tested_range": "sea level static, 70-100 % power (brochure rows)"}
     return {"frozen": {"W0_lb": d["W0_lb"], "fuel_lb": d["fuel_lb"], "bhp": d["bhp_sl"],
                        "service_ceiling_ft": d["performance"]["service_ceiling_ft"],
-                       "sfc_allowance": L.get("engine_sfc_allowance", 1.0)},
+                       "sfc_allowance": L.get("engine_sfc_allowance", 1.0),
+                       "mission_altitude_ft": L["mission_altitude_ft"]},
             "rows": rows, "detail": detail, "rebuild_check": check, "ledger_path": str(ledger_path)}
 
 
@@ -387,8 +388,9 @@ def report_m250(res, path):
       "(upper bound; the rating clip of 450 hp applies to the table).\n")
     w("## 4. Validity (spec 7.1b item 2)\n")
     va = det["validity"]
-    w(f"- Tested range: {va['tested_range']}. Every mission point is above 20,000 ft or below 70 % power; the brochure "
-      "gives no altitude data.")
+    fr_ = [p["shaft_hp"] / m250.RATED_SHP for p in det["points"]]
+    w(f"- Tested range: {va['tested_range']}. The mission legs run at {min(fr_) * 100:.0f}-{max(fr_) * 100:.0f} % of the rating, "
+      f"at {fr['mission_altitude_ft']:,.0f} ft; the brochure gives no altitude data.")
     w(f"- Share of the table's cells (altitude, speed, power fraction) where the LP turbine is below the choking ratio, "
       f"so App. K's off-design assumption fails: {va['table_unchoked_cell_share'] * 100:.1f} % of {va['table_cells']} cells.")
     w(f"- Share of the baseline's mission fuel burned in such cells: **{va['mission_fuel_share_unchoked_record'] * 100:.1f} %** "
@@ -396,22 +398,36 @@ def report_m250(res, path):
     w("| leg | unchoked fraction | fuel in unchoked steps, lb | burned, lb |\n|---|---|---|---|")
     for g in va["legs"]:
         w(f"| {g['segment']} | {g['unchoked_fraction']:.3f} | {g['unchoked_fuel_lb']:.1f} | {g['burned_lb']:.1f} |")
-    w("\n## 5. The cycle model against the book's own example\n")
-    w("Same code as the TP100 report (`book_validation`); the comparison does not depend on the engine.\n")
-    w("| pi_c | Fig. K.4 tau_t* | model, gamma_t 1.3 |\n|---|---|---|")
+    w("\n## 5. The cycle model against the book's own example (spec 7.1b item 1)\n")
+    w("Same code as the TP100 report (`book_validation`); the comparison does not depend on the engine. "
+      "Tolerances were fixed on 2026-11-21 before the variable-cp code existed.\n")
+    w("| Fig. K.4 pi_c | book tau_t* | model | difference | tolerance ±0.015 |\n|---|---|---|---|---|")
     for r in v["tau_t_star"]:
-        w(f"| {r['pi_c']} | {r['book']:.3f} | {r['model_gamma_t_1_3']:.3f} |")
-    w("\nFull-throttle thrust lapse at M0 = 0.1 (Fig. K.7):\n")
-    w("| altitude, ft | book | model |\n|---|---|---|")
+        dv = r["model_gamma_t_1_3"] - r["book"]
+        w(f"| {r['pi_c']} | {r['book']:.3f} | {r['model_gamma_t_1_3']:.3f} | {dv:+.3f} | {'within' if abs(dv) <= 0.015 else '**outside**'} |")
+    w("\nFigs. K.2-K.3 envelope (tolerance ±5 %):\n")
+    w("| pi_c | F/m0 book | F/m0 model | S book | S model | verdict |\n|---|---|---|---|---|---|")
+    for r in v["envelope"]:
+        ok = [abs(r["S_model"] / r["S_book"] - 1.0) <= 0.05]
+        if r["F_book"] is not None:
+            ok.append(abs(r["F_model"] / r["F_book"] - 1.0) <= 0.05)
+        fb = "n/r" if r["F_book"] is None else f"{r['F_book']:.0f}"
+        w(f"| {r['pi_c']} | {fb} | {r['F_model']:.1f} | {r['S_book']:.3f} | {r['S_model']:.3f} | {'within' if all(ok) else '**outside**'} |")
+    w("\nFig. K.7 full-throttle thrust lapse at M0 = 0.1 (tolerance ±0.015 absolute):\n")
+    w("| altitude, ft | book | model | difference | verdict |\n|---|---|---|---|---|")
     for r in v["lapse"]:
-        w(f"| {r['h_ft']:,} | {r['book']:.3f} | {r['model']:.3f} |")
-    w("\nMinimum S at 15,000 ft (Fig. K.9), eta_prop,max 0.9:\n")
-    w("| M0 | book | model | ratio |\n|---|---|---|---|")
+        dv = r["model"] - r["book"]
+        w(f"| {r['h_ft']:,} | {r['book']:.3f} | {r['model']:.3f} | {dv:+.3f} | {'within' if abs(dv) <= 0.015 else '**outside**'} |")
+    w("\nFig. K.9 minimum S at 15,000 ft, eta_prop,max 0.9 (tolerance ±10 %):\n")
+    w("| M0 | book | model | ratio | verdict |\n|---|---|---|---|---|")
     for r in v["part_throttle_gap"]:
-        w(f"| {r['M0']} | {r['book']:.3f} | {r['model_eta_max_0_9']:.3f} | {r['model_eta_max_0_9'] / r['book']:.2f} |")
+        ratio = r["model_eta_max_0_9"] / r["book"]
+        w(f"| {r['M0']} | {r['book']:.3f} | {r['model_eta_max_0_9']:.3f} | {ratio:.2f} | {'within' if abs(ratio - 1.0) <= 0.10 else '**outside**'} |")
+    w("\nA row outside tolerance is reported, not tuned. The part-throttle trend of the cycle code is therefore "
+      "not validated against the book; the M250 part-power SFC is checked instead against the brochure (section 3).")
     w("\n## 6. Caveats carried\n")
     w("- The M250 table is validated at sea level, static, and 70-100 % power only (brochure rows). Mission cruise and "
-      "loiter run at about 18-29 % of the rating, at 20,000 ft.")
+      f"loiter run at {min(fr_) * 100:.0f}-{max(fr_) * 100:.0f} % of the rating, at {fr['mission_altitude_ft']:,.0f} ft.")
     w(f"- {va['mission_fuel_share_unchoked_record'] * 100:.1f} % of the baseline's mission fuel burns in unchoked cells, outside App. K's off-design assumption.")
     w("- The 23,000 ft ceiling requirement is above the certified 20,000 ft B17 installations "
       "(docs/validation/2026-11-24_task12_m250_r6_sources.md); the maximum operating altitude and relight envelope are "
