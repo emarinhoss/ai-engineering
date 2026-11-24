@@ -1,0 +1,43 @@
+{
+  "what": "ground-effect model check, the same call as tests/task12/test_ground_effect.py (strict xfail test_anderson_ground_effect_factor)",
+  "commit": "6b4eb0eb0a07eb85dc6b74ecb44821639b263272",
+  "rows": [
+    {
+      "h_over_b": 0.1,
+      "lattice_induced_drag_ratio": 0.4454587090177196,
+      "anderson_G_6_77": 0.7191011235955057,
+      "ratio": 0.6194660172277663,
+      "deviation": -0.3805339827722337,
+      "tolerance": 0.15,
+      "within": false
+    },
+    {
+      "h_over_b": 0.2,
+      "lattice_induced_drag_ratio": 0.6835890254066944,
+      "anderson_G_6_77": 0.911032028469751,
+      "ratio": 0.7503457661690669,
+      "deviation": -0.2496542338309331,
+      "tolerance": 0.15,
+      "within": false
+    },
+    {
+      "h_over_b": 0.3,
+      "lattice_induced_drag_ratio": 0.7977810102264256,
+      "anderson_G_6_77": 0.9584026622296173,
+      "ratio": 0.8324069221286141,
+      "deviation": -0.1675930778713859,
+      "tolerance": 0.15,
+      "within": false
+    },
+    {
+      "h_over_b": 0.5,
+      "lattice_induced_drag_ratio": 0.900695656376809,
+      "anderson_G_6_77": 0.9846153846153847,
+      "ratio": 0.9147690260076966,
+      "deviation": -0.0852309739923034,
+      "tolerance": 0.15,
+      "within": true
+    }
+  ],
+  "verdict": "outside tolerance at 3 of 4 h/b values; reported, not tuned"
+}

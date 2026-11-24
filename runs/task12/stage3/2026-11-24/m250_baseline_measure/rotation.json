@@ -1,0 +1,116 @@
+{
+  "row": {
+    "quantity": "rotation tail CL needed (0.8 V_TO, forward CG, sea level)",
+    "stage1": -0.9833717608067677,
+    "stage3": -0.9481808992942972,
+    "deviation_abs": 0.03519086151247053,
+    "deviation_rel": -0.03578591832207956,
+    "limit": 1.0,
+    "limit_met_stage1": true,
+    "limit_met_stage3": true,
+    "tolerance": null,
+    "tail_scale_record": 1.7089482675533931,
+    "tail_scale_estimate": 1.6203921051762074,
+    "note": "no 7.1a tolerance exists for this row; the scale is a proportional estimate, not a re-size"
+  },
+  "cases": {
+    "nominal": {
+      "h_ft": 6.862792449829554,
+      "h_over_b": 0.18584360201401984,
+      "alpha_deg": 1.2538105342182042,
+      "CL_free": 0.10016396327308709,
+      "CL_ground_effect": 0.1101644120499711,
+      "k_GE": 1.0998407855489782,
+      "CL_wing_rotation": 0.6247095661918196,
+      "CL_tail_needed": -0.9481808992942972,
+      "main_wheel_load_lb": 2854.9629430085106,
+      "limit_met": true,
+      "tail_scale_estimate": 1.6203921051762074
+    },
+    "minus_1ft": {
+      "h_ft": 5.862792449829554,
+      "h_over_b": 0.15876372113861387,
+      "alpha_deg": 1.2538105342182042,
+      "CL_free": 0.10016396327308709,
+      "CL_ground_effect": 0.11248498749055318,
+      "k_GE": 1.123008553324453,
+      "CL_wing_rotation": 0.6378688582882892,
+      "CL_tail_needed": -0.9400149605597214,
+      "main_wheel_load_lb": 2832.604353036795,
+      "limit_met": true,
+      "tail_scale_estimate": 1.6064369383228072
+    },
+    "plus_1ft": {
+      "h_ft": 7.862792449829554,
+      "h_over_b": 0.21292348288942584,
+      "alpha_deg": 1.2538105342182042,
+      "CL_free": 0.10016396327308709,
+      "CL_ground_effect": 0.10847676929142659,
+      "k_GE": 1.0829919838103397,
+      "CL_wing_rotation": 0.6151394468042729,
+      "CL_tail_needed": -0.9541195932626645,
+      "main_wheel_load_lb": 2871.2232687006453,
+      "limit_met": true,
+      "tail_scale_estimate": 1.6305410259449786
+    }
+  },
+  "rebuild_check": {
+    "fuel_lb": {
+      "record": 949.9634990236568,
+      "rebuilt": 949.9634990236568
+    },
+    "power_climb_sl_hp": {
+      "record": 182.31058379041312,
+      "rebuilt": 182.31058379041312
+    },
+    "power_ceiling_hp": {
+      "record": 280.78312841563934,
+      "rebuilt": 280.78312841563934
+    },
+    "power_takeoff_hp": {
+      "record": 130.75292660233399,
+      "rebuilt": 130.75292660233399
+    },
+    "power_turn_at_loiter_hp": {
+      "record": 253.70154670081772,
+      "rebuilt": 253.70154670081772
+    },
+    "power_cruise_at_altitude_hp": {
+      "record": 225.89092041963968,
+      "rebuilt": 225.89092041963968
+    }
+  },
+  "layout_check": {
+    "record": -0.9833717608067677,
+    "rebuilt_k1": -0.9833717621303772,
+    "relative_difference": 1.3459910963575794e-09
+  },
+  "downwash_gradient_tail": {
+    "z_ft": 1.3899813824838048,
+    "x_ft": 14.586922982205301,
+    "free_air": 0.4573239928327547,
+    "ground_effect": {
+      "nominal": 0.353406872113431,
+      "minus_1ft": 0.33328401256158646,
+      "plus_1ft": 0.36980049047690944
+    }
+  },
+  "assumptions": {
+    "wing_height": "h = h_cg - 0.1 D_f (render's wing station), plus/minus 1 ft",
+    "attitude": "free-air lattice CL = ledger cl_ground",
+    "flap": "flap increment scaled by the wing's k_GE (approximation)",
+    "lattice": "fine, planar, ground plane parallel to the wing plane"
+  },
+  "inputs": {
+    "design": "runs/task12/stage3/2026-11-24/m250_baseline_ws16_a7/P450/h1.05/design_pusher.json",
+    "design_sha256": "48017b8ff8507468e6417f95e3d17d672da0f93476e84a7a4370a9df8def795d",
+    "ledger": "runs/task12/stage3/2026-11-24/m250_baseline_ws16_a7/P450/h1.05/ledger.yaml",
+    "ledger_sha256": "1a3bb4fc614c7945838138102633297e0b0370e2d211384f9fc5ea8d3ae050b2",
+    "git_commit": "6b4eb0eb0a07eb85dc6b74ecb44821639b263272",
+    "python": "3.13.18",
+    "numpy": "2.5.3",
+    "out": "runs/task12/stage3/2026-11-24/m250_baseline_measure/rotation.json",
+    "report": "docs/validation/2026-11-24_task12_stage3_rotation_m250.md",
+    "seed": null
+  }
+}
