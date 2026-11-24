@@ -1723,7 +1723,8 @@ def targets_report_text(c, figure_rel, committed_after=""):
             "engine), its App. K table (`data/task12/m250_table.json`, calibrated to the brochure's take-off SFC and "
             "MGT, validated at 70 to 100 % power at sea level only), the ledger's SFC allowance (ruling R-b) and "
             "propeller rpm 2,030. Not a photo-scaled engine. The info-gap power band is a **cap** on the available power "
-            "(ruling R-c, review M-2): SFC at a given shaft power does not change with it. The model has no altitude or "
+            "(ruling R-c, review M-2): SFC at a given shaft power does not change with it. The cap is clipped at the "
+            "rated power (ruling R-e): a multiplier above 1 cannot take the available power above 450 shp. The model has no altitude or "
             "low-power fuel-flow data behind it (review M-1).")
     else:
         add("**The engine is hypothetical.** It is the TP100 App. K table scaled in power by P/241 (same lapse, same "

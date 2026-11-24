@@ -830,8 +830,10 @@ def engine_lines(res):
         return []
     out = [f"**Engine: {e['name']}**, rated {e['rated_shp']:g} shp, SFC allowance x{e['sfc_allowance']:g} "
            f"(`engine_sfc_allowance` of the record's ledger copy, kept in under the +-10 % SFC band), power band "
-           f"form: {res['power_band']}. The cap is clipped at the rating: a multiplier above 1 cannot take the "
-           "available power above the rated power; one below 1 still cuts it."]
+           f"form: {res['power_band']}."]
+    if res["power_band"] == "cap":      # the clip sentence is only true for the cap form (not the TP100 rescale)
+        out[0] += (" The cap is clipped at the rating: a multiplier above 1 cannot take the "
+                   "available power above the rated power; one below 1 still cuts it.")
     if _is_m250(res):
         out.append("**Caveat: " + M250_CAVEAT + " Every h_hat below rests on that model.**")
     return out + [""]
