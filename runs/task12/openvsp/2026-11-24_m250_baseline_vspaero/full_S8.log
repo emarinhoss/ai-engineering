@@ -1,0 +1,1469 @@
+/tmp/claude-0/-home-user/d15a4c10-d7a3-5006-96e8-4d0a5f6097f0/scratchpad/vspenv/lib/python3.12/site-packages/openvsp/vspaero -omp 4 runs/task12/openvsp/2026-11-24_m250_baseline_vspaero/full_S8
+Setting Sref to: 194.808751 
+Setting Cref to: 5.528399 
+Setting Bref to: 36.927784 
+Setting X_cg to: 11.223773 
+Setting Y_cg to: 0.000000 
+Setting Z_cg to: 0.000000 
+Number of Machs: 2 
+Mach: 0.157948 
+Mach: 0.227052 
+Number of AoAs: 6 
+AoA: -2.000000 
+AoA: 0.000000 
+AoA: 2.000000 
+AoA: 4.000000 
+AoA: 6.000000 
+AoA: 8.000000 
+Number of Betas: 1 
+Beta: 0.000000 
+Number of ReCs: 1 
+ReC: 3451568.435577 
+Setting Vinf to: 100.000000 
+Setting Rho to: 0.002377 
+Setting StallModel to: 0 
+Setting Clo2D to: 0.000000 
+Setting CLMax2D to: 1.000000 
+Setting Symmetry to: 0 
+Setting FreezeMultiPoleAtIteration to: 10000 
+Setting FreezeWakeAtIteration to: 10000 
+Setting FreezeWakeRootVortices to: 0 
+Setting ImplicitWake to: 0 
+Setting ImplicitWakeStartIteration_ to: 0 
+Setting FarDist to: -1.000000 
+Setting NumWakeNodes to: 8 
+Setting WakeIters to: 5 
+Setting WakeRelax to: 1.000000 
+Setting ForwardGMRESConvergenceFactor to: 1.000000e+00 
+Setting AdjointGMRESConvergenceFactor_ to: 1.000000e+00 
+Setting NonLinearConvergenceFactor to: 1.000000e+00 
+Setting CoreSizeFactor to: 1.000000 
+Setting multipole FarAway factor to: 5.000000 
+Setting UpdateMatrixPreconditioner flag to: 0 
+Setting UseWakeNodeMatrixPreconditioner flag to: 0 
+Setting QuadTreeBufferLevels_ flag to: 0 
+Number of NumberOfAdjointForceAndMomentCases_: 0 
+Number of NumberOfAdjointComponentListSettings_: 0 
+Setting Write2DFEMFile to: 0 
+Setting WriteTecplotFile to: 0 
+Sref            = 194.808751 
+Cref            = 5.528399 
+Bref            = 36.927784 
+X_cg            = 11.223773 
+Y_cg            = 0.000000 
+Z_cg            = 0.000000 
+Mach            = 0.157948, 0.227052 
+AoA             = -2.000000, 0.000000, 2.000000, 4.000000, 6.000000, 8.000000 
+Beta            = 0.000000 
+Vinf            = 100.000000 
+Vref            = 100.000000 
+Rho             = 0.002377 
+ReCref          = 3451568.435577 
+StallModel      = 0  
+Clo2D           = 0.000000 
+CLMax2D_        = 1.000000 
+Symmetry        = 0  
+FarDist         = -1.000000 
+NumWakeNodes    = 8  
+WakeIters       = 5  
+NumberOfControlGroups = 0 
+NumberofSurveyPoints: 0 
+NumberOfQuadTrees: 1 
+QuadTree(1):          2:    0.00000 
+NumberOfInlets: 0 
+NumberOfNozzles: 0 
+NumberOfInlets: 0 
+NumberOfNozzles: 0 
+VSPAERO v.7.2.2 --- Compiled on: Nov 24 2026 at 02:56:42 PST 
+
+
+
+
+Initializing OPENMP for 4 threads 
+NumberOfThreads_: 4 
+_OPENMP Version string: 201511
+NumNodes: 1096 
+MaxNumberOfGridLevels_: 20 
+NumLoops: 976 
+NumNodesInList: 9 
+KuttaNodeList_[1]: 470 
+KuttaNodeList_[2]: 468 
+KuttaNodeList_[3]: 469 
+KuttaNodeList_[4]: 512 
+KuttaNodeList_[5]: 529 
+KuttaNodeList_[6]: 546 
+KuttaNodeList_[7]: 563 
+KuttaNodeList_[8]: 580 
+KuttaNodeList_[9]: 597 
+NumNodesInList: 15 
+KuttaNodeList_[10]: 835 
+KuttaNodeList_[11]: 818 
+KuttaNodeList_[12]: 801 
+KuttaNodeList_[13]: 785 
+KuttaNodeList_[14]: 768 
+KuttaNodeList_[15]: 751 
+KuttaNodeList_[16]: 734 
+KuttaNodeList_[17]: 397 
+KuttaNodeList_[18]: 614 
+KuttaNodeList_[19]: 631 
+KuttaNodeList_[20]: 648 
+KuttaNodeList_[21]: 665 
+KuttaNodeList_[22]: 682 
+KuttaNodeList_[23]: 699 
+KuttaNodeList_[24]: 716 
+NumNodesInList: 15 
+KuttaNodeList_[25]: 1079 
+KuttaNodeList_[26]: 1062 
+KuttaNodeList_[27]: 1045 
+KuttaNodeList_[28]: 1027 
+KuttaNodeList_[29]: 1010 
+KuttaNodeList_[30]: 993 
+KuttaNodeList_[31]: 976 
+KuttaNodeList_[32]: 854 
+KuttaNodeList_[33]: 852 
+KuttaNodeList_[34]: 874 
+KuttaNodeList_[35]: 891 
+KuttaNodeList_[36]: 908 
+KuttaNodeList_[37]: 925 
+KuttaNodeList_[38]: 942 
+KuttaNodeList_[39]: 959 
+VSPGEOM defined NumKuttaNodes: 39 
+Found 7 VSPGEOM Surfaces 
+Found 7 VSPGEOM Surfaces 
+DumChar: # VSPGEOM v3 Tag Key File
+ 
+DumChar: runs/task12/openvsp/2026-11-24_m250_baseline_vspaero/full_S8.vspgeom
+ 
+DumChar: 7
+ 
+NumberOfVSPSurfaces: 7 
+DumChar: 
+ 
+DumChar: # part#,geom#,surf#,gname,gid,thick,plate,copy#,geomcopy#
+ 
+Thick/thin data exists... DumChar: # part#,geom#,surf#,gname,gid,thick,plate,copy#,geomcopy#
+ 
+Part: 1 ... CompID: 2 ... SurfID: 0 
+Surface: 1 exists in triangulation and has OpenVSP Name: Fuselage_V 
+CompID: 2 
+Setting OpenVSP_ComponentIDForSurface_ to : 2 
+Surface: 1 is thin 
+Setting ComponentIDForSurface_ to : 3 
+Part: 2 ... CompID: 2 ... SurfID: 0 
+Surface: 2 exists in triangulation and has OpenVSP Name: Fuselage_H 
+CompID: 2 
+Setting OpenVSP_ComponentIDForSurface_ to : 2 
+Surface: 2 is thin 
+Setting ComponentIDForSurface_ to : 3 
+Part: 3 ... CompID: 0 ... SurfID: 0 
+Surface: 3 exists in triangulation and has OpenVSP Name: Wing_C 
+CompID: 0 
+Setting OpenVSP_ComponentIDForSurface_ to : 0 
+Surface: 3 is thin 
+Setting ComponentIDForSurface_ to : 1 
+Part: 4 ... CompID: 0 ... SurfID: 1 
+Surface: 4 exists in triangulation and has OpenVSP Name: Wing_C 
+CompID: 0 
+Setting OpenVSP_ComponentIDForSurface_ to : 0 
+Surface: 4 is thin 
+Setting ComponentIDForSurface_ to : 1 
+Part: 5 ... CompID: 3 ... SurfID: 0 
+Surface: 5 exists in triangulation and has OpenVSP Name: HorizontalTail_C 
+CompID: 3 
+Setting OpenVSP_ComponentIDForSurface_ to : 3 
+Surface: 5 is thin 
+Setting ComponentIDForSurface_ to : 4 
+Part: 6 ... CompID: 3 ... SurfID: 1 
+Surface: 6 exists in triangulation and has OpenVSP Name: HorizontalTail_C 
+CompID: 3 
+Setting OpenVSP_ComponentIDForSurface_ to : 3 
+Surface: 6 is thin 
+Setting ComponentIDForSurface_ to : 4 
+Part: 7 ... CompID: 1 ... SurfID: 0 
+Surface: 7 exists in triangulation and has OpenVSP Name: VerticalTail_C 
+CompID: 1 
+Setting OpenVSP_ComponentIDForSurface_ to : 1 
+Surface: 7 is thin 
+Setting ComponentIDForSurface_ to : 2 
+Found 7 used surfaces based on parsing VSPGEOM file 
+Found 7 used surfaces based on parsing VKEY file ... 
+Marking tris on thick and thin surfaces 
+Determining the number of thin and thick surfaces 
+NumberOfThinSurfaces_: 7 
+NumberOfThickSurfaces_: 0 
+Renumbering surfaces 
+Renumbering surface lists 
+Determining number of unique components 
+Found 4 unique components 
+ComponentIDForComponent_[1]: 3 
+ComponentIDForComponent_[2]: 1 
+ComponentIDForComponent_[3]: 4 
+ComponentIDForComponent_[4]: 2 
+ComponentIDForSurface_[1]: 1 
+ComponentIDForSurface_[2]: 1 
+ComponentIDForSurface_[3]: 2 
+ComponentIDForSurface_[4]: 2 
+ComponentIDForSurface_[5]: 3 
+ComponentIDForSurface_[6]: 3 
+ComponentIDForSurface_[7]: 4 
+ComponentIDForComponent_[1]: 3 
+ComponentIDForComponent_[2]: 1 
+ComponentIDForComponent_[3]: 4 
+ComponentIDForComponent_[4]: 2 
+Surface: 1 --> Component: 1 --> SurfaceName: Fuselage_V 
+Surface: 2 --> Component: 1 --> SurfaceName: Fuselage_H 
+Surface: 3 --> Component: 2 --> SurfaceName: Wing_C 
+Surface: 4 --> Component: 2 --> SurfaceName: Wing_C 
+Surface: 5 --> Component: 3 --> SurfaceName: HorizontalTail_C 
+Surface: 6 --> Component: 3 --> SurfaceName: HorizontalTail_C 
+Surface: 7 --> Component: 4 --> SurfaceName: VerticalTail_C 
+SurfaceIsThick_[1]: 0 
+SurfaceIsThick_[2]: 0 
+SurfaceIsThick_[3]: 0 
+SurfaceIsThick_[4]: 0 
+SurfaceIsThick_[5]: 0 
+SurfaceIsThick_[6]: 0 
+SurfaceIsThick_[7]: 0 
+Component: 1 with ID: 1 is thin 
+Component: 2 with ID: 2 is thin 
+Component: 3 with ID: 3 is thin 
+Component: 4 with ID: 4 is thin 
+Pure tri mesh has 2023 tris 
+After building ...pure tri mesh has 2023 tris 
+Looking for runs/task12/openvsp/2026-11-24_m250_baseline_vspaero/full_S8.ControlSurfaces.taglist control surface definition file ... 
+Did not find any control surface definitions... 
+Did not find a groups file... so setting up a single group for steady analysis 
+NumberOfComponentGroups_: 1 
+AllComponentsAreFixed_: 0 
+ThereIsRelativeComponentMotion_: 0 
+There are thin 4 components 
+Number of thin  tris:        2023 
+Number of thick tris:        0 
+Number of thin + thick tris: 2023 
+Number actual total tris:    2023 
+There are thin components... renumbering for edge data structures 
+NumberOfThickTris: 0 
+ComponentIDForComponent(1): 1 
+ComponentIDForComponent(2): 2 
+ComponentIDForComponent(3): 3 
+ComponentIDForComponent(4): 4 
+ComponentIsThick(1): 0 
+ComponentIsThick(2): 0 
+ComponentIsThick(3): 0 
+ComponentIsThick(4): 0 
+Surface 1 has 801 tris and is being stored in temp mesh: 1 
+Surface 2 has 448 tris and is being stored in temp mesh: 2 
+Surface 3 has 486 tris and is being stored in temp mesh: 3 
+Surface 4 has 288 tris and is being stored in temp mesh: 4 
+Created 4 thin surface mesh structures 
+Created 4 total mesh structures 
+Searching for thin/thick or thin/thin intersections... 
+Number of kutta nodes before trimming: 39 
+NumberOfKuttaNodes after trimming: 39 
+NumberOfKuttaNodes: 39 
+NumberOfKuttaEdges: 36 
+Working on VortexSheet: 1 
+KuttaNodeList[k].IsKuttaNode: 1 
+IncidentKuttaEdgesOnNode_[k]: 1 
+Found a starting wake sheet node... 470 
+Working on CurrentComponentID: 4 
+VortexSheet: 1 finished... which has 9 kutta nodes ... and 9 out of 39 kutta nodes are now allocated 
+Working on VortexSheet: 2 
+KuttaNodeList[k].IsKuttaNode: 1 
+IncidentKuttaEdgesOnNode_[k]: 1 
+Found a starting wake sheet node... 716 
+Working on CurrentComponentID: 2 
+VortexSheet: 2 finished... which has 15 kutta nodes ... and 24 out of 39 kutta nodes are now allocated 
+Working on VortexSheet: 3 
+KuttaNodeList[k].IsKuttaNode: 1 
+IncidentKuttaEdgesOnNode_[k]: 1 
+Found a starting wake sheet node... 959 
+Working on CurrentComponentID: 3 
+VortexSheet: 3 finished... which has 15 kutta nodes ... and 39 out of 39 kutta nodes are now allocated 
+Creating wake grids... 
+WakeAngle: 1.000000 0.000000 0.000000 
+Xmax_ - Xmin_: 28.497286 
+Ymax_ - Ymin_: 36.927784 
+Zmax_ - Zmin_: 8.108251 
+
+Wake FarFieldDist_ set to: 36.927784 
+
+There are:          3 Vortex Sheets 
+NumberOfWakeTrailingNodes_: 8 
+NumberOfWakeNodes: 312 
+NumberOfWakeLoops: 252 
+Merging fine wake grids... 
+Merging coarse wake grids... 
+Loop: 382 
+Mag: 0.000000 
+Node1: 437 --> 21.912224 0.000000 1.042486 
+Node2: 433 --> 21.972184 0.000000 1.042486 
+Node3: 434 --> 22.131225 0.000000 1.042486 
+Model is a VSPGEOM VLM geometry 
+NumberOfComponents_: 4
+Total NumberOfNodes:      1408 
+Total NumberOfLoops:      2527 
+Total NumberOfEdges:      3988 
+Total NumberOfKuttaNodes: 39 
+NumberOfSurfaces_:        7 
+Total surface area: 479.912530 
+Minimum loop area constraint set to: 479.912530 
+Agglomerating mesh... 
+Grid:0 --> # loops:       2527 ...# Edges:       3988 ...# Nodes:       1408  
+There are: 1408 coarse grid nodes 
+There are: 2684 coarse grid edges 
+There are: 1223 coarse grid loops 
+WTF! ... 
+Working on Loop: 5 
+NumberOfLoopNodes: 3 
+CoarseGrid().LoopList(i).NumberOfEdges(): 2 
+These should be the same value if we assume a sensical mesh... but we problably coarsened too much! 
+The solver will likely be fine... but you might want check the coarse meshes if this mesh is actually used... 
+Edge: 1 is global edge: 10 with nodes Node1,2: 1 7 at xyz: 0.000000 0.000000 0.000000 
+Edge: 2 is global edge: 11 with nodes Node1,2: 6 7 at xyz: 0.000000 0.000000 0.000000 
+Local Edge: 1 is global edge: 10 with boundary edge flag of: 0 and with Loops: 5 6 
+Local Edge: 2 is global edge: 11 with boundary edge flag of: 0 and with Loops: 5 13 
+Fine grid tri 1 is: 5 with surface ID: 1 
+Fine Loop Edge: 10 has boundary edge flag of: 0 
+Fine Loop Edge: 11 has boundary edge flag of: 0 
+Fine Loop Edge: 8 has boundary edge flag of: 0 
+WTF! ... 
+Working on Loop: 13 
+NumberOfLoopNodes: 4 
+CoarseGrid().LoopList(i).NumberOfEdges(): 3 
+These should be the same value if we assume a sensical mesh... but we problably coarsened too much! 
+The solver will likely be fine... but you might want check the coarse meshes if this mesh is actually used... 
+Edge: 1 is global edge: 11 with nodes Node1,2: 6 7 at xyz: 0.000000 0.000000 0.000000 
+Edge: 2 is global edge: 27 with nodes Node1,2: 7 16 at xyz: 0.000000 0.000000 0.000000 
+Edge: 3 is global edge: 28 with nodes Node1,2: 15 16 at xyz: 0.000000 0.000000 0.000000 
+Local Edge: 1 is global edge: 11 with boundary edge flag of: 0 and with Loops: 5 13 
+Local Edge: 2 is global edge: 27 with boundary edge flag of: 0 and with Loops: 13 14 
+Local Edge: 3 is global edge: 28 with boundary edge flag of: 0 and with Loops: 13 21 
+Fine grid tri 1 is: 17 with surface ID: 1 
+Fine Loop Edge: 31 has boundary edge flag of: 0 
+Fine Loop Edge: 29 has boundary edge flag of: 0 
+Fine Loop Edge: 11 has boundary edge flag of: 0 
+Fine grid tri 2 is: 18 with surface ID: 1 
+Fine Loop Edge: 32 has boundary edge flag of: 0 
+Fine Loop Edge: 33 has boundary edge flag of: 0 
+Fine Loop Edge: 31 has boundary edge flag of: 0 
+WTF! ... 
+Working on Loop: 21 
+NumberOfLoopNodes: 4 
+CoarseGrid().LoopList(i).NumberOfEdges(): 3 
+These should be the same value if we assume a sensical mesh... but we problably coarsened too much! 
+The solver will likely be fine... but you might want check the coarse meshes if this mesh is actually used... 
+Edge: 1 is global edge: 28 with nodes Node1,2: 15 16 at xyz: 0.000000 0.000000 0.000000 
+Edge: 2 is global edge: 44 with nodes Node1,2: 16 25 at xyz: 0.000000 0.000000 0.000000 
+Edge: 3 is global edge: 45 with nodes Node1,2: 24 25 at xyz: 0.000000 0.000000 0.000000 
+Local Edge: 1 is global edge: 28 with boundary edge flag of: 0 and with Loops: 13 21 
+Local Edge: 2 is global edge: 44 with boundary edge flag of: 0 and with Loops: 21 22 
+Local Edge: 3 is global edge: 45 with boundary edge flag of: 0 and with Loops: 21 29 
+Fine grid tri 1 is: 33 with surface ID: 1 
+Fine Loop Edge: 56 has boundary edge flag of: 0 
+Fine Loop Edge: 55 has boundary edge flag of: 0 
+Fine Loop Edge: 33 has boundary edge flag of: 0 
+Fine grid tri 2 is: 34 with surface ID: 1 
+Fine Loop Edge: 57 has boundary edge flag of: 0 
+Fine Loop Edge: 58 has boundary edge flag of: 0 
+Fine Loop Edge: 56 has boundary edge flag of: 0 
+WTF! ... 
+Working on Loop: 29 
+NumberOfLoopNodes: 4 
+CoarseGrid().LoopList(i).NumberOfEdges(): 3 
+These should be the same value if we assume a sensical mesh... but we problably coarsened too much! 
+The solver will likely be fine... but you might want check the coarse meshes if this mesh is actually used... 
+Edge: 1 is global edge: 45 with nodes Node1,2: 24 25 at xyz: 0.000000 0.000000 0.000000 
+Edge: 2 is global edge: 61 with nodes Node1,2: 25 34 at xyz: 0.000000 0.000000 0.000000 
+Edge: 3 is global edge: 62 with nodes Node1,2: 33 34 at xyz: 0.000000 0.000000 0.000000 
+Local Edge: 1 is global edge: 45 with boundary edge flag of: 0 and with Loops: 21 29 
+Local Edge: 2 is global edge: 61 with boundary edge flag of: 0 and with Loops: 29 30 
+Local Edge: 3 is global edge: 62 with boundary edge flag of: 0 and with Loops: 29 37 
+Fine grid tri 1 is: 49 with surface ID: 1 
+Fine Loop Edge: 80 has boundary edge flag of: 0 
+Fine Loop Edge: 58 has boundary edge flag of: 0 
+Fine Loop Edge: 81 has boundary edge flag of: 0 
+Fine grid tri 2 is: 50 with surface ID: 1 
+Fine Loop Edge: 81 has boundary edge flag of: 0 
+Fine Loop Edge: 82 has boundary edge flag of: 0 
+Fine Loop Edge: 83 has boundary edge flag of: 0 
+WTF! ... 
+Working on Loop: 37 
+NumberOfLoopNodes: 4 
+CoarseGrid().LoopList(i).NumberOfEdges(): 3 
+These should be the same value if we assume a sensical mesh... but we problably coarsened too much! 
+The solver will likely be fine... but you might want check the coarse meshes if this mesh is actually used... 
+Edge: 1 is global edge: 62 with nodes Node1,2: 33 34 at xyz: 0.000000 0.000000 0.000000 
+Edge: 2 is global edge: 78 with nodes Node1,2: 34 43 at xyz: 0.000000 0.000000 0.000000 
+Edge: 3 is global edge: 79 with nodes Node1,2: 42 43 at xyz: 0.000000 0.000000 0.000000 
+Local Edge: 1 is global edge: 62 with boundary edge flag of: 0 and with Loops: 29 37 
+Local Edge: 2 is global edge: 78 with boundary edge flag of: 0 and with Loops: 37 38 
+Local Edge: 3 is global edge: 79 with boundary edge flag of: 0 and with Loops: 37 45 
+Fine grid tri 1 is: 65 with surface ID: 1 
+Fine Loop Edge: 105 has boundary edge flag of: 0 
+Fine Loop Edge: 83 has boundary edge flag of: 0 
+Fine Loop Edge: 106 has boundary edge flag of: 0 
+Fine grid tri 2 is: 66 with surface ID: 1 
+Fine Loop Edge: 106 has boundary edge flag of: 0 
+Fine Loop Edge: 107 has boundary edge flag of: 0 
+Fine Loop Edge: 108 has boundary edge flag of: 0 
+WTF! ... 
+Working on Loop: 45 
+NumberOfLoopNodes: 4 
+CoarseGrid().LoopList(i).NumberOfEdges(): 3 
+These should be the same value if we assume a sensical mesh... but we problably coarsened too much! 
+The solver will likely be fine... but you might want check the coarse meshes if this mesh is actually used... 
+Edge: 1 is global edge: 79 with nodes Node1,2: 42 43 at xyz: 0.000000 0.000000 0.000000 
+Edge: 2 is global edge: 95 with nodes Node1,2: 43 52 at xyz: 0.000000 0.000000 0.000000 
+Edge: 3 is global edge: 96 with nodes Node1,2: 51 52 at xyz: 0.000000 0.000000 0.000000 
+Local Edge: 1 is global edge: 79 with boundary edge flag of: 0 and with Loops: 37 45 
+Local Edge: 2 is global edge: 95 with boundary edge flag of: 0 and with Loops: 45 46 
+Local Edge: 3 is global edge: 96 with boundary edge flag of: 0 and with Loops: 45 53 
+Fine grid tri 1 is: 81 with surface ID: 1 
+Fine Loop Edge: 130 has boundary edge flag of: 0 
+Fine Loop Edge: 108 has boundary edge flag of: 0 
+Fine Loop Edge: 131 has boundary edge flag of: 0 
+Fine grid tri 2 is: 82 with surface ID: 1 
+Fine Loop Edge: 131 has boundary edge flag of: 0 
+Fine Loop Edge: 132 has boundary edge flag of: 0 
+Fine Loop Edge: 133 has boundary edge flag of: 0 
+WTF! ... 
+Working on Loop: 53 
+NumberOfLoopNodes: 4 
+CoarseGrid().LoopList(i).NumberOfEdges(): 3 
+These should be the same value if we assume a sensical mesh... but we problably coarsened too much! 
+The solver will likely be fine... but you might want check the coarse meshes if this mesh is actually used... 
+Edge: 1 is global edge: 96 with nodes Node1,2: 51 52 at xyz: 0.000000 0.000000 0.000000 
+Edge: 2 is global edge: 112 with nodes Node1,2: 52 61 at xyz: 0.000000 0.000000 0.000000 
+Edge: 3 is global edge: 113 with nodes Node1,2: 60 61 at xyz: 0.000000 0.000000 0.000000 
+Local Edge: 1 is global edge: 96 with boundary edge flag of: 0 and with Loops: 45 53 
+Local Edge: 2 is global edge: 112 with boundary edge flag of: 0 and with Loops: 53 54 
+Local Edge: 3 is global edge: 113 with boundary edge flag of: 0 and with Loops: 53 61 
+Fine grid tri 1 is: 97 with surface ID: 1 
+Fine Loop Edge: 155 has boundary edge flag of: 0 
+Fine Loop Edge: 133 has boundary edge flag of: 0 
+Fine Loop Edge: 156 has boundary edge flag of: 0 
+Fine grid tri 2 is: 98 with surface ID: 1 
+Fine Loop Edge: 156 has boundary edge flag of: 0 
+Fine Loop Edge: 157 has boundary edge flag of: 0 
+Fine Loop Edge: 158 has boundary edge flag of: 0 
+WTF! ... 
+Working on Loop: 61 
+NumberOfLoopNodes: 4 
+CoarseGrid().LoopList(i).NumberOfEdges(): 3 
+These should be the same value if we assume a sensical mesh... but we problably coarsened too much! 
+The solver will likely be fine... but you might want check the coarse meshes if this mesh is actually used... 
+Edge: 1 is global edge: 113 with nodes Node1,2: 60 61 at xyz: 0.000000 0.000000 0.000000 
+Edge: 2 is global edge: 129 with nodes Node1,2: 61 70 at xyz: 0.000000 0.000000 0.000000 
+Edge: 3 is global edge: 130 with nodes Node1,2: 69 70 at xyz: 0.000000 0.000000 0.000000 
+Local Edge: 1 is global edge: 113 with boundary edge flag of: 0 and with Loops: 53 61 
+Local Edge: 2 is global edge: 129 with boundary edge flag of: 0 and with Loops: 61 62 
+Local Edge: 3 is global edge: 130 with boundary edge flag of: 0 and with Loops: 61 69 
+Fine grid tri 1 is: 113 with surface ID: 1 
+Fine Loop Edge: 180 has boundary edge flag of: 0 
+Fine Loop Edge: 158 has boundary edge flag of: 0 
+Fine Loop Edge: 181 has boundary edge flag of: 0 
+Fine grid tri 2 is: 114 with surface ID: 1 
+Fine Loop Edge: 181 has boundary edge flag of: 0 
+Fine Loop Edge: 182 has boundary edge flag of: 0 
+Fine Loop Edge: 183 has boundary edge flag of: 0 
+WTF! ... 
+Working on Loop: 69 
+NumberOfLoopNodes: 4 
+CoarseGrid().LoopList(i).NumberOfEdges(): 3 
+These should be the same value if we assume a sensical mesh... but we problably coarsened too much! 
+The solver will likely be fine... but you might want check the coarse meshes if this mesh is actually used... 
+Edge: 1 is global edge: 130 with nodes Node1,2: 69 70 at xyz: 0.000000 0.000000 0.000000 
+Edge: 2 is global edge: 146 with nodes Node1,2: 70 79 at xyz: 0.000000 0.000000 0.000000 
+Edge: 3 is global edge: 147 with nodes Node1,2: 78 79 at xyz: 0.000000 0.000000 0.000000 
+Local Edge: 1 is global edge: 130 with boundary edge flag of: 0 and with Loops: 61 69 
+Local Edge: 2 is global edge: 146 with boundary edge flag of: 0 and with Loops: 69 70 
+Local Edge: 3 is global edge: 147 with boundary edge flag of: 0 and with Loops: 69 77 
+Fine grid tri 1 is: 129 with surface ID: 1 
+Fine Loop Edge: 205 has boundary edge flag of: 0 
+Fine Loop Edge: 183 has boundary edge flag of: 0 
+Fine Loop Edge: 206 has boundary edge flag of: 0 
+Fine grid tri 2 is: 130 with surface ID: 1 
+Fine Loop Edge: 206 has boundary edge flag of: 0 
+Fine Loop Edge: 207 has boundary edge flag of: 0 
+Fine Loop Edge: 208 has boundary edge flag of: 0 
+WTF! ... 
+Working on Loop: 77 
+NumberOfLoopNodes: 4 
+CoarseGrid().LoopList(i).NumberOfEdges(): 3 
+These should be the same value if we assume a sensical mesh... but we problably coarsened too much! 
+The solver will likely be fine... but you might want check the coarse meshes if this mesh is actually used... 
+Edge: 1 is global edge: 147 with nodes Node1,2: 78 79 at xyz: 0.000000 0.000000 0.000000 
+Edge: 2 is global edge: 163 with nodes Node1,2: 79 88 at xyz: 0.000000 0.000000 0.000000 
+Edge: 3 is global edge: 164 with nodes Node1,2: 87 88 at xyz: 0.000000 0.000000 0.000000 
+Local Edge: 1 is global edge: 147 with boundary edge flag of: 0 and with Loops: 69 77 
+Local Edge: 2 is global edge: 163 with boundary edge flag of: 0 and with Loops: 77 78 
+Local Edge: 3 is global edge: 164 with boundary edge flag of: 0 and with Loops: 77 85 
+Fine grid tri 1 is: 145 with surface ID: 1 
+Fine Loop Edge: 230 has boundary edge flag of: 0 
+Fine Loop Edge: 208 has boundary edge flag of: 0 
+Fine Loop Edge: 231 has boundary edge flag of: 0 
+Fine grid tri 2 is: 146 with surface ID: 1 
+Fine Loop Edge: 231 has boundary edge flag of: 0 
+Fine Loop Edge: 232 has boundary edge flag of: 0 
+Fine Loop Edge: 233 has boundary edge flag of: 0 
+WTF! ... 
+Working on Loop: 85 
+NumberOfLoopNodes: 4 
+CoarseGrid().LoopList(i).NumberOfEdges(): 3 
+These should be the same value if we assume a sensical mesh... but we problably coarsened too much! 
+The solver will likely be fine... but you might want check the coarse meshes if this mesh is actually used... 
+Edge: 1 is global edge: 164 with nodes Node1,2: 87 88 at xyz: 0.000000 0.000000 0.000000 
+Edge: 2 is global edge: 180 with nodes Node1,2: 88 97 at xyz: 0.000000 0.000000 0.000000 
+Edge: 3 is global edge: 181 with nodes Node1,2: 96 97 at xyz: 0.000000 0.000000 0.000000 
+Local Edge: 1 is global edge: 164 with boundary edge flag of: 0 and with Loops: 77 85 
+Local Edge: 2 is global edge: 180 with boundary edge flag of: 0 and with Loops: 85 86 
+Local Edge: 3 is global edge: 181 with boundary edge flag of: 0 and with Loops: 85 93 
+Fine grid tri 1 is: 161 with surface ID: 1 
+Fine Loop Edge: 255 has boundary edge flag of: 0 
+Fine Loop Edge: 233 has boundary edge flag of: 0 
+Fine Loop Edge: 256 has boundary edge flag of: 0 
+Fine grid tri 2 is: 162 with surface ID: 1 
+Fine Loop Edge: 256 has boundary edge flag of: 0 
+Fine Loop Edge: 257 has boundary edge flag of: 0 
+Fine Loop Edge: 258 has boundary edge flag of: 0 
+WTF! ... 
+Working on Loop: 93 
+NumberOfLoopNodes: 4 
+CoarseGrid().LoopList(i).NumberOfEdges(): 3 
+These should be the same value if we assume a sensical mesh... but we problably coarsened too much! 
+The solver will likely be fine... but you might want check the coarse meshes if this mesh is actually used... 
+Edge: 1 is global edge: 181 with nodes Node1,2: 96 97 at xyz: 0.000000 0.000000 0.000000 
+Edge: 2 is global edge: 197 with nodes Node1,2: 97 106 at xyz: 0.000000 0.000000 0.000000 
+Edge: 3 is global edge: 198 with nodes Node1,2: 105 106 at xyz: 0.000000 0.000000 0.000000 
+Local Edge: 1 is global edge: 181 with boundary edge flag of: 0 and with Loops: 85 93 
+Local Edge: 2 is global edge: 197 with boundary edge flag of: 0 and with Loops: 93 94 
+Local Edge: 3 is global edge: 198 with boundary edge flag of: 0 and with Loops: 93 101 
+Fine grid tri 1 is: 177 with surface ID: 1 
+Fine Loop Edge: 280 has boundary edge flag of: 0 
+Fine Loop Edge: 258 has boundary edge flag of: 0 
+Fine Loop Edge: 281 has boundary edge flag of: 0 
+Fine grid tri 2 is: 178 with surface ID: 1 
+Fine Loop Edge: 281 has boundary edge flag of: 0 
+Fine Loop Edge: 282 has boundary edge flag of: 0 
+Fine Loop Edge: 283 has boundary edge flag of: 0 
+WTF! ... 
+Working on Loop: 101 
+NumberOfLoopNodes: 4 
+CoarseGrid().LoopList(i).NumberOfEdges(): 3 
+These should be the same value if we assume a sensical mesh... but we problably coarsened too much! 
+The solver will likely be fine... but you might want check the coarse meshes if this mesh is actually used... 
+Edge: 1 is global edge: 198 with nodes Node1,2: 105 106 at xyz: 0.000000 0.000000 0.000000 
+Edge: 2 is global edge: 214 with nodes Node1,2: 106 115 at xyz: 0.000000 0.000000 0.000000 
+Edge: 3 is global edge: 215 with nodes Node1,2: 114 115 at xyz: 0.000000 0.000000 0.000000 
+Local Edge: 1 is global edge: 198 with boundary edge flag of: 0 and with Loops: 93 101 
+Local Edge: 2 is global edge: 214 with boundary edge flag of: 0 and with Loops: 101 102 
+Local Edge: 3 is global edge: 215 with boundary edge flag of: 0 and with Loops: 101 109 
+Fine grid tri 1 is: 193 with surface ID: 1 
+Fine Loop Edge: 305 has boundary edge flag of: 0 
+Fine Loop Edge: 283 has boundary edge flag of: 0 
+Fine Loop Edge: 306 has boundary edge flag of: 0 
+Fine grid tri 2 is: 194 with surface ID: 1 
+Fine Loop Edge: 306 has boundary edge flag of: 0 
+Fine Loop Edge: 307 has boundary edge flag of: 0 
+Fine Loop Edge: 308 has boundary edge flag of: 0 
+WTF! ... 
+Working on Loop: 109 
+NumberOfLoopNodes: 4 
+CoarseGrid().LoopList(i).NumberOfEdges(): 3 
+These should be the same value if we assume a sensical mesh... but we problably coarsened too much! 
+The solver will likely be fine... but you might want check the coarse meshes if this mesh is actually used... 
+Edge: 1 is global edge: 215 with nodes Node1,2: 114 115 at xyz: 0.000000 0.000000 0.000000 
+Edge: 2 is global edge: 231 with nodes Node1,2: 115 124 at xyz: 0.000000 0.000000 0.000000 
+Edge: 3 is global edge: 232 with nodes Node1,2: 123 124 at xyz: 0.000000 0.000000 0.000000 
+Local Edge: 1 is global edge: 215 with boundary edge flag of: 0 and with Loops: 101 109 
+Local Edge: 2 is global edge: 231 with boundary edge flag of: 0 and with Loops: 109 110 
+Local Edge: 3 is global edge: 232 with boundary edge flag of: 0 and with Loops: 109 117 
+Fine grid tri 1 is: 209 with surface ID: 1 
+Fine Loop Edge: 330 has boundary edge flag of: 0 
+Fine Loop Edge: 308 has boundary edge flag of: 0 
+Fine Loop Edge: 331 has boundary edge flag of: 0 
+Fine grid tri 2 is: 210 with surface ID: 1 
+Fine Loop Edge: 331 has boundary edge flag of: 0 
+Fine Loop Edge: 332 has boundary edge flag of: 0 
+Fine Loop Edge: 333 has boundary edge flag of: 0 
+WTF! ... 
+Working on Loop: 117 
+NumberOfLoopNodes: 4 
+CoarseGrid().LoopList(i).NumberOfEdges(): 3 
+These should be the same value if we assume a sensical mesh... but we problably coarsened too much! 
+The solver will likely be fine... but you might want check the coarse meshes if this mesh is actually used... 
+Edge: 1 is global edge: 232 with nodes Node1,2: 123 124 at xyz: 0.000000 0.000000 0.000000 
+Edge: 2 is global edge: 248 with nodes Node1,2: 124 133 at xyz: 0.000000 0.000000 0.000000 
+Edge: 3 is global edge: 249 with nodes Node1,2: 132 133 at xyz: 0.000000 0.000000 0.000000 
+Local Edge: 1 is global edge: 232 with boundary edge flag of: 0 and with Loops: 109 117 
+Local Edge: 2 is global edge: 248 with boundary edge flag of: 0 and with Loops: 117 118 
+Local Edge: 3 is global edge: 249 with boundary edge flag of: 0 and with Loops: 117 125 
+Fine grid tri 1 is: 225 with surface ID: 1 
+Fine Loop Edge: 355 has boundary edge flag of: 0 
+Fine Loop Edge: 333 has boundary edge flag of: 0 
+Fine Loop Edge: 356 has boundary edge flag of: 0 
+Fine grid tri 2 is: 226 with surface ID: 1 
+Fine Loop Edge: 356 has boundary edge flag of: 0 
+Fine Loop Edge: 357 has boundary edge flag of: 0 
+Fine Loop Edge: 358 has boundary edge flag of: 0 
+WTF! ... 
+Working on Loop: 125 
+NumberOfLoopNodes: 4 
+CoarseGrid().LoopList(i).NumberOfEdges(): 3 
+These should be the same value if we assume a sensical mesh... but we problably coarsened too much! 
+The solver will likely be fine... but you might want check the coarse meshes if this mesh is actually used... 
+Edge: 1 is global edge: 249 with nodes Node1,2: 132 133 at xyz: 0.000000 0.000000 0.000000 
+Edge: 2 is global edge: 265 with nodes Node1,2: 133 142 at xyz: 0.000000 0.000000 0.000000 
+Edge: 3 is global edge: 266 with nodes Node1,2: 141 142 at xyz: 0.000000 0.000000 0.000000 
+Local Edge: 1 is global edge: 249 with boundary edge flag of: 0 and with Loops: 117 125 
+Local Edge: 2 is global edge: 265 with boundary edge flag of: 0 and with Loops: 125 126 
+Local Edge: 3 is global edge: 266 with boundary edge flag of: 0 and with Loops: 125 133 
+Fine grid tri 1 is: 241 with surface ID: 1 
+Fine Loop Edge: 358 has boundary edge flag of: 0 
+Fine Loop Edge: 381 has boundary edge flag of: 0 
+Fine Loop Edge: 382 has boundary edge flag of: 0 
+Fine grid tri 2 is: 242 with surface ID: 1 
+Fine Loop Edge: 382 has boundary edge flag of: 0 
+Fine Loop Edge: 383 has boundary edge flag of: 0 
+Fine Loop Edge: 378 has boundary edge flag of: 0 
+WTF! ... 
+Working on Loop: 133 
+NumberOfLoopNodes: 4 
+CoarseGrid().LoopList(i).NumberOfEdges(): 3 
+These should be the same value if we assume a sensical mesh... but we problably coarsened too much! 
+The solver will likely be fine... but you might want check the coarse meshes if this mesh is actually used... 
+Edge: 1 is global edge: 266 with nodes Node1,2: 141 142 at xyz: 0.000000 0.000000 0.000000 
+Edge: 2 is global edge: 282 with nodes Node1,2: 142 151 at xyz: 0.000000 0.000000 0.000000 
+Edge: 3 is global edge: 283 with nodes Node1,2: 150 151 at xyz: 0.000000 0.000000 0.000000 
+Local Edge: 1 is global edge: 266 with boundary edge flag of: 0 and with Loops: 125 133 
+Local Edge: 2 is global edge: 282 with boundary edge flag of: 0 and with Loops: 133 134 
+Local Edge: 3 is global edge: 283 with boundary edge flag of: 0 and with Loops: 133 141 
+Fine grid tri 1 is: 257 with surface ID: 1 
+Fine Loop Edge: 383 has boundary edge flag of: 0 
+Fine Loop Edge: 406 has boundary edge flag of: 0 
+Fine Loop Edge: 407 has boundary edge flag of: 0 
+Fine grid tri 2 is: 258 with surface ID: 1 
+Fine Loop Edge: 407 has boundary edge flag of: 0 
+Fine Loop Edge: 408 has boundary edge flag of: 0 
+Fine Loop Edge: 403 has boundary edge flag of: 0 
+WTF! ... 
+Working on Loop: 141 
+NumberOfLoopNodes: 4 
+CoarseGrid().LoopList(i).NumberOfEdges(): 3 
+These should be the same value if we assume a sensical mesh... but we problably coarsened too much! 
+The solver will likely be fine... but you might want check the coarse meshes if this mesh is actually used... 
+Edge: 1 is global edge: 283 with nodes Node1,2: 150 151 at xyz: 0.000000 0.000000 0.000000 
+Edge: 2 is global edge: 299 with nodes Node1,2: 151 160 at xyz: 0.000000 0.000000 0.000000 
+Edge: 3 is global edge: 300 with nodes Node1,2: 159 160 at xyz: 0.000000 0.000000 0.000000 
+Local Edge: 1 is global edge: 283 with boundary edge flag of: 0 and with Loops: 133 141 
+Local Edge: 2 is global edge: 299 with boundary edge flag of: 0 and with Loops: 141 142 
+Local Edge: 3 is global edge: 300 with boundary edge flag of: 0 and with Loops: 141 149 
+Fine grid tri 1 is: 273 with surface ID: 1 
+Fine Loop Edge: 408 has boundary edge flag of: 0 
+Fine Loop Edge: 431 has boundary edge flag of: 0 
+Fine Loop Edge: 432 has boundary edge flag of: 0 
+Fine grid tri 2 is: 274 with surface ID: 1 
+Fine Loop Edge: 432 has boundary edge flag of: 0 
+Fine Loop Edge: 433 has boundary edge flag of: 0 
+Fine Loop Edge: 428 has boundary edge flag of: 0 
+WTF! ... 
+Working on Loop: 149 
+NumberOfLoopNodes: 4 
+CoarseGrid().LoopList(i).NumberOfEdges(): 3 
+These should be the same value if we assume a sensical mesh... but we problably coarsened too much! 
+The solver will likely be fine... but you might want check the coarse meshes if this mesh is actually used... 
+Edge: 1 is global edge: 300 with nodes Node1,2: 159 160 at xyz: 0.000000 0.000000 0.000000 
+Edge: 2 is global edge: 316 with nodes Node1,2: 160 169 at xyz: 0.000000 0.000000 0.000000 
+Edge: 3 is global edge: 317 with nodes Node1,2: 168 169 at xyz: 0.000000 0.000000 0.000000 
+Local Edge: 1 is global edge: 300 with boundary edge flag of: 0 and with Loops: 141 149 
+Local Edge: 2 is global edge: 316 with boundary edge flag of: 0 and with Loops: 149 150 
+Local Edge: 3 is global edge: 317 with boundary edge flag of: 0 and with Loops: 149 157 
+Fine grid tri 1 is: 289 with surface ID: 1 
+Fine Loop Edge: 433 has boundary edge flag of: 0 
+Fine Loop Edge: 456 has boundary edge flag of: 0 
+Fine Loop Edge: 457 has boundary edge flag of: 0 
+Fine grid tri 2 is: 290 with surface ID: 1 
+Fine Loop Edge: 457 has boundary edge flag of: 0 
+Fine Loop Edge: 458 has boundary edge flag of: 0 
+Fine Loop Edge: 453 has boundary edge flag of: 0 
+WTF! ... 
+Working on Loop: 157 
+NumberOfLoopNodes: 4 
+CoarseGrid().LoopList(i).NumberOfEdges(): 3 
+These should be the same value if we assume a sensical mesh... but we problably coarsened too much! 
+The solver will likely be fine... but you might want check the coarse meshes if this mesh is actually used... 
+Edge: 1 is global edge: 317 with nodes Node1,2: 168 169 at xyz: 0.000000 0.000000 0.000000 
+Edge: 2 is global edge: 333 with nodes Node1,2: 169 178 at xyz: 0.000000 0.000000 0.000000 
+Edge: 3 is global edge: 334 with nodes Node1,2: 177 178 at xyz: 0.000000 0.000000 0.000000 
+Local Edge: 1 is global edge: 317 with boundary edge flag of: 0 and with Loops: 149 157 
+Local Edge: 2 is global edge: 333 with boundary edge flag of: 0 and with Loops: 157 158 
+Local Edge: 3 is global edge: 334 with boundary edge flag of: 0 and with Loops: 157 165 
+Fine grid tri 1 is: 305 with surface ID: 1 
+Fine Loop Edge: 458 has boundary edge flag of: 0 
+Fine Loop Edge: 481 has boundary edge flag of: 0 
+Fine Loop Edge: 482 has boundary edge flag of: 0 
+Fine grid tri 2 is: 306 with surface ID: 1 
+Fine Loop Edge: 482 has boundary edge flag of: 0 
+Fine Loop Edge: 483 has boundary edge flag of: 0 
+Fine Loop Edge: 478 has boundary edge flag of: 0 
+WTF! ... 
+Working on Loop: 165 
+NumberOfLoopNodes: 4 
+CoarseGrid().LoopList(i).NumberOfEdges(): 3 
+These should be the same value if we assume a sensical mesh... but we problably coarsened too much! 
+The solver will likely be fine... but you might want check the coarse meshes if this mesh is actually used... 
+Edge: 1 is global edge: 334 with nodes Node1,2: 177 178 at xyz: 0.000000 0.000000 0.000000 
+Edge: 2 is global edge: 350 with nodes Node1,2: 186 187 at xyz: 0.000000 0.000000 0.000000 
+Edge: 3 is global edge: 351 with nodes Node1,2: 178 187 at xyz: 0.000000 0.000000 0.000000 
+Local Edge: 1 is global edge: 334 with boundary edge flag of: 0 and with Loops: 157 165 
+Local Edge: 2 is global edge: 350 with boundary edge flag of: 0 and with Loops: 165 173 
+Local Edge: 3 is global edge: 351 with boundary edge flag of: 0 and with Loops: 165 166 
+Fine grid tri 1 is: 321 with surface ID: 1 
+Fine Loop Edge: 506 has boundary edge flag of: 0 
+Fine Loop Edge: 507 has boundary edge flag of: 0 
+Fine Loop Edge: 508 has boundary edge flag of: 0 
+Fine grid tri 2 is: 322 with surface ID: 1 
+Fine Loop Edge: 483 has boundary edge flag of: 0 
+Fine Loop Edge: 507 has boundary edge flag of: 0 
+Fine Loop Edge: 503 has boundary edge flag of: 0 
+WTF! ... 
+Working on Loop: 173 
+NumberOfLoopNodes: 4 
+CoarseGrid().LoopList(i).NumberOfEdges(): 3 
+These should be the same value if we assume a sensical mesh... but we problably coarsened too much! 
+The solver will likely be fine... but you might want check the coarse meshes if this mesh is actually used... 
+Edge: 1 is global edge: 350 with nodes Node1,2: 186 187 at xyz: 0.000000 0.000000 0.000000 
+Edge: 2 is global edge: 367 with nodes Node1,2: 195 196 at xyz: 0.000000 0.000000 0.000000 
+Edge: 3 is global edge: 368 with nodes Node1,2: 187 196 at xyz: 0.000000 0.000000 0.000000 
+Local Edge: 1 is global edge: 350 with boundary edge flag of: 0 and with Loops: 165 173 
+Local Edge: 2 is global edge: 367 with boundary edge flag of: 0 and with Loops: 173 181 
+Local Edge: 3 is global edge: 368 with boundary edge flag of: 0 and with Loops: 173 174 
+Fine grid tri 1 is: 337 with surface ID: 1 
+Fine Loop Edge: 531 has boundary edge flag of: 0 
+Fine Loop Edge: 532 has boundary edge flag of: 0 
+Fine Loop Edge: 533 has boundary edge flag of: 0 
+Fine grid tri 2 is: 338 with surface ID: 1 
+Fine Loop Edge: 506 has boundary edge flag of: 0 
+Fine Loop Edge: 532 has boundary edge flag of: 0 
+Fine Loop Edge: 528 has boundary edge flag of: 0 
+WTF! ... 
+Working on Loop: 181 
+NumberOfLoopNodes: 4 
+CoarseGrid().LoopList(i).NumberOfEdges(): 3 
+These should be the same value if we assume a sensical mesh... but we problably coarsened too much! 
+The solver will likely be fine... but you might want check the coarse meshes if this mesh is actually used... 
+Edge: 1 is global edge: 367 with nodes Node1,2: 195 196 at xyz: 0.000000 0.000000 0.000000 
+Edge: 2 is global edge: 384 with nodes Node1,2: 196 205 at xyz: 0.000000 0.000000 0.000000 
+Edge: 3 is global edge: 385 with nodes Node1,2: 204 205 at xyz: 0.000000 0.000000 0.000000 
+Local Edge: 1 is global edge: 367 with boundary edge flag of: 0 and with Loops: 173 181 
+Local Edge: 2 is global edge: 384 with boundary edge flag of: 0 and with Loops: 181 182 
+Local Edge: 3 is global edge: 385 with boundary edge flag of: 0 and with Loops: 181 189 
+Fine grid tri 1 is: 353 with surface ID: 1 
+Fine Loop Edge: 556 has boundary edge flag of: 0 
+Fine Loop Edge: 531 has boundary edge flag of: 0 
+Fine Loop Edge: 557 has boundary edge flag of: 0 
+Fine grid tri 2 is: 354 with surface ID: 1 
+Fine Loop Edge: 558 has boundary edge flag of: 0 
+Fine Loop Edge: 554 has boundary edge flag of: 0 
+Fine Loop Edge: 556 has boundary edge flag of: 0 
+WTF! ... 
+Working on Loop: 189 
+NumberOfLoopNodes: 4 
+CoarseGrid().LoopList(i).NumberOfEdges(): 3 
+These should be the same value if we assume a sensical mesh... but we problably coarsened too much! 
+The solver will likely be fine... but you might want check the coarse meshes if this mesh is actually used... 
+Edge: 1 is global edge: 385 with nodes Node1,2: 204 205 at xyz: 0.000000 0.000000 0.000000 
+Edge: 2 is global edge: 401 with nodes Node1,2: 205 214 at xyz: 0.000000 0.000000 0.000000 
+Edge: 3 is global edge: 402 with nodes Node1,2: 213 214 at xyz: 0.000000 0.000000 0.000000 
+Local Edge: 1 is global edge: 385 with boundary edge flag of: 0 and with Loops: 181 189 
+Local Edge: 2 is global edge: 401 with boundary edge flag of: 0 and with Loops: 189 190 
+Local Edge: 3 is global edge: 402 with boundary edge flag of: 0 and with Loops: 189 197 
+Fine grid tri 1 is: 369 with surface ID: 1 
+Fine Loop Edge: 581 has boundary edge flag of: 0 
+Fine Loop Edge: 558 has boundary edge flag of: 0 
+Fine Loop Edge: 582 has boundary edge flag of: 0 
+Fine grid tri 2 is: 370 with surface ID: 1 
+Fine Loop Edge: 583 has boundary edge flag of: 0 
+Fine Loop Edge: 579 has boundary edge flag of: 0 
+Fine Loop Edge: 581 has boundary edge flag of: 0 
+WTF! ... 
+Working on Loop: 197 
+NumberOfLoopNodes: 4 
+CoarseGrid().LoopList(i).NumberOfEdges(): 3 
+These should be the same value if we assume a sensical mesh... but we problably coarsened too much! 
+The solver will likely be fine... but you might want check the coarse meshes if this mesh is actually used... 
+Edge: 1 is global edge: 402 with nodes Node1,2: 213 214 at xyz: 0.000000 0.000000 0.000000 
+Edge: 2 is global edge: 418 with nodes Node1,2: 222 223 at xyz: 0.000000 0.000000 0.000000 
+Edge: 3 is global edge: 419 with nodes Node1,2: 214 223 at xyz: 0.000000 0.000000 0.000000 
+Local Edge: 1 is global edge: 402 with boundary edge flag of: 0 and with Loops: 189 197 
+Local Edge: 2 is global edge: 418 with boundary edge flag of: 1 and with Loops: 197 197 
+Local Edge: 3 is global edge: 419 with boundary edge flag of: 0 and with Loops: 197 198 
+Fine grid tri 1 is: 385 with surface ID: 1 
+Fine Loop Edge: 606 has boundary edge flag of: 0 
+Fine Loop Edge: 607 has boundary edge flag of: 1 
+Fine Loop Edge: 604 has boundary edge flag of: 0 
+Fine grid tri 2 is: 386 with surface ID: 1 
+Fine Loop Edge: 583 has boundary edge flag of: 0 
+Fine Loop Edge: 608 has boundary edge flag of: 0 
+Fine Loop Edge: 606 has boundary edge flag of: 0 
+WTF! ... 
+Working on Loop: 204 
+NumberOfLoopNodes: 3 
+CoarseGrid().LoopList(i).NumberOfEdges(): 2 
+These should be the same value if we assume a sensical mesh... but we problably coarsened too much! 
+The solver will likely be fine... but you might want check the coarse meshes if this mesh is actually used... 
+Edge: 1 is global edge: 431 with nodes Node1,2: 1 230 at xyz: 0.000000 0.000000 0.000000 
+Edge: 2 is global edge: 433 with nodes Node1,2: 6 230 at xyz: 0.000000 0.000000 0.000000 
+Local Edge: 1 is global edge: 431 with boundary edge flag of: 0 and with Loops: 203 204 
+Local Edge: 2 is global edge: 433 with boundary edge flag of: 0 and with Loops: 204 212 
+Fine grid tri 1 is: 396 with surface ID: 2 
+Fine Loop Edge: 623 has boundary edge flag of: 0 
+Fine Loop Edge: 8 has boundary edge flag of: 0 
+Fine Loop Edge: 625 has boundary edge flag of: 0 
+WTF! ... 
+Working on Loop: 212 
+NumberOfLoopNodes: 4 
+CoarseGrid().LoopList(i).NumberOfEdges(): 3 
+These should be the same value if we assume a sensical mesh... but we problably coarsened too much! 
+The solver will likely be fine... but you might want check the coarse meshes if this mesh is actually used... 
+Edge: 1 is global edge: 433 with nodes Node1,2: 6 230 at xyz: 0.000000 0.000000 0.000000 
+Edge: 2 is global edge: 447 with nodes Node1,2: 230 238 at xyz: 0.000000 0.000000 0.000000 
+Edge: 3 is global edge: 449 with nodes Node1,2: 15 238 at xyz: 0.000000 0.000000 0.000000 
+Local Edge: 1 is global edge: 433 with boundary edge flag of: 0 and with Loops: 204 212 
+Local Edge: 2 is global edge: 447 with boundary edge flag of: 0 and with Loops: 211 212 
+Local Edge: 3 is global edge: 449 with boundary edge flag of: 0 and with Loops: 212 220 
+Fine grid tri 1 is: 407 with surface ID: 2 
+Fine Loop Edge: 644 has boundary edge flag of: 0 
+Fine Loop Edge: 625 has boundary edge flag of: 0 
+Fine Loop Edge: 29 has boundary edge flag of: 0 
+Fine grid tri 2 is: 408 with surface ID: 2 
+Fine Loop Edge: 645 has boundary edge flag of: 0 
+Fine Loop Edge: 642 has boundary edge flag of: 0 
+Fine Loop Edge: 644 has boundary edge flag of: 0 
+WTF! ... 
+Working on Loop: 220 
+NumberOfLoopNodes: 4 
+CoarseGrid().LoopList(i).NumberOfEdges(): 3 
+These should be the same value if we assume a sensical mesh... but we problably coarsened too much! 
+The solver will likely be fine... but you might want check the coarse meshes if this mesh is actually used... 
+Edge: 1 is global edge: 449 with nodes Node1,2: 15 238 at xyz: 0.000000 0.000000 0.000000 
+Edge: 2 is global edge: 463 with nodes Node1,2: 238 246 at xyz: 0.000000 0.000000 0.000000 
+Edge: 3 is global edge: 465 with nodes Node1,2: 24 246 at xyz: 0.000000 0.000000 0.000000 
+Local Edge: 1 is global edge: 449 with boundary edge flag of: 0 and with Loops: 212 220 
+Local Edge: 2 is global edge: 463 with boundary edge flag of: 0 and with Loops: 219 220 
+Local Edge: 3 is global edge: 465 with boundary edge flag of: 0 and with Loops: 220 228 
+Fine grid tri 1 is: 423 with surface ID: 2 
+Fine Loop Edge: 668 has boundary edge flag of: 0 
+Fine Loop Edge: 669 has boundary edge flag of: 0 
+Fine Loop Edge: 666 has boundary edge flag of: 0 
+Fine grid tri 2 is: 424 with surface ID: 2 
+Fine Loop Edge: 645 has boundary edge flag of: 0 
+Fine Loop Edge: 55 has boundary edge flag of: 0 
+Fine Loop Edge: 668 has boundary edge flag of: 0 
+WTF! ... 
+Working on Loop: 228 
+NumberOfLoopNodes: 4 
+CoarseGrid().LoopList(i).NumberOfEdges(): 3 
+These should be the same value if we assume a sensical mesh... but we problably coarsened too much! 
+The solver will likely be fine... but you might want check the coarse meshes if this mesh is actually used... 
+Edge: 1 is global edge: 465 with nodes Node1,2: 24 246 at xyz: 0.000000 0.000000 0.000000 
+Edge: 2 is global edge: 479 with nodes Node1,2: 246 254 at xyz: 0.000000 0.000000 0.000000 
+Edge: 3 is global edge: 481 with nodes Node1,2: 33 254 at xyz: 0.000000 0.000000 0.000000 
+Local Edge: 1 is global edge: 465 with boundary edge flag of: 0 and with Loops: 220 228 
+Local Edge: 2 is global edge: 479 with boundary edge flag of: 0 and with Loops: 227 228 
+Local Edge: 3 is global edge: 481 with boundary edge flag of: 0 and with Loops: 228 236 
+Fine grid tri 1 is: 439 with surface ID: 2 
+Fine Loop Edge: 692 has boundary edge flag of: 0 
+Fine Loop Edge: 669 has boundary edge flag of: 0 
+Fine Loop Edge: 80 has boundary edge flag of: 0 
+Fine grid tri 2 is: 440 with surface ID: 2 
+Fine Loop Edge: 693 has boundary edge flag of: 0 
+Fine Loop Edge: 690 has boundary edge flag of: 0 
+Fine Loop Edge: 692 has boundary edge flag of: 0 
+WTF! ... 
+Working on Loop: 236 
+NumberOfLoopNodes: 4 
+CoarseGrid().LoopList(i).NumberOfEdges(): 3 
+These should be the same value if we assume a sensical mesh... but we problably coarsened too much! 
+The solver will likely be fine... but you might want check the coarse meshes if this mesh is actually used... 
+Edge: 1 is global edge: 481 with nodes Node1,2: 33 254 at xyz: 0.000000 0.000000 0.000000 
+Edge: 2 is global edge: 495 with nodes Node1,2: 254 262 at xyz: 0.000000 0.000000 0.000000 
+Edge: 3 is global edge: 497 with nodes Node1,2: 42 262 at xyz: 0.000000 0.000000 0.000000 
+Local Edge: 1 is global edge: 481 with boundary edge flag of: 0 and with Loops: 228 236 
+Local Edge: 2 is global edge: 495 with boundary edge flag of: 0 and with Loops: 235 236 
+Local Edge: 3 is global edge: 497 with boundary edge flag of: 0 and with Loops: 236 244 
+Fine grid tri 1 is: 455 with surface ID: 2 
+Fine Loop Edge: 714 has boundary edge flag of: 0 
+Fine Loop Edge: 716 has boundary edge flag of: 0 
+Fine Loop Edge: 717 has boundary edge flag of: 0 
+Fine grid tri 2 is: 456 with surface ID: 2 
+Fine Loop Edge: 716 has boundary edge flag of: 0 
+Fine Loop Edge: 693 has boundary edge flag of: 0 
+Fine Loop Edge: 105 has boundary edge flag of: 0 
+WTF! ... 
+Working on Loop: 244 
+NumberOfLoopNodes: 4 
+CoarseGrid().LoopList(i).NumberOfEdges(): 3 
+These should be the same value if we assume a sensical mesh... but we problably coarsened too much! 
+The solver will likely be fine... but you might want check the coarse meshes if this mesh is actually used... 
+Edge: 1 is global edge: 497 with nodes Node1,2: 42 262 at xyz: 0.000000 0.000000 0.000000 
+Edge: 2 is global edge: 512 with nodes Node1,2: 262 270 at xyz: 0.000000 0.000000 0.000000 
+Edge: 3 is global edge: 513 with nodes Node1,2: 51 270 at xyz: 0.000000 0.000000 0.000000 
+Local Edge: 1 is global edge: 497 with boundary edge flag of: 0 and with Loops: 236 244 
+Local Edge: 2 is global edge: 512 with boundary edge flag of: 0 and with Loops: 243 244 
+Local Edge: 3 is global edge: 513 with boundary edge flag of: 0 and with Loops: 244 252 
+Fine grid tri 1 is: 471 with surface ID: 2 
+Fine Loop Edge: 739 has boundary edge flag of: 0 
+Fine Loop Edge: 740 has boundary edge flag of: 0 
+Fine Loop Edge: 741 has boundary edge flag of: 0 
+Fine grid tri 2 is: 472 with surface ID: 2 
+Fine Loop Edge: 717 has boundary edge flag of: 0 
+Fine Loop Edge: 130 has boundary edge flag of: 0 
+Fine Loop Edge: 740 has boundary edge flag of: 0 
+WTF! ... 
+Working on Loop: 252 
+NumberOfLoopNodes: 4 
+CoarseGrid().LoopList(i).NumberOfEdges(): 3 
+These should be the same value if we assume a sensical mesh... but we problably coarsened too much! 
+The solver will likely be fine... but you might want check the coarse meshes if this mesh is actually used... 
+Edge: 1 is global edge: 513 with nodes Node1,2: 51 270 at xyz: 0.000000 0.000000 0.000000 
+Edge: 2 is global edge: 528 with nodes Node1,2: 270 278 at xyz: 0.000000 0.000000 0.000000 
+Edge: 3 is global edge: 529 with nodes Node1,2: 60 278 at xyz: 0.000000 0.000000 0.000000 
+Local Edge: 1 is global edge: 513 with boundary edge flag of: 0 and with Loops: 244 252 
+Local Edge: 2 is global edge: 528 with boundary edge flag of: 0 and with Loops: 251 252 
+Local Edge: 3 is global edge: 529 with boundary edge flag of: 0 and with Loops: 252 260 
+Fine grid tri 1 is: 487 with surface ID: 2 
+Fine Loop Edge: 763 has boundary edge flag of: 0 
+Fine Loop Edge: 764 has boundary edge flag of: 0 
+Fine Loop Edge: 765 has boundary edge flag of: 0 
+Fine grid tri 2 is: 488 with surface ID: 2 
+Fine Loop Edge: 741 has boundary edge flag of: 0 
+Fine Loop Edge: 155 has boundary edge flag of: 0 
+Fine Loop Edge: 764 has boundary edge flag of: 0 
+WTF! ... 
+Working on Loop: 260 
+NumberOfLoopNodes: 4 
+CoarseGrid().LoopList(i).NumberOfEdges(): 3 
+These should be the same value if we assume a sensical mesh... but we problably coarsened too much! 
+The solver will likely be fine... but you might want check the coarse meshes if this mesh is actually used... 
+Edge: 1 is global edge: 529 with nodes Node1,2: 60 278 at xyz: 0.000000 0.000000 0.000000 
+Edge: 2 is global edge: 544 with nodes Node1,2: 278 286 at xyz: 0.000000 0.000000 0.000000 
+Edge: 3 is global edge: 545 with nodes Node1,2: 69 286 at xyz: 0.000000 0.000000 0.000000 
+Local Edge: 1 is global edge: 529 with boundary edge flag of: 0 and with Loops: 252 260 
+Local Edge: 2 is global edge: 544 with boundary edge flag of: 0 and with Loops: 259 260 
+Local Edge: 3 is global edge: 545 with boundary edge flag of: 0 and with Loops: 260 268 
+Fine grid tri 1 is: 503 with surface ID: 2 
+Fine Loop Edge: 787 has boundary edge flag of: 0 
+Fine Loop Edge: 788 has boundary edge flag of: 0 
+Fine Loop Edge: 789 has boundary edge flag of: 0 
+Fine grid tri 2 is: 504 with surface ID: 2 
+Fine Loop Edge: 765 has boundary edge flag of: 0 
+Fine Loop Edge: 180 has boundary edge flag of: 0 
+Fine Loop Edge: 788 has boundary edge flag of: 0 
+WTF! ... 
+Working on Loop: 268 
+NumberOfLoopNodes: 4 
+CoarseGrid().LoopList(i).NumberOfEdges(): 3 
+These should be the same value if we assume a sensical mesh... but we problably coarsened too much! 
+The solver will likely be fine... but you might want check the coarse meshes if this mesh is actually used... 
+Edge: 1 is global edge: 545 with nodes Node1,2: 69 286 at xyz: 0.000000 0.000000 0.000000 
+Edge: 2 is global edge: 560 with nodes Node1,2: 286 294 at xyz: 0.000000 0.000000 0.000000 
+Edge: 3 is global edge: 561 with nodes Node1,2: 78 294 at xyz: 0.000000 0.000000 0.000000 
+Local Edge: 1 is global edge: 545 with boundary edge flag of: 0 and with Loops: 260 268 
+Local Edge: 2 is global edge: 560 with boundary edge flag of: 0 and with Loops: 267 268 
+Local Edge: 3 is global edge: 561 with boundary edge flag of: 0 and with Loops: 268 276 
+Fine grid tri 1 is: 519 with surface ID: 2 
+Fine Loop Edge: 811 has boundary edge flag of: 0 
+Fine Loop Edge: 812 has boundary edge flag of: 0 
+Fine Loop Edge: 813 has boundary edge flag of: 0 
+Fine grid tri 2 is: 520 with surface ID: 2 
+Fine Loop Edge: 789 has boundary edge flag of: 0 
+Fine Loop Edge: 205 has boundary edge flag of: 0 
+Fine Loop Edge: 812 has boundary edge flag of: 0 
+WTF! ... 
+Working on Loop: 276 
+NumberOfLoopNodes: 4 
+CoarseGrid().LoopList(i).NumberOfEdges(): 3 
+These should be the same value if we assume a sensical mesh... but we problably coarsened too much! 
+The solver will likely be fine... but you might want check the coarse meshes if this mesh is actually used... 
+Edge: 1 is global edge: 561 with nodes Node1,2: 78 294 at xyz: 0.000000 0.000000 0.000000 
+Edge: 2 is global edge: 576 with nodes Node1,2: 294 302 at xyz: 0.000000 0.000000 0.000000 
+Edge: 3 is global edge: 577 with nodes Node1,2: 87 302 at xyz: 0.000000 0.000000 0.000000 
+Local Edge: 1 is global edge: 561 with boundary edge flag of: 0 and with Loops: 268 276 
+Local Edge: 2 is global edge: 576 with boundary edge flag of: 0 and with Loops: 275 276 
+Local Edge: 3 is global edge: 577 with boundary edge flag of: 0 and with Loops: 276 284 
+Fine grid tri 1 is: 535 with surface ID: 2 
+Fine Loop Edge: 835 has boundary edge flag of: 0 
+Fine Loop Edge: 836 has boundary edge flag of: 0 
+Fine Loop Edge: 837 has boundary edge flag of: 0 
+Fine grid tri 2 is: 536 with surface ID: 2 
+Fine Loop Edge: 813 has boundary edge flag of: 0 
+Fine Loop Edge: 230 has boundary edge flag of: 0 
+Fine Loop Edge: 836 has boundary edge flag of: 0 
+WTF! ... 
+Working on Loop: 284 
+NumberOfLoopNodes: 4 
+CoarseGrid().LoopList(i).NumberOfEdges(): 3 
+These should be the same value if we assume a sensical mesh... but we problably coarsened too much! 
+The solver will likely be fine... but you might want check the coarse meshes if this mesh is actually used... 
+Edge: 1 is global edge: 577 with nodes Node1,2: 87 302 at xyz: 0.000000 0.000000 0.000000 
+Edge: 2 is global edge: 592 with nodes Node1,2: 302 310 at xyz: 0.000000 0.000000 0.000000 
+Edge: 3 is global edge: 593 with nodes Node1,2: 96 310 at xyz: 0.000000 0.000000 0.000000 
+Local Edge: 1 is global edge: 577 with boundary edge flag of: 0 and with Loops: 276 284 
+Local Edge: 2 is global edge: 592 with boundary edge flag of: 0 and with Loops: 283 284 
+Local Edge: 3 is global edge: 593 with boundary edge flag of: 0 and with Loops: 284 292 
+Fine grid tri 1 is: 551 with surface ID: 2 
+Fine Loop Edge: 859 has boundary edge flag of: 0 
+Fine Loop Edge: 860 has boundary edge flag of: 0 
+Fine Loop Edge: 861 has boundary edge flag of: 0 
+Fine grid tri 2 is: 552 with surface ID: 2 
+Fine Loop Edge: 837 has boundary edge flag of: 0 
+Fine Loop Edge: 255 has boundary edge flag of: 0 
+Fine Loop Edge: 860 has boundary edge flag of: 0 
+WTF! ... 
+Working on Loop: 292 
+NumberOfLoopNodes: 4 
+CoarseGrid().LoopList(i).NumberOfEdges(): 3 
+These should be the same value if we assume a sensical mesh... but we problably coarsened too much! 
+The solver will likely be fine... but you might want check the coarse meshes if this mesh is actually used... 
+Edge: 1 is global edge: 593 with nodes Node1,2: 96 310 at xyz: 0.000000 0.000000 0.000000 
+Edge: 2 is global edge: 608 with nodes Node1,2: 310 318 at xyz: 0.000000 0.000000 0.000000 
+Edge: 3 is global edge: 609 with nodes Node1,2: 105 318 at xyz: 0.000000 0.000000 0.000000 
+Local Edge: 1 is global edge: 593 with boundary edge flag of: 0 and with Loops: 284 292 
+Local Edge: 2 is global edge: 608 with boundary edge flag of: 0 and with Loops: 291 292 
+Local Edge: 3 is global edge: 609 with boundary edge flag of: 0 and with Loops: 292 300 
+Fine grid tri 1 is: 567 with surface ID: 2 
+Fine Loop Edge: 883 has boundary edge flag of: 0 
+Fine Loop Edge: 884 has boundary edge flag of: 0 
+Fine Loop Edge: 885 has boundary edge flag of: 0 
+Fine grid tri 2 is: 568 with surface ID: 2 
+Fine Loop Edge: 861 has boundary edge flag of: 0 
+Fine Loop Edge: 280 has boundary edge flag of: 0 
+Fine Loop Edge: 884 has boundary edge flag of: 0 
+WTF! ... 
+Working on Loop: 300 
+NumberOfLoopNodes: 4 
+CoarseGrid().LoopList(i).NumberOfEdges(): 3 
+These should be the same value if we assume a sensical mesh... but we problably coarsened too much! 
+The solver will likely be fine... but you might want check the coarse meshes if this mesh is actually used... 
+Edge: 1 is global edge: 609 with nodes Node1,2: 105 318 at xyz: 0.000000 0.000000 0.000000 
+Edge: 2 is global edge: 624 with nodes Node1,2: 318 326 at xyz: 0.000000 0.000000 0.000000 
+Edge: 3 is global edge: 625 with nodes Node1,2: 114 326 at xyz: 0.000000 0.000000 0.000000 
+Local Edge: 1 is global edge: 609 with boundary edge flag of: 0 and with Loops: 292 300 
+Local Edge: 2 is global edge: 624 with boundary edge flag of: 0 and with Loops: 299 300 
+Local Edge: 3 is global edge: 625 with boundary edge flag of: 0 and with Loops: 300 308 
+Fine grid tri 1 is: 583 with surface ID: 2 
+Fine Loop Edge: 908 has boundary edge flag of: 0 
+Fine Loop Edge: 909 has boundary edge flag of: 0 
+Fine Loop Edge: 907 has boundary edge flag of: 0 
+Fine grid tri 2 is: 584 with surface ID: 2 
+Fine Loop Edge: 885 has boundary edge flag of: 0 
+Fine Loop Edge: 305 has boundary edge flag of: 0 
+Fine Loop Edge: 908 has boundary edge flag of: 0 
+WTF! ... 
+Working on Loop: 308 
+NumberOfLoopNodes: 4 
+CoarseGrid().LoopList(i).NumberOfEdges(): 3 
+These should be the same value if we assume a sensical mesh... but we problably coarsened too much! 
+The solver will likely be fine... but you might want check the coarse meshes if this mesh is actually used... 
+Edge: 1 is global edge: 625 with nodes Node1,2: 114 326 at xyz: 0.000000 0.000000 0.000000 
+Edge: 2 is global edge: 640 with nodes Node1,2: 326 334 at xyz: 0.000000 0.000000 0.000000 
+Edge: 3 is global edge: 641 with nodes Node1,2: 123 334 at xyz: 0.000000 0.000000 0.000000 
+Local Edge: 1 is global edge: 625 with boundary edge flag of: 0 and with Loops: 300 308 
+Local Edge: 2 is global edge: 640 with boundary edge flag of: 0 and with Loops: 307 308 
+Local Edge: 3 is global edge: 641 with boundary edge flag of: 0 and with Loops: 308 316 
+Fine grid tri 1 is: 599 with surface ID: 2 
+Fine Loop Edge: 932 has boundary edge flag of: 0 
+Fine Loop Edge: 933 has boundary edge flag of: 0 
+Fine Loop Edge: 931 has boundary edge flag of: 0 
+Fine grid tri 2 is: 600 with surface ID: 2 
+Fine Loop Edge: 909 has boundary edge flag of: 0 
+Fine Loop Edge: 330 has boundary edge flag of: 0 
+Fine Loop Edge: 932 has boundary edge flag of: 0 
+WTF! ... 
+Working on Loop: 316 
+NumberOfLoopNodes: 4 
+CoarseGrid().LoopList(i).NumberOfEdges(): 3 
+These should be the same value if we assume a sensical mesh... but we problably coarsened too much! 
+The solver will likely be fine... but you might want check the coarse meshes if this mesh is actually used... 
+Edge: 1 is global edge: 641 with nodes Node1,2: 123 334 at xyz: 0.000000 0.000000 0.000000 
+Edge: 2 is global edge: 656 with nodes Node1,2: 334 342 at xyz: 0.000000 0.000000 0.000000 
+Edge: 3 is global edge: 657 with nodes Node1,2: 132 342 at xyz: 0.000000 0.000000 0.000000 
+Local Edge: 1 is global edge: 641 with boundary edge flag of: 0 and with Loops: 308 316 
+Local Edge: 2 is global edge: 656 with boundary edge flag of: 0 and with Loops: 315 316 
+Local Edge: 3 is global edge: 657 with boundary edge flag of: 0 and with Loops: 316 324 
+Fine grid tri 1 is: 615 with surface ID: 2 
+Fine Loop Edge: 955 has boundary edge flag of: 0 
+Fine Loop Edge: 956 has boundary edge flag of: 0 
+Fine Loop Edge: 957 has boundary edge flag of: 0 
+Fine grid tri 2 is: 616 with surface ID: 2 
+Fine Loop Edge: 933 has boundary edge flag of: 0 
+Fine Loop Edge: 355 has boundary edge flag of: 0 
+Fine Loop Edge: 956 has boundary edge flag of: 0 
+WTF! ... 
+Working on Loop: 324 
+NumberOfLoopNodes: 4 
+CoarseGrid().LoopList(i).NumberOfEdges(): 3 
+These should be the same value if we assume a sensical mesh... but we problably coarsened too much! 
+The solver will likely be fine... but you might want check the coarse meshes if this mesh is actually used... 
+Xmax_ - Xmin_: 28.497286 
+Ymax_ - Ymin_: 36.927784 
+Zmax_ - Zmin_: 8.108251 
+
+Wake FarFieldDist_ set to: 36.927784 
+
+There are:          3 Vortex Sheets 
+Creating vortex sheet data... 
+CoreWidth_: 0.177166 
+There are:          9 kutta nodes for vortex sheet:          1  
+CoreWidth_: 0.674737 
+There are:         15 kutta nodes for vortex sheet:          2  
+Wake Iter:     1 / 5     ... GMRES Iter:     5 ... Red:   -1.75230 / -1.00000   ...  Max:    1.16706 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     6 ... Red:   -1.91466 / -1.00000   ...  Max:    1.00470 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     7 ... Red:   -1.96487 / -1.00000   ...  Max:    0.95449 / 1.00000            1   0.15795   0.00000   0.00000   0.00002   0.00000   0.00002   0.02083   0.00000   0.02083   0.00000   0.00000  -0.00000   0.00114  -0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   0.76117   1.60701   0.14432 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     2 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    0.95449 / 1.00000    ... KTRes: 0.00000    Wake Iter:     2 / 5     ... GMRES Iter:     1 ... Red:   -0.01603 / -1.00000   ...  Max:    0.93847 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     2 ... Red:   -0.32138 / -1.00000   ...  Max:    0.63311 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     3 ... Red:   -0.49936 / -1.00000   ...  Max:    0.45514 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     4 ... Red:   -0.79159 / -1.00000   ...  Max:    0.16291 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     5 ... Red:   -0.94914 / -1.00000   ...  Max:    0.00535 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     6 ... Red:   -1.17258 / -1.00000   ...  Max:   -0.21808 / 1.00000            2   0.15795   0.00000   0.00000   0.00002   0.26916   0.26918   0.02182   0.00252   0.02434  11.05975   1.30748   0.00575   0.17072  -0.00235   0.27512   0.00577   9.97332   0.59668   0.00000  -0.67377   0.18219   0.32483 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     3 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    1.96008 / 1.00000    ... KTRes: 0.00000    Wake Iter:     3 / 5     ... GMRES Iter:     1 ... Red:   -0.63148 / -1.00000   ...  Max:    1.32860 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     2 ... Red:   -1.02301 / -1.00000   ...  Max:    0.93706 / 1.00000            3   0.15795   0.00000   0.00000   0.00002   0.26954   0.26956   0.02184   0.00308   0.02492  10.81509   1.07153   0.00579   0.17683  -0.00208   0.27650   0.00672   9.68203   0.51743   0.00000  -0.09724   1.21398   0.46215 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     4 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    1.90698 / 1.00000    ... KTRes: 0.00000    Wake Iter:     4 / 5     ... GMRES Iter:     1 ... Red:   -1.01283 / -1.00000   ...  Max:    0.89415 / 1.00000            4   0.15795   0.00000   0.00000   0.00002   0.27515   0.27517   0.02182   0.00287   0.02469  11.14384   1.19987   0.00651   0.16491  -0.00384   0.28125   0.00693   9.78308   0.51926   0.00000   0.00112   1.42302   0.58705 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     5 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    1.55739 / 1.00000    ... KTRes: 0.00000    Wake Iter:     5 / 5     ... GMRES Iter:     1 ... Red:   -0.67970 / -1.00000   ...  Max:    0.87769 / 1.00000    Wake Iter:     5 / 5     ... GMRES Iter:     2 ... Red:   -1.39076 / -1.00000   ...  Max:    0.16664 / 1.00000            5   0.15795   0.00000   0.00000   0.00002   0.27679   0.27681   0.02181   0.00257   0.02438  11.35452   1.35677   0.00682   0.15952  -0.00352   0.28350   0.00667   9.95376   0.54772   0.00000  -0.25893   1.22488   0.77271 
+Creating quad tree velocity survey data structures... 
+Xmin_: 0.000000 
+Xmax_: 28.497286 
+Ymin_: -18.463892 
+Ymax_: 18.463892 
+Zmin_: -1.788725 
+Zmax_: 6.319526 
+Working on quad tree: 1 
+Direction, Value: 2 0.000000 
+Inserted: 78 points 
+
+WakeAngle_: 0.999391 -0.000000 0.034899 
+Xmax_ - Xmin_: 28.497286 
+Ymax_ - Ymin_: 36.927784 
+Zmax_ - Zmin_: 8.108251 
+
+The wake FarDist set to: 36.927784 
+Updating wake grids... 
+SigmaAvg_: 1.953137 
+Creating interaction lists... 
+
+Forward sweep... 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Forward Mode: total multipole speed up ratio: 1.769883 
+Solving... Mach: 0.157948 ... Alpha: 2.000000 ... Beta: 0.000000 
+
+                                                                    Surface Integration Forces and Moments -->                                                  Wake Induced Forces -->  
+                                                                    Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-  Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake 
+    Iter    Mach       AoA      Beta       CLo       CLi      CLtot     CDo        CDi      CDtot      L/D        E       CMxtot    CMytot    Cmztot    CLiw       CDiw    LoDwake    Ewake      T/QS      L2Res    MaxRes  Wall_Time 
+Wake Iter:     1 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    3.10841 / 1.00000    ... KTRes: 0.00000    Wake Iter:     1 / 5     ... GMRES Iter:     1 ... Red:   -0.83966 / -1.00000   ...  Max:    2.26874 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     2 ... Red:   -1.04174 / -1.00000   ...  Max:    2.06666 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     3 ... Red:   -1.23282 / -1.00000   ...  Max:    1.87559 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     4 ... Red:   -1.54027 / -1.00000   ...  Max:    1.56813 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     5 ... Red:   -1.71679 / -1.00000   ...  Max:    1.39162 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     6 ... Red:   -1.96894 / -1.00000   ...  Max:    1.13947 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     7 ... Red:   -2.03186 / -1.00000   ...  Max:    1.07654 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     8 ... Red:   -2.12797 / -1.00000   ...  Max:    0.98044 / 1.00000            1   0.15795   2.00000   0.00000  -0.00065   0.00000  -0.00065   0.02082   0.00000   0.02082   0.00000   0.00000  -0.00000   0.00114  -0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   0.76744   1.57103   0.15982 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     2 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    0.98044 / 1.00000    ... KTRes: 0.00000    Wake Iter:     2 / 5     ... GMRES Iter:     1 ... Red:   -0.03625 / -1.00000   ...  Max:    0.94419 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     2 ... Red:   -0.29112 / -1.00000   ...  Max:    0.68931 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     3 ... Red:   -0.49640 / -1.00000   ...  Max:    0.48403 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     4 ... Red:   -0.72486 / -1.00000   ...  Max:    0.25558 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     5 ... Red:   -0.81727 / -1.00000   ...  Max:    0.16317 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     6 ... Red:   -1.04983 / -1.00000   ...  Max:   -0.06939 / 1.00000            2   0.15795   2.00000   0.00000  -0.00072   0.47875   0.47803   0.02272   0.00880   0.03152  15.18892   1.18477   0.00415   0.16243  -0.00036   0.47861   0.01201  13.77862   0.86708   0.00000  -0.60320   0.39406   0.38402 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     3 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    2.18812 / 1.00000    ... KTRes: 0.00000    Wake Iter:     3 / 5     ... GMRES Iter:     1 ... Red:   -0.74587 / -1.00000   ...  Max:    1.44225 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     2 ... Red:   -1.21295 / -1.00000   ...  Max:    0.97517 / 1.00000            3   0.15795   2.00000   0.00000  -0.00072   0.47536   0.47464   0.02274   0.00925   0.03199  14.85937   1.11129   0.00370   0.16787   0.00052   0.47843   0.01367  13.13990   0.76163   0.00000   0.24582   1.51077   0.51542 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     4 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    1.56957 / 1.00000    ... KTRes: 0.00000    Wake Iter:     4 / 5     ... GMRES Iter:     1 ... Red:   -0.49763 / -1.00000   ...  Max:    1.07194 / 1.00000    Wake Iter:     4 / 5     ... GMRES Iter:     2 ... Red:   -0.89315 / -1.00000   ...  Max:    0.67641 / 1.00000    Wake Iter:     4 / 5     ... GMRES Iter:     3 ... Red:   -1.32903 / -1.00000   ...  Max:    0.24054 / 1.00000            4   0.15795   2.00000   0.00000  -0.00072   0.48865   0.48793   0.02272   0.00948   0.03219  15.17831   1.14566   0.00441   0.13995  -0.00103   0.48978   0.01387  13.38772   0.78659   0.00000  -0.21589   0.99919   0.65778 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     5 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    1.82749 / 1.00000    ... KTRes: 0.00000    Wake Iter:     5 / 5     ... GMRES Iter:     1 ... Red:   -0.55025 / -1.00000   ...  Max:    1.27725 / 1.00000    Wake Iter:     5 / 5     ... GMRES Iter:     2 ... Red:   -0.95954 / -1.00000   ...  Max:    0.86795 / 1.00000    Wake Iter:     5 / 5     ... GMRES Iter:     3 ... Red:   -1.27061 / -1.00000   ...  Max:    0.55689 / 1.00000            5   0.15795   2.00000   0.00000  -0.00072   0.48743   0.48671   0.02271   0.00967   0.03237  15.05622   1.11772   0.00526   0.14034  -0.00227   0.48929   0.01369  13.44200   0.79509   0.00000  -0.08374   1.27751   0.85419 
+Creating quad tree velocity survey data structures... 
+Xmin_: 0.000000 
+Xmax_: 28.497286 
+Ymin_: -18.463892 
+Ymax_: 18.463892 
+Zmin_: -1.788725 
+Zmax_: 6.319526 
+Working on quad tree: 1 
+Direction, Value: 2 0.000000 
+Inserted: 78 points 
+
+WakeAngle_: 0.997564 -0.000000 0.069756 
+Xmax_ - Xmin_: 28.497286 
+Ymax_ - Ymin_: 36.927784 
+Zmax_ - Zmin_: 8.108251 
+
+The wake FarDist set to: 36.927784 
+Updating wake grids... 
+SigmaAvg_: 1.953137 
+Creating interaction lists... 
+
+Forward sweep... 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Forward Mode: total multipole speed up ratio: 1.769555 
+Solving... Mach: 0.157948 ... Alpha: 4.000000 ... Beta: 0.000000 
+
+                                                                    Surface Integration Forces and Moments -->                                                  Wake Induced Forces -->  
+                                                                    Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-  Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake 
+    Iter    Mach       AoA      Beta       CLo       CLi      CLtot     CDo        CDi      CDtot      L/D        E       CMxtot    CMytot    Cmztot    CLiw       CDiw    LoDwake    Ewake      T/QS      L2Res    MaxRes  Wall_Time 
+Wake Iter:     1 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    3.25830 / 1.00000    ... KTRes: 0.00000    Wake Iter:     1 / 5     ... GMRES Iter:     1 ... Red:   -0.80057 / -1.00000   ...  Max:    2.45773 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     2 ... Red:   -1.07969 / -1.00000   ...  Max:    2.17861 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     3 ... Red:   -1.31996 / -1.00000   ...  Max:    1.93834 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     4 ... Red:   -1.54492 / -1.00000   ...  Max:    1.71338 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     5 ... Red:   -1.68667 / -1.00000   ...  Max:    1.57163 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     6 ... Red:   -2.02112 / -1.00000   ...  Max:    1.23717 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     7 ... Red:   -2.15824 / -1.00000   ...  Max:    1.10005 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     8 ... Red:   -2.20283 / -1.00000   ...  Max:    1.05547 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     9 ... Red:   -2.31669 / -1.00000   ...  Max:    0.94161 / 1.00000            1   0.15795   4.00000   0.00000  -0.00132   0.00000  -0.00132   0.02079   0.00000   0.02079   0.00000   0.00000  -0.00000   0.00114  -0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   0.81773   1.53123   0.17643 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     2 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    0.94161 / 1.00000    ... KTRes: 0.00000    Wake Iter:     2 / 5     ... GMRES Iter:     1 ... Red:   -0.00521 / -1.00000   ...  Max:    0.93639 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     2 ... Red:   -0.08199 / -1.00000   ...  Max:    0.85962 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     3 ... Red:   -0.14616 / -1.00000   ...  Max:    0.79545 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     4 ... Red:   -0.33621 / -1.00000   ...  Max:    0.60540 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     5 ... Red:   -0.41403 / -1.00000   ...  Max:    0.52757 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     6 ... Red:   -0.98053 / -1.00000   ...  Max:   -0.03892 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     7 ... Red:   -1.36563 / -1.00000   ...  Max:   -0.42403 / 1.00000            2   0.15795   4.00000   0.00000  -0.00155   0.67434   0.67279   0.02400   0.01865   0.04265  15.80917   1.10850   0.00300   0.17574   0.00014   0.67126   0.02107  14.89320   0.97242   0.00000  -0.49178   0.38370   0.37182 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     3 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    2.25771 / 1.00000    ... KTRes: 0.00000    Wake Iter:     3 / 5     ... GMRES Iter:     1 ... Red:   -0.81509 / -1.00000   ...  Max:    1.44262 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     2 ... Red:   -1.05536 / -1.00000   ...  Max:    1.20235 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     3 ... Red:   -1.14264 / -1.00000   ...  Max:    1.11508 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     4 ... Red:   -1.35312 / -1.00000   ...  Max:    0.90459 / 1.00000            3   0.15795   4.00000   0.00000  -0.00155   0.66943   0.66789   0.02402   0.01921   0.04323  15.48712   1.06089   0.00318   0.18000  -0.00008   0.67027   0.02333  14.15758   0.87577   0.00000   0.18749   1.38955   0.54734 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     4 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    1.97949 / 1.00000    ... KTRes: 0.00000    Wake Iter:     4 / 5     ... GMRES Iter:     1 ... Red:   -0.64600 / -1.00000   ...  Max:    1.33349 / 1.00000    Wake Iter:     4 / 5     ... GMRES Iter:     2 ... Red:   -1.26898 / -1.00000   ...  Max:    0.71050 / 1.00000            4   0.15795   4.00000   0.00000  -0.00155   0.69025   0.68870   0.02399   0.01979   0.04377  15.76887   1.09489   0.00439   0.13293  -0.00062   0.68858   0.02455  14.18776   0.87830   0.00000  -0.15045   0.96230   0.69210 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     5 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    1.59081 / 1.00000    ... KTRes: 0.00000    Wake Iter:     5 / 5     ... GMRES Iter:     1 ... Red:   -0.50769 / -1.00000   ...  Max:    1.08312 / 1.00000    Wake Iter:     5 / 5     ... GMRES Iter:     2 ... Red:   -0.86026 / -1.00000   ...  Max:    0.73054 / 1.00000    Wake Iter:     5 / 5     ... GMRES Iter:     3 ... Red:   -1.17723 / -1.00000   ...  Max:    0.41357 / 1.00000            5   0.15795   4.00000   0.00000  -0.00155   0.69731   0.69577   0.02397   0.02032   0.04430  15.74172   1.08800   0.00399   0.11827  -0.00085   0.69463   0.02459  14.30201   0.89213   0.00000  -0.25176   0.96166   0.90774 
+Creating quad tree velocity survey data structures... 
+Xmin_: 0.000000 
+Xmax_: 28.497286 
+Ymin_: -18.463892 
+Ymax_: 18.463892 
+Zmin_: -1.788725 
+Zmax_: 6.319526 
+Working on quad tree: 1 
+Direction, Value: 2 0.000000 
+Inserted: 77 points 
+
+WakeAngle_: 0.994522 -0.000000 0.104528 
+Xmax_ - Xmin_: 28.497286 
+Ymax_ - Ymin_: 36.927784 
+Zmax_ - Zmin_: 8.108251 
+
+The wake FarDist set to: 36.927784 
+Updating wake grids... 
+SigmaAvg_: 1.953137 
+Creating interaction lists... 
+
+Forward sweep... 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Forward Mode: total multipole speed up ratio: 1.769193 
+Solving... Mach: 0.157948 ... Alpha: 6.000000 ... Beta: 0.000000 
+
+                                                                    Surface Integration Forces and Moments -->                                                  Wake Induced Forces -->  
+                                                                    Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-  Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake 
+    Iter    Mach       AoA      Beta       CLo       CLi      CLtot     CDo        CDi      CDtot      L/D        E       CMxtot    CMytot    Cmztot    CLiw       CDiw    LoDwake    Ewake      T/QS      L2Res    MaxRes  Wall_Time 
+Wake Iter:     1 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    3.37097 / 1.00000    ... KTRes: 0.00000    Wake Iter:     1 / 5     ... GMRES Iter:     1 ... Red:   -0.74555 / -1.00000   ...  Max:    2.62542 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     2 ... Red:   -1.09584 / -1.00000   ...  Max:    2.27513 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     3 ... Red:   -1.38325 / -1.00000   ...  Max:    1.98772 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     4 ... Red:   -1.56070 / -1.00000   ...  Max:    1.81027 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     5 ... Red:   -1.72690 / -1.00000   ...  Max:    1.64407 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     6 ... Red:   -2.03222 / -1.00000   ...  Max:    1.33875 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     7 ... Red:   -2.18835 / -1.00000   ...  Max:    1.18262 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     8 ... Red:   -2.25976 / -1.00000   ...  Max:    1.11122 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     9 ... Red:   -2.37124 / -1.00000   ...  Max:    0.99973 / 1.00000            1   0.15795   6.00000   0.00000  -0.00199   0.00000  -0.00199   0.02073   0.00000   0.02073   0.00000   0.00000  -0.00000   0.00114  -0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   0.88923   1.48682   0.17939 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     2 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    0.99973 / 1.00000    ... KTRes: 0.00000    Wake Iter:     2 / 5     ... GMRES Iter:     1 ... Red:   -0.00991 / -1.00000   ...  Max:    0.98982 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     2 ... Red:   -0.09240 / -1.00000   ...  Max:    0.90734 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     3 ... Red:   -0.16047 / -1.00000   ...  Max:    0.83926 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     4 ... Red:   -0.36792 / -1.00000   ...  Max:    0.63181 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     5 ... Red:   -0.42979 / -1.00000   ...  Max:    0.56994 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     6 ... Red:   -0.92761 / -1.00000   ...  Max:    0.07212 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     7 ... Red:   -1.20677 / -1.00000   ...  Max:   -0.20704 / 1.00000            2   0.15795   6.00000   0.00000  -0.00250   0.82731   0.82480   0.02559   0.02836   0.05394  15.33695   1.09757   0.00146   0.28921   0.00143   0.82073   0.02802  15.31011   1.09311   0.00000  -0.33498   0.65033   0.37949 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     3 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    2.60953 / 1.00000    ... KTRes: 0.00000    Wake Iter:     3 / 5     ... GMRES Iter:     1 ... Red:   -1.10490 / -1.00000   ...  Max:    1.50463 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     2 ... Red:   -1.38907 / -1.00000   ...  Max:    1.22046 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     3 ... Red:   -1.57382 / -1.00000   ...  Max:    1.03571 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     4 ... Red:   -1.83578 / -1.00000   ...  Max:    0.77375 / 1.00000            3   0.15795   6.00000   0.00000  -0.00251   0.82923   0.82672   0.02561   0.03098   0.05659  14.65213   1.00927   0.00162   0.27276   0.00049   0.82092   0.03442  13.67468   0.89035   0.00000   0.39914   1.37298   0.54079 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     4 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    1.88094 / 1.00000    ... KTRes: 0.00000    Wake Iter:     4 / 5     ... GMRES Iter:     1 ... Red:   -0.64081 / -1.00000   ...  Max:    1.24012 / 1.00000    Wake Iter:     4 / 5     ... GMRES Iter:     2 ... Red:   -1.09717 / -1.00000   ...  Max:    0.78377 / 1.00000            4   0.15795   6.00000   0.00000  -0.00251   0.89924   0.89673   0.02560   0.03605   0.06165  14.58662   1.01995   0.00248   0.12424   0.00122   0.88749   0.03871  13.80029   0.92518   0.00000  -0.11644   1.22562   0.67887 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     5 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    1.55934 / 1.00000    ... KTRes: 0.00000    Wake Iter:     5 / 5     ... GMRES Iter:     1 ... Red:   -0.35891 / -1.00000   ...  Max:    1.20043 / 1.00000    Wake Iter:     5 / 5     ... GMRES Iter:     2 ... Red:   -0.81094 / -1.00000   ...  Max:    0.74839 / 1.00000    Wake Iter:     5 / 5     ... GMRES Iter:     3 ... Red:   -1.12740 / -1.00000   ...  Max:    0.43194 / 1.00000            5   0.15795   6.00000   0.00000  -0.00251   0.91020   0.90770   0.02560   0.03686   0.06246  14.57253   1.02203   0.00228   0.10179   0.00105   0.89793   0.03927  13.84214   0.93363   0.00000  -0.15883   1.18336   0.87455 
+Creating quad tree velocity survey data structures... 
+Xmin_: 0.000000 
+Xmax_: 28.497286 
+Ymin_: -18.463892 
+Ymax_: 18.463892 
+Zmin_: -1.788725 
+Zmax_: 6.319526 
+Working on quad tree: 1 
+Direction, Value: 2 0.000000 
+Inserted: 77 points 
+
+WakeAngle_: 0.990268 -0.000000 0.139173 
+Xmax_ - Xmin_: 28.497286 
+Ymax_ - Ymin_: 36.927784 
+Zmax_ - Zmin_: 8.108251 
+
+The wake FarDist set to: 36.927784 
+Updating wake grids... 
+SigmaAvg_: 1.953137 
+Creating interaction lists... 
+
+Forward sweep... 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Forward Mode: total multipole speed up ratio: 1.769336 
+Solving... Mach: 0.157948 ... Alpha: 8.000000 ... Beta: 0.000000 
+
+                                                                    Surface Integration Forces and Moments -->                                                  Wake Induced Forces -->  
+                                                                    Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-  Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake 
+    Iter    Mach       AoA      Beta       CLo       CLi      CLtot     CDo        CDi      CDtot      L/D        E       CMxtot    CMytot    Cmztot    CLiw       CDiw    LoDwake    Ewake      T/QS      L2Res    MaxRes  Wall_Time 
+Wake Iter:     1 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    3.46104 / 1.00000    ... KTRes: 0.00000    Wake Iter:     1 / 5     ... GMRES Iter:     1 ... Red:   -0.71791 / -1.00000   ...  Max:    2.74313 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     2 ... Red:   -1.12470 / -1.00000   ...  Max:    2.33634 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     3 ... Red:   -1.44179 / -1.00000   ...  Max:    2.01925 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     4 ... Red:   -1.59552 / -1.00000   ...  Max:    1.86552 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     5 ... Red:   -1.80239 / -1.00000   ...  Max:    1.65865 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     6 ... Red:   -2.05501 / -1.00000   ...  Max:    1.40603 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     7 ... Red:   -2.28214 / -1.00000   ...  Max:    1.17890 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     8 ... Red:   -2.40052 / -1.00000   ...  Max:    1.06052 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     9 ... Red:   -2.57977 / -1.00000   ...  Max:    0.88127 / 1.00000            1   0.15795   8.00000   0.00000  -0.00266   0.00000  -0.00266   0.02065   0.00000   0.02065   0.00000   0.00000  -0.00000   0.00114  -0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   0.96399   1.43675   0.16937 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     2 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    0.88127 / 1.00000    ... KTRes: 0.00000    Wake Iter:     2 / 5     ... GMRES Iter:     1 ... Red:   -0.03102 / -1.00000   ...  Max:    0.85025 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     2 ... Red:   -0.05765 / -1.00000   ...  Max:    0.82363 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     3 ... Red:   -0.25018 / -1.00000   ...  Max:    0.63110 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     4 ... Red:   -0.45672 / -1.00000   ...  Max:    0.42455 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     5 ... Red:   -0.71063 / -1.00000   ...  Max:    0.17064 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     6 ... Red:   -0.88000 / -1.00000   ...  Max:    0.00127 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     7 ... Red:   -1.29266 / -1.00000   ...  Max:   -0.41138 / 1.00000            2   0.15795   8.00000   0.00000  -0.00362   1.02746   1.02384   0.02745   0.04594   0.07339  13.99995   1.04485  -0.00006   0.26419   0.00301   1.00103   0.04483  13.84937   1.01635   0.00000  -0.39352   0.52477   0.38995 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     3 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    2.42659 / 1.00000    ... KTRes: 0.00000    Wake Iter:     3 / 5     ... GMRES Iter:     1 ... Red:   -0.84480 / -1.00000   ...  Max:    1.58178 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     2 ... Red:   -1.36001 / -1.00000   ...  Max:    1.06658 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     3 ... Red:   -1.53459 / -1.00000   ...  Max:    0.89200 / 1.00000            3   0.15795   8.00000   0.00000  -0.00362   1.01479   1.01117   0.02748   0.04794   0.07542  13.45465   0.97670  -0.00002   0.28555   0.00202   0.99792   0.04213  14.33597   1.07482   0.00000   0.50988   1.66391   0.53039 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     4 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    2.70319 / 1.00000    ... KTRes: 0.00000    Wake Iter:     4 / 5     ... GMRES Iter:     1 ... Red:   -1.25019 / -1.00000   ...  Max:    1.45300 / 1.00000    Wake Iter:     4 / 5     ... GMRES Iter:     2 ... Red:   -1.56975 / -1.00000   ...  Max:    1.13344 / 1.00000    Wake Iter:     4 / 5     ... GMRES Iter:     3 ... Red:   -2.01348 / -1.00000   ...  Max:    0.68971 / 1.00000            4   0.15795   8.00000   0.00000  -0.00363   1.01037   1.00675   0.02750   0.04827   0.07577  13.33492   0.96167   0.00115   0.31702   0.00225   0.99282   0.04894  12.98927   0.91593   0.00000   0.49824   1.78989   0.67675 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     5 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    1.55986 / 1.00000    ... KTRes: 0.00000    Wake Iter:     5 / 5     ... GMRES Iter:     1 ... Red:   -0.82610 / -1.00000   ...  Max:    0.73376 / 1.00000    Wake Iter:     5 / 5     ... GMRES Iter:     2 ... Red:   -0.91634 / -1.00000   ...  Max:    0.64352 / 1.00000    Wake Iter:     5 / 5     ... GMRES Iter:     3 ... Red:   -1.15544 / -1.00000   ...  Max:    0.40441 / 1.00000            5   0.15795   8.00000   0.00000  -0.00363   1.11693   1.11330   0.02756   0.05713   0.08469  13.18880   0.99295   0.00136   0.08980   0.00189   1.09676   0.05754  12.88914   0.95069   0.00000  -0.43197   0.70408   0.87891 
+Creating quad tree velocity survey data structures... 
+Xmin_: 0.000000 
+Xmax_: 28.497286 
+Ymin_: -18.463892 
+Ymax_: 18.463892 
+Zmin_: -1.788725 
+Zmax_: 6.319526 
+Working on quad tree: 1 
+Direction, Value: 2 0.000000 
+Inserted: 77 points 
+
+WakeAngle_: 0.999391 -0.000000 -0.034899 
+Xmax_ - Xmin_: 28.497286 
+Ymax_ - Ymin_: 36.927784 
+Zmax_ - Zmin_: 8.108251 
+
+The wake FarDist set to: 36.927784 
+Updating wake grids... 
+SigmaAvg_: 1.953137 
+Creating interaction lists... 
+
+Forward sweep... 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Forward Mode: total multipole speed up ratio: 1.769739 
+Solving... Mach: 0.227052 ... Alpha: -2.000000 ... Beta: 0.000000 
+
+                                                                    Surface Integration Forces and Moments -->                                                  Wake Induced Forces -->  
+                                                                    Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-  Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake 
+    Iter    Mach       AoA      Beta       CLo       CLi      CLtot     CDo        CDi      CDtot      L/D        E       CMxtot    CMytot    Cmztot    CLiw       CDiw    LoDwake    Ewake      T/QS      L2Res    MaxRes  Wall_Time 
+Wake Iter:     1 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    2.82294 / 1.00000    ... KTRes: 0.00000    Wake Iter:     1 / 5     ... GMRES Iter:     1 ... Red:   -0.81978 / -1.00000   ...  Max:    2.00315 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     2 ... Red:   -0.88012 / -1.00000   ...  Max:    1.94282 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     3 ... Red:   -1.01784 / -1.00000   ...  Max:    1.80510 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     4 ... Red:   -1.29552 / -1.00000   ...  Max:    1.52742 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     5 ... Red:   -1.55371 / -1.00000   ...  Max:    1.26922 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     6 ... Red:   -1.63331 / -1.00000   ...  Max:    1.18963 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     7 ... Red:   -1.89225 / -1.00000   ...  Max:    0.93068 / 1.00000            1   0.22705  -2.00000   0.00000   0.00070   0.00000   0.00070   0.02082   0.00000   0.02082   0.00000   0.00000  -0.00000   0.00114  -0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   0.80254   1.63974   0.14093 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     2 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    0.93068 / 1.00000    ... KTRes: 0.00000    Wake Iter:     2 / 5     ... GMRES Iter:     1 ... Red:   -0.06015 / -1.00000   ...  Max:    0.87053 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     2 ... Red:   -0.16652 / -1.00000   ...  Max:    0.76416 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     3 ... Red:   -0.23924 / -1.00000   ...  Max:    0.69144 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     4 ... Red:   -0.69948 / -1.00000   ...  Max:    0.23121 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     5 ... Red:   -0.96984 / -1.00000   ...  Max:   -0.03916 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     6 ... Red:   -1.31666 / -1.00000   ...  Max:   -0.38597 / 1.00000            2   0.22705  -2.00000   0.00000   0.00071   0.06399   0.06470   0.02132   0.00026   0.02158   2.96591   0.72663   0.00777   0.19347  -0.00388   0.07142   0.00343   2.88538   0.06756   0.00000  -0.72014   0.26639   0.31515 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     3 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    2.03858 / 1.00000    ... KTRes: 0.00000    Wake Iter:     3 / 5     ... GMRES Iter:     1 ... Red:   -0.88653 / -1.00000   ...  Max:    1.15204 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     2 ... Red:   -1.19807 / -1.00000   ...  Max:    0.84051 / 1.00000            3   0.22705  -2.00000   0.00000   0.00071   0.06218   0.06289   0.02133   0.00011   0.02144   2.90018   1.57412   0.00805   0.19978  -0.00393   0.07190   0.00418   2.81925   0.05630   0.00000   0.19126   1.67409   0.44713 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     4 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    1.76387 / 1.00000    ... KTRes: 0.00000    Wake Iter:     4 / 5     ... GMRES Iter:     1 ... Red:   -0.69592 / -1.00000   ...  Max:    1.06795 / 1.00000    Wake Iter:     4 / 5     ... GMRES Iter:     2 ... Red:   -1.34478 / -1.00000   ...  Max:    0.41909 / 1.00000            4   0.22705  -2.00000   0.00000   0.00071   0.06700   0.06771   0.02131   0.00106   0.02237   2.99457   0.19211   0.00792   0.18641  -0.00288   0.07518   0.00420   2.94714   0.06123   0.00000  -0.00049   1.25154   0.58127 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     5 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    1.70563 / 1.00000    ... KTRes: 0.00000    Wake Iter:     5 / 5     ... GMRES Iter:     1 ... Red:   -1.15677 / -1.00000   ...  Max:    0.54886 / 1.00000            5   0.22705  -2.00000   0.00000   0.00071   0.06985   0.07057   0.02130   0.00113   0.02243   3.11435   0.19615   0.00791   0.17931  -0.00293   0.07658   0.00420   3.00293   0.06346   0.00000   0.02089   1.53016   0.75200 
+Creating quad tree velocity survey data structures... 
+Xmin_: 0.000000 
+Xmax_: 28.497286 
+Ymin_: -18.463892 
+Ymax_: 18.463892 
+Zmin_: -1.788725 
+Zmax_: 6.319526 
+Working on quad tree: 1 
+Direction, Value: 2 0.000000 
+Inserted: 78 points 
+
+WakeAngle_: 1.000000 -0.000000 0.000000 
+Xmax_ - Xmin_: 28.497286 
+Ymax_ - Ymin_: 36.927784 
+Zmax_ - Zmin_: 8.108251 
+
+The wake FarDist set to: 36.927784 
+Updating wake grids... 
+SigmaAvg_: 1.953137 
+Creating interaction lists... 
+
+Forward sweep... 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Forward Mode: total multipole speed up ratio: 1.769942 
+Solving... Mach: 0.227052 ... Alpha: 0.000000 ... Beta: 0.000000 
+
+                                                                    Surface Integration Forces and Moments -->                                                  Wake Induced Forces -->  
+                                                                    Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-  Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake 
+    Iter    Mach       AoA      Beta       CLo       CLi      CLtot     CDo        CDi      CDtot      L/D        E       CMxtot    CMytot    Cmztot    CLiw       CDiw    LoDwake    Ewake      T/QS      L2Res    MaxRes  Wall_Time 
+Wake Iter:     1 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    2.92417 / 1.00000    ... KTRes: 0.00000    Wake Iter:     1 / 5     ... GMRES Iter:     1 ... Red:   -0.89436 / -1.00000   ...  Max:    2.02980 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     2 ... Red:   -0.97550 / -1.00000   ...  Max:    1.94867 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     3 ... Red:   -1.10236 / -1.00000   ...  Max:    1.82181 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     4 ... Red:   -1.40178 / -1.00000   ...  Max:    1.52239 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     5 ... Red:   -1.75239 / -1.00000   ...  Max:    1.17177 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     6 ... Red:   -1.91474 / -1.00000   ...  Max:    1.00943 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     7 ... Red:   -1.96457 / -1.00000   ...  Max:    0.95960 / 1.00000            1   0.22705   0.00000   0.00000   0.00002   0.00000   0.00002   0.02083   0.00000   0.02083   0.00000   0.00000  -0.00000   0.00114  -0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   0.76117   1.60701   0.15911 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     2 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    0.95960 / 1.00000    ... KTRes: 0.00000    Wake Iter:     2 / 5     ... GMRES Iter:     1 ... Red:   -0.01573 / -1.00000   ...  Max:    0.94386 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     2 ... Red:   -0.32271 / -1.00000   ...  Max:    0.63689 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     3 ... Red:   -0.50152 / -1.00000   ...  Max:    0.45807 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     4 ... Red:   -0.79380 / -1.00000   ...  Max:    0.16580 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     5 ... Red:   -0.95528 / -1.00000   ...  Max:    0.00431 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     6 ... Red:   -1.17574 / -1.00000   ...  Max:   -0.21614 / 1.00000            2   0.22705   0.00000   0.00000   0.00002   0.27166   0.27169   0.02184   0.00258   0.02441  11.12704   1.30318   0.00583   0.17362  -0.00238   0.27772   0.00589  10.01636   0.59576   0.00000  -0.66941   0.18776   0.34887 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     3 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    1.96567 / 1.00000    ... KTRes: 0.00000    Wake Iter:     3 / 5     ... GMRES Iter:     1 ... Red:   -0.62883 / -1.00000   ...  Max:    1.33684 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     2 ... Red:   -1.01878 / -1.00000   ...  Max:    0.94689 / 1.00000            3   0.22705   0.00000   0.00000   0.00002   0.27206   0.27208   0.02186   0.00315   0.02501  10.87782   1.06927   0.00587   0.17980  -0.00210   0.27910   0.00686   9.71848   0.51665   0.00000  -0.09373   1.21717   0.50143 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     4 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    1.91077 / 1.00000    ... KTRes: 0.00000    Wake Iter:     4 / 5     ... GMRES Iter:     1 ... Red:   -1.01168 / -1.00000   ...  Max:    0.89909 / 1.00000            4   0.22705   0.00000   0.00000   0.00002   0.27777   0.27779   0.02184   0.00293   0.02477  11.21328   1.19847   0.00660   0.16765  -0.00388   0.28394   0.00707   9.82175   0.51888   0.00000   0.00305   1.42382   0.63189 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     5 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    1.56632 / 1.00000    ... KTRes: 0.00000    Wake Iter:     5 / 5     ... GMRES Iter:     1 ... Red:   -0.67711 / -1.00000   ...  Max:    0.88921 / 1.00000    Wake Iter:     5 / 5     ... GMRES Iter:     2 ... Red:   -1.38843 / -1.00000   ...  Max:    0.17790 / 1.00000            5   0.22705   0.00000   0.00000   0.00002   0.27942   0.27944   0.02183   0.00263   0.02446  11.42472   1.35182   0.00691   0.16219  -0.00353   0.28623   0.00681   9.99520   0.54741   0.00000  -0.25589   1.22405   0.81774 
+Creating quad tree velocity survey data structures... 
+Xmin_: 0.000000 
+Xmax_: 28.497286 
+Ymin_: -18.463892 
+Ymax_: 18.463892 
+Zmin_: -1.788725 
+Zmax_: 6.319526 
+Working on quad tree: 1 
+Direction, Value: 2 0.000000 
+Inserted: 78 points 
+
+WakeAngle_: 0.999391 -0.000000 0.034899 
+Xmax_ - Xmin_: 28.497286 
+Ymax_ - Ymin_: 36.927784 
+Zmax_ - Zmin_: 8.108251 
+
+The wake FarDist set to: 36.927784 
+Updating wake grids... 
+SigmaAvg_: 1.953137 
+Creating interaction lists... 
+
+Forward sweep... 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Forward Mode: total multipole speed up ratio: 1.769883 
+Solving... Mach: 0.227052 ... Alpha: 2.000000 ... Beta: 0.000000 
+
+                                                                    Surface Integration Forces and Moments -->                                                  Wake Induced Forces -->  
+                                                                    Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-  Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake 
+    Iter    Mach       AoA      Beta       CLo       CLi      CLtot     CDo        CDi      CDtot      L/D        E       CMxtot    CMytot    Cmztot    CLiw       CDiw    LoDwake    Ewake      T/QS      L2Res    MaxRes  Wall_Time 
+Wake Iter:     1 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    3.11273 / 1.00000    ... KTRes: 0.00000    Wake Iter:     1 / 5     ... GMRES Iter:     1 ... Red:   -0.84258 / -1.00000   ...  Max:    2.27015 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     2 ... Red:   -1.04348 / -1.00000   ...  Max:    2.06925 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     3 ... Red:   -1.23304 / -1.00000   ...  Max:    1.87969 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     4 ... Red:   -1.53781 / -1.00000   ...  Max:    1.57492 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     5 ... Red:   -1.71404 / -1.00000   ...  Max:    1.39869 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     6 ... Red:   -1.96556 / -1.00000   ...  Max:    1.14718 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     7 ... Red:   -2.02838 / -1.00000   ...  Max:    1.08435 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     8 ... Red:   -2.12451 / -1.00000   ...  Max:    0.98822 / 1.00000            1   0.22705   2.00000   0.00000  -0.00065   0.00000  -0.00065   0.02082   0.00000   0.02082   0.00000   0.00000  -0.00000   0.00114  -0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   0.76744   1.57103   0.15835 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     2 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    0.98822 / 1.00000    ... KTRes: 0.00000    Wake Iter:     2 / 5     ... GMRES Iter:     1 ... Red:   -0.03597 / -1.00000   ...  Max:    0.95225 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     2 ... Red:   -0.29141 / -1.00000   ...  Max:    0.69682 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     3 ... Red:   -0.49547 / -1.00000   ...  Max:    0.49276 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     4 ... Red:   -0.72447 / -1.00000   ...  Max:    0.26375 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     5 ... Red:   -0.81644 / -1.00000   ...  Max:    0.17178 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     6 ... Red:   -1.05651 / -1.00000   ...  Max:   -0.06828 / 1.00000            2   0.22705   2.00000   0.00000  -0.00072   0.48264   0.48192   0.02276   0.00892   0.03168  15.23446   1.18792   0.00421   0.16601  -0.00037   0.48282   0.01224  13.79307   0.86600   0.00000  -0.59990   0.39515   0.34983 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     3 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    2.19420 / 1.00000    ... KTRes: 0.00000    Wake Iter:     3 / 5     ... GMRES Iter:     1 ... Red:   -0.74496 / -1.00000   ...  Max:    1.44923 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     2 ... Red:   -1.20905 / -1.00000   ...  Max:    0.98514 / 1.00000            3   0.22705   2.00000   0.00000  -0.00072   0.47951   0.47879   0.02279   0.00941   0.03220  14.89185   1.11074   0.00376   0.17140   0.00052   0.48262   0.01393  13.14439   0.76031   0.00000   0.24944   1.51407   0.48976 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     4 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    1.57076 / 1.00000    ... KTRes: 0.00000    Wake Iter:     4 / 5     ... GMRES Iter:     1 ... Red:   -0.49408 / -1.00000   ...  Max:    1.07668 / 1.00000    Wake Iter:     4 / 5     ... GMRES Iter:     2 ... Red:   -0.88870 / -1.00000   ...  Max:    0.68206 / 1.00000    Wake Iter:     4 / 5     ... GMRES Iter:     3 ... Red:   -1.32473 / -1.00000   ...  Max:    0.24603 / 1.00000            4   0.22705   2.00000   0.00000  -0.00072   0.49306   0.49234   0.02276   0.00965   0.03241  15.21321   1.14528   0.00448   0.14292  -0.00106   0.49419   0.01413  13.39618   0.78579   0.00000  -0.21374   0.99745   0.64536 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     5 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    1.82941 / 1.00000    ... KTRes: 0.00000    Wake Iter:     5 / 5     ... GMRES Iter:     1 ... Red:   -0.54809 / -1.00000   ...  Max:    1.28132 / 1.00000    Wake Iter:     5 / 5     ... GMRES Iter:     2 ... Red:   -0.95861 / -1.00000   ...  Max:    0.87080 / 1.00000    Wake Iter:     5 / 5     ... GMRES Iter:     3 ... Red:   -1.26927 / -1.00000   ...  Max:    0.56014 / 1.00000            5   0.22705   2.00000   0.00000  -0.00072   0.49182   0.49110   0.02275   0.00984   0.03259  15.08948   1.11725   0.00534   0.14331  -0.00229   0.49370   0.01396  13.45081   0.79420   0.00000  -0.08580   1.27308   0.83469 
+Creating quad tree velocity survey data structures... 
+Xmin_: 0.000000 
+Xmax_: 28.497286 
+Ymin_: -18.463892 
+Ymax_: 18.463892 
+Zmin_: -1.788725 
+Zmax_: 6.319526 
+Working on quad tree: 1 
+Direction, Value: 2 0.000000 
+Inserted: 78 points 
+
+WakeAngle_: 0.997564 -0.000000 0.069756 
+Xmax_ - Xmin_: 28.497286 
+Ymax_ - Ymin_: 36.927784 
+Zmax_ - Zmin_: 8.108251 
+
+The wake FarDist set to: 36.927784 
+Updating wake grids... 
+SigmaAvg_: 1.953137 
+Creating interaction lists... 
+
+Forward sweep... 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Forward Mode: total multipole speed up ratio: 1.769555 
+Solving... Mach: 0.227052 ... Alpha: 4.000000 ... Beta: 0.000000 
+
+                                                                    Surface Integration Forces and Moments -->                                                  Wake Induced Forces -->  
+                                                                    Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-  Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake 
+    Iter    Mach       AoA      Beta       CLo       CLi      CLtot     CDo        CDi      CDtot      L/D        E       CMxtot    CMytot    Cmztot    CLiw       CDiw    LoDwake    Ewake      T/QS      L2Res    MaxRes  Wall_Time 
+Wake Iter:     1 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    3.26236 / 1.00000    ... KTRes: 0.00000    Wake Iter:     1 / 5     ... GMRES Iter:     1 ... Red:   -0.80299 / -1.00000   ...  Max:    2.45937 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     2 ... Red:   -1.08518 / -1.00000   ...  Max:    2.17718 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     3 ... Red:   -1.32752 / -1.00000   ...  Max:    1.93484 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     4 ... Red:   -1.56195 / -1.00000   ...  Max:    1.70041 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     5 ... Red:   -1.74359 / -1.00000   ...  Max:    1.51877 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     6 ... Red:   -2.06112 / -1.00000   ...  Max:    1.20124 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     7 ... Red:   -2.19742 / -1.00000   ...  Max:    1.06494 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     8 ... Red:   -2.29137 / -1.00000   ...  Max:    0.97099 / 1.00000            1   0.22705   4.00000   0.00000  -0.00132   0.00000  -0.00132   0.02079   0.00000   0.02079   0.00000   0.00000  -0.00000   0.00114  -0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   0.81773   1.53123   0.17523 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     2 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    0.97099 / 1.00000    ... KTRes: 0.00000    Wake Iter:     2 / 5     ... GMRES Iter:     1 ... Red:   -0.03290 / -1.00000   ...  Max:    0.93809 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     2 ... Red:   -0.21466 / -1.00000   ...  Max:    0.75633 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     3 ... Red:   -0.41683 / -1.00000   ...  Max:    0.55416 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     4 ... Red:   -0.56203 / -1.00000   ...  Max:    0.40896 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     5 ... Red:   -0.67552 / -1.00000   ...  Max:    0.29547 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     6 ... Red:   -0.90094 / -1.00000   ...  Max:    0.07005 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     7 ... Red:   -1.11261 / -1.00000   ...  Max:   -0.14162 / 1.00000            2   0.22705   4.00000   0.00000  -0.00155   0.67942   0.67787   0.02406   0.01894   0.04300  15.80061   1.10808   0.00310   0.17923   0.00015   0.67657   0.02140  14.88378   0.97263   0.00000  -0.51995   0.38814   0.39528 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     3 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    2.25422 / 1.00000    ... KTRes: 0.00000    Wake Iter:     3 / 5     ... GMRES Iter:     1 ... Red:   -0.78993 / -1.00000   ...  Max:    1.46430 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     2 ... Red:   -1.16465 / -1.00000   ...  Max:    1.08957 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     3 ... Red:   -1.37432 / -1.00000   ...  Max:    0.87990 / 1.00000            3   0.22705   4.00000   0.00000  -0.00155   0.67480   0.67324   0.02408   0.01934   0.04342  15.54177   1.07090   0.00262   0.18478   0.00094   0.67581   0.02375  14.12759   0.87434   0.00000   0.16208   1.25766   0.56076 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     4 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    1.94913 / 1.00000    ... KTRes: 0.00000    Wake Iter:     4 / 5     ... GMRES Iter:     1 ... Red:   -0.68377 / -1.00000   ...  Max:    1.26535 / 1.00000    Wake Iter:     4 / 5     ... GMRES Iter:     2 ... Red:   -1.31468 / -1.00000   ...  Max:    0.63445 / 1.00000            4   0.22705   4.00000   0.00000  -0.00155   0.69745   0.69590   0.02406   0.02031   0.04437  15.72029   1.08905   0.00436   0.13483  -0.00058   0.69562   0.02505  14.16463   0.87824   0.00000  -0.11559   1.22984   0.70462 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     5 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    1.65379 / 1.00000    ... KTRes: 0.00000    Wake Iter:     5 / 5     ... GMRES Iter:     1 ... Red:   -0.50707 / -1.00000   ...  Max:    1.14672 / 1.00000    Wake Iter:     5 / 5     ... GMRES Iter:     2 ... Red:   -0.92510 / -1.00000   ...  Max:    0.72869 / 1.00000    Wake Iter:     5 / 5     ... GMRES Iter:     3 ... Red:   -1.26754 / -1.00000   ...  Max:    0.38625 / 1.00000            5   0.22705   4.00000   0.00000  -0.00155   0.70338   0.70183   0.02404   0.02067   0.04471  15.73239   1.08860   0.00410   0.12196  -0.00092   0.70074   0.02506  14.26994   0.89089   0.00000  -0.21802   1.02866   0.90913 
+Creating quad tree velocity survey data structures... 
+Xmin_: 0.000000 
+Xmax_: 28.497286 
+Ymin_: -18.463892 
+Ymax_: 18.463892 
+Zmin_: -1.788725 
+Zmax_: 6.319526 
+Working on quad tree: 1 
+Direction, Value: 2 0.000000 
+Inserted: 78 points 
+
+WakeAngle_: 0.994522 -0.000000 0.104528 
+Xmax_ - Xmin_: 28.497286 
+Ymax_ - Ymin_: 36.927784 
+Zmax_ - Zmin_: 8.108251 
+
+The wake FarDist set to: 36.927784 
+Updating wake grids... 
+SigmaAvg_: 1.953137 
+Creating interaction lists... 
+
+Forward sweep... 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Forward Mode: total multipole speed up ratio: 1.769193 
+Solving... Mach: 0.227052 ... Alpha: 6.000000 ... Beta: 0.000000 
+
+                                                                    Surface Integration Forces and Moments -->                                                  Wake Induced Forces -->  
+                                                                    Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-  Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake 
+    Iter    Mach       AoA      Beta       CLo       CLi      CLtot     CDo        CDi      CDtot      L/D        E       CMxtot    CMytot    Cmztot    CLiw       CDiw    LoDwake    Ewake      T/QS      L2Res    MaxRes  Wall_Time 
+Wake Iter:     1 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    3.37494 / 1.00000    ... KTRes: 0.00000    Wake Iter:     1 / 5     ... GMRES Iter:     1 ... Red:   -0.74750 / -1.00000   ...  Max:    2.62743 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     2 ... Red:   -1.09711 / -1.00000   ...  Max:    2.27783 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     3 ... Red:   -1.38368 / -1.00000   ...  Max:    1.99126 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     4 ... Red:   -1.55961 / -1.00000   ...  Max:    1.81533 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     5 ... Red:   -1.72471 / -1.00000   ...  Max:    1.65023 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     6 ... Red:   -2.02772 / -1.00000   ...  Max:    1.34722 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     7 ... Red:   -2.18393 / -1.00000   ...  Max:    1.19100 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     8 ... Red:   -2.25631 / -1.00000   ...  Max:    1.11863 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     9 ... Red:   -2.36773 / -1.00000   ...  Max:    1.00721 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    10 ... Red:   -2.49836 / -1.00000   ...  Max:    0.87658 / 1.00000            1   0.22705   6.00000   0.00000  -0.00199   0.00000  -0.00199   0.02073   0.00000   0.02073   0.00000   0.00000  -0.00000   0.00114  -0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   0.88923   1.48682   0.18532 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     2 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    0.87658 / 1.00000    ... KTRes: 0.00000    Wake Iter:     2 / 5     ... GMRES Iter:     1 ... Red:   -0.01209 / -1.00000   ...  Max:    0.86449 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     2 ... Red:   -0.09591 / -1.00000   ...  Max:    0.78067 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     3 ... Red:   -0.25432 / -1.00000   ...  Max:    0.62225 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     4 ... Red:   -0.57502 / -1.00000   ...  Max:    0.30156 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     5 ... Red:   -0.88067 / -1.00000   ...  Max:   -0.00410 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     6 ... Red:   -1.10051 / -1.00000   ...  Max:   -0.22393 / 1.00000            2   0.22705   6.00000   0.00000  -0.00252   0.83371   0.83119   0.02570   0.02862   0.05432  15.34801   1.10453   0.00131   0.29903   0.00110   0.82707   0.02833  15.30577   1.09789   0.00000  -0.33823   0.64191   0.36821 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     3 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    2.60789 / 1.00000    ... KTRes: 0.00000    Wake Iter:     3 / 5     ... GMRES Iter:     1 ... Red:   -1.03947 / -1.00000   ...  Max:    1.56842 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     2 ... Red:   -1.34679 / -1.00000   ...  Max:    1.26110 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     3 ... Red:   -1.50417 / -1.00000   ...  Max:    1.10372 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     4 ... Red:   -1.75579 / -1.00000   ...  Max:    0.85210 / 1.00000            3   0.22705   6.00000   0.00000  -0.00252   0.83588   0.83337   0.02572   0.03144   0.05715  14.62523   1.01067   0.00166   0.27940   0.00042   0.82750   0.03503  13.62277   0.88897   0.00000   0.41169   1.37050   0.53591 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     4 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    1.99844 / 1.00000    ... KTRes: 0.00000    Wake Iter:     4 / 5     ... GMRES Iter:     1 ... Red:   -0.70867 / -1.00000   ...  Max:    1.28977 / 1.00000    Wake Iter:     4 / 5     ... GMRES Iter:     2 ... Red:   -1.22097 / -1.00000   ...  Max:    0.77747 / 1.00000            4   0.22705   6.00000   0.00000  -0.00252   0.90553   0.90302   0.02570   0.03636   0.06206  14.59123   1.02540   0.00278   0.13189   0.00074   0.89350   0.03927  13.75377   0.92450   0.00000  -0.08217   1.05657   0.68375 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     5 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    1.78756 / 1.00000    ... KTRes: 0.00000    Wake Iter:     5 / 5     ... GMRES Iter:     1 ... Red:   -0.50058 / -1.00000   ...  Max:    1.28698 / 1.00000    Wake Iter:     5 / 5     ... GMRES Iter:     2 ... Red:   -0.98607 / -1.00000   ...  Max:    0.80149 / 1.00000    Wake Iter:     5 / 5     ... GMRES Iter:     3 ... Red:   -1.21749 / -1.00000   ...  Max:    0.57007 / 1.00000            5   0.22705   6.00000   0.00000  -0.00252   0.91866   0.91614   0.02570   0.03752   0.06322  14.53074   1.02277   0.00294   0.10468   0.00032   0.90559   0.04002  13.77962   0.93185   0.00000  -0.29755   0.89107   0.90178 
+Creating quad tree velocity survey data structures... 
+Xmin_: 0.000000 
+Xmax_: 28.497286 
+Ymin_: -18.463892 
+Ymax_: 18.463892 
+Zmin_: -1.788725 
+Zmax_: 6.319526 
+Working on quad tree: 1 
+Direction, Value: 2 0.000000 
+Inserted: 77 points 
+
+WakeAngle_: 0.990268 -0.000000 0.139173 
+Xmax_ - Xmin_: 28.497286 
+Ymax_ - Ymin_: 36.927784 
+Zmax_ - Zmin_: 8.108251 
+
+The wake FarDist set to: 36.927784 
+Updating wake grids... 
+SigmaAvg_: 1.953137 
+Creating interaction lists... 
+
+Forward sweep... 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Forward Mode: total multipole speed up ratio: 1.769336 
+Solving... Mach: 0.227052 ... Alpha: 8.000000 ... Beta: 0.000000 
+
+                                                                    Surface Integration Forces and Moments -->                                                  Wake Induced Forces -->  
+                                                                    Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-  Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake 
+    Iter    Mach       AoA      Beta       CLo       CLi      CLtot     CDo        CDi      CDtot      L/D        E       CMxtot    CMytot    Cmztot    CLiw       CDiw    LoDwake    Ewake      T/QS      L2Res    MaxRes  Wall_Time 
+Wake Iter:     1 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    3.46494 / 1.00000    ... KTRes: 0.00000    Wake Iter:     1 / 5     ... GMRES Iter:     1 ... Red:   -0.71960 / -1.00000   ...  Max:    2.74534 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     2 ... Red:   -1.12581 / -1.00000   ...  Max:    2.33913 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     3 ... Red:   -1.44219 / -1.00000   ...  Max:    2.02275 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     4 ... Red:   -1.59448 / -1.00000   ...  Max:    1.87046 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     5 ... Red:   -1.79967 / -1.00000   ...  Max:    1.66528 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     6 ... Red:   -2.04937 / -1.00000   ...  Max:    1.41557 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     7 ... Red:   -2.27645 / -1.00000   ...  Max:    1.18849 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     8 ... Red:   -2.39671 / -1.00000   ...  Max:    1.06823 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     9 ... Red:   -2.57432 / -1.00000   ...  Max:    0.89063 / 1.00000            1   0.22705   8.00000   0.00000  -0.00266   0.00000  -0.00266   0.02065   0.00000   0.02065   0.00000   0.00000  -0.00000   0.00114  -0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   0.96399   1.43675   0.17410 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     2 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    0.89063 / 1.00000    ... KTRes: 0.00000    Wake Iter:     2 / 5     ... GMRES Iter:     1 ... Red:   -0.03069 / -1.00000   ...  Max:    0.85994 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     2 ... Red:   -0.05734 / -1.00000   ...  Max:    0.83328 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     3 ... Red:   -0.24751 / -1.00000   ...  Max:    0.64312 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     4 ... Red:   -0.45557 / -1.00000   ...  Max:    0.43505 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     5 ... Red:   -0.70621 / -1.00000   ...  Max:    0.18441 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     6 ... Red:   -0.87740 / -1.00000   ...  Max:    0.01323 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     7 ... Red:   -1.29034 / -1.00000   ...  Max:   -0.39972 / 1.00000            2   0.22705   8.00000   0.00000  -0.00364   1.03509   1.03145   0.02759   0.04644   0.07403  13.98177   1.04899  -0.00004   0.27169   0.00304   1.00859   0.04551  13.79876   1.01651   0.00000  -0.38961   0.52882   0.37185 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     3 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    2.43834 / 1.00000    ... KTRes: 0.00000    Wake Iter:     3 / 5     ... GMRES Iter:     1 ... Red:   -0.84823 / -1.00000   ...  Max:    1.59011 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     2 ... Red:   -1.36128 / -1.00000   ...  Max:    1.07706 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     3 ... Red:   -1.53525 / -1.00000   ...  Max:    0.90309 / 1.00000            3   0.22705   8.00000   0.00000  -0.00364   1.02233   1.01869   0.02762   0.04861   0.07623  13.41128   0.97771  -0.00003   0.29379   0.00200   1.00542   0.04269  14.29915   1.07666   0.00000   0.51564   1.66836   0.53971 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     4 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    2.70671 / 1.00000    ... KTRes: 0.00000    Wake Iter:     4 / 5     ... GMRES Iter:     1 ... Red:   -1.24552 / -1.00000   ...  Max:    1.46119 / 1.00000    Wake Iter:     4 / 5     ... GMRES Iter:     2 ... Red:   -1.56523 / -1.00000   ...  Max:    1.14148 / 1.00000    Wake Iter:     4 / 5     ... GMRES Iter:     3 ... Red:   -2.01696 / -1.00000   ...  Max:    0.68975 / 1.00000            4   0.22705   8.00000   0.00000  -0.00365   1.01920   1.01555   0.02764   0.04913   0.07677  13.27658   0.96152   0.00121   0.32326   0.00224   1.00146   0.04986  12.92243   0.91473   0.00000   0.50222   1.79457   0.69306 
+1000 / 1223 Working on level 2 of 3 Working on level 3 of 3 Wake Iter:     5 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    1.57534 / 1.00000    ... KTRes: 0.00000    Wake Iter:     5 / 5     ... GMRES Iter:     1 ... Red:   -0.82783 / -1.00000   ...  Max:    0.74751 / 1.00000    Wake Iter:     5 / 5     ... GMRES Iter:     2 ... Red:   -0.91466 / -1.00000   ...  Max:    0.66068 / 1.00000    Wake Iter:     5 / 5     ... GMRES Iter:     3 ... Red:   -1.15529 / -1.00000   ...  Max:    0.42004 / 1.00000            5   0.22705   8.00000   0.00000  -0.00365   1.12573   1.12208   0.02769   0.05788   0.08558  13.15442   0.99554   0.00179   0.09395   0.00184   1.10613   0.05855  12.82497   0.95018   0.00000  -0.41689   0.76925   0.87950 
+Creating quad tree velocity survey data structures... 
+Xmin_: 0.000000 
+Xmax_: 28.497286 
+Ymin_: -18.463892 
+Ymax_: 18.463892 
+Zmin_: -1.788725 
+Zmax_: 6.319526 
+Working on quad tree: 1 
+Direction, Value: 2 0.000000 
+Inserted: 77 points 
+
+Total setup and solve time: 12.732494 seconds 
+Done

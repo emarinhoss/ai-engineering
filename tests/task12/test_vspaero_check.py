@@ -90,3 +90,8 @@ def test_valid_polar_gate():
     assert not v.valid_polar(37.0, 0.001, [0.001, 0.01])[0]       # slope absurd
     assert not v.valid_polar(4.7, 0.5, [0.001, 0.01])[0]          # not a line
     assert not v.valid_polar(4.7, 0.001, [0.001, -0.01])[0]       # negative induced drag
+
+
+def test_vspaero_version():
+    assert v.vspaero_version("VSPAERO v.7.2.2 --- Compiled on: Nov 24 2026") == "VSPAERO v.7.2.2"
+    assert v.vspaero_version("nothing here") is None

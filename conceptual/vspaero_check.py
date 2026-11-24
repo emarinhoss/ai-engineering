@@ -119,6 +119,12 @@ def valid_polar(cl_alpha, cl_residual, cdi_trefftz):
     return True, "ok"
 
 
+def vspaero_version(log_text):
+    """The solver's own version line from the top of its log, e.g. 'VSPAERO v.7.2.2'."""
+    m = re.search(r"VSPAERO v\.[0-9.]+", log_text)
+    return m.group(0) if m else None
+
+
 def relative_change(a, b):
     """(b - a)/|a|."""
     return (b - a) / abs(a)
@@ -305,6 +311,7 @@ def main(argv=None):
               "command": "python -m conceptual.vspaero_check " + " ".join(argv if argv is not None else sys.argv[1:]),
               "python": sys.version.split()[0], "openvsp": vsp.GetVSPVersion(),
               "vspaero_path": vsp.GetVSPAEROPath(),
+              "vspaero_version": vspaero_version((out / "wing_L1.log").read_text(errors="replace")[:2000]),
               "units": "ft, lb, s, deg", "altitude_ft": h, "atmosphere": atm, "conditions": conditions,
               "reference": ref, "aspect_ratio": w["aspect_ratio"], "alpha_sweep_deg": ALPHAS,
               "levels": {k: {"wing_tail_strips_per_section": v[0], "Tess_W": v[1], "fuselage_Tess_U": v[2],
