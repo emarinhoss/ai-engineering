@@ -7,6 +7,16 @@ Rows: shaft power available at 20,000 and 25,000 ft (App. K against Stage 1's pi
 used); service ceiling with the App. K power. Every row gives the spread over the TP100 cycle
 family (measurement/tp100_engine.py). Then the consequence: the design re-sized with the
 App. K fuel consumption, everything else unchanged.
+
+    python -m measurement.stage3_engine --design runs/task12/stage3/<date>/<run>/design_pusher.json \
+        --out runs/task12/stage3/<date>/<run>/engine.json --report docs/validation/<file>.md
+
+With --design the engine is read from the record (`measure_record`): a record sized with the
+RR M250-B17F is measured against the M250 cycle family of measurement/m250_engine.py (calibrated to
+the brochure's take-off SFC and gas temperature), any other record against the TP100 family above
+with the rows as before. The M250 rows follow spec 7.1b: the power, SFC and ceiling rows compare
+the table with a family that contains it, so they are reported but not judged; the independent
+engine row is the brochure's part-power SFC (the closing check of 7.1b item 3).
 """
 import argparse
 import hashlib
@@ -17,9 +27,12 @@ from pathlib import Path
 
 import numpy as np
 
+from conceptual import raymer_performance as perf
 from conceptual import raymer_propulsion as prop
 from conceptual import stage1, uav
 from conceptual.units import HP, KT, isa
+from measurement import m250_engine as m250
+from measurement import stage3_perf as sp
 from measurement import tp100_engine as tp
 from measurement import turboprop_cycle as tc
 
@@ -171,6 +184,244 @@ def book_validation():
     return out
 
 
+# ---- records sized with the RR M250-B17F (spec 7.1b, 7.1c; owner ruling R-a) ----------------------
+TOL_POWER, TOL_SFC, TOL_CEILING_FT = 0.10, 0.10, 1000.0      # spec 7.1a
+BROCHURE_POINTS = ("normal_cruise", "cruise_a_90pct", "cruise_b_75pct")
+NOT_INDEPENDENT = "not judged (7.1b: same table)"
+
+
+def is_m250(d):
+    return d.get("engine", {}).get("fixed", "").startswith("RR_M250")
+
+
+def _m250_row(rid, quantity, unit, stage1, source, band, tol, kind, independent, note=""):
+    """Row with Stage 1's value, the family band, the deviations at both ends and a verdict.
+    independent False: the numbers are reported, the verdict is 'not judged' (spec 7.1b)."""
+    lo, hi = band["min"], band["max"]
+    dev = [(x - stage1) / stage1 for x in (lo, hi)] if kind == "relative" else [x - stage1 for x in (lo, hi)]
+    ok = all(abs(x) <= tol for x in dev)
+    verdict = ("within" if ok else "outside") if independent else NOT_INDEPENDENT
+    return {"id": rid, "quantity": quantity, "unit": unit, "stage1": stage1, "source": source,
+            "stage3": band, "deviation": dev, "deviation_kind": kind, "tolerance": tol,
+            "numerically_within": ok, "independent": independent, "verdict": verdict, "note": note}
+
+
+def _record_points(d, L):
+    """(segment, where, W, V_kt, shaft hp) at start, middle and end of each cruise and loiter leg of
+    the record, level flight at the record's CD0 and K."""
+    h = L["mission_altitude_ft"]
+    a = isa(h)
+    S = d["wing"]["area"]
+    pts = []
+    for leg in d["mission"]:
+        if leg["V_kt"] <= 0.0:
+            continue
+        V = leg["V_kt"] * KT
+        for where, W in (("start", leg["W_start"]), ("mid", 0.5 * (leg["W_start"] + leg["W_end"])),
+                         ("end", leg["W_end"])):
+            q = 0.5 * a["rho"] * V * V
+            D = q * S * d["CD0"]["mission_altitude"] + d["K"] * W * W / (q * S)
+            pts.append({"segment": leg["segment"], "where": where, "W_lb": W, "V_kt": leg["V_kt"],
+                        "shaft_hp": D * V / (HP * L["eta_p"]), "stage1_cbhp_leg": leg["cbhp_mean"]})
+    return pts
+
+
+def measure_m250(design_path):
+    """Engine rows of a record sized with the M250-B17F. Returns rows (see _m250_row) and detail."""
+    d, L, b, ledger_path, check = sp.rebuild(design_path)
+    table_path = sp.table_for_run(Path(design_path).parent)
+    table = json.loads(Path(table_path).read_text())
+    to = m250.ratings("450")["take_off"]
+    members, failures = m250.family(shp=to["shp"], bsfc=to["bsfc_max"], mgt_c=to["mgt_c"])
+    nominal = next(m for m in members if (m["e_c"], m["e_t"]) == (table["member"]["e_c"], table["member"]["e_t"]))
+    # the record's table must be this family's nominal member, else the engine data changed since
+    pi_c_gap = abs(nominal["ref"]["pi_c"] / table["member"]["pi_c"] - 1.0)
+    if pi_c_gap > 1e-6:
+        raise ValueError(f"the record's table member (pi_c {table['member']['pi_c']}) is not the "
+                         f"calibrated nominal member (pi_c {nominal['ref']['pi_c']})")
+    model = b["engine_model"]
+    rows, detail = [], {"family": [], "failures": failures, "table": str(table_path),
+                        "table_sha256": sp.sha256(table_path), "nominal_pi_c_gap": pi_c_gap}
+    for m in members:
+        detail["family"].append({"e_c": m["e_c"], "e_t": m["e_t"], "Tt4_R": m["Tt4"], "pi_c": m["ref"]["pi_c"],
+                                 "tau_t": m["ref"]["tau_t"], "m0_lbm_s": m["ref"]["m0"]})
+    for h in (20000.0, 25000.0):
+        held = [tp.power_available(m, h, V_CLIMB_KT) for m in members]
+        free = [tp.power_available(m, h, V_CLIMB_KT, hold_pi_c=False) for m in members]
+        rows.append(_m250_row(f"power_{int(h)}", f"shaft hp available at {h:,.0f} ft, {V_CLIMB_KT:.0f} kt", "hp",
+                              model.power_available(h, V_CLIMB_KT), "App. K family, pi_c held at the rating",
+                              _band(held), TOL_POWER, "relative", False,
+                              "Stage 1's value is the table of the family's nominal member (rated power clip, "
+                              "power scale 1); the family contains it."))
+        detail[f"flat_rated_upper_bound_{int(h)}"] = _band(free)
+    pts = _record_points(d, L)
+    h_alt = L["mission_altitude_ft"]
+    for p in pts:
+        vals = [m250_bsfc(m, h_alt, p["V_kt"], p["shaft_hp"]) for m in members]
+        p["bsfc"] = _band([v[0] for v in vals])
+        p["Tt4_R"] = _band([v[1] for v in vals])
+    detail["points"] = pts
+    w = {"start": 1 / 6, "mid": 4 / 6, "end": 1 / 6}
+    for seg in ("cruise_out", "loiter", "cruise_back"):
+        sp_ = [p for p in pts if p["segment"] == seg]
+        band = {k: sum(w[p["where"]] * p["bsfc"][k] for p in sp_) for k in ("min", "max", "mean")}
+        rows.append(_m250_row(f"sfc_{seg}", f"shaft SFC over {seg} (leg average)", "lb/(hp h)",
+                              sp_[0]["stage1_cbhp_leg"], "App. K family, part power at the leg's level-flight power",
+                              band, TOL_SFC, "relative", False,
+                              "Stage 1's value is the record's leg-mean SFC from the table, with the 1.02 allowance "
+                              f"({L.get('engine_sfc_allowance', 1.0)}); the family is raw App. K without it."))
+    bd = dict(b, W0=d["W0_lb"], W_S=d["W_S"])
+
+    def climb_power(m):
+        """Family member's full-throttle power at the speed uav.ceiling's default uses at each altitude
+        (climb_speed_over_stall x clean stall speed), so only the engine differs from Stage 1's bisection."""
+        def at(hh):
+            a = isa(hh)
+            V = L["climb_speed_over_stall"] * perf.stall_speed(d["W_S"], a["rho"], b["clmax"]["clean"])
+            return tp.power_available(m, hh, V / KT)
+        return at
+    ceil = [uav.ceiling(bd, L, power_at=climb_power(m)) for m in members]
+    rows.append(_m250_row("ceiling", "service ceiling (App. K power, pi_c held)", "ft",
+                          d["performance"]["service_ceiling_ft"], "App. K family power in Stage 1's ceiling bisection",
+                          _band(ceil), TOL_CEILING_FT, "absolute", False,
+                          "Same bisection as Stage 1 (climb speed over stall speed at each altitude); only the engine power differs."
+                          + (f" Stage 1's ceiling is above the table's top altitude ({max(table['h_ft']):,.0f} ft), where "
+                             "the table holds its power constant (the lookup clamps); the cycle itself keeps falling, so "
+                             "the difference here is the table's edge, not the family's spread."
+                             if d["performance"]["service_ceiling_ft"] > max(table["h_ft"]) else "")))
+    # closing check, 7.1b item 3: the brochure's part-power SFC, which the take-off calibration did not use
+    study = m250.study("450")
+    rates = m250.ratings("450")
+    detail["brochure_study"] = {"members": [{k: v for k, v in m.items() if k != "validation"} | {"validation": m["validation"]}
+                                            for m in study["members"]], "failures": study["failures"]}
+    for name in BROCHURE_POINTS:
+        pts_b = [next(r for r in m["validation"]["points"] if r["point"] == name) for m in study["members"]]
+        band = _band([r["bsfc"] for r in pts_b])
+        rows.append(_m250_row(f"brochure_{name}", f"shaft SFC at {name} ({rates[name]['shp']:.0f} shp, sea level static)",
+                              "lb/(hp h)", rates[name]["bsfc_max"],
+                              "App. K family against the brochure's maximum (guaranteed) SFC", band, TOL_SFC,
+                              "relative", True,
+                              "Stage 1 column is the brochure value (a maximum/guaranteed SFC). The calibration used take-off only. Valid at sea level and 70-100 % power only."))
+    detail["brochure_mgt"] = {"brochure_c": rates["normal_cruise"]["mgt_c"],
+                              "model_c": _band([m["validation"]["mgt_c"] for m in study["members"]]),
+                              "tolerance_c": m250.TOL_MGT_C}
+    # validity (7.1b item 2)
+    unch = m250.unchoked_cells(table)
+    detail["validity"] = {"table_unchoked_cell_share": unch["share"], "table_cells": unch["n_cells"],
+                          "mission_fuel_share_unchoked_record": d["unchoked_fuel_share"],
+                          "legs": [{"segment": g["segment"], "unchoked_fraction": g["turbine_unchoked_fraction"],
+                                    "unchoked_fuel_lb": g["unchoked_fuel_lb"], "burned_lb": g["burned_lb"]}
+                                   for g in d["mission"]],
+                          "tested_range": "sea level static, 70-100 % power (brochure rows)"}
+    return {"frozen": {"W0_lb": d["W0_lb"], "fuel_lb": d["fuel_lb"], "bhp": d["bhp_sl"],
+                       "service_ceiling_ft": d["performance"]["service_ceiling_ft"],
+                       "sfc_allowance": L.get("engine_sfc_allowance", 1.0)},
+            "rows": rows, "detail": detail, "rebuild_check": check, "ledger_path": str(ledger_path)}
+
+
+def m250_bsfc(member, h, V_kt, shp):
+    """Shaft SFC and Tt4 of an M250 family member at a part-power point (the TP100 function: the
+    cycle code is the same)."""
+    return tp.bsfc_at(member, h, V_kt, shp)
+
+
+def measure_record(design_path):
+    """Engine rows of the record at `design_path`: the M250 route when it was sized with the M250,
+    else the TP100 route of `measure` with the record's ledger copy and engine."""
+    d = json.loads(Path(design_path).read_text())
+    if is_m250(d):
+        return measure_m250(design_path)
+    L, _ = uav.load_ledger(Path(design_path).parent / "ledger.yaml")
+    engines, _ = stage1.engine_options()
+    return measure(L, engines[stage1.CHOSEN_ENGINE])
+
+
+def report_m250(res, path):
+    """Markdown for a measure_m250 result; every number is read from it."""
+    v, fr, det, i = res["validation"], res["frozen"], res["detail"], res["inputs"]
+    L = []
+    w = L.append
+    w("# Task 12 Stage 3: engine measurements of the M250-B17F baseline (Mattingly App. K)\n")
+    w(f"Design `{i['design']}` (sha256 `{i['design_sha256']}`), commit `{i['commit']}`, Python {i['python']}, "
+      f"numpy {i['numpy']}. Generated by `python -m measurement.stage3_engine --design ...`; every number is read from "
+      "the run record `engine.json` beside the other Stage 3 records. Tolerances are spec 7.1a, fixed before the run.\n")
+    w("## 1. What these rows are\n")
+    w("The record was sized with the table of the M250 family's nominal member (spec 7.1b: the table is the App. K "
+      "cycle itself). So the power, SFC and ceiling rows compare the table with a family that contains it. They "
+      "are **reported, not judged**. The independent engine check is the brochure's part-power SFC, which the "
+      "take-off calibration did not use (7.1b item 3); that row is judged.\n")
+    w("## 2. The M250 family (measurement/m250_engine.py)\n")
+    w("Calibrated to the brochure's take-off SFC 0.613 and measured gas temperature 810 C; polytropic efficiencies "
+      "on the study grid.\n")
+    w("| e_c | e_t | pi_c solved | Tt4, R | tau_t* |\n|---|---|---|---|---|")
+    for m in det["family"]:
+        w(f"| {m['e_c']:.2f} | {m['e_t']:.2f} | {m['pi_c']:.3f} | {m['Tt4_R']:.0f} | {m['tau_t']:.3f} |")
+    for f in det["failures"]:
+        w(f"| {f['e_c']:.2f} | {f['e_t']:.2f} | no calibration: {f['reason']} | | |")
+    w(f"\nThe record's table member is reproduced by the family's nominal member (pi_c relative gap {det['nominal_pi_c_gap']:.1e}).\n")
+    w("## 3. Rows (spec 7.1a, 7.1b)\n")
+    w("| Quantity | Stage 1 / brochure | App. K family (min - max) | difference | tolerance | verdict |\n|---|---|---|---|---|---|")
+    for r in res["rows"]:
+        m = r["stage3"]
+        if r["deviation_kind"] == "relative":
+            dtxt, ttxt = f"{r['deviation'][0] * 100:+.1f} to {r['deviation'][1] * 100:+.1f} %", f"±{r['tolerance'] * 100:.0f} %"
+        else:
+            dtxt, ttxt = f"{r['deviation'][0]:+,.0f} to {r['deviation'][1]:+,.0f} ft", f"±{r['tolerance']:,.0f} ft"
+        vt = r["verdict"] + ("" if r["independent"] else f"; numerically {'inside' if r['numerically_within'] else 'outside'}")
+        w(f"| {r['quantity']} ({r['unit']}) | {r['stage1']:,.3f} | {m['min']:,.3f} - {m['max']:,.3f} | {dtxt} | {ttxt} | {vt} |")
+    w("")
+    for r in res["rows"]:
+        if r["note"]:
+            w(f"- **{r['quantity']}**: {r['note']}")
+    w("\nShaft SFC along the legs (family mean) and the turbine inlet temperature the throttle needs:\n")
+    w("| leg | point | weight, lb | speed, kt | shaft hp | SFC | Tt4, R |\n|---|---|---|---|---|---|---|")
+    for p in det["points"]:
+        w(f"| {p['segment']} | {p['where']} | {p['W_lb']:,.0f} | {p['V_kt']:.1f} | {p['shaft_hp']:.1f} | "
+          f"{p['bsfc']['mean']:.3f} | {p['Tt4_R']['mean']:.0f} |")
+    mg = det["brochure_mgt"]
+    w(f"\nMeasured gas temperature at normal cruise power: model {mg['model_c']['min']:.0f} - {mg['model_c']['max']:.0f} C "
+      f"against the brochure's {mg['brochure_c']:.0f} C (tolerance ±{mg['tolerance_c']:.0f} C).\n")
+    w(f"If the engine were flat-rated (Tt4 limit only): {det['flat_rated_upper_bound_20000']['min']:.0f}-"
+      f"{det['flat_rated_upper_bound_20000']['max']:.0f} hp at 20,000 ft, "
+      f"{det['flat_rated_upper_bound_25000']['min']:.0f}-{det['flat_rated_upper_bound_25000']['max']:.0f} hp at 25,000 ft "
+      "(upper bound; the rating clip of 450 hp applies to the table).\n")
+    w("## 4. Validity (spec 7.1b item 2)\n")
+    va = det["validity"]
+    w(f"- Tested range: {va['tested_range']}. Every mission point is above 20,000 ft or below 70 % power; the brochure "
+      "gives no altitude data.")
+    w(f"- Share of the table's cells (altitude, speed, power fraction) where the LP turbine is below the choking ratio, "
+      f"so App. K's off-design assumption fails: {va['table_unchoked_cell_share'] * 100:.1f} % of {va['table_cells']} cells.")
+    w(f"- Share of the baseline's mission fuel burned in such cells: **{va['mission_fuel_share_unchoked_record'] * 100:.1f} %** "
+      "(record `unchoked_fuel_share`).\n")
+    w("| leg | unchoked fraction | fuel in unchoked steps, lb | burned, lb |\n|---|---|---|---|")
+    for g in va["legs"]:
+        w(f"| {g['segment']} | {g['unchoked_fraction']:.3f} | {g['unchoked_fuel_lb']:.1f} | {g['burned_lb']:.1f} |")
+    w("\n## 5. The cycle model against the book's own example\n")
+    w("Same code as the TP100 report (`book_validation`); the comparison does not depend on the engine.\n")
+    w("| pi_c | Fig. K.4 tau_t* | model, gamma_t 1.3 |\n|---|---|---|")
+    for r in v["tau_t_star"]:
+        w(f"| {r['pi_c']} | {r['book']:.3f} | {r['model_gamma_t_1_3']:.3f} |")
+    w("\nFull-throttle thrust lapse at M0 = 0.1 (Fig. K.7):\n")
+    w("| altitude, ft | book | model |\n|---|---|---|")
+    for r in v["lapse"]:
+        w(f"| {r['h_ft']:,} | {r['book']:.3f} | {r['model']:.3f} |")
+    w("\nMinimum S at 15,000 ft (Fig. K.9), eta_prop,max 0.9:\n")
+    w("| M0 | book | model | ratio |\n|---|---|---|---|")
+    for r in v["part_throttle_gap"]:
+        w(f"| {r['M0']} | {r['book']:.3f} | {r['model_eta_max_0_9']:.3f} | {r['model_eta_max_0_9'] / r['book']:.2f} |")
+    w("\n## 6. Caveats carried\n")
+    w("- The M250 table is validated at sea level, static, and 70-100 % power only (brochure rows). Mission cruise and "
+      "loiter run at about 18-29 % of the rating, at 20,000 ft.")
+    w(f"- {va['mission_fuel_share_unchoked_record'] * 100:.1f} % of the baseline's mission fuel burns in unchoked cells, outside App. K's off-design assumption.")
+    w("- The 23,000 ft ceiling requirement is above the certified 20,000 ft B17 installations "
+      "(docs/validation/2026-11-24_task12_m250_r6_sources.md); the maximum operating altitude and relight envelope are "
+      "design assumptions (owner ruling R-f).")
+    w("- Installation losses (inlet, exhaust, bleed, accessory power) are not modelled beyond the 1.02 SFC allowance.")
+    w("- Not done: re-sizing the design with the family's SFC (the table is the nominal member; the +-10 % SFC and power "
+      "bands are carried by the info-gap study).")
+    Path(path).write_text("\n".join(L) + "\n")
+
+
 def report(res, path):
     v, fr = res["validation"], res["frozen"]
     L = []
@@ -266,17 +517,40 @@ def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", required=True)
     ap.add_argument("--report", help="write the Markdown report here")
+    ap.add_argument("--design", help="a Stage 1 record; its engine decides the route (M250 or TP100)")
     a = ap.parse_args(argv)
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
-    L, _ = uav.load_ledger()
-    engines, _ = stage1.engine_options()
     commit = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True,
                             check=False, cwd=REPO).stdout.strip()
-    res = measure(L, engines[stage1.CHOSEN_ENGINE])
-    res["validation"] = book_validation()
     dirty = bool(subprocess.run(["git", "status", "--porcelain", "--", "conceptual", "measurement", "data"],
                                 capture_output=True, text=True, check=False, cwd=REPO).stdout.strip())
+    if a.design and is_m250(json.loads(Path(a.design).read_text())):
+        res = measure_m250(a.design)
+        res["validation"] = book_validation()
+        res["inputs"] = {"commit": commit, "uncommitted_code_changes": dirty, "python": platform.python_version(),
+                         "numpy": np.__version__, "design": a.design, "design_sha256": sp.sha256(a.design),
+                         "ledger": res.pop("ledger_path"),
+                         "ledger_sha256": sp.sha256(Path(a.design).parent / "ledger.yaml"),
+                         "engines_sha256": hashlib.sha256(stage1.ENGINES.read_bytes()).hexdigest(),
+                         "family_grid": m250.GRID, "v_climb_kt": V_CLIMB_KT, "seed": None}
+        (out / "engine.json").write_text(json.dumps(res, indent=2, default=float))
+        for r in res["rows"]:
+            m = r["stage3"]
+            print(f"{r['id']}: stage1 {r['stage1']:.3f}, App K {m['min']:.3f}-{m['max']:.3f}, {r['verdict']}")
+        if a.report:
+            report_m250(res, a.report)
+        return
+    if a.design:
+        L, _ = uav.load_ledger(Path(a.design).parent / "ledger.yaml")
+        engines, _ = stage1.engine_options()
+        eng = engines[stage1.CHOSEN_ENGINE]
+    else:
+        L, _ = uav.load_ledger()
+        engines, _ = stage1.engine_options()
+        eng = engines[stage1.CHOSEN_ENGINE]
+    res = measure(L, eng)
+    res["validation"] = book_validation()
     res["inputs"] = {"commit": commit, "uncommitted_code_changes": dirty, "python": platform.python_version(), "numpy": np.__version__,
                      "ledger_sha256": hashlib.sha256(uav.LEDGER.read_bytes()).hexdigest(),
                      "engines_sha256": hashlib.sha256(stage1.ENGINES.read_bytes()).hexdigest(),

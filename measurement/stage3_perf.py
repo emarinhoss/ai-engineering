@@ -471,6 +471,46 @@ def stability_rows(d):
                      "Anderson (8.76)-(8.78) p. 444", 0.03, "absolute", why)]
 
 
+# ---- propeller efficiency: Mattingly App. L ---------------------------------------------------------
+REAL_TO_IDEAL = 0.85       # App. L p. 612-613: real propellers reach about 85 % of the ideal (library notes)
+
+
+def _prop_eta_fixed_point(shp, V, rho, diameter, real_to_ideal=REAL_TO_IDEAL):
+    """Real efficiency eta = f eta*(T) with T = 550 eta P / V: thrust and efficiency depend on each
+    other, so iterate (converges in a few passes: eta* varies slowly with thrust)."""
+    eta = real_to_ideal
+    for _ in range(100):
+        T = 550.0 * eta * shp / V
+        new = M.real_propeller_efficiency(T, rho, V, diameter, real_to_ideal)
+        if abs(new - eta) < 1e-12:
+            break
+        eta = new
+    return eta, T
+
+
+def prop_rows(d, L):
+    """Propeller efficiency at climb, cruise and loiter (tolerance +-0.05 absolute against Raymer's
+    eta_p, Table 3.4) by the actuator disk with the real-to-ideal factor (App. L). The shaft power,
+    speed and diameter are the record's; density is sea level for climb and the mission altitude
+    for cruise and loiter. The blade-element estimate of the spec row is not computed."""
+    out = []
+    pts = d["propeller_points"]
+    sl, alt = isa(0.0), isa(L["mission_altitude_ft"])
+    for rid, name, key, a in (("prop_eta_climb", "climb (sea level, full power)", "climb_sea_level", sl),
+                              ("prop_eta_cruise", "cruise (outbound leg)", "cruise_out", alt),
+                              ("prop_eta_loiter", "loiter", "loiter", alt)):
+        p = pts[key]
+        eta, T = _prop_eta_fixed_point(p["shaft_hp"], p["V_kt"] * KT, a["rho"], d["propeller_diameter_ft"])
+        out.append(make_row(rid, f"propeller efficiency, {name}", "-", L["eta_p"], "ledger eta_p (Raymer Table 3.4)",
+                            eta, "Mattingly App. L (L.7)-(L.9) p. 612 actuator disk, real-to-ideal "
+                            f"{REAL_TO_IDEAL}", 0.05, "absolute",
+                            f"Shaft {p['shaft_hp']:.1f} hp at {p['V_kt']:.1f} kt, diameter "
+                            f"{d['propeller_diameter_ft']:.2f} ft, thrust {T:,.0f} lb. The 0.85 factor is the book's "
+                            "typical value, applied to every point; no blade-element or propeller-map estimate "
+                            "was made (not computed)."))
+    return out
+
+
 # ---- driver ----------------------------------------------------------------------------------------
 def compute(design_path):
     d, L, b, ledger_path, check = rebuild(design_path)
@@ -518,12 +558,23 @@ def compute(design_path):
                          "1.5 x the flat-plate value at the fuselage-length Reynolds number, a "
                          "reading of a chart. Stage 1's CD0 includes engine, sensor and gear "
                          "terms the equivalent-skin-friction method has no separate place for."))
+    rows += prop_rows(d, L)
     rows += speed_rows(d, L, b)
     rows += field_rows(d, L, b)
     rows += vn_rows(d, L, b)
     rows += stability_rows(d)
     return {"rows": rows, "mission_legs": legs, "anderson_w0": aw, "cd0_detail": cd0,
             "rebuild_check": check, "ledger_path": str(ledger_path)}
+
+
+def _table_inputs(design):
+    """The engine table the record used (the copy in the run folder): its path and hash. A TP100 record
+    keeps the keys of the earlier reports (tp100_table), the M250 one gets engine_table."""
+    path = table_for_run(Path(design).parent)
+    rel = str(path.relative_to(REPO)) if path.is_relative_to(REPO) else str(path)
+    if path.name.startswith("tp100"):
+        return {"tp100_table": rel, "tp100_table_sha256": sha256(path)}
+    return {"engine_table": rel, "engine_table_sha256": sha256(path)}
 
 
 def git_commit():
@@ -541,7 +592,7 @@ def main(argv=None):
     res["inputs"] = {
         "design": a.design, "design_sha256": sha256(a.design),
         "ledger": res.pop("ledger_path"), "ledger_sha256": sha256(Path(a.design).parent / "ledger.yaml"),
-        "tp100_table": str(TP100_TABLE.relative_to(REPO)), "tp100_table_sha256": sha256(TP100_TABLE),
+        **_table_inputs(a.design),
         "git_commit": git_commit(), "python": platform.python_version(), "numpy": np.__version__,
         "seed": None, "rebuild_tolerance": REBUILD_TOLERANCE}
     res["summary"] = {v: sum(r["verdict"] == v for r in res["rows"])

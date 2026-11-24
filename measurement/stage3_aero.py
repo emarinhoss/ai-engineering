@@ -153,11 +153,12 @@ def main(argv=None):
     ap.add_argument("--report")
     a = ap.parse_args(argv)
     d = json.loads(Path(a.design).read_text())
-    L, _ = uav.load_ledger()
+    ledger = Path(a.design).parent / "ledger.yaml"      # the ledger copy the record was sized with
+    L, _ = uav.load_ledger(ledger if ledger.exists() else uav.LEDGER)
     commit = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True,
                             check=False, cwd=REPO).stdout.strip()
     res = measure(d, L)
-    res["inputs"] = {"commit": commit, "design": a.design, "seed": None}
+    res["inputs"] = {"commit": commit, "design": a.design, "ledger": str(ledger) if ledger.exists() else "default", "seed": None}
     Path(a.out).parent.mkdir(parents=True, exist_ok=True)
     Path(a.out).write_text(json.dumps(res, indent=2, default=float))
     if a.report:
