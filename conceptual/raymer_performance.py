@@ -2,6 +2,7 @@
 Speeds ft/s, weights lb, areas ft^2, rho slug/ft^3, power in hp."""
 import math
 
+from conceptual.raymer_propulsion import thrust_from_power
 from conceptual.units import HP, G
 
 
@@ -35,8 +36,8 @@ def speed_max_ld(W_S, rho, CD0, K):
 
 
 def rate_of_climb(W, S, rho, V, CD0, K, bhp, eta_p):
-    """V_v = V (T - D)/W with T = 550 bhp eta_p/V (17.37), p. 464."""
-    T = HP * bhp * eta_p / V
+    """V_v = V (T - D)/W with T = 550 bhp eta_p/V (17.37), p. 464. eta_p: a number or an ActuatorDisk."""
+    T = thrust_from_power(bhp, eta_p, V)
     return V * (T - drag(W, S, rho, V, CD0, K)) / W
 
 
@@ -56,7 +57,7 @@ def max_level_speed(W, S, rho, CD0, K, bhp, eta_p, v_lo, v_hi, tol=1e-6):
     """Highest speed where thrust equals drag (DR-1 p. 585, graphical), by bisection on
     T - D with T = 550 bhp eta_p/V. Returns None if T < D at v_lo."""
     def excess(V):
-        return HP * bhp * eta_p / V - drag(W, S, rho, V, CD0, K)
+        return thrust_from_power(bhp, eta_p, V) - drag(W, S, rho, V, CD0, K)
     if excess(v_lo) < 0.0:
         return None
     if excess(v_hi) > 0.0:

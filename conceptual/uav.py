@@ -203,15 +203,28 @@ def _flap_cd0(L, deflection_deg):
     return 0.0023 * L["flap_span_fraction"] * deflection_deg
 
 
+def _prop_diameter_ft(bhp, L):
+    """Propeller diameter: statistical (10.24), limited by the tip speed at the ledger rpm."""
+    return min(geo.propeller_diameter_statistical_in(bhp, blades=3) / 12.0,
+               geo.max_diameter_for_tip_speed(300.0, L["propeller_rpm"], L["tip_speed_limit_fps"]))
+
+
+def _propeller(L, atm, D_prop):
+    """eta_p for the performance code at this air density: the flat ledger number or the App. L
+    actuator disk (ledger propeller_model, owner ruling G-4)."""
+    return prop.propeller(L, atm["rho"], D_prop)
+
+
 def _min_power_for(W, S, atm, CD0, K, eta_p, rate, lapse, clmax_clean, L, n=1.0):
     """Smallest sea-level-rated bhp that gives a rate of climb (ft/s) at load factor n: minimum
     over speed of (W V_v + D V)/(550 eta_p) from (17.37), divided by the power lapse (13.9).
-    Speeds from the climb-speed floor (Raymer p. 489) upward."""
+    eta_p as returned by _propeller (a number, or the actuator disk, which sets eta from the thrust
+    D + W V_v/V at each speed). Speeds from the climb-speed floor (Raymer p. 489) upward."""
     best = None
     V_lo = L["climb_speed_over_stall"] * perf.stall_speed(n * W / S, atm["rho"], clmax_clean)
     for i in range(400):
         V = V_lo + i * 1.0
-        hp = (W * rate + perf.drag(W, S, atm["rho"], V, CD0, K, n) * V) / (HP * eta_p)
+        hp = prop.shaft_hp(W * rate + perf.drag(W, S, atm["rho"], V, CD0, K, n) * V, V, eta_p)
         best = hp if best is None or hp < best else best
     return best / lapse
 
@@ -235,9 +248,10 @@ def _leg_speed(W, S, atm, h_ft, CD0, K, clmax_clean, L, mode, model, bhp):
         return V, floored, None
     floor = L["speed_over_stall"] * perf.stall_speed(W / S, atm["rho"], clmax_clean)
     best = None
+    eta_p = _propeller(L, atm, _prop_diameter_ft(bhp, L))
     for i in range(76):
         Vi = floor * (1.0 + 0.02 * i)
-        shp = perf.drag(W, S, atm["rho"], Vi, CD0, K) * Vi / (HP * L["eta_p"])
+        shp = prop.shaft_hp(perf.drag(W, S, atm["rho"], Vi, CD0, K) * Vi, Vi, eta_p)
         if shp > bhp * model.lapse(h_ft, Vi / KT):
             continue
         c = model.bsfc(h_ft, Vi / KT, shp)
@@ -257,10 +271,11 @@ def _vmax_consistent(W, S, geom, L, atm, h_ft, K, bhp, model, v_lo):
     over max_level_speed (Gate A round 4, R4-1; the earlier code used them at the cruise speed)."""
     V = 1.5 * v_lo
     vmax = None
+    eta_p = _propeller(L, atm, _prop_diameter_ft(bhp, L))
     for _ in range(20):
         CD0, _ = _polar(geom, L, V, atm, bhp)
         vmax = perf.max_level_speed(W, S, atm["rho"], CD0, K, bhp * _lapse(model, h_ft, atm, V),
-                                    L["eta_p"], v_lo, 1200.0)
+                                    eta_p, v_lo, 1200.0)
         if vmax is None or abs(vmax - V) < 0.01:
             break
         V = vmax
@@ -268,11 +283,17 @@ def _vmax_consistent(W, S, geom, L, atm, h_ft, K, bhp, model, v_lo):
 
 
 def _thrust_fn(bhp, L, D_prop):
+    """Take-off thrust T(V) at sea level: the smaller of the static thrust from C_T/C_P (13.16) and
+    550 bhp eta_p/V. With the App. L propeller (owner ruling G-4) eta_p follows from the thrust and
+    the thrust is also capped at the momentum limit of the disk (prop.static_thrust_limit)."""
     n_rps = L["propeller_rpm"] / 60.0
+    eta_p = _propeller(L, isa(0.0), D_prop)
+    cap = (prop.static_thrust_limit(bhp, RHO0, D_prop) if isinstance(eta_p, prop.ActuatorDisk)
+           else math.inf)
 
     def thrust(V):
         t_static = prop.static_thrust(L["static_ct_over_cp"], bhp, n_rps, D_prop)
-        return min(t_static, prop.thrust_from_power(bhp, L["eta_p"], max(V, 1.0)))
+        return min(t_static, prop.thrust_from_power(bhp, eta_p, max(V, 1.0)), cap)
     return thrust
 
 
@@ -326,25 +347,33 @@ def _mission(W0, geom, A, e, L, bhp, clmax, model=None):
     unch_to = 0.0 if model is None else float(not model.turbine_choked(0.0, 60.0, bhp * model.lapse(0.0, 60.0))[0])
     rows.append(("takeoff", W0, W, 0.0, 0.0, c_to, unch_to, 0.0, 0.0, unch_to * (W0 - W)))
     CD0_sl, _ = _polar(geom, L, 200.0, sl, bhp)
+    D_prop = _prop_diameter_ft(bhp, L)
     v_lo = L["climb_speed_over_stall"] * perf.stall_speed(W / S, sl["rho"], clmax["clean"])
-    _, V_cl = perf.best_rate_of_climb(W, S, sl["rho"], CD0_sl, K, bhp, L["eta_p"], v_lo,
+    _, V_cl = perf.best_rate_of_climb(W, S, sl["rho"], CD0_sl, K, bhp, _propeller(L, sl, D_prop), v_lo,
                                       v_lo + 350.0)
     CD0_alt, _ = _polar(geom, L, 250.0, alt, bhp)
     V_cr, _ = _cruise_speed(W, S, alt["rho"], CD0_alt, K, clmax["clean"], L, "range")
     lapse = _lapse(model, h_alt, alt, V_cl)
-    d_t = 0.5 * (perf.drag(W, S, sl["rho"], V_cl, CD0_sl, K) / prop.thrust_from_power(bhp, L["eta_p"], V_cl)
+    d_t = 0.5 * (perf.drag(W, S, sl["rho"], V_cl, CD0_sl, K)
+                 / prop.thrust_from_power(bhp, _propeller(L, sl, D_prop), V_cl)
                  + perf.drag(W, S, alt["rho"], V_cl, CD0_alt, K)
-                 / prop.thrust_from_power(bhp * lapse, L["eta_p"], V_cl))
+                 / prop.thrust_from_power(bhp * lapse, _propeller(L, alt, D_prop), V_cl))
     dhe = sizing.energy_height_change(0.0, V_cl, L["mission_altitude_ft"], V_cr)
     # climb at full throttle: SFC at mid-altitude, full power, from the table when there is one
     c_cl = (L["cbhp_cruise"] if model is None
             else model.bsfc(0.5 * h_alt, V_cl / KT, bhp * model.lapse(0.5 * h_alt, V_cl / KT)))
-    C = sizing.equivalent_tsfc(c_cl, V_cl, L["eta_p"])
+    # the climb's equivalent TSFC (3.10): efficiency at the mid-altitude of the climb, where c_cl is taken
+    mid = isa(0.5 * h_alt)
+    eta_cl = prop.efficiency_at_power(_propeller(L, mid, D_prop),
+                                      bhp * _lapse(model, 0.5 * h_alt, mid, V_cl), V_cl)
+    C = sizing.equivalent_tsfc(c_cl, V_cl, eta_cl)
     W2 = W * sizing.climb_fraction_energy(C, dhe, V_cl, min(d_t, 0.95))
     unch_cl = (0.0 if model is None else
                float(not model.turbine_choked(0.5 * h_alt, V_cl / KT, bhp * model.lapse(0.5 * h_alt, V_cl / KT))[0]))
     rows.append(("climb", W, W2, 0.0, 0.0, c_cl, unch_cl, 0.0, 0.0, unch_cl * (W - W2)))
     W = W2
+
+    eta_alt = _propeller(L, alt, D_prop)
 
     def leg(W, name, distance_ft=None, time_s=None):
         W_in = W
@@ -359,7 +388,7 @@ def _mission(W0, geom, A, e, L, bhp, clmax, model=None):
             V, floored, c_tab = _leg_speed(W, S, alt, h_alt, CD0, K, clmax["clean"], L, mode, model, bhp)
             if c_tab is not None:
                 cbhp = c_tab
-                shp = perf.drag(W, S, alt["rho"], V, CD0, K) * V / (HP * L["eta_p"])
+                shp = prop.shaft_hp(perf.drag(W, S, alt["rho"], V, CD0, K) * V, V, eta_alt)
                 step_unchoked = not model.turbine_choked(h_alt, V / KT, shp)[0]
                 unchoked += step_unchoked
             v_sum += V / n
@@ -369,16 +398,17 @@ def _mission(W0, geom, A, e, L, bhp, clmax, model=None):
             CD0, _ = _polar(geom, L, V, alt, bhp)
             q = 0.5 * alt["rho"] * V ** 2
             LD = sizing.lift_to_drag(q, CD0, W / S, A, e)
+            eta_leg = prop.efficiency_for_thrust(eta_alt, W / LD, V)      # thrust = drag = W/(L/D)
             if distance_ft:
                 # R19 headwind (Gate A round 4, Eder 2026-11-21): (6.12) is written in air distance;
                 # the ground leg needs air distance = ground distance x V/(V - V_wind)
                 vw = L.get("headwind_kt", 0.0) * KT
                 if V <= vw:
                     raise ValueError("cruise speed below the headwind")
-                f = sizing.cruise_fraction_prop(distance_ft / n * V / (V - vw), cbhp, L["eta_p"], LD)
+                f = sizing.cruise_fraction_prop(distance_ft / n * V / (V - vw), cbhp, eta_leg, LD)
                 t_sum += distance_ft / n / (V - vw)
             else:
-                f = sizing.loiter_fraction_prop(time_s / n, V, cbhp, L["eta_p"], LD)
+                f = sizing.loiter_fraction_prop(time_s / n, V, cbhp, eta_leg, LD)
                 t_sum += time_s / n
             W *= f
             if step_unchoked:
@@ -421,8 +451,7 @@ def _build(W0, concept, W_S, A, L, fuel_guess, engine=None, mission=True):
     for _ in range(3):        # the misc engine drag and the propeller depend on bhp
         CD0_sl, _ = _polar(geom, L, 180.0, sl, bhp)
         CD0_alt, _ = _polar(geom, L, 250.0, alt, bhp)
-        D_prop = min(geo.propeller_diameter_statistical_in(bhp, blades=3) / 12.0,      # (10.24)
-                     geo.max_diameter_for_tip_speed(300.0, L["propeller_rpm"], L["tip_speed_limit_fps"]))
+        D_prop = _prop_diameter_ft(bhp, L)                                             # (10.24)
         gear_in = _gear_length_in(geom, L, D_prop, concept)
         gear_dq = _gear_drag_area(W0, L, gear_in)
         CD0_to = CD0_sl + gear_dq / S + _flap_cd0(L, L["flap_deflection_takeoff_deg"])
@@ -431,21 +460,23 @@ def _build(W0, concept, W_S, A, L, fuel_guess, engine=None, mission=True):
         n_turn = 1.0 / math.cos(math.radians(L["turn_bank_deg"]))
         V_ceil = L["climb_speed_over_stall"] * perf.stall_speed(W0 / S, ceil["rho"], clmax["clean"])
         req = {
-            "climb_sl": _min_power_for(W0, S, sl, CD0_sl, K, L["eta_p"],
+            "climb_sl": _min_power_for(W0, S, sl, CD0_sl, K, _propeller(L, sl, D_prop),
                                        L["climb_rate_sl_fpm"] / 60.0, 1.0, clmax["clean"], L),
             # CD0 and power at the climb-speed floor at the ceiling, where the best climb sits
             # (Gate A round 4, R4-2), not at the 250 ft/s cruise reference
             "ceiling": _min_power_for(W0, S, ceil, _polar(geom, L, V_ceil, ceil, bhp)[0], K,
-                                      L["eta_p"], L["ceiling_rate_fpm"] / 60.0,
+                                      _propeller(L, ceil, D_prop), L["ceiling_rate_fpm"] / 60.0,
                                       _lapse(model, h_ceil, ceil, V_ceil), clmax["clean"], L),
             "takeoff": _takeoff_power(W0, S, CD0_to, K, clmax["takeoff"], L, D_prop),
             # R16: sustained turn at loiter speed and altitude, level (17.4), power = D V
-            "turn_at_loiter": (perf.drag(W0, S, alt["rho"], V_lt, CD0_alt, K, n_turn) * V_lt
-                               / (HP * L["eta_p"]) / _lapse(model, h_alt, alt, V_lt)),
+            "turn_at_loiter": (prop.shaft_hp(perf.drag(W0, S, alt["rho"], V_lt, CD0_alt, K, n_turn) * V_lt,
+                                             V_lt, _propeller(L, alt, D_prop))
+                               / _lapse(model, h_alt, alt, V_lt)),
         }
         V_cr, _ = _cruise_speed(W0, S, alt["rho"], CD0_alt, K, clmax["clean"], L, "range")
-        req["cruise_at_altitude"] = (perf.power_required_hp(W0, S, alt["rho"], V_cr, CD0_alt, K)
-                                     / L["eta_p"] / _lapse(model, h_alt, alt, V_cr))
+        req["cruise_at_altitude"] = (prop.shaft_hp(perf.drag(W0, S, alt["rho"], V_cr, CD0_alt, K) * V_cr,
+                                                   V_cr, _propeller(L, alt, D_prop))
+                                     / _lapse(model, h_alt, alt, V_cr))
         bhp = max(req.values()) if engine is None else engine["bhp"]
     # loads: gust at the maximum level speed (the V-n cruise point, p. 338-340) at sea level and
     # mission altitude, at take-off and at zero-fuel weight (a lighter aircraft takes a larger gust
@@ -851,8 +882,8 @@ def ceiling(d, L, power_at=None):
         V = lo
         for _ in range(3):        # CD0 at the best-climb speed (Gate A round 4, R4-2)
             CD0, _ = _polar(d["geom"], L, V, a, bhp)
-            r, V = perf.best_rate_of_climb(W0, S, a["rho"], CD0, K, power_at(h), L["eta_p"],
-                                           lo, lo + 400.0)
+            r, V = perf.best_rate_of_climb(W0, S, a["rho"], CD0, K, power_at(h),
+                                           _propeller(L, a, d["D_prop"]), lo, lo + 400.0)
         return r
     target = L["ceiling_rate_fpm"] / 60.0
     lo, hi = 0.0, 60000.0
@@ -875,8 +906,8 @@ def performance(d, L):
                                mu_brake=L["braking_mu"], free_roll_s=L["free_roll_s"])
     clean = d["clmax"]["clean"]
     v_lo = L["climb_speed_over_stall"] * perf.stall_speed(d["W_S"], sl["rho"], clean)
-    vv, v_best = perf.best_rate_of_climb(W0, S, sl["rho"], d["CD0_sl"], K, bhp, L["eta_p"],
-                                         v_lo, v_lo + 350.0)
+    vv, v_best = perf.best_rate_of_climb(W0, S, sl["rho"], d["CD0_sl"], K, bhp,
+                                         _propeller(L, sl, d["D_prop"]), v_lo, v_lo + 350.0)
     alt = isa(L["mission_altitude_ft"])
     m = d.get("engine_model")
     # level maximum speeds with power and CD0 at that speed (closing check C-1, C-5)
@@ -894,7 +925,8 @@ def performance(d, L):
 
 def propeller_points(d, L):
     """Advance ratio and power coefficient (13.10)-(13.11) at sea-level best climb and at the
-    mission speeds, for the record; efficiency is the ledger value (Table 3.4), not computed."""
+    mission speeds, for the record, with the propeller efficiency used there (the ledger value for the
+    flat model, Table 3.4; the App. L actuator disk times the real-to-ideal factor for app_l)."""
     from conceptual import raymer_propulsion as rp
     n = L["propeller_rpm"] / 60.0
     out = {}
@@ -907,12 +939,17 @@ def propeller_points(d, L):
         if V is None:
             lo = L["climb_speed_over_stall"] * perf.stall_speed(W / d["geom"]["S"], atm["rho"],
                                                                  d["clmax"]["clean"])
+            eta_p = _propeller(L, atm, d["D_prop"])
             _, V = perf.best_rate_of_climb(W, d["geom"]["S"], atm["rho"], d["CD0_sl"], d["K"],
-                                           d["bhp"], L["eta_p"], lo, lo + 350.0)
+                                           d["bhp"], eta_p, lo, lo + 350.0)
             P = d["bhp"]
+            eta = prop.efficiency_at_power(eta_p, P, V)
         else:
-            P = perf.power_required_hp(W, d["geom"]["S"], atm["rho"], V, d["CD0_alt"], d["K"]) / L["eta_p"]
-        out[name] = {"V_kt": V / KT, "shaft_hp": P, "throttle": P / (d["bhp"] * lp),
+            eta_p = _propeller(L, atm, d["D_prop"])
+            work = perf.drag(W, d["geom"]["S"], atm["rho"], V, d["CD0_alt"], d["K"]) * V
+            P = prop.shaft_hp(work, V, eta_p)
+            eta = prop.efficiency_for_thrust(eta_p, work / V, V)
+        out[name] = {"V_kt": V / KT, "shaft_hp": P, "eta_p": eta, "throttle": P / (d["bhp"] * lp),
                      "J": rp.advance_ratio(V, n, d["D_prop"]),
                      "C_P": rp.power_coefficient(P, atm["rho"], n, d["D_prop"])}
     return out
