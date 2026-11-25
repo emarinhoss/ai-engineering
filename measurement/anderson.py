@@ -10,6 +10,7 @@ import math
 from conceptual.units import G
 
 EMPTY_FRACTION_HISTORICAL = 0.62     # (8.5), p. 400: piston propeller airplanes, Fig. 8.1
+CFE_PROPELLER = 0.0043               # (8.40), p. 414: equivalent skin friction of Anderson's propeller airplane
 
 
 def takeoff_weight(fixed_weight, fuel_fraction, empty_fraction):
@@ -201,3 +202,30 @@ def landing_distance(W, S, rho, CD0_total, k_induced, CL_max, mu_r, CL_ground, t
     s_g = landing_ground_roll(J_T, J_A, j * V_s, N, g)
     return {"V_stall": V_s, "approach": s_a, "flare": s_f, "ground_roll": s_g, "R": R,
             "h_f": h_f, "total": s_a + s_f + s_g}
+
+
+# ---- static margin, section 8.6.7 ---------------------------------------------------------------
+def horizontal_tail_volume(l_ht, S_ht, S, mac):
+    """V_HT = l_HT S_HT/(c-bar S): tail arm l_HT from the wing-body aerodynamic center to the tail's, ft;
+    dimensionless (p. 444, defined in the author's introductory text, Ref. 3 Ch. 7)."""
+    return l_ht * S_ht / (mac * S)
+
+
+def neutral_point(x_acwb, mac, V_HT, a_t, a, downwash_factor=1.0):
+    """Neutral point station, ft, from (8.76) p. 444 solved for x_n:  x_acwb = x_n - V_HT (a_t/a) c-bar
+    (V_HT dimensionless, so the tail term is V_HT c-bar in feet; the book's worked number (8.79) subtracts
+    V_HT in feet, a printing inconsistency flagged in the library notes, not followed here).
+    (8.76) as printed neglects downwash and the tail's dynamic-pressure ratio: downwash_factor 1.
+    downwash_factor = eta_t (1 - d eps/d alpha) restores them (not printed in (8.76); same tail term as
+    Raymer's (16.9)); a is then the complete airplane's lift slope."""
+    return x_acwb + V_HT * mac * (a_t / a) * downwash_factor
+
+
+def static_margin(x_n, x_cg, mac):
+    """Static margin (x_n - x_cg)/c-bar, (8.77) p. 444."""
+    return (x_n - x_cg) / mac
+
+
+def x_acwb_from_neutral_point(x_n, mac, V_HT, a_t, a):
+    """(8.76) as printed: x_acwb = x_n - V_HT (a_t/a) c-bar. Used with the 10 % margin (8.78) to place the wing."""
+    return x_n - V_HT * mac * a_t / a

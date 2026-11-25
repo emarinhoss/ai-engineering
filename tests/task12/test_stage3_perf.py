@@ -37,7 +37,11 @@ def test_verdicts_agree_with_deviation_and_tolerance(result):
         elif r["verdict"] == "not computed":
             assert r["stage3"] is None and r["deviation"] is None
         else:
-            assert r["tolerance"] is None
+            # not judged: no tolerance (a cross-check) or a tolerance that is only reported against
+            if r["tolerance"] is None:
+                assert "numerically_within" not in r
+            else:
+                assert r["numerically_within"] == (abs(r["deviation"]) <= r["tolerance"]), r["id"]
 
 
 def test_rebuild_reproduces_the_record(result):
