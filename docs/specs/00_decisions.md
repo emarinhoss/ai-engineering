@@ -393,14 +393,15 @@ the baseline changes with G-4 and the runs are redone on the new one.
   aircraft. The method resolves CD0 to about +-20 %; the row cannot confirm Stage 1's CD0 to +-10 %.
 - **G-4 (propeller; S3M-3, question 4).** Stage 1 moves to the App. L efficiency per flight condition,
   with the static thrust capped at the momentum limit. Reason: App. L gives 0.62 at sea-level climb
-  against the flat 0.80, and Stage 1's static thrust cap (2,647 lb) exceeds the ideal momentum value
-  (2,218 lb) for the disk. Implemented by another agent in `conceptual/`; the Stage 1 and Stage 3
+  against the flat 0.80 (recorded, perf report), and the review's probe found Stage 1's static thrust cap
+  above the ideal momentum value for the disk (a probe, not a recorded run). Implemented by another agent in `conceptual/`; the Stage 1 and Stage 3
   records are redone on the new baseline.
 - **G-5 (missing rows; S3M-10, question 5).** Before Gate B only Anderson's static-margin route
   ((8.76)-(8.78), p. 444) is coded (`measurement/anderson.py`, rows in `measurement/stage3_aero.py`).
   Waived: the SU2 polars and C_L,max, the gust load factor second source, and the blade-element
-  propeller efficiency. They are listed as open in the Gate B report. Reason: the cost is not
-  proportionate to the margins they would check, and no library source exists for the gust row.
+  propeller efficiency. They are listed as open in the Gate B report. Reason: only the static-margin
+  route has a library relation that can be coded now; the others need SU2 runs on Colab, a second gust source
+  the library does not have, or a blade-element code (S3M-10).
 - **G-6 (engine closing row; S3M-6, question 6).** Accepted as "rests on the model" until part-power
   or altitude data exist, carried by the +-10 % SFC band. The engine report states that the brochure
   rows cannot discriminate: a constant SFC also passes.
