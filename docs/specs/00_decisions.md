@@ -369,3 +369,46 @@ record that carry it out. Nothing below is a new result.
   Stage 1 R6 rows stay "no source". The 23,000 ft ceiling requirement is above every certified B17
   installation found, all at 20,000 ft. Cross-references and the searches that came back empty:
   `docs/validation/2026-11-24_task12_m250_r6_sources.md`. Not re-run: no report was regenerated.
+
+### Owner rulings on the Stage 3 review of the M250 baseline (Éder, 2026-11-24/25)
+
+Answers to the owner questions of `docs/reviews/2026-11-24_task12_stage3_m250_review.md`. The code and
+report-generator changes that carry them out are in the commits of 2026-11-25 (engine, perf, aero,
+rotation reports; `measurement/ground_effect_validation.py`). No Stage 3 record was re-run for these:
+the baseline changes with G-4 and the runs are redone on the new one.
+
+- **G-1 (R7; review S3M-5, question 1).** Field length is the computed take-off and landing distance
+  over a 50 ft obstacle, unfactored. No FAR 1.666 or 1.15 factor. Reason: the requirement is the
+  distance the aircraft needs, and the repository has judged R7 this way since Stage 1; the factored
+  figure (landing 5 % margin, not robust) would be a different requirement. The perf report states
+  the basis.
+- **G-2 (W0 row; S3M-12, question 2).** Anderson's first estimate with his historical empty fraction of
+  0.62 counts as explained, not failed. Reason: 0.62 is a crewed-aircraft historical fraction and does
+  not apply to an uncrewed composite UAV. The report gives three values side by side: 0.62 (6,396 lb),
+  Stage 1's fraction (3,061 lb) and Anderson's build-up (3,376 lb); the perf report generates them from
+  the record.
+- **G-3 (CD0 row; S3M-2, question 3).** The row uses Anderson's propeller-aircraft Cfe 0.0043 ((8.40),
+  p. 414), with the jet-curve value 0.00312 (Fig. 2.55) reported alongside. Reason: Fig. 2.55's curve is
+  drawn through jet fighters and transports; the propeller value is the book's own for this class of
+  aircraft. The method resolves CD0 to about +-20 %; the row cannot confirm Stage 1's CD0 to +-10 %.
+- **G-4 (propeller; S3M-3, question 4).** Stage 1 moves to the App. L efficiency per flight condition,
+  with the static thrust capped at the momentum limit. Reason: App. L gives 0.62 at sea-level climb
+  against the flat 0.80, and Stage 1's static thrust cap (2,647 lb) exceeds the ideal momentum value
+  (2,218 lb) for the disk. Implemented by another agent in `conceptual/`; the Stage 1 and Stage 3
+  records are redone on the new baseline.
+- **G-5 (missing rows; S3M-10, question 5).** Before Gate B only Anderson's static-margin route
+  ((8.76)-(8.78), p. 444) is coded (`measurement/anderson.py`, rows in `measurement/stage3_aero.py`).
+  Waived: the SU2 polars and C_L,max, the gust load factor second source, and the blade-element
+  propeller efficiency. They are listed as open in the Gate B report. Reason: the cost is not
+  proportionate to the margins they would check, and no library source exists for the gust row.
+- **G-6 (engine closing row; S3M-6, question 6).** Accepted as "rests on the model" until part-power
+  or altitude data exist, carried by the +-10 % SFC band. The engine report states that the brochure
+  rows cannot discriminate: a constant SFC also passes.
+- **G-7 (ground effect; S3M-9, question 7).** Raymer (12.61) is added as a second reference to the
+  ground-effect validation and the rotation report. Result as reported: within Raymer, outside
+  Anderson; the books disagree by 29 % at h/b 0.1. Rotation meets its limit with or without ground
+  effect, so the validation does not decide the row.
+
+Question 8 of the review (R13: second neutral-point estimate before Gate B) was not ruled in this
+batch. The aero report states that R13 is met by layout construction with the same downwash model as
+Stage 1 (S3M-8) and that an independent neutral point is needed.

@@ -355,6 +355,11 @@ def m250_bsfc(member, h, V_kt, shp):
     return tp.bsfc_at(member, h, V_kt, shp)
 
 
+def ledger_for(design=None):
+    """The ledger a run uses: the copy beside the record with --design, else the default (S3M-11a)."""
+    return Path(design).parent / "ledger.yaml" if design else Path(uav.LEDGER)
+
+
 def measure_record(design_path):
     """Engine rows of the record at `design_path`: the M250 route when it was sized with the M250,
     else the TP100 route of `measure` with the record's ledger copy and engine."""
@@ -597,7 +602,7 @@ def main(argv=None):
             report_m250(res, a.report)
         return
     # the ledger actually used is hashed (S3M-11a): the record's own copy with --design, else the default
-    ledger_used = Path(a.design).parent / "ledger.yaml" if a.design else Path(uav.LEDGER)
+    ledger_used = ledger_for(a.design)
     L, _ = uav.load_ledger(ledger_used)
     engines, _ = stage1.engine_options()
     eng = engines[stage1.CHOSEN_ENGINE]

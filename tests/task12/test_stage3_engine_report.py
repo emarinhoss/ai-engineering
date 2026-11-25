@@ -45,3 +45,13 @@ def test_constant_sfc_would_also_pass_the_brochure_rows():
         assert c["deviation"] == pytest.approx(to / c["brochure"] - 1.0)
     assert all(c["within"] for c in cs)
     assert [round(c["deviation"], 3) for c in cs] == [-0.035, -0.038, -0.089]
+
+
+def test_tp100_design_run_hashes_the_ledger_it_uses():
+    tp100 = ROOT / "runs/task12/stage1/2026-11-21d/design_pusher.json"
+    used = se.ledger_for(tp100)
+    assert used == tp100.parent / "ledger.yaml" and used.exists()
+    assert se.ledger_for() == Path(se.uav.LEDGER)
+    import hashlib
+    # the record's copy is a different file from the default ledger, so the hashes would have differed
+    assert hashlib.sha256(used.read_bytes()).hexdigest() != hashlib.sha256(se.ledger_for().read_bytes()).hexdigest()
