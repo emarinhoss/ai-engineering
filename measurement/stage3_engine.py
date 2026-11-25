@@ -31,6 +31,7 @@ from conceptual import raymer_performance as perf
 from conceptual import raymer_propulsion as prop
 from conceptual import stage1, uav
 from conceptual.units import HP, KT, isa
+from measurement import appk_validation as akv
 from measurement import m250_engine as m250
 from measurement import stage3_perf as sp
 from measurement import tp100_engine as tp
@@ -147,9 +148,13 @@ def measure(L, eng):
             "rows": rows, "detail": detail, "resize_with_app_k_sfc": resize}
 
 
-def book_validation():
-    """App. K example (p. 597-608) against the library's figure readings; same cases as the tests."""
+def book_validation(burner=None):
+    """App. K example (p. 597-608) against the library's figure readings; same cases as the tests.
+    burner None keeps the cycle code's default (constant cp), which the TP100 reports use; the M250
+    route passes the burner of the record's table ("msh") so that the check is of the model in use."""
     k = dict(tc.BOOK_EXAMPLE, gamma_t=1.3)
+    if burner is not None:
+        k["burner"] = burner
     a25 = isa(25000.0)
     out = {"tau_t_star": [], "envelope": [], "lapse": [], "part_throttle_gap": []}
     for pc, book in ((5, 0.64), (10, 0.56), (20, 0.50), (35, 0.447)):
@@ -181,6 +186,28 @@ def book_validation():
             if r["F"] > 0.0:
                 best = min(best, r["S"])
         out["part_throttle_gap"].append({"M0": M0, "book": book, "model_eta_max_0_9": best})
+    return out
+
+
+def validation_check(burner):
+    """Spec 7.1b item 1 rows for `burner`, from measurement/appk_validation.py (tolerances fixed there
+    and in the spec): every row with its verdict, and the counts. Pass and fail come from this code.
+    The other burner is run too, for the record's comparison only."""
+    other = "csh" if burner == "msh" else "msh"
+    rows, rows_o = akv.run(burner), akv.run(other)
+    count = lambda rs: {"pass": sum(r["verdict"] == "PASS" for r in rs), "total": len(rs)}
+    return {"burner": burner, "rows": rows, "summary": count(rows),
+            "other_burner": other, "other_rows": rows_o, "other_summary": count(rows_o)}
+
+
+def constant_sfc_check(rates, bsfc_const):
+    """S3M-6: would a model with a constant shaft SFC (the take-off calibration value) also pass the
+    brochure part-power rows? Deviation of that constant from the brochure's maximum SFC per point."""
+    out = []
+    for name in BROCHURE_POINTS:
+        dev = bsfc_const / rates[name]["bsfc_max"] - 1.0
+        out.append({"point": name, "brochure": rates[name]["bsfc_max"], "constant": bsfc_const,
+                    "deviation": dev, "within": abs(dev) <= TOL_SFC})
     return out
 
 
@@ -302,6 +329,8 @@ def measure_m250(design_path):
                               "App. K family against the brochure's maximum (guaranteed) SFC", band, TOL_SFC,
                               "relative", True,
                               "Stage 1 column is the brochure value (a maximum/guaranteed SFC). The calibration used take-off only. Valid at sea level and 70-100 % power only."))
+    detail["constant_sfc_check"] = constant_sfc_check(rates, to["bsfc_max"])
+    detail["table_burner"] = table["burner"]
     detail["brochure_mgt"] = {"brochure_c": rates["normal_cruise"]["mgt_c"],
                               "model_c": _band([m["validation"]["mgt_c"] for m in study["members"]]),
                               "tolerance_c": m250.TOL_MGT_C}
@@ -374,6 +403,14 @@ def report_m250(res, path):
     for r in res["rows"]:
         if r["note"]:
             w(f"- **{r['quantity']}**: {r['note']}")
+    cs = det["constant_sfc_check"]
+    w("\nThe brochure rows cannot discriminate between engine models. They are the same three points as the "
+      "2026-11-23 engine validation and are at sea level, 70 to 100 % power, where the take-off calibration "
+      f"already holds. A model with a constant SFC of {cs[0]['constant']:.3f} (the take-off value) deviates from the "
+      "brochure by " + ", ".join(f"{c['deviation'] * 100:+.1f} % ({c['point']})" for c in cs)
+      + f", and so {'would also pass' if all(c['within'] for c in cs) else 'would not pass'} the "
+      f"±{TOL_SFC * 100:.0f} % tolerance. These rows cannot fail for a model calibrated at take-off; the engine "
+      "closing check (7.1b item 3) stays open and the engine rows rest on the model, carried by the ±10 % SFC band.")
     w("\nShaft SFC along the legs (family mean) and the turbine inlet temperature the throttle needs:\n")
     w("| leg | point | weight, lb | speed, kt | shaft hp | SFC | Tt4, R |\n|---|---|---|---|---|---|---|")
     for p in det["points"]:
@@ -398,33 +435,33 @@ def report_m250(res, path):
     w("| leg | unchoked fraction | fuel in unchoked steps, lb | burned, lb |\n|---|---|---|---|")
     for g in va["legs"]:
         w(f"| {g['segment']} | {g['unchoked_fraction']:.3f} | {g['unchoked_fuel_lb']:.1f} | {g['burned_lb']:.1f} |")
+    vc = res["validation_check"]
+    bn = {"msh": "MSH variable-cp burner", "csh": "constant-cp burner"}
     w("\n## 5. The cycle model against the book's own example (spec 7.1b item 1)\n")
-    w("Same code as the TP100 report (`book_validation`); the comparison does not depend on the engine. "
-      "Tolerances were fixed on 2026-11-21 before the variable-cp code existed.\n")
-    w("| Fig. K.4 pi_c | book tau_t* | model | difference | tolerance ±0.015 |\n|---|---|---|---|---|")
-    for r in v["tau_t_star"]:
-        dv = r["model_gamma_t_1_3"] - r["book"]
-        w(f"| {r['pi_c']} | {r['book']:.3f} | {r['model_gamma_t_1_3']:.3f} | {dv:+.3f} | {'within' if abs(dv) <= 0.015 else '**outside**'} |")
-    w("\nFigs. K.2-K.3 envelope (tolerance ±5 %):\n")
-    w("| pi_c | F/m0 book | F/m0 model | S book | S model | verdict |\n|---|---|---|---|---|---|")
-    for r in v["envelope"]:
-        ok = [abs(r["S_model"] / r["S_book"] - 1.0) <= 0.05]
-        if r["F_book"] is not None:
-            ok.append(abs(r["F_model"] / r["F_book"] - 1.0) <= 0.05)
-        fb = "n/r" if r["F_book"] is None else f"{r['F_book']:.0f}"
-        w(f"| {r['pi_c']} | {fb} | {r['F_model']:.1f} | {r['S_book']:.3f} | {r['S_model']:.3f} | {'within' if all(ok) else '**outside**'} |")
-    w("\nFig. K.7 full-throttle thrust lapse at M0 = 0.1 (tolerance ±0.015 absolute):\n")
-    w("| altitude, ft | book | model | difference | verdict |\n|---|---|---|---|---|")
-    for r in v["lapse"]:
-        dv = r["model"] - r["book"]
-        w(f"| {r['h_ft']:,} | {r['book']:.3f} | {r['model']:.3f} | {dv:+.3f} | {'within' if abs(dv) <= 0.015 else '**outside**'} |")
-    w("\nFig. K.9 minimum S at 15,000 ft, eta_prop,max 0.9 (tolerance ±10 %):\n")
-    w("| M0 | book | model | ratio | verdict |\n|---|---|---|---|---|")
-    for r in v["part_throttle_gap"]:
-        ratio = r["model_eta_max_0_9"] / r["book"]
-        w(f"| {r['M0']} | {r['book']:.3f} | {r['model_eta_max_0_9']:.3f} | {ratio:.2f} | {'within' if abs(ratio - 1.0) <= 0.10 else '**outside**'} |")
-    w("\nA row outside tolerance is reported, not tuned. The part-throttle trend of the cycle code is therefore "
-      "not validated against the book; the M250 part-power SFC is checked instead against the brochure (section 3).")
+    w(f"The burner is the one the record's table was built with (`burner` = `{vc['burner']}` in `m250_table.json`, "
+      f"detail key `table_burner`): the {bn[vc['burner']]}. Rows come from `measurement/appk_validation.py`; "
+      "tolerances were fixed on 2026-11-21 before the variable-cp code existed, and every verdict below is computed "
+      "by that code.\n")
+    w("| case | book | model | difference | tolerance | verdict |\n|---|---|---|---|---|---|")
+    for r in vc["rows"]:
+        if r["tolerance_kind"] == "abs":
+            dtxt, ttxt = f"{r['deviation']:+.3f}", f"±{r['tolerance']:.3f}"
+        else:
+            dtxt, ttxt = f"{r['deviation'] * 100:+.1f} %", f"±{r['tolerance'] * 100:.0f} %"
+        w(f"| {r['case']} | {r['book']:.3f} | {r['model']:.3f} | {dtxt} | {ttxt} | "
+          f"{'within' if r['verdict'] == 'PASS' else '**outside**'} |")
+    sm, so = vc["summary"], vc["other_summary"]
+    bad = [r for r in vc["rows"] if r["verdict"] != "PASS"]
+    w(f"\n{sm['pass']} of {sm['total']} rows are within tolerance with the {bn[vc['burner']]}"
+      + ("." if not bad else "; outside: " + "; ".join(
+          f"{r['case']} ({r['deviation'] * 100:+.1f} %)" if r["tolerance_kind"] == "rel"
+          else f"{r['case']} ({r['deviation']:+.3f})" for r in bad) + "."))
+    sg = [r["deviation"] for r in vc["rows"] if r["group"] in ("envelope_S", "part_throttle_S")]
+    w(f"The fuel-consumption rows (K.3 S and K.9 S) deviate by {min(sg) * 100:+.1f} to {max(sg) * 100:+.1f} % "
+      f"({'the model reads high' if min(sg) > 0 else 'the model reads low' if max(sg) < 0 else 'mixed signs'} against the book).")
+    w(f"For comparison, the {bn[vc['other_burner']]} (not used by this table) gives {so['pass']} of {so['total']} rows within tolerance.")
+    w("\nA row outside tolerance is reported, not tuned. The brochure comparison in section 3 is the check of the "
+      "M250 part-power SFC.")
     w("\n## 6. Caveats carried\n")
     w("- The M250 table is validated at sea level, static, and 70-100 % power only (brochure rows). Mission cruise and "
       f"loiter run at {min(fr_) * 100:.0f}-{max(fr_) * 100:.0f} % of the rating, at {fr['mission_altitude_ft']:,.0f} ft.")
@@ -543,7 +580,9 @@ def main(argv=None):
                                 capture_output=True, text=True, check=False, cwd=REPO).stdout.strip())
     if a.design and is_m250(json.loads(Path(a.design).read_text())):
         res = measure_m250(a.design)
-        res["validation"] = book_validation()
+        burner = res["detail"]["table_burner"]
+        res["validation"] = book_validation(burner)
+        res["validation_check"] = validation_check(burner)
         res["inputs"] = {"commit": commit, "uncommitted_code_changes": dirty, "python": platform.python_version(),
                          "numpy": np.__version__, "design": a.design, "design_sha256": sp.sha256(a.design),
                          "ledger": res.pop("ledger_path"),
@@ -557,18 +596,16 @@ def main(argv=None):
         if a.report:
             report_m250(res, a.report)
         return
-    if a.design:
-        L, _ = uav.load_ledger(Path(a.design).parent / "ledger.yaml")
-        engines, _ = stage1.engine_options()
-        eng = engines[stage1.CHOSEN_ENGINE]
-    else:
-        L, _ = uav.load_ledger()
-        engines, _ = stage1.engine_options()
-        eng = engines[stage1.CHOSEN_ENGINE]
+    # the ledger actually used is hashed (S3M-11a): the record's own copy with --design, else the default
+    ledger_used = Path(a.design).parent / "ledger.yaml" if a.design else Path(uav.LEDGER)
+    L, _ = uav.load_ledger(ledger_used)
+    engines, _ = stage1.engine_options()
+    eng = engines[stage1.CHOSEN_ENGINE]
     res = measure(L, eng)
     res["validation"] = book_validation()
     res["inputs"] = {"commit": commit, "uncommitted_code_changes": dirty, "python": platform.python_version(), "numpy": np.__version__,
-                     "ledger_sha256": hashlib.sha256(uav.LEDGER.read_bytes()).hexdigest(),
+                     "design": a.design, "design_sha256": sp.sha256(a.design) if a.design else None,
+                     "ledger": str(ledger_used), "ledger_sha256": hashlib.sha256(ledger_used.read_bytes()).hexdigest(),
                      "engines_sha256": hashlib.sha256(stage1.ENGINES.read_bytes()).hexdigest(),
                      "cycle_grid": tp.CYCLE_GRID, "v_climb_kt": V_CLIMB_KT,
                      "gas_model": "MSH, gamma_t 1.3 (see tests/task12/test_turboprop_cycle.py)",
