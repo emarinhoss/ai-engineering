@@ -286,11 +286,72 @@ def equation_table():
     return rows
 
 
+def add_comparison(add, new, old, old_run, new_run):
+    """Section comparing this run's pusher with an earlier run's (every number read from the two
+    design records)."""
+    add("## Comparison with the earlier run")
+    add("")
+    add(f"Earlier run `{old_run}` (flat propeller efficiency 0.80, static thrust from C_T/C_P) against this run "
+        f"`{new_run}` (propeller_model app_l: App. L actuator disk times the real-to-ideal factor at each "
+        "operating point, static thrust also capped at the momentum limit of the disk). Same engine, ledger "
+        "otherwise unchanged, same selection rule.")
+    add("")
+    add("| Quantity | Earlier | This run | Change |")
+    add("|---|---|---|---|")
+
+    def row(name, a, b, fmt="{:.1f}"):
+        ch = f"{(b / a - 1.0) * 100:+.1f} %" if a else "-"
+        add(f"| {name} | {fmt.format(a)} | {fmt.format(b)} | {ch} |")
+
+    pa, pb = old["performance"], new["performance"]
+    row("W/S (lb/ft^2)", old["W_S"], new["W_S"])
+    row("Aspect ratio", old["A"], new["A"])
+    row("Take-off weight W0 (lb)", old["W0_lb"], new["W0_lb"])
+    row("Empty weight (lb)", old["We_lb"], new["We_lb"])
+    row("Fuel (lb)", old["fuel_lb"], new["fuel_lb"])
+    for k in sorted(set(old["power_required_hp"]) & set(new["power_required_hp"])):
+        row(f"Power needed, {k} (hp)", old["power_required_hp"][k], new["power_required_hp"][k])
+    row("Sea-level climb rate (ft/min)", pa["roc_sl_fpm"], pb["roc_sl_fpm"], "{:.0f}")
+    row("Best-climb speed (kt)", pa["v_best_climb_kt"], pb["v_best_climb_kt"])
+    row("Service ceiling (ft)", pa["service_ceiling_ft"], pb["service_ceiling_ft"], "{:.0f}")
+    row("Take-off over 50 ft (ft)", pa["takeoff_ft"], pb["takeoff_ft"], "{:.0f}")
+    row("Landing over 50 ft (ft)", pa["landing_ft"], pb["landing_ft"], "{:.0f}")
+    row("Maximum speed at 20,000 ft (kt TAS)", pa["vmax_alt_kt"], pb["vmax_alt_kt"])
+    row("Propeller diameter (ft)", old["propeller_diameter_ft"], new["propeller_diameter_ft"], "{:.2f}")
+    add("")
+    if all("eta_p" in p for p in new["propeller_points"].values()):
+        add("Propeller efficiency at the mission points of this run (the earlier run used 0.80 at every one):")
+        add("")
+        add("| Point | V (kt) | Shaft hp | Efficiency |")
+        add("|---|---|---|---|")
+        for k, p in new["propeller_points"].items():
+            add(f"| {k} | {p['V_kt']:.1f} | {p['shaft_hp']:.1f} | {p['eta_p']:.3f} |")
+        add("")
+    cell = {}
+    for tag, rd in (("earlier", old_run), ("this run", new_run)):
+        for r in _read_csv(Path(rd) / "carpet.csv"):
+            if (r["concept"] == "pusher" and r["engine"] == new["engine"]["fixed"]
+                    and float(r["W_S"]) == old["W_S"] and float(r["A"]) == old["A"]):
+                cell[tag] = float(r["W0"])
+    if len(cell) == 2:
+        add(f"At the earlier run's cell (W/S {old['W_S']:g}, A {old['A']:g}) the carpet W0 (before the rotation tail "
+            f"loop) is {cell['earlier']:.1f} lb in the earlier run and {cell['this run']:.1f} lb in this run "
+            f"({(cell['this run'] / cell['earlier'] - 1.0) * 100:+.2f} %): the weight valley is flat, so the choice "
+            "of cell moves by one grid step while W0 hardly changes.")
+        add("")
+    add("Both runs fly the same take-off, climb and mission models; only the propeller efficiency and the thrust cap "
+        "differ. The selected cell can move between runs because the selection rule picks the first compliant "
+        "point of the carpet. The sea-level climb efficiency depends on the speed: Stage 3's App. L row evaluates "
+        "it at 1.2 V_stall, where it is lower than at the best-climb speed used here.")
+    add("")
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--run", required=True)
     ap.add_argument("--doc", required=True)
     ap.add_argument("--info-gap", help="info_gap.json of this design: its R5 guarantee h goes in the headline")
+    ap.add_argument("--compare", help="an earlier Stage 1 run directory: adds a section comparing the two designs")
     ap.add_argument("--committed-after", default="",
                     help="sentence naming the commit that holds the code as run, if the run's tree was dirty")
     a = ap.parse_args(argv)
@@ -400,6 +461,18 @@ def main(argv=None):
                    f"{tab_meta.get('critical_pressure_ratio', 0):.3f}) but not at part power in the LP turbine: see the "
                    "unchoked fuel share below."))
         add("")
+        if ledger["assumptions"].get("propeller_model", {}).get("value") == "app_l":
+            add("**Propeller (owner ruling G-4, Éder 2026-11-25)**: the flat propeller efficiency 0.80 is replaced by "
+                "the App. L actuator disk (Mattingly (L.7)-(L.9), p. 612) times a real-to-ideal factor "
+                f"{ledger['assumptions']['prop_real_to_ideal']['value']} (band "
+                f"{ledger['assumptions']['prop_real_to_ideal']['band'][0]} to "
+                f"{ledger['assumptions']['prop_real_to_ideal']['band'][1]}), evaluated at the shaft power, true speed, "
+                "density and diameter of every operating point (climb, ceiling, turn, cruise, mission legs, level "
+                "speed), and take-off thrust is capped at the momentum limit of the disk. The review that led to the "
+                "ruling: docs/reviews/2026-11-24_task12_stage3_m250_review.md, finding S3M-3. The first-pass sketch "
+                "still uses Table 3.4's 0.80. The comparison with the 2026-11-23 run is in the section before "
+                "Appendix A.")
+            add("")
         add("Generated by "
         f"`python -m conceptual.report` from `{run}` (commit `{inp['commit'][:10]}`"
         f"{', working tree dirty' if inp.get('git_dirty', inp.get('uncommitted_code_changes')) else ''}, ledger sha256 "
@@ -674,13 +747,18 @@ def main(argv=None):
         th = _f(m.get("leg_time_h"), 2) if m.get("leg_time_h") else "-"
         add(f"| {m['segment']} | {m['W_start']:.1f} | {m['W_end']:.1f} | {v} | {by} | {c} | {gs} | {th} |")
     add("")
-    add("Propeller operating points (efficiency is the ledger's constant, not computed; J and C_P from "
+    has_eta = all("eta_p" in p for p in d["propeller_points"].values())
+    add(("Propeller operating points (efficiency from the App. L actuator disk times the real-to-ideal factor "
+         f"{ledger['assumptions']['prop_real_to_ideal']['value']}, owner ruling G-4; J and C_P from (13.10)-(13.11)):")
+        if has_eta else
+        "Propeller operating points (efficiency is the ledger's constant, not computed; J and C_P from "
         "(13.10)-(13.11)):")
     add("")
-    add("| Point | V (kt) | Shaft hp | Throttle | J | C_P |")
-    add("|---|---|---|---|---|---|")
+    add("| Point | V (kt) | Shaft hp | " + ("Efficiency | " if has_eta else "") + "Throttle | J | C_P |")
+    add("|---|---|---|" + ("---|" if has_eta else "") + "---|---|---|")
     for k, p in d["propeller_points"].items():
-        add(f"| {k} | {p['V_kt']:.1f} | {p['shaft_hp']:.1f} | {p['throttle']:.2f} | {p['J']:.2f} | {p['C_P']:.3f} |")
+        eta_cell = f"{p['eta_p']:.3f} | " if has_eta else ""
+        add(f"| {k} | {p['V_kt']:.1f} | {p['shaft_hp']:.1f} | {eta_cell}{p['throttle']:.2f} | {p['J']:.2f} | {p['C_P']:.3f} |")
     add("")
     add("Engines compared at the recommended point (W/S, A and tail held):")
     add("")
@@ -946,6 +1024,8 @@ def main(argv=None):
     add(f"{k}. **Sponson** size, drag and weight are banded assumptions; preliminary design draws them.")
     add(f"{k + 1}. The rotation and trim checks rest on two assumed tail lift limits (ledger).")
     add("")
+    if a.compare:
+        add_comparison(add, d, json.loads((Path(a.compare) / "design_pusher.json").read_text()), Path(a.compare), run)
     add("## Appendix A. Ledger")
     add("")
     add("| Name | Value | Units | Confidence | Band | Source |")
