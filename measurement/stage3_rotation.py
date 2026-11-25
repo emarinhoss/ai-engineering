@@ -31,6 +31,7 @@ import numpy as np
 
 from conceptual import uav
 from drone import geometry, vlm
+from measurement import ground_effect_validation as gev
 from measurement.stage3_perf import rebuild, sha256
 
 REPO = Path(__file__).resolve().parents[1]
@@ -103,6 +104,7 @@ def compute(design_path):
            "note": "no 7.1a tolerance exists for this row; the scale is a proportional estimate, "
                    "not a re-size"}
     return {"row": row, "cases": cases, "rebuild_check": check,
+            "ground_effect_validation": gev.compute(),
             "layout_check": {"record": rec["CL_tail_needed"], "rebuilt_k1": r1["CL_tail_needed"],
                              "relative_difference": err},
             "downwash_gradient_tail": {"z_ft": z, "x_ft": x_t, "free_air": dw_free,
@@ -121,6 +123,7 @@ def fmt(x, n=3):
 
 def report_text(res):
     i, r, c = res["inputs"], res["row"], res["cases"]
+    r_ = r
     n = c["nominal"]
     dw = res["downwash_gradient_tail"]
     lc = res["layout_check"]
@@ -171,10 +174,8 @@ def report_text(res):
     out.append(f"- Layout check: with k_GE = 1 the rebuilt layout gives {lc['rebuilt_k1']:.9f} "
                f"against the record's {lc['record']:.9f} "
                f"(relative difference {lc['relative_difference']:.1e}).")
-    out.append("- Validation of the ground-effect model: see `tests/task12/test_ground_effect.py`. "
-               "The lattice's induced-drag ratio does not match Anderson's empirical G (6.77) within "
-               "the +-15 % fixed in advance (strict xfail there); the lift gain, which is what this "
-               "row uses, is not validated against a book relation.")
+    out.append("- Validation of the ground-effect model: see the section below. The lift gain, which is what this "
+               "row uses, has no book relation to be validated against; the induced-drag ratio is checked.")
     out.append("\n## Downwash gradient at the tail (information only)\n")
     out.append(f"Tail at {fmt(dw['x_ft'], 2)} ft aft, {fmt(dw['z_ft'], 2)} ft above the wing plane, "
                "five spanwise stations as `uav.lattice_downwash`; the rotation balance does not "
@@ -185,6 +186,25 @@ def report_text(res):
     for k, v in dw["ground_effect"].items():
         out.append(f"| ground effect, {k.replace('_', ' ')} (h {fmt(c[k]['h_ft'], 2)} ft) | "
                    f"{fmt(v, 4)} |")
+    v = res.get("ground_effect_validation")
+    if v:
+        out.append("\n## Validation of the ground-effect model (generated)\n")
+        out.append(f"Lattice induced-drag ratio in ground effect over free air at equal CL (`measurement/ground_effect_validation.py`, "
+                   f"the call of `tests/task12/test_ground_effect.py`), against two references, tolerance ±{v['tolerance'] * 100:.0f} % "
+                   "of the reference at every h/b, fixed in advance: Anderson (6.77) p. 357 and Raymer (12.61) p. 304 "
+                   "(owner ruling G-7).\n")
+        out.append("| h/b | lattice | Anderson (6.77) | lattice / Anderson - 1 | within | Raymer (12.61) | lattice / Raymer - 1 | within | Raymer / Anderson - 1 |")
+        out.append("|---|---|---|---|---|---|---|---|---|")
+        for r in v["rows"]:
+            out.append(f"| {r['h_over_b']} | {r['lattice_induced_drag_ratio']:.3f} | {r['anderson_G_6_77']:.3f} | "
+                       f"{r['deviation_anderson'] * 100:+.1f} % | {yes(r['within_anderson'])} | {r['raymer_12_61']:.3f} | "
+                       f"{r['deviation_raymer'] * 100:+.1f} % | {yes(r['within_raymer'])} | "
+                       f"{(r['raymer_over_anderson'] - 1.0) * 100:+.1f} % |")
+        out.append(f"\n**Verdict:** {v['verdict']}.")
+        out.append(f"Rotation: the tail CL needed is {fmt(r_['stage1'])} without ground effect and {fmt(r_['stage3'])} with it, "
+                   f"against the limit {fmt(r_['limit'], 2)}: the limit is {'met' if r_['limit_met_stage1'] and r_['limit_met_stage3'] else 'not met in at least one case'} "
+                   f"({'with and without ground effect' if r_['limit_met_stage1'] and r_['limit_met_stage3'] else 'see row'}), "
+                   "so the validation does not decide the row.")
     Path(i["report"]).write_text("\n".join(out) + "\n")
 
 

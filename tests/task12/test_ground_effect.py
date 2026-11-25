@@ -67,3 +67,33 @@ def test_anderson_ground_effect_factor():
     bad = {hb: (v, ground_effect_factor(hb)) for hb, v in r.items()
            if abs(v / ground_effect_factor(hb) - 1.0) > 0.15}
     assert not bad, bad
+
+
+# Second reference (owner ruling G-7): Raymer (12.61) p. 304, K_eff/K = 33 (h/b)^1.5/(1 + 33 (h/b)^1.5).
+# The tolerance +-15 % is the one fixed for Anderson's G; the lattice is inside it at every h/b.
+def test_raymer_ground_effect_factor_by_hand():
+    from measurement.ground_effect_validation import raymer_ground_effect_factor as f
+    # h/b 0.1: 33 * 0.1^1.5 = 33 * 0.0316228 = 1.04355; 1.04355/2.04355 = 0.5107
+    assert f(0.1) == pytest.approx(0.5107, abs=1e-4)
+    assert f(0.5) == pytest.approx(33 * 0.5 ** 1.5 / (1 + 33 * 0.5 ** 1.5))
+    assert f(0.0) == 0.0
+
+
+def test_lattice_agrees_with_raymer_ground_effect_factor():
+    from measurement.ground_effect_validation import raymer_ground_effect_factor
+    r = _drag_ratios()
+    bad = {hb: (v, raymer_ground_effect_factor(hb)) for hb, v in r.items()
+           if abs(v / raymer_ground_effect_factor(hb) - 1.0) > 0.15}
+    assert not bad, bad
+    # and the two books differ from each other by 29 % at h/b 0.1
+    assert raymer_ground_effect_factor(0.1) / ground_effect_factor(0.1) - 1.0 == pytest.approx(-0.29, abs=0.005)
+
+
+def test_validation_script_rows_and_verdict():
+    from measurement import ground_effect_validation as gev
+    res = gev.compute()
+    assert [r["h_over_b"] for r in res["rows"]] == [0.1, 0.2, 0.3, 0.5]
+    for r in res["rows"]:
+        assert r["within_anderson"] == (abs(r["lattice_induced_drag_ratio"] / r["anderson_G_6_77"] - 1.0) <= 0.15)
+        assert r["within_raymer"] == (abs(r["lattice_induced_drag_ratio"] / r["raymer_12_61"] - 1.0) <= 0.15)
+    assert "4 of 4" in res["verdict"] and "1 of 4" in res["verdict"] and "29 %" in res["verdict"]
