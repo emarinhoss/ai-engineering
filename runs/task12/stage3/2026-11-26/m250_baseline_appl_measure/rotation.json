@@ -1,0 +1,175 @@
+{
+  "row": {
+    "quantity": "rotation tail CL needed (0.8 V_TO, forward CG, sea level)",
+    "stage1": -0.9823280206397932,
+    "stage3": -0.9470209596083009,
+    "deviation_abs": 0.03530706103149228,
+    "deviation_rel": -0.03594223140300601,
+    "limit": 1.0,
+    "limit_met_stage1": true,
+    "limit_met_stage3": true,
+    "tolerance": null,
+    "tail_scale_record": 1.7031496518687357,
+    "tail_scale_estimate": 1.6129184176692737,
+    "note": "no 7.1a tolerance exists for this row; the scale is a proportional estimate, not a re-size"
+  },
+  "cases": {
+    "nominal": {
+      "h_ft": 6.871047751754845,
+      "h_over_b": 0.18478614490254722,
+      "alpha_deg": 1.2538105342182047,
+      "CL_free": 0.10016396327308713,
+      "CL_ground_effect": 0.11024124332025316,
+      "k_GE": 1.1006078405632904,
+      "CL_wing_rotation": 0.625145253439949,
+      "CL_tail_needed": -0.9470209596083009,
+      "main_wheel_load_lb": 2893.58388395471,
+      "limit_met": true,
+      "tail_scale_estimate": 1.6129184176692737
+    },
+    "minus_1ft": {
+      "h_ft": 5.871047751754845,
+      "h_over_b": 0.15789269988823287,
+      "alpha_deg": 1.2538105342182047,
+      "CL_free": 0.10016396327308713,
+      "CL_ground_effect": 0.11257403802301194,
+      "k_GE": 1.1238976009374746,
+      "CL_wing_rotation": 0.6383738373324855,
+      "CL_tail_needed": -0.9388477096795345,
+      "main_wheel_load_lb": 2870.8148621185055,
+      "limit_met": true,
+      "tail_scale_estimate": 1.598998149898459
+    },
+    "plus_1ft": {
+      "h_ft": 7.871047751754845,
+      "h_over_b": 0.2116795899168616,
+      "alpha_deg": 1.2538105342182047,
+      "CL_free": 0.10016396327308713,
+      "CL_ground_effect": 0.1085440593666894,
+      "k_GE": 1.0836637830589309,
+      "CL_wing_rotation": 0.6155210287774727,
+      "CL_tail_needed": -0.9529672645322463,
+      "main_wheel_load_lb": 2910.1490872505897,
+      "limit_met": true,
+      "tail_scale_estimate": 1.6230458648303967
+    }
+  },
+  "rebuild_check": {
+    "fuel_lb": {
+      "record": 977.2721099194301,
+      "rebuilt": 977.2721099194301
+    },
+    "power_climb_sl_hp": {
+      "record": 206.76674282670976,
+      "rebuilt": 206.76674282670976
+    },
+    "power_ceiling_hp": {
+      "record": 294.02355941483677,
+      "rebuilt": 294.02355941483677
+    },
+    "power_takeoff_hp": {
+      "record": 159.706192234961,
+      "rebuilt": 159.706192234961
+    },
+    "power_turn_at_loiter_hp": {
+      "record": 262.5249390027087,
+      "rebuilt": 262.5249390027087
+    },
+    "power_cruise_at_altitude_hp": {
+      "record": 228.52939089680825,
+      "rebuilt": 228.52939089680825
+    }
+  },
+  "ground_effect_validation": {
+    "what": "ground-effect model check, the same call as tests/task12/test_ground_effect.py",
+    "wing": {
+      "span_ft": 40.0,
+      "aspect_ratio": 10.0,
+      "taper": 0.45,
+      "lattice": "medium",
+      "alpha_deg": 4.0
+    },
+    "tolerance": 0.15,
+    "rows": [
+      {
+        "h_over_b": 0.1,
+        "lattice_induced_drag_ratio": 0.4454587090177196,
+        "anderson_G_6_77": 0.7191011235955057,
+        "raymer_12_61": 0.5106558667914025,
+        "deviation_anderson": -0.3805339827722337,
+        "deviation_raymer": -0.1276733746022255,
+        "within_anderson": false,
+        "within_raymer": true,
+        "raymer_over_anderson": 0.7101308147567941
+      },
+      {
+        "h_over_b": 0.2,
+        "lattice_induced_drag_ratio": 0.6835890254066944,
+        "anderson_G_6_77": 0.911032028469751,
+        "raymer_12_61": 0.7469385723159074,
+        "deviation_anderson": -0.2496542338309331,
+        "deviation_raymer": -0.08481225800509362,
+        "within_anderson": false,
+        "within_raymer": true,
+        "raymer_over_anderson": 0.8198817922686327
+      },
+      {
+        "h_over_b": 0.3,
+        "lattice_induced_drag_ratio": 0.7977810102264256,
+        "anderson_G_6_77": 0.9584026622296173,
+        "raymer_12_61": 0.8442962602788034,
+        "deviation_anderson": -0.1675930778713859,
+        "deviation_raymer": -0.05509351662533435,
+        "within_anderson": false,
+        "within_raymer": true,
+        "raymer_over_anderson": 0.8809410632422932
+      },
+      {
+        "h_over_b": 0.5,
+        "lattice_induced_drag_ratio": 0.900695656376809,
+        "anderson_G_6_77": 0.9846153846153847,
+        "raymer_12_61": 0.9210563412427157,
+        "deviation_anderson": -0.0852309739923034,
+        "deviation_raymer": -0.02210579739175944,
+        "within_anderson": true,
+        "within_raymer": true,
+        "raymer_over_anderson": 0.9354478465746331
+      }
+    ],
+    "verdict": "inside +-15 % of Raymer (12.61) at 4 of 4 h/b values and of Anderson (6.77) at 1 of 4; the two books differ by 29 % at h/b 0.1. The references were fixed in advance, so a row outside is reported, not tuned"
+  },
+  "layout_check": {
+    "record": -0.9823280206397932,
+    "rebuilt_k1": -0.9823280221330302,
+    "relative_difference": 1.5201002678821851e-09
+  },
+  "downwash_gradient_tail": {
+    "z_ft": 1.394405626423803,
+    "x_ft": 14.63853455541166,
+    "free_air": 0.45794234937679346,
+    "ground_effect": {
+      "nominal": 0.3534199676638744,
+      "minus_1ft": 0.3332741083186433,
+      "plus_1ft": 0.3698485063918823
+    }
+  },
+  "assumptions": {
+    "wing_height": "h = h_cg - 0.1 D_f (render's wing station), plus/minus 1 ft",
+    "attitude": "free-air lattice CL = ledger cl_ground",
+    "flap": "flap increment scaled by the wing's k_GE (approximation)",
+    "lattice": "fine, planar, ground plane parallel to the wing plane"
+  },
+  "inputs": {
+    "design": "runs/task12/stage3/2026-11-25/m250_baseline_appl/P450/h1.05/design_pusher.json",
+    "design_sha256": "550334ac4436736c625f34bd3f91894d54dfdc02db088a0e5c9bea6743ee9d90",
+    "ledger": "runs/task12/stage3/2026-11-25/m250_baseline_appl/P450/h1.05/ledger.yaml",
+    "ledger_sha256": "d656d2043541a99301f4a63fb82c76545e7d6b07fc3fa174ebd9f065d38e1be4",
+    "git_commit": "3f0c099c42f78da09541b7c718ac334e241c76fd",
+    "python": "3.13.18",
+    "numpy": "2.5.3",
+    "out": "runs/task12/stage3/2026-11-26/m250_baseline_appl_measure/rotation.json",
+    "report": "docs/validation/2026-11-26_task12_stage3_rotation_m250_appl.md",
+    "seed": null,
+    "command": "python -m measurement.stage3_rotation --design runs/task12/stage3/2026-11-25/m250_baseline_appl/P450/h1.05/design_pusher.json --out runs/task12/stage3/2026-11-26/m250_baseline_appl_measure/rotation.json --report docs/validation/2026-11-26_task12_stage3_rotation_m250_appl.md"
+  }
+}

@@ -1,0 +1,1569 @@
+{
+  "frozen": {
+    "W0_lb": 3160.3054928259653,
+    "fuel_lb": 977.2721099194301,
+    "bhp": 450.0,
+    "service_ceiling_ft": 29746.593220370414,
+    "sfc_allowance": 1.02,
+    "mission_altitude_ft": 20000.0
+  },
+  "rows": [
+    {
+      "id": "power_20000",
+      "quantity": "shaft hp available at 20,000 ft, 95 kt",
+      "unit": "hp",
+      "stage1": 196.713303995617,
+      "source": "App. K family, pi_c held at the rating",
+      "stage3": {
+        "min": 196.5486393202343,
+        "max": 196.7545284405765,
+        "mean": 196.6524780728214
+      },
+      "deviation": [
+        -0.000837079506256368,
+        0.00020956612553479987
+      ],
+      "deviation_kind": "relative",
+      "tolerance": 0.1,
+      "numerically_within": true,
+      "independent": false,
+      "verdict": "not judged (7.1b: same table)",
+      "note": "Stage 1's value is the table of the family's nominal member (rated power clip, power scale 1); the family contains it."
+    },
+    {
+      "id": "power_25000",
+      "quantity": "shaft hp available at 25,000 ft, 95 kt",
+      "unit": "hp",
+      "stage1": 156.0373448219962,
+      "source": "App. K family, pi_c held at the rating",
+      "stage3": {
+        "min": 155.89889813700913,
+        "max": 156.07370812371516,
+        "mean": 155.987075931706
+      },
+      "deviation": [
+        -0.0008872663473285574,
+        0.00023304229997287386
+      ],
+      "deviation_kind": "relative",
+      "tolerance": 0.1,
+      "numerically_within": true,
+      "independent": false,
+      "verdict": "not judged (7.1b: same table)",
+      "note": "Stage 1's value is the table of the family's nominal member (rated power clip, power scale 1); the family contains it."
+    },
+    {
+      "id": "sfc_cruise_out",
+      "quantity": "shaft SFC over cruise_out (leg average)",
+      "unit": "lb/(hp h)",
+      "stage1": 0.67046013110027,
+      "source": "App. K family, part power at the leg's level-flight power",
+      "stage3": {
+        "min": 0.6548498612931355,
+        "max": 0.6619483006881136,
+        "mean": 0.6577657462374898
+      },
+      "deviation": [
+        -0.023282920315510835,
+        -0.012695505694257963
+      ],
+      "deviation_kind": "relative",
+      "tolerance": 0.1,
+      "numerically_within": true,
+      "independent": false,
+      "verdict": "not judged (7.1b: same table)",
+      "note": "Stage 1's value is the record's leg-mean SFC from the table, with the SFC allowance 1.02; the family is raw App. K without it."
+    },
+    {
+      "id": "sfc_loiter",
+      "quantity": "shaft SFC over loiter (leg average)",
+      "unit": "lb/(hp h)",
+      "stage1": 0.8252711705065444,
+      "source": "App. K family, part power at the leg's level-flight power",
+      "stage3": {
+        "min": 0.7995860600867128,
+        "max": 0.8240868192110963,
+        "mean": 0.8096865702275505
+      },
+      "deviation": [
+        -0.03112323723130455,
+        -0.0014351056207636498
+      ],
+      "deviation_kind": "relative",
+      "tolerance": 0.1,
+      "numerically_within": true,
+      "independent": false,
+      "verdict": "not judged (7.1b: same table)",
+      "note": "Stage 1's value is the record's leg-mean SFC from the table, with the SFC allowance 1.02; the family is raw App. K without it."
+    },
+    {
+      "id": "sfc_cruise_back",
+      "quantity": "shaft SFC over cruise_back (leg average)",
+      "unit": "lb/(hp h)",
+      "stage1": 0.7482394729742478,
+      "source": "App. K family, part power at the leg's level-flight power",
+      "stage3": {
+        "min": 0.7277546884790446,
+        "max": 0.7437336409535428,
+        "mean": 0.7342585658038837
+      },
+      "deviation": [
+        -0.027377310654002635,
+        -0.006021911678615836
+      ],
+      "deviation_kind": "relative",
+      "tolerance": 0.1,
+      "numerically_within": true,
+      "independent": false,
+      "verdict": "not judged (7.1b: same table)",
+      "note": "Stage 1's value is the record's leg-mean SFC from the table, with the SFC allowance 1.02; the family is raw App. K without it."
+    },
+    {
+      "id": "ceiling",
+      "quantity": "service ceiling (App. K power, pi_c held)",
+      "unit": "ft",
+      "stage1": 29746.593220370414,
+      "source": "App. K family power in Stage 1's ceiling bisection",
+      "stage3": {
+        "min": 29715.764758238947,
+        "max": 29748.251459259336,
+        "mean": 29732.14838962425
+      },
+      "deviation": [
+        -30.82846213146695,
+        1.6582388889219146
+      ],
+      "deviation_kind": "absolute",
+      "tolerance": 1000.0,
+      "numerically_within": true,
+      "independent": false,
+      "verdict": "not judged (7.1b: same table)",
+      "note": "Same bisection as Stage 1 (climb speed over stall speed at each altitude); only the engine power differs."
+    },
+    {
+      "id": "brochure_normal_cruise",
+      "quantity": "shaft SFC at normal_cruise (380 shp, sea level static)",
+      "unit": "lb/(hp h)",
+      "stage1": 0.635,
+      "source": "App. K family against the brochure's maximum (guaranteed) SFC",
+      "stage3": {
+        "min": 0.6416569341621289,
+        "max": 0.6443871238237303,
+        "mean": 0.6429392870421817
+      },
+      "deviation": [
+        0.010483360885242314,
+        0.014782872163354808
+      ],
+      "deviation_kind": "relative",
+      "tolerance": 0.1,
+      "numerically_within": true,
+      "independent": true,
+      "verdict": "within",
+      "note": "Stage 1 column is the brochure value (a maximum/guaranteed SFC). The calibration used take-off only. Valid at sea level and 70-100 % power only."
+    },
+    {
+      "id": "brochure_cruise_a_90pct",
+      "quantity": "shaft SFC at cruise_a_90pct (377 shp, sea level static)",
+      "unit": "lb/(hp h)",
+      "stage1": 0.637,
+      "source": "App. K family against the brochure's maximum (guaranteed) SFC",
+      "stage3": {
+        "min": 0.6430779980860235,
+        "max": 0.6459514688069097,
+        "mean": 0.6444251125182041
+      },
+      "deviation": [
+        0.009541598251214277,
+        0.014052541298131348
+      ],
+      "deviation_kind": "relative",
+      "tolerance": 0.1,
+      "numerically_within": true,
+      "independent": true,
+      "verdict": "within",
+      "note": "Stage 1 column is the brochure value (a maximum/guaranteed SFC). The calibration used take-off only. Valid at sea level and 70-100 % power only."
+    },
+    {
+      "id": "brochure_cruise_b_75pct",
+      "quantity": "shaft SFC at cruise_b_75pct (314 shp, sea level static)",
+      "unit": "lb/(hp h)",
+      "stage1": 0.673,
+      "source": "App. K family against the brochure's maximum (guaranteed) SFC",
+      "stage3": {
+        "min": 0.6779784611041915,
+        "max": 0.6845980747379584,
+        "mean": 0.6809503217387243
+      },
+      "deviation": [
+        0.00739741620236467,
+        0.01723339485580739
+      ],
+      "deviation_kind": "relative",
+      "tolerance": 0.1,
+      "numerically_within": true,
+      "independent": true,
+      "verdict": "within",
+      "note": "Stage 1 column is the brochure value (a maximum/guaranteed SFC). The calibration used take-off only. Valid at sea level and 70-100 % power only."
+    }
+  ],
+  "detail": {
+    "family": [
+      {
+        "e_c": 0.78,
+        "e_t": 0.82,
+        "Tt4_R": 2521.7768261764368,
+        "pi_c": 10.35438404721208,
+        "tau_t": 0.6523708109307944,
+        "m0_lbm_s": 3.6096940065214316
+      },
+      {
+        "e_c": 0.78,
+        "e_t": 0.86,
+        "Tt4_R": 2403.950984560472,
+        "pi_c": 7.33936532586813,
+        "tau_t": 0.6840141082737548,
+        "m0_lbm_s": 3.600069277996166
+      },
+      {
+        "e_c": 0.78,
+        "e_t": 0.9,
+        "Tt4_R": 2334.2127135357487,
+        "pi_c": 5.853298529982567,
+        "tau_t": 0.7043057433090463,
+        "m0_lbm_s": 3.596016120056987
+      },
+      {
+        "e_c": 0.82,
+        "e_t": 0.82,
+        "Tt4_R": 2396.3681970784255,
+        "pi_c": 7.929137423983775,
+        "tau_t": 0.6861614029202125,
+        "m0_lbm_s": 3.5995753391782412
+      },
+      {
+        "e_c": 0.82,
+        "e_t": 0.86,
+        "Tt4_R": 2326.020032949368,
+        "pi_c": 6.223536972305737,
+        "tau_t": 0.7067718091537969,
+        "m0_lbm_s": 3.595607252877187
+      },
+      {
+        "e_c": 0.82,
+        "e_t": 0.9,
+        "Tt4_R": 2277.9085632177475,
+        "pi_c": 5.207332969061099,
+        "tau_t": 0.7216207390188019,
+        "m0_lbm_s": 3.593454387497387
+      },
+      {
+        "e_c": 0.86,
+        "e_t": 0.82,
+        "Tt4_R": 2323.7886386795444,
+        "pi_c": 6.747057001804933,
+        "tau_t": 0.7074465705057709,
+        "m0_lbm_s": 3.5954981383302496
+      },
+      {
+        "e_c": 0.86,
+        "e_t": 0.86,
+        "Tt4_R": 2274.0624851312637,
+        "pi_c": 5.557223984156735,
+        "tau_t": 0.7228355169232576,
+        "m0_lbm_s": 3.59329926987617
+      },
+      {
+        "e_c": 0.86,
+        "e_t": 0.9,
+        "Tt4_R": 2237.616078955447,
+        "pi_c": 4.780330659355968,
+        "tau_t": 0.7345584289764115,
+        "m0_lbm_s": 3.5919395190124477
+      }
+    ],
+    "failures": [],
+    "table": "runs/task12/stage3/2026-11-25/m250_baseline_appl/P450/h1.05/m250_table.json",
+    "table_sha256": "114b0e0f1cbdbcfca8ba4d1e881e7f5699a5bb6751191c4367292630f1df0790",
+    "nominal_pi_c_gap": 0.0,
+    "flat_rated_upper_bound_20000": {
+      "min": 308.30627629848874,
+      "max": 340.20694528262266,
+      "mean": 320.9915585886997
+    },
+    "flat_rated_upper_bound_25000": {
+      "min": 276.74190625976706,
+      "max": 312.9822991904556,
+      "mean": 291.1192360676361
+    },
+    "points": [
+      {
+        "segment": "cruise_out",
+        "where": "start",
+        "W_lb": 3095.317594754809,
+        "V_kt": 141.2396430169555,
+        "shaft_hp": 132.47066548041988,
+        "stage1_cbhp_leg": 0.67046013110027,
+        "bsfc": {
+          "min": 0.6519821061403254,
+          "max": 0.6587328978768738,
+          "mean": 0.6547574336282973
+        },
+        "Tt4_R": {
+          "min": 1702.4728432722172,
+          "max": 1975.2546473714292,
+          "mean": 1807.061868456861
+        }
+      },
+      {
+        "segment": "cruise_out",
+        "where": "mid",
+        "W_lb": 3019.9334043582535,
+        "V_kt": 141.2396430169555,
+        "shaft_hp": 130.52589481392695,
+        "stage1_cbhp_leg": 0.67046013110027,
+        "bsfc": {
+          "min": 0.6548509117524484,
+          "max": 0.6619486939298885,
+          "mean": 0.6577665104420835
+        },
+        "Tt4_R": {
+          "min": 1694.7671584360432,
+          "max": 1968.2541029987187,
+          "mean": 1799.6864210390454
+        }
+      },
+      {
+        "segment": "cruise_out",
+        "where": "end",
+        "W_lb": 2944.549213961698,
+        "V_kt": 141.2396430169555,
+        "shaft_hp": 128.63105678722002,
+        "stage1_cbhp_leg": 0.67046013110027,
+        "bsfc": {
+          "min": 0.6577134146086941,
+          "max": 0.6651621305322543,
+          "mean": 0.660771002028308
+        },
+        "Tt4_R": {
+          "min": 1687.1927319195242,
+          "max": 1961.372701089923,
+          "mean": 1792.4364198747446
+        }
+      },
+      {
+        "segment": "loiter",
+        "where": "start",
+        "W_lb": 2944.549213961698,
+        "V_kt": 96.85995921697013,
+        "shaft_hp": 84.37310581951262,
+        "stage1_cbhp_leg": 0.8252711705065444,
+        "bsfc": {
+          "min": 0.7627248400654871,
+          "max": 0.7815344497296688,
+          "mean": 0.7706158791423737
+        },
+        "Tt4_R": {
+          "min": 1503.539630298108,
+          "max": 1791.0319373070868,
+          "mean": 1615.0110350938273
+        }
+      },
+      {
+        "segment": "loiter",
+        "where": "mid",
+        "W_lb": 2665.6640322799767,
+        "V_kt": 96.85995921697013,
+        "shaft_hp": 74.19104852541702,
+        "stage1_cbhp_leg": 0.8252711705065444,
+        "bsfc": {
+          "min": 0.7989772230873248,
+          "max": 0.8232511183919077,
+          "mean": 0.8089656497883233
+        },
+        "Tt4_R": {
+          "min": 1449.600493005923,
+          "max": 1742.0397334508386,
+          "mean": 1563.351136499465
+        }
+      },
+      {
+        "segment": "loiter",
+        "where": "end",
+        "W_lb": 2386.778850598255,
+        "V_kt": 96.85995921697013,
+        "shaft_hp": 65.14559171519033,
+        "stage1_cbhp_leg": 0.8252711705065444,
+        "bsfc": {
+          "min": 0.8388826281054911,
+          "max": 0.8699819919692781,
+          "mean": 0.8516409430696367
+        },
+        "Tt4_R": {
+          "min": 1398.215169555629,
+          "max": 1695.3920988254438,
+          "mean": 1514.1386158861183
+        }
+      },
+      {
+        "segment": "cruise_back",
+        "where": "start",
+        "W_lb": 2386.778850598255,
+        "V_kt": 128.65860199359204,
+        "shaft_hp": 95.96566960650013,
+        "stage1_cbhp_leg": 0.7482394729742478,
+        "bsfc": {
+          "min": 0.7239897593016406,
+          "max": 0.7393942465353956,
+          "mean": 0.730255419704087
+        },
+        "Tt4_R": {
+          "min": 1549.7981124272542,
+          "max": 1835.4283961279225,
+          "mean": 1660.3905280279025
+        }
+      },
+      {
+        "segment": "cruise_back",
+        "where": "mid",
+        "W_lb": 2318.188758036443,
+        "V_kt": 128.65860199359204,
+        "shaft_hp": 94.47563390785544,
+        "stage1_cbhp_leg": 0.7482394729742478,
+        "bsfc": {
+          "min": 0.7277577978655648,
+          "max": 0.7437360816215807,
+          "mean": 0.734261324451824
+        },
+        "Tt4_R": {
+          "min": 1542.668941591398,
+          "max": 1828.9515443992514,
+          "mean": 1653.5637872450861
+        }
+      },
+      {
+        "segment": "cruise_back",
+        "where": "end",
+        "W_lb": 2249.5986654746307,
+        "V_kt": 128.65860199359204,
+        "shaft_hp": 93.03058988890653,
+        "stage1_cbhp_leg": 0.7482394729742478,
+        "bsfc": {
+          "min": 0.7315071801103677,
+          "max": 0.7480632726995384,
+          "mean": 0.7382506773119194
+        },
+        "Tt4_R": {
+          "min": 1535.6937585575797,
+          "max": 1822.6147624692264,
+          "mean": 1646.884424319682
+        }
+      }
+    ],
+    "brochure_study": {
+      "members": [
+        {
+          "e_c": 0.78,
+          "e_t": 0.82,
+          "pi_c": 10.35438404721208,
+          "Tt4_R": 2521.7768261764368,
+          "Tt45_R": 1949.6699987347865,
+          "Tt45_c": 809.9999992971037,
+          "tau_t": 0.6523708109307944,
+          "bsfc_takeoff": 0.6129999985151667,
+          "validation": {
+            "points": [
+              {
+                "point": "normal_cruise",
+                "shp": 380.0,
+                "bsfc_brochure": 0.635,
+                "bsfc": 0.6443871238237303,
+                "dev_pct": 1.478287216335472,
+                "Tt4_R": 2418.759234455888,
+                "mgt_c": 765.7520296744759,
+                "ratio_model": 1.0512024883924809,
+                "ratio_brochure": 1.0358890701468189,
+                "ok": true
+              },
+              {
+                "point": "cruise_a_90pct",
+                "shp": 377.0,
+                "bsfc_brochure": 0.637,
+                "bsfc": 0.6459514688069097,
+                "dev_pct": 1.4052541298131382,
+                "Tt4_R": 2414.086743661417,
+                "mgt_c": 763.7451080673721,
+                "ratio_model": 1.05375443780026,
+                "ratio_brochure": 1.0391517128874388,
+                "ok": true
+              },
+              {
+                "point": "cruise_b_75pct",
+                "shp": 314.0,
+                "bsfc_brochure": 0.673,
+                "bsfc": 0.6845980747379584,
+                "dev_pct": 1.7233394855807438,
+                "Tt4_R": 2310.131097131064,
+                "mgt_c": 719.0942264756783,
+                "ratio_model": 1.1167994720982373,
+                "ratio_brochure": 1.0978792822185972,
+                "ok": true
+              }
+            ],
+            "mgt_c_brochure": 752.0,
+            "mgt_c": 765.7520296744759,
+            "mgt_dev_c": 13.75202967447592,
+            "mgt_ok": true,
+            "passed": true
+          }
+        },
+        {
+          "e_c": 0.78,
+          "e_t": 0.86,
+          "pi_c": 7.33936532586813,
+          "Tt4_R": 2403.950984560472,
+          "Tt45_R": 1949.6699999996008,
+          "Tt45_c": 809.9999999997782,
+          "tau_t": 0.6840141082737548,
+          "bsfc_takeoff": 0.6129999996524864,
+          "validation": {
+            "points": [
+              {
+                "point": "normal_cruise",
+                "shp": 380.0,
+                "bsfc_brochure": 0.635,
+                "bsfc": 0.6440359298897481,
+                "dev_pct": 1.422981084999697,
+                "Tt4_R": 2297.7778135118037,
+                "mgt_c": 762.1614746055644,
+                "ratio_model": 1.050629576272196,
+                "ratio_brochure": 1.0358890701468189,
+                "ok": true
+              },
+              {
+                "point": "cruise_a_90pct",
+                "shp": 377.0,
+                "bsfc_brochure": 0.637,
+                "bsfc": 0.645579586457873,
+                "dev_pct": 1.3468738552390835,
+                "Tt4_R": 2292.963388981374,
+                "mgt_c": 759.9922357302188,
+                "ratio_model": 1.053147776221625,
+                "ratio_brochure": 1.0391517128874388,
+                "ok": true
+              },
+              {
+                "point": "cruise_b_75pct",
+                "shp": 314.0,
+                "bsfc_brochure": 0.673,
+                "bsfc": 0.6836247882887467,
+                "dev_pct": 1.5787203995165866,
+                "Tt4_R": 2185.878065938645,
+                "mgt_c": 711.7427213271973,
+                "ratio_model": 1.1152117270412691,
+                "ratio_brochure": 1.0978792822185972,
+                "ok": true
+              }
+            ],
+            "mgt_c_brochure": 752.0,
+            "mgt_c": 762.1614746055644,
+            "mgt_dev_c": 10.161474605564422,
+            "mgt_ok": true,
+            "passed": true
+          }
+        },
+        {
+          "e_c": 0.78,
+          "e_t": 0.9,
+          "pi_c": 5.853298529982567,
+          "Tt4_R": 2334.2127135357487,
+          "Tt45_R": 1949.669999973615,
+          "Tt45_c": 809.9999999853416,
+          "tau_t": 0.7043057433090463,
+          "bsfc_takeoff": 0.6129999999534501,
+          "validation": {
+            "points": [
+              {
+                "point": "normal_cruise",
+                "shp": 380.0,
+                "bsfc_brochure": 0.635,
+                "bsfc": 0.6439832940663862,
+                "dev_pct": 1.414691978958449,
+                "Tt4_R": 2225.1628661864647,
+                "mgt_c": 759.3973529044507,
+                "ratio_model": 1.0505437098128694,
+                "ratio_brochure": 1.0358890701468189,
+                "ok": true
+              },
+              {
+                "point": "cruise_a_90pct",
+                "shp": 377.0,
+                "bsfc_brochure": 0.637,
+                "bsfc": 0.645521702310921,
+                "dev_pct": 1.3377868619970146,
+                "Tt4_R": 2220.219732558143,
+                "mgt_c": 757.1035794371072,
+                "ratio_model": 1.0530533480586306,
+                "ratio_brochure": 1.0391517128874388,
+                "ok": true
+              },
+              {
+                "point": "cruise_b_75pct",
+                "shp": 314.0,
+                "bsfc_brochure": 0.673,
+                "bsfc": 0.683362512553748,
+                "dev_pct": 1.5397492650442768,
+                "Tt4_R": 2110.313092450835,
+                "mgt_c": 706.1033528766513,
+                "ratio_model": 1.1147838704822857,
+                "ratio_brochure": 1.0978792822185972,
+                "ok": true
+              }
+            ],
+            "mgt_c_brochure": 752.0,
+            "mgt_c": 759.3973529044507,
+            "mgt_dev_c": 7.397352904450713,
+            "mgt_ok": true,
+            "passed": true
+          }
+        },
+        {
+          "e_c": 0.82,
+          "e_t": 0.82,
+          "pi_c": 7.929137423983775,
+          "Tt4_R": 2396.3681970784255,
+          "Tt45_R": 1949.669999999697,
+          "Tt45_c": 809.9999999998316,
+          "tau_t": 0.6861614029202125,
+          "bsfc_takeoff": 0.612999998087251,
+          "validation": {
+            "points": [
+              {
+                "point": "normal_cruise",
+                "shp": 380.0,
+                "bsfc_brochure": 0.635,
+                "bsfc": 0.6427891361353374,
+                "dev_pct": 1.2266356118641575,
+                "Tt4_R": 2290.553936873781,
+                "mgt_c": 762.1723264059427,
+                "ratio_model": 1.0485956576525899,
+                "ratio_brochure": 1.0358890701468189,
+                "ok": true
+              },
+              {
+                "point": "cruise_a_90pct",
+                "shp": 377.0,
+                "bsfc_brochure": 0.637,
+                "bsfc": 0.6442697575849293,
+                "dev_pct": 1.1412492284033515,
+                "Tt4_R": 2285.7526364553364,
+                "mgt_c": 760.0021554970741,
+                "ratio_model": 1.0510110270721853,
+                "ratio_brochure": 1.0391517128874388,
+                "ok": true
+              },
+              {
+                "point": "cruise_b_75pct",
+                "shp": 314.0,
+                "bsfc_brochure": 0.673,
+                "bsfc": 0.6807313005890632,
+                "dev_pct": 1.1487816625650904,
+                "Tt4_R": 2178.8802733337457,
+                "mgt_c": 711.6962231047722,
+                "ratio_model": 1.1104915215549016,
+                "ratio_brochure": 1.0978792822185972,
+                "ok": true
+              }
+            ],
+            "mgt_c_brochure": 752.0,
+            "mgt_c": 762.1723264059427,
+            "mgt_dev_c": 10.172326405942727,
+            "mgt_ok": true,
+            "passed": true
+          }
+        },
+        {
+          "e_c": 0.82,
+          "e_t": 0.86,
+          "pi_c": 6.223536972305737,
+          "Tt4_R": 2326.020032949368,
+          "Tt45_R": 1949.669999975666,
+          "Tt45_c": 809.9999999864812,
+          "tau_t": 0.7067718091537969,
+          "bsfc_takeoff": 0.6129999997283383,
+          "validation": {
+            "points": [
+              {
+                "point": "normal_cruise",
+                "shp": 380.0,
+                "bsfc_brochure": 0.635,
+                "bsfc": 0.6427951062696904,
+                "dev_pct": 1.227575790502411,
+                "Tt4_R": 2217.265775984525,
+                "mgt_c": 759.356767442764,
+                "ratio_model": 1.0486053940531097,
+                "ratio_brochure": 1.0358890701468189,
+                "ok": true
+              },
+              {
+                "point": "cruise_a_90pct",
+                "shp": 377.0,
+                "bsfc_brochure": 0.637,
+                "bsfc": 0.644273416661412,
+                "dev_pct": 1.1418236517130254,
+                "Tt4_R": 2212.33292219563,
+                "mgt_c": 757.0597018518885,
+                "ratio_model": 1.0510169933881452,
+                "ratio_brochure": 1.0391517128874388,
+                "ok": true
+              },
+              {
+                "point": "cruise_b_75pct",
+                "shp": 314.0,
+                "bsfc_brochure": 0.673,
+                "bsfc": 0.6806037395852067,
+                "dev_pct": 1.1298275758107934,
+                "Tt4_R": 2102.5769755874444,
+                "mgt_c": 705.9500158289219,
+                "ratio_model": 1.110283425590258,
+                "ratio_brochure": 1.0978792822185972,
+                "ok": true
+              }
+            ],
+            "mgt_c_brochure": 752.0,
+            "mgt_c": 759.356767442764,
+            "mgt_dev_c": 7.356767442763953,
+            "mgt_ok": true,
+            "passed": true
+          }
+        },
+        {
+          "e_c": 0.82,
+          "e_t": 0.9,
+          "pi_c": 5.207332969061099,
+          "Tt4_R": 2277.9085632177475,
+          "Tt45_R": 1949.6700000430942,
+          "Tt45_c": 810.0000000239412,
+          "tau_t": 0.7216207390188019,
+          "bsfc_takeoff": 0.6129999981808247,
+          "validation": {
+            "points": [
+              {
+                "point": "normal_cruise",
+                "shp": 380.0,
+                "bsfc_brochure": 0.635,
+                "bsfc": 0.6429213782510633,
+                "dev_pct": 1.2474611418997306,
+                "Tt4_R": 2166.4730908925894,
+                "mgt_c": 757.01221385874,
+                "ratio_model": 1.0488113868826021,
+                "ratio_brochure": 1.0358890701468189,
+                "ok": true
+              },
+              {
+                "point": "cruise_a_90pct",
+                "shp": 377.0,
+                "bsfc_brochure": 0.637,
+                "bsfc": 0.6444036607766146,
+                "dev_pct": 1.1622701376160949,
+                "Tt4_R": 2161.420704651185,
+                "mgt_c": 754.6097942683031,
+                "ratio_model": 1.0512294660505468,
+                "ratio_brochure": 1.0391517128874388,
+                "ok": true
+              },
+              {
+                "point": "cruise_b_75pct",
+                "shp": 314.0,
+                "bsfc_brochure": 0.673,
+                "bsfc": 0.6807658235672627,
+                "dev_pct": 1.1539113770078213,
+                "Tt4_R": 2049.0554384773645,
+                "mgt_c": 701.1798893001511,
+                "ratio_model": 1.1105478394576571,
+                "ratio_brochure": 1.0978792822185972,
+                "ok": true
+              }
+            ],
+            "mgt_c_brochure": 752.0,
+            "mgt_c": 757.01221385874,
+            "mgt_dev_c": 5.012213858739983,
+            "mgt_ok": true,
+            "passed": true
+          }
+        },
+        {
+          "e_c": 0.86,
+          "e_t": 0.82,
+          "pi_c": 6.747057001804933,
+          "Tt4_R": 2323.7886386795444,
+          "Tt45_R": 1949.6699999766622,
+          "Tt45_c": 809.9999999870346,
+          "tau_t": 0.7074465705057709,
+          "bsfc_takeoff": 0.6129999991813974,
+          "validation": {
+            "points": [
+              {
+                "point": "normal_cruise",
+                "shp": 380.0,
+                "bsfc_brochure": 0.635,
+                "bsfc": 0.6416569341621289,
+                "dev_pct": 1.0483360885242377,
+                "Tt4_R": 2215.606013603795,
+                "mgt_c": 759.5745833209218,
+                "ratio_model": 1.0467486705040785,
+                "ratio_brochure": 1.0358890701468189,
+                "ok": true
+              },
+              {
+                "point": "cruise_a_90pct",
+                "shp": 377.0,
+                "bsfc_brochure": 0.637,
+                "bsfc": 0.6430779980860235,
+                "dev_pct": 0.9541598251214367,
+                "Tt4_R": 2210.696023439093,
+                "mgt_c": 757.2859690475276,
+                "ratio_model": 1.0490668824548,
+                "ratio_brochure": 1.0391517128874388,
+                "ok": true
+              },
+              {
+                "point": "cruise_b_75pct",
+                "shp": 314.0,
+                "bsfc_brochure": 0.673,
+                "bsfc": 0.6779784611041915,
+                "dev_pct": 0.7397416202364671,
+                "Tt4_R": 2101.3721726135213,
+                "mgt_c": 706.3286112873194,
+                "ratio_model": 1.1060007536860792,
+                "ratio_brochure": 1.0978792822185972,
+                "ok": true
+              }
+            ],
+            "mgt_c_brochure": 752.0,
+            "mgt_c": 759.5745833209218,
+            "mgt_dev_c": 7.574583320921761,
+            "mgt_ok": true,
+            "passed": true
+          }
+        },
+        {
+          "e_c": 0.86,
+          "e_t": 0.86,
+          "pi_c": 5.557223984156735,
+          "Tt4_R": 2274.0624851312637,
+          "Tt45_R": 1949.6700000526093,
+          "Tt45_c": 810.0000000292274,
+          "tau_t": 0.7228355169232576,
+          "bsfc_takeoff": 0.6129999995083477,
+          "validation": {
+            "points": [
+              {
+                "point": "normal_cruise",
+                "shp": 380.0,
+                "bsfc_brochure": 0.635,
+                "bsfc": 0.6418273803609289,
+                "dev_pct": 1.0751780095950902,
+                "Tt4_R": 2163.112730092825,
+                "mgt_c": 757.1539467836013,
+                "ratio_model": 1.047026722472597,
+                "ratio_brochure": 1.0358890701468189,
+                "ok": true
+              },
+              {
+                "point": "cruise_a_90pct",
+                "shp": 377.0,
+                "bsfc_brochure": 0.637,
+                "bsfc": 0.6432545951083394,
+                "dev_pct": 0.9818830625336616,
+                "Tt4_R": 2158.0793170036786,
+                "mgt_c": 754.7565010567124,
+                "ratio_model": 1.0493549683919365,
+                "ratio_brochure": 1.0391517128874388,
+                "ok": true
+              },
+              {
+                "point": "cruise_b_75pct",
+                "shp": 314.0,
+                "bsfc_brochure": 0.673,
+                "bsfc": 0.6782402166586741,
+                "dev_pct": 0.7786354619129243,
+                "Tt4_R": 2046.0600724520552,
+                "mgt_c": 701.401043353728,
+                "ratio_model": 1.1064277605263488,
+                "ratio_brochure": 1.0978792822185972,
+                "ok": true
+              }
+            ],
+            "mgt_c_brochure": 752.0,
+            "mgt_c": 757.1539467836013,
+            "mgt_dev_c": 5.153946783601327,
+            "mgt_ok": true,
+            "passed": true
+          }
+        },
+        {
+          "e_c": 0.86,
+          "e_t": 0.9,
+          "pi_c": 4.780330659355968,
+          "Tt4_R": 2237.616078955447,
+          "Tt45_R": 1949.670000166625,
+          "Tt45_c": 810.0000000925694,
+          "tau_t": 0.7345584289764115,
+          "bsfc_takeoff": 0.6129999994738132,
+          "validation": {
+            "points": [
+              {
+                "point": "normal_cruise",
+                "shp": 380.0,
+                "bsfc_brochure": 0.635,
+                "bsfc": 0.6420573004206223,
+                "dev_pct": 1.1113858930113851,
+                "Tt4_R": 2124.1357173912893,
+                "mgt_c": 755.0682113935442,
+                "ratio_model": 1.0474017960387458,
+                "ratio_brochure": 1.0358890701468189,
+                "ok": true
+              },
+              {
+                "point": "cruise_a_90pct",
+                "shp": 377.0,
+                "bsfc_brochure": 0.637,
+                "bsfc": 0.6434938268708136,
+                "dev_pct": 1.0194390692014998,
+                "Tt4_R": 2118.9897917568787,
+                "mgt_c": 752.5772526433774,
+                "ratio_model": 1.0497452323379701,
+                "ratio_brochure": 1.0391517128874388,
+                "ok": true
+              },
+              {
+                "point": "cruise_b_75pct",
+                "shp": 314.0,
+                "bsfc_brochure": 0.673,
+                "bsfc": 0.6786479785636678,
+                "dev_pct": 0.8392241550769342,
+                "Tt4_R": 2004.5221660500756,
+                "mgt_c": 697.1675646450688,
+                "ratio_model": 1.107092951298867,
+                "ratio_brochure": 1.0978792822185972,
+                "ok": true
+              }
+            ],
+            "mgt_c_brochure": 752.0,
+            "mgt_c": 755.0682113935442,
+            "mgt_dev_c": 3.068211393544175,
+            "mgt_ok": true,
+            "passed": true
+          }
+        }
+      ],
+      "failures": []
+    },
+    "constant_sfc_check": [
+      {
+        "point": "normal_cruise",
+        "brochure": 0.635,
+        "constant": 0.613,
+        "deviation": -0.03464566929133861,
+        "within": true
+      },
+      {
+        "point": "cruise_a_90pct",
+        "brochure": 0.637,
+        "constant": 0.613,
+        "deviation": -0.03767660910518056,
+        "within": true
+      },
+      {
+        "point": "cruise_b_75pct",
+        "brochure": 0.673,
+        "constant": 0.613,
+        "deviation": -0.08915304606240726,
+        "within": true
+      }
+    ],
+    "table_burner": "msh",
+    "brochure_mgt": {
+      "brochure_c": 752.0,
+      "model_c": {
+        "min": 755.0682113935442,
+        "max": 765.7520296744759,
+        "mean": 759.7387673766673
+      },
+      "tolerance_c": 25.0
+    },
+    "validity": {
+      "table_unchoked_cell_share": 0.42841369157158626,
+      "table_cells": 2717,
+      "mission_fuel_share_unchoked_record": 0.7176218242673237,
+      "legs": [
+        {
+          "segment": "takeoff",
+          "unchoked_fraction": 0.0,
+          "unchoked_fuel_lb": 0.0,
+          "burned_lb": 23.474794312232916
+        },
+        {
+          "segment": "climb",
+          "unchoked_fraction": 0.0,
+          "unchoked_fuel_lb": 0.0,
+          "burned_lb": 41.513103758923535
+        },
+        {
+          "segment": "cruise_out",
+          "unchoked_fraction": 0.0,
+          "unchoked_fuel_lb": 0.0,
+          "burned_lb": 150.76838079311074
+        },
+        {
+          "segment": "loiter",
+          "unchoked_fraction": 1.0,
+          "unchoked_fuel_lb": 557.7703633634433,
+          "burned_lb": 557.7703633634433
+        },
+        {
+          "segment": "cruise_back",
+          "unchoked_fraction": 0.7,
+          "unchoked_fuel_lb": 95.77273145312802,
+          "burned_lb": 137.18018512362414
+        },
+        {
+          "segment": "landing",
+          "unchoked_fraction": 0.0,
+          "unchoked_fuel_lb": 0.0,
+          "burned_lb": 11.247993327373024
+        }
+      ],
+      "tested_range": "sea level static, 70-100 % power (brochure rows)"
+    }
+  },
+  "rebuild_check": {
+    "fuel_lb": {
+      "record": 977.2721099194301,
+      "rebuilt": 977.2721099194301
+    },
+    "power_climb_sl_hp": {
+      "record": 206.76674282670976,
+      "rebuilt": 206.76674282670976
+    },
+    "power_ceiling_hp": {
+      "record": 294.02355941483677,
+      "rebuilt": 294.02355941483677
+    },
+    "power_takeoff_hp": {
+      "record": 159.706192234961,
+      "rebuilt": 159.706192234961
+    },
+    "power_turn_at_loiter_hp": {
+      "record": 262.5249390027087,
+      "rebuilt": 262.5249390027087
+    },
+    "power_cruise_at_altitude_hp": {
+      "record": 228.52939089680825,
+      "rebuilt": 228.52939089680825
+    }
+  },
+  "validation": {
+    "tau_t_star": [
+      {
+        "pi_c": 5,
+        "book": 0.64,
+        "model_gamma_t_1_3": 0.6386728049053696,
+        "model_gamma_t_1_4": 0.5816574372690726
+      },
+      {
+        "pi_c": 10,
+        "book": 0.56,
+        "model_gamma_t_1_3": 0.5594202179966457,
+        "model_gamma_t_1_4": 0.4931763814527249
+      },
+      {
+        "pi_c": 20,
+        "book": 0.5,
+        "model_gamma_t_1_3": 0.4916506618099984,
+        "model_gamma_t_1_4": 0.41978969481889905
+      },
+      {
+        "pi_c": 35,
+        "book": 0.447,
+        "model_gamma_t_1_3": 0.44449167688517877,
+        "model_gamma_t_1_4": 0.37001099172198826
+      }
+    ],
+    "envelope": [
+      {
+        "pi_c": 5,
+        "F_book": 158.0,
+        "F_model": 163.6496405940296,
+        "S_book": 0.83,
+        "S_model": 0.7917422029431695
+      },
+      {
+        "pi_c": 17,
+        "F_book": 190.0,
+        "F_model": 195.76822915089835,
+        "S_book": 0.6,
+        "S_model": 0.5655069423110399
+      },
+      {
+        "pi_c": 35,
+        "F_book": null,
+        "F_model": 188.1498218353126,
+        "S_book": 0.535,
+        "S_model": 0.5048852323559722
+      }
+    ],
+    "lapse": [
+      {
+        "h_ft": 5000,
+        "book": 0.9142857142857143,
+        "model": 0.9134858483988656
+      },
+      {
+        "h_ft": 10000,
+        "book": 0.8285714285714286,
+        "model": 0.8295213607057422
+      },
+      {
+        "h_ft": 15000,
+        "book": 0.6785714285714286,
+        "model": 0.6812889439836544
+      },
+      {
+        "h_ft": 20000,
+        "book": 0.55,
+        "model": 0.5553007237656108
+      },
+      {
+        "h_ft": 25000,
+        "book": 0.44285714285714284,
+        "model": 0.4489019749708138
+      },
+      {
+        "h_ft": 30000,
+        "book": 0.35714285714285715,
+        "model": 0.3596671421884397
+      }
+    ],
+    "part_throttle_gap": [
+      {
+        "M0": 0.3,
+        "book": 0.34,
+        "model_eta_max_0_9": 0.3107511812376889
+      },
+      {
+        "M0": 0.5,
+        "book": 0.505,
+        "model_eta_max_0_9": 0.46521800277441544
+      },
+      {
+        "M0": 0.8,
+        "book": 0.72,
+        "model_eta_max_0_9": 0.6709867001264118
+      }
+    ]
+  },
+  "validation_check": {
+    "burner": "msh",
+    "rows": [
+      {
+        "group": "tau_t_star",
+        "case": "Fig K.4 pi_c=5",
+        "book": 0.64,
+        "model": 0.6386728049053696,
+        "deviation": -0.0013271950946304178,
+        "tolerance_kind": "abs",
+        "tolerance": 0.015,
+        "verdict": "PASS"
+      },
+      {
+        "group": "tau_t_star",
+        "case": "Fig K.4 pi_c=10",
+        "book": 0.56,
+        "model": 0.5594202179966457,
+        "deviation": -0.000579782003354401,
+        "tolerance_kind": "abs",
+        "tolerance": 0.015,
+        "verdict": "PASS"
+      },
+      {
+        "group": "tau_t_star",
+        "case": "Fig K.4 pi_c=20",
+        "book": 0.5,
+        "model": 0.4916506618099984,
+        "deviation": -0.00834933819000161,
+        "tolerance_kind": "abs",
+        "tolerance": 0.015,
+        "verdict": "PASS"
+      },
+      {
+        "group": "tau_t_star",
+        "case": "Fig K.4 pi_c=35",
+        "book": 0.447,
+        "model": 0.44449167688517877,
+        "deviation": -0.0025083231148212426,
+        "tolerance_kind": "abs",
+        "tolerance": 0.015,
+        "verdict": "PASS"
+      },
+      {
+        "group": "envelope_F",
+        "case": "K.2 F/m0 pi_c=5",
+        "book": 158.0,
+        "model": 163.6496405940296,
+        "deviation": 0.035757218949554304,
+        "tolerance_kind": "rel",
+        "tolerance": 0.05,
+        "verdict": "PASS"
+      },
+      {
+        "group": "envelope_S",
+        "case": "K.3 S pi_c=5",
+        "book": 0.83,
+        "model": 0.7917422029431695,
+        "deviation": -0.0460937313937716,
+        "tolerance_kind": "rel",
+        "tolerance": 0.05,
+        "verdict": "PASS"
+      },
+      {
+        "group": "envelope_F",
+        "case": "K.2 F/m0 pi_c=17",
+        "book": 190.0,
+        "model": 195.76822915089835,
+        "deviation": 0.0303591007942019,
+        "tolerance_kind": "rel",
+        "tolerance": 0.05,
+        "verdict": "PASS"
+      },
+      {
+        "group": "envelope_S",
+        "case": "K.3 S pi_c=17",
+        "book": 0.6,
+        "model": 0.5655069423110399,
+        "deviation": -0.057488429481600045,
+        "tolerance_kind": "rel",
+        "tolerance": 0.05,
+        "verdict": "FAIL"
+      },
+      {
+        "group": "envelope_S",
+        "case": "K.3 S pi_c=35",
+        "book": 0.535,
+        "model": 0.5048852323559722,
+        "deviation": -0.05628928531593991,
+        "tolerance_kind": "rel",
+        "tolerance": 0.05,
+        "verdict": "FAIL"
+      },
+      {
+        "group": "lapse",
+        "case": "K.7 F/F_SL h=5000 ft",
+        "book": 0.9142857142857143,
+        "model": 0.9134858483988656,
+        "deviation": -0.0007998658868486608,
+        "tolerance_kind": "abs",
+        "tolerance": 0.015,
+        "verdict": "PASS"
+      },
+      {
+        "group": "lapse",
+        "case": "K.7 F/F_SL h=10000 ft",
+        "book": 0.8285714285714286,
+        "model": 0.8295213607057422,
+        "deviation": 0.0009499321343136025,
+        "tolerance_kind": "abs",
+        "tolerance": 0.015,
+        "verdict": "PASS"
+      },
+      {
+        "group": "lapse",
+        "case": "K.7 F/F_SL h=15000 ft",
+        "book": 0.6785714285714286,
+        "model": 0.6812889439836544,
+        "deviation": 0.002717515412225757,
+        "tolerance_kind": "abs",
+        "tolerance": 0.015,
+        "verdict": "PASS"
+      },
+      {
+        "group": "lapse",
+        "case": "K.7 F/F_SL h=20000 ft",
+        "book": 0.55,
+        "model": 0.5553007237656108,
+        "deviation": 0.005300723765610749,
+        "tolerance_kind": "abs",
+        "tolerance": 0.015,
+        "verdict": "PASS"
+      },
+      {
+        "group": "lapse",
+        "case": "K.7 F/F_SL h=25000 ft",
+        "book": 0.44285714285714284,
+        "model": 0.4489019749708138,
+        "deviation": 0.0060448321136709615,
+        "tolerance_kind": "abs",
+        "tolerance": 0.015,
+        "verdict": "PASS"
+      },
+      {
+        "group": "lapse",
+        "case": "K.7 F/F_SL h=30000 ft",
+        "book": 0.35714285714285715,
+        "model": 0.3596671421884397,
+        "deviation": 0.0025242850455825527,
+        "tolerance_kind": "abs",
+        "tolerance": 0.015,
+        "verdict": "PASS"
+      },
+      {
+        "group": "part_throttle_S",
+        "case": "K.9 min S M0=0.3 (eta_prop_max 0.9)",
+        "book": 0.34,
+        "model": 0.3107511812376889,
+        "deviation": -0.08602593753620913,
+        "tolerance_kind": "rel",
+        "tolerance": 0.1,
+        "verdict": "PASS"
+      },
+      {
+        "group": "part_throttle_S",
+        "case": "K.9 min S M0=0.5 (eta_prop_max 0.9)",
+        "book": 0.505,
+        "model": 0.46521800277441544,
+        "deviation": -0.0787762321298704,
+        "tolerance_kind": "rel",
+        "tolerance": 0.1,
+        "verdict": "PASS"
+      },
+      {
+        "group": "part_throttle_S",
+        "case": "K.9 min S M0=0.8 (eta_prop_max 0.9)",
+        "book": 0.72,
+        "model": 0.6709867001264118,
+        "deviation": -0.06807402760220582,
+        "tolerance_kind": "rel",
+        "tolerance": 0.1,
+        "verdict": "PASS"
+      }
+    ],
+    "summary": {
+      "pass": 16,
+      "total": 18
+    },
+    "other_burner": "csh",
+    "other_rows": [
+      {
+        "group": "tau_t_star",
+        "case": "Fig K.4 pi_c=5",
+        "book": 0.64,
+        "model": 0.6388067694962227,
+        "deviation": -0.0011932305037772872,
+        "tolerance_kind": "abs",
+        "tolerance": 0.015,
+        "verdict": "PASS"
+      },
+      {
+        "group": "tau_t_star",
+        "case": "Fig K.4 pi_c=10",
+        "book": 0.56,
+        "model": 0.5595298718264461,
+        "deviation": -0.0004701281735539631,
+        "tolerance_kind": "abs",
+        "tolerance": 0.015,
+        "verdict": "PASS"
+      },
+      {
+        "group": "tau_t_star",
+        "case": "Fig K.4 pi_c=20",
+        "book": 0.5,
+        "model": 0.49173439919191386,
+        "deviation": -0.008265600808086138,
+        "tolerance_kind": "abs",
+        "tolerance": 0.015,
+        "verdict": "PASS"
+      },
+      {
+        "group": "tau_t_star",
+        "case": "Fig K.4 pi_c=35",
+        "book": 0.447,
+        "model": 0.4445482776344779,
+        "deviation": -0.002451722365522102,
+        "tolerance_kind": "abs",
+        "tolerance": 0.015,
+        "verdict": "PASS"
+      },
+      {
+        "group": "envelope_F",
+        "case": "K.2 F/m0 pi_c=5",
+        "book": 158.0,
+        "model": 164.4061992584753,
+        "deviation": 0.040545564927058964,
+        "tolerance_kind": "rel",
+        "tolerance": 0.05,
+        "verdict": "PASS"
+      },
+      {
+        "group": "envelope_S",
+        "case": "K.3 S pi_c=5",
+        "book": 0.83,
+        "model": 0.8513645943554758,
+        "deviation": 0.025740475127079332,
+        "tolerance_kind": "rel",
+        "tolerance": 0.05,
+        "verdict": "PASS"
+      },
+      {
+        "group": "envelope_F",
+        "case": "K.2 F/m0 pi_c=17",
+        "book": 190.0,
+        "model": 197.01905905856043,
+        "deviation": 0.03694241609768656,
+        "tolerance_kind": "rel",
+        "tolerance": 0.05,
+        "verdict": "PASS"
+      },
+      {
+        "group": "envelope_S",
+        "case": "K.3 S pi_c=17",
+        "book": 0.6,
+        "model": 0.6232662389713293,
+        "deviation": 0.038777064952215445,
+        "tolerance_kind": "rel",
+        "tolerance": 0.05,
+        "verdict": "PASS"
+      },
+      {
+        "group": "envelope_S",
+        "case": "K.3 S pi_c=35",
+        "book": 0.535,
+        "model": 0.5745004200131267,
+        "deviation": 0.07383256077219946,
+        "tolerance_kind": "rel",
+        "tolerance": 0.05,
+        "verdict": "FAIL"
+      },
+      {
+        "group": "lapse",
+        "case": "K.7 F/F_SL h=5000 ft",
+        "book": 0.9142857142857143,
+        "model": 0.913400426455518,
+        "deviation": -0.0008852878301962575,
+        "tolerance_kind": "abs",
+        "tolerance": 0.015,
+        "verdict": "PASS"
+      },
+      {
+        "group": "lapse",
+        "case": "K.7 F/F_SL h=10000 ft",
+        "book": 0.8285714285714286,
+        "model": 0.8293692301284368,
+        "deviation": 0.0007978015570081487,
+        "tolerance_kind": "abs",
+        "tolerance": 0.015,
+        "verdict": "PASS"
+      },
+      {
+        "group": "lapse",
+        "case": "K.7 F/F_SL h=15000 ft",
+        "book": 0.6785714285714286,
+        "model": 0.6811308645512373,
+        "deviation": 0.0025594359798086774,
+        "tolerance_kind": "abs",
+        "tolerance": 0.015,
+        "verdict": "PASS"
+      },
+      {
+        "group": "lapse",
+        "case": "K.7 F/F_SL h=20000 ft",
+        "book": 0.55,
+        "model": 0.5551484664957677,
+        "deviation": 0.005148466495767612,
+        "tolerance_kind": "abs",
+        "tolerance": 0.015,
+        "verdict": "PASS"
+      },
+      {
+        "group": "lapse",
+        "case": "K.7 F/F_SL h=25000 ft",
+        "book": 0.44285714285714284,
+        "model": 0.4487629627680467,
+        "deviation": 0.005905819910903887,
+        "tolerance_kind": "abs",
+        "tolerance": 0.015,
+        "verdict": "PASS"
+      },
+      {
+        "group": "lapse",
+        "case": "K.7 F/F_SL h=30000 ft",
+        "book": 0.35714285714285715,
+        "model": 0.35954548481713566,
+        "deviation": 0.0024026276742785124,
+        "tolerance_kind": "abs",
+        "tolerance": 0.015,
+        "verdict": "PASS"
+      },
+      {
+        "group": "part_throttle_S",
+        "case": "K.9 min S M0=0.3 (eta_prop_max 0.9)",
+        "book": 0.34,
+        "model": 0.38619746075619743,
+        "deviation": 0.1358748845770512,
+        "tolerance_kind": "rel",
+        "tolerance": 0.1,
+        "verdict": "FAIL"
+      },
+      {
+        "group": "part_throttle_S",
+        "case": "K.9 min S M0=0.5 (eta_prop_max 0.9)",
+        "book": 0.505,
+        "model": 0.5686604096507358,
+        "deviation": 0.1260602171301699,
+        "tolerance_kind": "rel",
+        "tolerance": 0.1,
+        "verdict": "FAIL"
+      },
+      {
+        "group": "part_throttle_S",
+        "case": "K.9 min S M0=0.8 (eta_prop_max 0.9)",
+        "book": 0.72,
+        "model": 0.7990737201833672,
+        "deviation": 0.10982461136578792,
+        "tolerance_kind": "rel",
+        "tolerance": 0.1,
+        "verdict": "FAIL"
+      }
+    ],
+    "other_summary": {
+      "pass": 14,
+      "total": 18
+    }
+  },
+  "inputs": {
+    "commit": "3f0c099c42f78da09541b7c718ac334e241c76fd",
+    "uncommitted_code_changes": false,
+    "python": "3.13.18",
+    "numpy": "2.5.3",
+    "design": "runs/task12/stage3/2026-11-25/m250_baseline_appl/P450/h1.05/design_pusher.json",
+    "design_sha256": "550334ac4436736c625f34bd3f91894d54dfdc02db088a0e5c9bea6743ee9d90",
+    "ledger": "runs/task12/stage3/2026-11-25/m250_baseline_appl/P450/h1.05/ledger.yaml",
+    "ledger_sha256": "d656d2043541a99301f4a63fb82c76545e7d6b07fc3fa174ebd9f065d38e1be4",
+    "engines_sha256": "5a5744c287c66bfa2cbdefba8eb7efee9f8c7dbbc25322802d6972ef239a669b",
+    "family_grid": {
+      "e_c": [
+        0.78,
+        0.82,
+        0.86
+      ],
+      "e_t": [
+        0.82,
+        0.86,
+        0.9
+      ]
+    },
+    "v_climb_kt": 95.0,
+    "seed": null,
+    "command": "python -m measurement.stage3_engine --design runs/task12/stage3/2026-11-25/m250_baseline_appl/P450/h1.05/design_pusher.json --out runs/task12/stage3/2026-11-26/m250_baseline_appl_measure --report docs/validation/2026-11-26_task12_stage3_engine_m250_appl.md"
+  }
+}

@@ -1,0 +1,176 @@
+{
+  "rows": [
+    {
+      "quantity": "wing lift slope, per rad (bare planform, inviscid, M 0)",
+      "raymer": 4.739415553802998,
+      "measured": 4.57596228913153,
+      "deviation": -0.03448806352089351,
+      "tolerance": 0.05,
+      "tolerance_kind": "rel",
+      "within": true,
+      "class": "independent",
+      "verdict": "within"
+    },
+    {
+      "quantity": "span efficiency e",
+      "raymer": 0.8391852112989143,
+      "measured": 0.9909922764068805,
+      "deviation": 0.15180706510796615,
+      "tolerance": 0.05,
+      "tolerance_kind": "abs",
+      "within": null,
+      "class": "independent",
+      "verdict": "not judged (not comparable as specified)",
+      "note": "not comparable as specified: (12.49) has no inviscid share"
+    },
+    {
+      "quantity": "downwash gradient at the tail (z = 1.39 ft)",
+      "raymer": 0.45711818559086814,
+      "measured": 0.45794234937679346,
+      "deviation": 0.0008241637859253137,
+      "tolerance": null,
+      "tolerance_kind": "abs",
+      "within": null,
+      "class": "coding check",
+      "verdict": "not judged (same model, 7.1c item 3)",
+      "note": "no 7.1a tolerance; feeds the static margin; Stage 1 uses the same lattice (7.1c item 3)"
+    },
+    {
+      "quantity": "static margin, full fuel, MAC",
+      "raymer": 0.11615974310335346,
+      "measured": 0.11568873320803173,
+      "deviation": -0.0004710098953217279,
+      "tolerance": 0.03,
+      "tolerance_kind": "abs",
+      "within": null,
+      "numerically_within": true,
+      "class": "coding check",
+      "verdict": "not judged (same model, 7.1c item 3)",
+      "stage1_reproduced": 0.11615974310335346
+    },
+    {
+      "quantity": "static margin by Anderson (8.76)-(8.78) with lattice downwash, full fuel, MAC",
+      "raymer": 0.11615974310335346,
+      "measured": 0.11568873320803141,
+      "deviation": -0.00047100989532204707,
+      "tolerance": 0.03,
+      "tolerance_kind": "abs",
+      "within": null,
+      "numerically_within": true,
+      "class": "coding check",
+      "verdict": "not judged (same model, 7.1c item 3)",
+      "anderson": "lattice",
+      "fuel": "full",
+      "lattice_row": 0.11568873320803173,
+      "deviation_from_lattice_row": -3.191891195797325e-16,
+      "note": "algebraically Raymer's (16.9) with the lattice downwash: checks the coding"
+    },
+    {
+      "quantity": "static margin by Anderson (8.76) as printed (no downwash), full fuel, MAC",
+      "raymer": 0.11615974310335346,
+      "measured": 0.39627558791871853,
+      "deviation": 0.28011584481536506,
+      "tolerance": 0.03,
+      "tolerance_kind": "abs",
+      "within": null,
+      "numerically_within": false,
+      "class": "partly independent",
+      "verdict": "not judged (book's simplification)",
+      "anderson": "printed",
+      "fuel": "full",
+      "note": "the book neglects downwash and tail efficiency; the spec asks for the lattice downwash, so this is reported to show what the simplification does, not judged"
+    },
+    {
+      "quantity": "static margin, empty fuel, MAC",
+      "raymer": 0.08384025689664747,
+      "measured": 0.08336924700132574,
+      "deviation": -0.0004710098953217279,
+      "tolerance": 0.03,
+      "tolerance_kind": "abs",
+      "within": null,
+      "numerically_within": true,
+      "class": "coding check",
+      "verdict": "not judged (same model, 7.1c item 3)",
+      "stage1_reproduced": 0.08384025689664747
+    },
+    {
+      "quantity": "static margin by Anderson (8.76)-(8.78) with lattice downwash, empty fuel, MAC",
+      "raymer": 0.08384025689664747,
+      "measured": 0.08336924700132542,
+      "deviation": -0.00047100989532204707,
+      "tolerance": 0.03,
+      "tolerance_kind": "abs",
+      "within": null,
+      "numerically_within": true,
+      "class": "coding check",
+      "verdict": "not judged (same model, 7.1c item 3)",
+      "anderson": "lattice",
+      "fuel": "empty",
+      "lattice_row": 0.08336924700132574,
+      "deviation_from_lattice_row": -3.191891195797325e-16,
+      "note": "algebraically Raymer's (16.9) with the lattice downwash: checks the coding"
+    },
+    {
+      "quantity": "static margin by Anderson (8.76) as printed (no downwash), empty fuel, MAC",
+      "raymer": 0.08384025689664747,
+      "measured": 0.36395610171201254,
+      "deviation": 0.28011584481536506,
+      "tolerance": 0.03,
+      "tolerance_kind": "abs",
+      "within": null,
+      "numerically_within": false,
+      "class": "partly independent",
+      "verdict": "not judged (book's simplification)",
+      "anderson": "printed",
+      "fuel": "empty",
+      "note": "the book neglects downwash and tail efficiency; the spec asks for the lattice downwash, so this is reported to show what the simplification does, not judged"
+    }
+  ],
+  "info": {
+    "lift_slope_by_level": {
+      "coarse": 4.6010048926264515,
+      "medium": 4.584410967315236,
+      "fine": 4.57596228913153
+    },
+    "stage1_installed_lift_slope": 5.154227880548171,
+    "implied_viscous_K": 0.008300724117267053,
+    "downwash_gradient_by_tail_height_ft": {
+      "0.651": 0.47923825945432236,
+      "1.394": 0.45794234937679346,
+      "3.137": 0.4072824946381305
+    },
+    "static_margin_sensitivity": {
+      "full_margin_per_0.1_gradient": -0.05880971532182531,
+      "full_margin_by_tail_height_ft": {
+        "0.651": 0.10344228897011039,
+        "1.394": 0.11568873320803173,
+        "3.137": 0.14424255350020598
+      },
+      "empty_margin_per_0.1_gradient": -0.058809715321825315,
+      "empty_margin_by_tail_height_ft": {
+        "0.651": 0.0711228027634044,
+        "1.394": 0.08336924700132574,
+        "3.137": 0.1119230672935
+      },
+      "gradient_where_empty_margin_reaches_floor": 0.5153790208277664,
+      "cg_travel_mac": 0.032319486206705994,
+      "margin_sum": 0.20000000000000093
+    },
+    "anderson_static_margin": {
+      "x_acwb_ft": 9.884591092933007,
+      "l_ht_ft": 13.399440373108348,
+      "V_HT": 1.205937440445475,
+      "a_t": 3.7728989439165788,
+      "a_wing": 5.154227880548171
+    }
+  },
+  "tail_z_nominal_ft": 1.394405626423803,
+  "level": "fine",
+  "inputs": {
+    "commit": "3f0c099c42f78da09541b7c718ac334e241c76fd",
+    "design": "runs/task12/stage3/2026-11-25/m250_baseline_appl/P450/h1.05/design_pusher.json",
+    "ledger": "runs/task12/stage3/2026-11-25/m250_baseline_appl/P450/h1.05/ledger.yaml",
+    "seed": null,
+    "command": "python -m measurement.stage3_aero --design runs/task12/stage3/2026-11-25/m250_baseline_appl/P450/h1.05/design_pusher.json --out runs/task12/stage3/2026-11-26/m250_baseline_appl_measure/aero.json --report docs/validation/2026-11-26_task12_stage3_aero_m250_appl.md"
+  }
+}
