@@ -72,7 +72,7 @@ decides whether preliminary design proper is worth starting.
 | R6 | Cruise and loiter altitude | 20,000 ft, ISA | Q6 (20,000 / 25,000 / 10,000 ft) |
 | R7 | Take-off and landing | paved runway, at most 2,500 ft over a 50 ft obstacle, sea level ISA; stall at most 70 kt clean | Q7 (runway with retractable gear / runway with fixed gear / catapult) |
 | R8 | Landing gear | retractable tricycle | Q7 |
-| R9 | Structure | advanced composite (Raymer's empty-weight factor 0.95, carried as a band 0.90 to 1.00); limit load factor +3.8 / -1.5, factor of safety 1.5; gust loads checked and the larger case used | Q8 (composite normal / metal normal / composite utility) |
+| R9 | Structure | advanced composite (Raymer's empty-weight factor 0.95, carried as a band 0.90 to 1.00); limit load factor +3.8 / -1.8 (the negative gust load factor must stay at or above -1.7, the 0.1 g Gate A margin; owner ruling B-3, Gate B 2026-11-26, from the Gate A round 1 and round 4 rulings), factor of safety 1.5; gust loads checked and the larger case used | Q8 (composite normal / metal normal / composite utility) |
 
 Requirements Éder was not asked about. These are defaults, each with its reason, and Gate A
 confirms them:
@@ -87,7 +87,7 @@ confirms them:
 | R15 | Flight avionics | autopilot, datalink, navigation: an uninstalled weight fixed in the ledger, installed by Raymer's general-aviation avionics relation | **[Lib]** Raymer (15.57), as DR-1 uses it, p. 576 |
 | R16 | Manoeuvre at loiter | sustained 30 deg banked turn (n = 1.155) at loiter speed and 20,000 ft | accepted at Gate A round 3 |
 | R17 | Speed floor | every mission leg at least 1.3 V_stall | Gate A round 3 ruling |
-| R18 | Design cruise speed | one V_C placard of 110 kt EAS at every altitude, enforced by the autopilot; structure and gusts sized at it (150 kt EAS at round 3, 100 kt EAS at round 4 before the headwind) | Gate A round 4 rulings, Éder 2026-11-21 |
+| R18 | Design cruise speed | one V_C placard in EAS at every altitude, enforced by the autopilot; structure and gusts sized at it, with V_D 1.5 V_C. V_C is set per design (rule of 2026-11-23, confirmed by owner ruling B-4 at Gate B, 2026-11-26): 10 % above the fastest cruise sub-step, rounded up to the next 5 kt, and never below 110 kt EAS (the round 4 placard); 115 kt EAS for the frozen design. Envelope protection, the autopilot holding the aircraft at or below V_C and keeping level top speed below V_D (at sea level the frozen design's level top speed is above V_D), is a preliminary-design requirement (ruling B-4); the recorded V-n check is `docs/validation/2026-11-26_task12_vn_check.md`. (150 kt EAS at round 3, 100 kt EAS at round 4 before the headwind, 110 kt EAS at the round 4 close) | Gate A round 4 rulings, Éder 2026-11-21; per-design rule, Éder 2026-11-23; ruling B-4, Éder 2026-11-26 |
 | R19 | Wind | both 200 nm transit legs against a 25 kt headwind at 20,000 ft; the loiter is sized in still air | Gate A round 4 ruling, Éder 2026-11-21 |
 
 **The figures Éder was shown** (hand arithmetic during the questions, not a record): Raymer (3.4)
@@ -239,7 +239,7 @@ approximate method. Both are run and reported separately (corrected at Gate A cl
 ### 7.1a Agreement tolerances (accepted by Éder at Gate A close, 2026-11-20)
 
 Fixed before any Stage 3 measurement runs. "Raymer" is the Stage 1 value in
-`runs/task12/stage1/2026-11-20d/design_pusher.json` (from revision 3: the Stage 1 record that passes Gate A round 4); the independent value is Stage 3's. A row
+the frozen design's record, `runs/task12/stage3/2026-11-25/m250_baseline_appl/P450/h1.05/design_pusher.json` (the pointer was `runs/task12/stage1/2026-11-20d/design_pusher.json`, the Stage 1 record that passed Gate A round 4, until the Gate B rulings of 2026-11-26, review GB-4; its Stage 1 compliance table is `docs/validation/2026-11-26_task12_stage1_compliance_frozen.md`, ruling B-7); the independent value is Stage 3's. A row
 outside tolerance is diagnosed and reported, and if it moves a requirement margin below zero the
 design returns to Stage 1.
 
@@ -247,8 +247,8 @@ design returns to Stage 1.
 |---|---|---|
 | Shaft power available at 20,000 and 25,000 ft (App. K against the piston lapse (13.9)) | ±10 % | the ceiling binds the engine; 10 % is about the engine's present power margin |
 | Fuel consumption at cruise and loiter power (App. K against the datasheet value) | ±10 % | fuel is 27 % of W0; 10 % of fuel is about 3 % of W0 |
-| Propeller efficiency at climb, cruise, loiter (App. L against 0.80) | ±0.05 absolute | Raymer's Table 3.4 value is itself rounded to 0.05 |
-| Installed power required by each constraint (Mattingly (2.11)-(2.17) against Raymer ch. 5) | ±5 % | same physics by a second route; larger differences mean a coding error |
+| Propeller efficiency at climb, cruise, loiter (App. L against 0.80) | ±0.05 absolute | Raymer's Table 3.4 value is itself rounded to 0.05. After owner ruling G-4 (2026-11-25) Stage 1 itself uses the App. L efficiency per flight condition, so the reference for this row is Stage 1's App. L value, not the flat 0.80 (Gate B performance review, section 2, propeller row of 7.1a) |
+| Installed power required by each constraint other than take-off (Mattingly (2.11)-(2.17) against Raymer ch. 5) | ±5 % | same physics by a second route; larger differences mean a coding error. The take-off power row is replaced by the take-off distance row at installed power below (owner ruling B-5, Gate B 2026-11-26: take-off power, -10.9 %, is explained and carried) |
 | Mission fuel (Mattingly ch. 3 against Raymer's Breguet fractions) | ±5 % | same physics, different bookkeeping |
 | Take-off weight (Anderson ch. 8 sizing against Raymer) | ±10 % | Anderson's first estimate (empty fraction 0.62 from his own historical data, (8.5)) is independent; his refined build-up (8.83) is Raymer's Table 15.2 approximate method, so it is a same-author cross-check, reported as such |
 | Lift slope (vortex lattice against (12.6)) | ±5 % | the lattice passed its own analytic checks to 2 % (Task 10 V6a) |
@@ -257,7 +257,7 @@ design returns to Stage 1.
 | Section CL_max at the design Reynolds number (SU2, after a NACA-data validation row) | inside the ledger band 1.3-1.7 | the band is what Stage 1 carried |
 | Best-range and best-endurance speeds, climb rate | ±3 % | closed forms on the same polar; checks the arithmetic |
 | Service ceiling | ±1,000 ft | sets the engine; 1,000 ft is about 3 % of the lapse |
-| Take-off and landing distances | ±15 % | both are far from binding (under 1,500 ft against 2,500) |
+| Take-off and landing distances; take-off distance at the installed power, which replaces the take-off power row (owner ruling B-5) | ±15 % | both are far from binding (under 1,500 ft against 2,500) |
 | Static margin | ±0.03 MAC | the R13 band is 0.10 wide |
 | V-n points and gust load factors | ±5 % | same relations by a second source |
 
