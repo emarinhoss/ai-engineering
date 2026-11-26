@@ -411,21 +411,32 @@ def cd0_anderson(d, L, b):
 
 
 # ---- speeds, climb, ceiling: Anderson ch. 5 ------------------------------------------------------
-def ceiling_anderson(d, L, b):
+def ceiling_anderson(d, L, b, eta_speed="own"):
     """Highest altitude where Anderson's best climb rate (5.121) p. 277 is 100 ft/min, by bisection.
     Power: the engine table's full-throttle shaft hp at the climb speed; CD0 recomputed at each
-    altitude and climb speed as Stage 1 did; no 1.2 V_stall floor (the closed form has none)."""
+    altitude and climb speed as Stage 1 did; no 1.2 V_stall floor (the closed form has none).
+
+    (5.121) takes one constant eta. For a flat propeller that is the ledger number. For the App. L
+    disk the efficiency depends on speed, so the choice of speed brackets the answer (review S3A-3):
+    eta_speed "own" takes the disk at the closed form's own best-climb speed (lower bound, the
+    default and the value of the row); "stage1" takes it at the speed of Stage 1's own search over
+    speed at that altitude (uav.ceiling's call, upper bound)."""
     W0, K = d["W0_lb"], d["K"]
     model, W_S = b["engine_model"], d["W_S"]
 
     def roc(h):
         a = isa(h)
-        V = L["climb_speed_over_stall"] * perf.stall_speed(W_S, a["rho"], b["clmax"]["clean"])
+        lo = L["climb_speed_over_stall"] * perf.stall_speed(W_S, a["rho"], b["clmax"]["clean"])
+        V = lo
         for _ in range(4):
             cd0 = uav._polar(b["geom"], L, V, a, b["bhp"])[0]
             hp = model.power_available(h, V / KT)
-            # one constant eta in (5.121): the flat number, or the disk at full power at the speed of this pass
-            eta = prop.efficiency_at_power(record_propeller(L, a["rho"], b["D_prop"]), hp, V)
+            disk = record_propeller(L, a["rho"], b["D_prop"])
+            V_eta = V
+            if eta_speed == "stage1":
+                V_eta = perf.best_rate_of_climb(W0, b["geom"]["S"], a["rho"], cd0, K, hp, disk, lo, lo + 400.0)[1]
+            # one constant eta in (5.121): the flat number, or the disk at full power at the chosen speed
+            eta = prop.efficiency_at_power(disk, hp, V_eta)
             r = A.max_rate_of_climb_prop(eta * hp * 550.0 / W0, W_S, a["rho"], cd0, K)
             V = A.speed_cl32_cd_max(W_S, a["rho"], cd0, K)
         return r
@@ -440,7 +451,87 @@ def ceiling_anderson(d, L, b):
     return lo
 
 
-def speed_rows(d, L, b):
+def climb_bracket(d, L, b):
+    """App. L records only (review S3A-2, S3A-3). Closed-form (5.121) assumes power available independent of
+    speed; with the disk the efficiency rises with speed. The bracket: the rate of climb with the efficiency at the
+    closed form's own best-climb speed (lower) and at Stage 1's best-climb speed (upper). Also the coding check
+    (eta(V) P - D(V) V)/W at Stage 1's speed with the disk efficiency there, and Stage 1's own search over speed
+    re-run with the disk (where it lands relative to 1.2 V_stall)."""
+    WS, K, W0, S = d["W_S"], d["K"], d["W0_lb"], b["geom"]["S"]
+    sl = isa(0.0)
+    cd0, bhp = d["CD0"]["sea_level"], d["bhp_sl"]
+    disk = record_propeller(L, sl["rho"], b["D_prop"])
+    v_closed = A.speed_cl32_cd_max(WS, sl["rho"], cd0, K)
+    v_s1 = d["performance"]["v_best_climb_kt"] * KT
+    eta_lo, eta_hi = (prop.efficiency_at_power(disk, bhp, v) for v in (v_closed, v_s1))
+    rc = lambda eta: A.max_rate_of_climb_prop(eta * bhp * 550.0 / W0, WS, sl["rho"], cd0, K) * 60.0
+    excess = (eta_hi * bhp * 550.0 - perf.drag(W0, S, sl["rho"], v_s1, cd0, K) * v_s1) / W0 * 60.0
+    v_stall = perf.stall_speed(WS, sl["rho"], b["clmax"]["clean"])
+    v_floor = L["climb_speed_over_stall"] * v_stall
+    r_s, v_s = perf.best_rate_of_climb(W0, S, sl["rho"], cd0, K, bhp, disk, v_floor, v_floor + 350.0)
+    rec = d["performance"]["roc_sl_fpm"]
+    c_lo, c_hi = ceiling_anderson(d, L, b, "own"), ceiling_anderson(d, L, b, "stage1")
+    return {"v_closed_form_kt": v_closed / KT, "eta_at_closed_form_speed": eta_lo, "roc_lower_fpm": rc(eta_lo),
+            "v_stage1_kt": v_s1 / KT, "eta_at_stage1_speed": eta_hi, "roc_upper_fpm": rc(eta_hi),
+            "roc_stage1_fpm": rec, "stage1_inside_roc_bracket": rc(eta_lo) <= rec <= rc(eta_hi),
+            "roc_excess_power_at_stage1_speed_fpm": excess,
+            "v_stall_kt": v_stall / KT, "v_floor_kt": v_floor / KT, "v_stage1_over_v_stall": v_s1 / v_stall,
+            "search_with_disk_speed_kt": v_s / KT, "search_with_disk_rate_fpm": r_s * 60.0,
+            "ceiling_lower_ft": c_lo, "ceiling_upper_ft": c_hi, "ceiling_stage1_ft": d["performance"]["service_ceiling_ft"],
+            "stage1_inside_ceiling_bracket": c_lo <= d["performance"]["service_ceiling_ft"] <= c_hi}
+
+
+def _ceiling_bracket_text(br):
+    """App. L records: the ceiling row's value takes the disk efficiency at the closed form's own best-climb
+    speed at each altitude (the lower bound, as the rate-of-climb row's lower end); the upper bound takes it at
+    the speed of Stage 1's own search over speed (review S3A-3)."""
+    return (f" App. L disk: (5.121) assumes power available independent of speed, so the answer depends on the speed "
+            f"at which the disk efficiency is taken. The value above takes it at the closed form's own best-climb speed "
+            f"at each altitude (lower bound, {bracket_ft(br['ceiling_lower_ft'])}); at the speed of Stage 1's own search "
+            f"at each altitude it is {bracket_ft(br['ceiling_upper_ft'])} (upper bound). Stage 1's "
+            f"{bracket_ft(br['ceiling_stage1_ft'])} lies {'inside' if br['stage1_inside_ceiling_bracket'] else 'outside'} "
+            "the bracket.")
+
+
+def bracket_ft(x):
+    return f"{x:,.0f} ft"
+
+
+def _climb_rows_app_l(d, L, b, br):
+    """roc_sl, its coding check and v_best_climb for an App. L record (review S3A-2 to S3A-4). The closed
+    forms (5.118)/(5.121) assume power available independent of speed; the disk's efficiency rises with speed, so
+    they do not apply and the two rows are not judged. The excess-power row is the coding check."""
+    sl_note = (f"With the App. L disk it is not independent of speed (disk efficiency "
+               f"{br['eta_at_closed_form_speed']:.4g} at the closed form's own best-climb speed {br['v_closed_form_kt']:.1f} kt, "
+               f"{br['eta_at_stage1_speed']:.4g} at Stage 1's {br['v_stage1_kt']:.1f} kt), so the closed form does not apply. "
+               f"Bracket: {br['roc_lower_fpm']:,.0f} ft/min with the efficiency at the closed form's own speed (this row's "
+               f"Stage 3 value, lower) to {br['roc_upper_fpm']:,.0f} ft/min with the efficiency at Stage 1's speed (upper). "
+               f"Stage 1's {br['roc_stage1_fpm']:,.0f} ft/min lies {'inside' if br['stage1_inside_roc_bracket'] else 'outside'} "
+               f"the bracket. Rated {d['bhp_sl']:g} hp at sea level, CD0 at sea level from the record. Not judged; the "
+               "coding check of Stage 1's climb arithmetic is the next row.")
+    v_note = (f"Not judged. The closed form (5.118)/(5.41) returns the minimum-power-required speed, {br['v_closed_form_kt']:.1f} kt, "
+              "because it assumes power available independent of speed. With the App. L disk the efficiency rises with speed "
+              f"({br['eta_at_closed_form_speed']:.4g} at {br['v_closed_form_kt']:.1f} kt, {br['eta_at_stage1_speed']:.4g} at "
+              f"{br['v_stage1_kt']:.1f} kt), so thrust power grows faster than power required and the best climb moves to a "
+              f"higher speed. Stage 1's search puts it at {br['v_stage1_kt']:.1f} kt, {br['v_stage1_over_v_stall']:.2f} V_stall "
+              f"(V_stall {br['v_stall_kt']:.1f} kt, 1.2 V_stall floor {br['v_floor_kt']:.1f} kt), above the floor; the search "
+              f"re-run here with the disk gives {br['search_with_disk_speed_kt']:.1f} kt at {br['search_with_disk_rate_fpm']:,.0f} ft/min.")
+    return [make_row("roc_sl", "sea-level rate of climb at W0", "ft/min", br["roc_stage1_fpm"], RECORD, br["roc_lower_fpm"],
+                     "Anderson (5.121) p. 277 (5.122 misprinted, per the notes), eta at the closed form's own speed",
+                     None, "relative",
+                     "Not judged: closed form (5.121) assumes power available independent of speed. " + sl_note,
+                     judged=False, klass=CODING),
+            make_row("roc_sl_excess_power", "sea-level rate of climb at W0, excess power at Stage 1's best-climb speed",
+                     "ft/min", br["roc_stage1_fpm"], RECORD, br["roc_excess_power_at_stage1_speed_fpm"],
+                     "(eta(V) P - D(V) V)/W with eta of the App. L disk at full power at Stage 1's speed", 0.03, "relative",
+                     f"Same inputs and the same relation as Stage 1 (thrust power less drag power over weight at "
+                     f"{br['v_stage1_kt']:.1f} kt, disk efficiency {br['eta_at_stage1_speed']:.4g} there): a coding check of "
+                     "the climb arithmetic, which the closed-form row cannot give with this propeller.", klass=CODING),
+            make_row("v_best_climb", "best-climb speed, sea level", "kt", br["v_stage1_kt"], RECORD, br["v_closed_form_kt"],
+                     "Anderson (5.118)/(5.41) p. 221, 277", None, "relative", v_note, judged=False, klass=CODING)]
+
+
+def speed_rows(d, L, b, bracket=None):
     WS, K = d["W_S"], d["K"]
     alt, sl = isa(L["mission_altitude_ft"]), isa(0.0)
     cd0 = d["CD0"]["mission_altitude"]
@@ -456,33 +547,31 @@ def speed_rows(d, L, b):
                     A.speed_cl32_cd_max(WS, alt["rho"], cd0, K) / KT, "Anderson (5.41) p. 221",
                     0.03, "relative", note, klass=CODING)]
     v_cl = A.speed_cl32_cd_max(WS, sl["rho"], d["CD0"]["sea_level"], K) / KT
-    # (5.121) takes one constant eta. Flat: the ledger number. App. L: the disk at full power at the speed where
-    # Stage 1's own search put the best climb (record performance.v_best_climb_kt), i.e. Stage 1's efficiency at
-    # its climb point. The closed form's best speed lies elsewhere, where the disk is less efficient, and a
-    # constant eta cannot follow that; the note gives that value.
-    disk_sl = record_propeller(L, sl["rho"], b["D_prop"])
-    eta_cl = prop.efficiency_at_power(disk_sl, d["bhp_sl"], d["performance"]["v_best_climb_kt"] * KT)
-    eta_cl_at_closed_form_speed = prop.efficiency_at_power(disk_sl, d["bhp_sl"], v_cl * KT)
-    P_over_W = eta_cl * d["bhp_sl"] * 550.0 / d["W0_lb"]
-    rc = A.max_rate_of_climb_prop(P_over_W, WS, sl["rho"], d["CD0"]["sea_level"], K) * 60.0
-    out.append(make_row("roc_sl", "sea-level rate of climb at W0", "ft/min",
-                        d["performance"]["roc_sl_fpm"], RECORD, rc,
-                        "Anderson (5.121) p. 277 (5.122 misprinted, per the notes)", 0.03,
-                        "relative",
-                        f"Rated {d['bhp_sl']:g} hp at sea level, eta_p {eta_cl:.4g}" + (f" (App. L disk at full power at Stage 1's best-climb speed {d['performance']['v_best_climb_kt']:.1f} kt; "
-                                                     f"at the closed form's own best-climb speed {v_cl:.1f} kt it would be {eta_cl_at_closed_form_speed:.4g}, "
-                                                     "which a constant eta cannot follow)" if is_app_l(L) else "")
-                        + ", CD0 at sea level from the record, "
-                        "as Stage 1. Same inputs, closed form against a numerical search: a coding check.",
-                        klass=CODING))
-    out.append(make_row("v_best_climb", "best-climb speed, sea level", "kt",
-                        d["performance"]["v_best_climb_kt"], RECORD, v_cl,
-                        "Anderson (5.118)/(5.41) p. 221, 277", 0.03, "relative",
-                        "Stage 1 searches speeds from 1.2 V_stall upward (Raymer p. 489) and "
-                        "lands on that floor; the closed form has no floor. Same polar and power: "
-                        "the difference is a modelling choice (the floor), not a second source.",
-                        klass=CODING))
-    ceil = ceiling_anderson(d, L, b)
+    if is_app_l(L):
+        out += _climb_rows_app_l(d, L, b, bracket if bracket is not None else climb_bracket(d, L, b))
+    else:
+        eta_cl = L["eta_p"]
+        P_over_W = eta_cl * d["bhp_sl"] * 550.0 / d["W0_lb"]
+        rc = A.max_rate_of_climb_prop(P_over_W, WS, sl["rho"], d["CD0"]["sea_level"], K) * 60.0
+        out.append(make_row("roc_sl", "sea-level rate of climb at W0", "ft/min",
+                            d["performance"]["roc_sl_fpm"], RECORD, rc,
+                            "Anderson (5.121) p. 277 (5.122 misprinted, per the notes)", 0.03,
+                            "relative",
+                            f"Rated {d['bhp_sl']:g} hp at sea level, eta_p {eta_cl:.4g}, CD0 at sea level from the record, "
+                            "as Stage 1. Same inputs, closed form against a numerical search: a coding check.",
+                            klass=CODING))
+        out.append(make_row("v_best_climb", "best-climb speed, sea level", "kt",
+                            d["performance"]["v_best_climb_kt"], RECORD, v_cl,
+                            "Anderson (5.118)/(5.41) p. 221, 277", 0.03, "relative",
+                            "Stage 1 searches speeds from 1.2 V_stall upward (Raymer p. 489) and "
+                            "lands on that floor; the closed form has no floor. Same polar and power: "
+                            "the difference is a modelling choice (the floor), not a second source.",
+                            klass=CODING))
+    if is_app_l(L):
+        bracket = bracket if bracket is not None else climb_bracket(d, L, b)
+        ceil = bracket["ceiling_lower_ft"]
+    else:
+        ceil = ceiling_anderson(d, L, b)
     top = float(max(b["engine_model"].h)) if hasattr(b["engine_model"], "h") else None
     clamp = ("" if top is None or max(ceil, d["performance"]["service_ceiling_ft"]) <= top else
              f" The table's top altitude is {top:,.0f} ft and the lookup holds its power constant above it: "
@@ -495,7 +584,8 @@ def speed_rows(d, L, b):
                         "Same engine table as Stage 1 (shared input); CD0 recomputed per "
                         "altitude; the closed form has no 1.2 V_stall floor, Stage 1 does. Spec 7.1b "
                         "declares the rows that use the engine table not independent: reported, not "
-                        "judged." + clamp, judged=False, klass=CODING))
+                        "judged." + clamp + (_ceiling_bracket_text(bracket) if is_app_l(L) else ""),
+                        judged=False, klass=CODING))
     return out
 
 
@@ -693,10 +783,14 @@ def compute(design_path):
                              0.10, "relative",
                              "Anderson's own best-range and best-endurance speeds and (L/D)max "
                              "(no 1.3 V_stall floor, headwind applied to the air distance at his "
-                             "best-range speed); polar, SFC used, eta_p, radius, headwind, loiter "
-                             "time and W/S from the record or its ledger copy. The empty fraction "
-                             "is Anderson's own; the fuel fraction rests on his relations with "
-                             "Stage 1's polar, SFC and eta_p.", klass=PARTLY))
+                             "best-range speed); polar, SFC used, radius, headwind, loiter "
+                             "time and W/S from the record or its ledger copy. "
+                             + (f"Propeller: the App. L disk's efficiency at the thrust at the start of each leg for the "
+                                f"record's own take-off weight, held constant while W0 iterates (cruise {aw['eta_cruise']:.4f}, "
+                                f"loiter {aw['eta_loiter']:.4f}); (5.153) and (5.169) take one constant eta. "
+                                if is_app_l(L) else "eta_p from the record or its ledger copy. ")
+                             + "The empty fraction is Anderson's own; the fuel fraction rests on his relations "
+                             "with Stage 1's polar, SFC and propeller.", klass=PARTLY))
         rows.append(make_row("w0_buildup", "take-off weight, Anderson build-up (8.83) "
                              "(same-author cross-check)", "lb", d["W0_lb"], RECORD, aw["buildup_W0"],
                              "Anderson (8.83a-g) p. 449, section 8.7 p. 449-453", None, "relative",
@@ -716,12 +810,13 @@ def compute(design_path):
                          "the coefficient is a book value, not a measurement of this airframe.",
                          klass=INDEPENDENT))
     rows += prop_rows(d, L)
-    rows += speed_rows(d, L, b)
+    bracket = climb_bracket(d, L, b) if is_app_l(L) else None
+    rows += speed_rows(d, L, b, bracket)
     rows += field_rows(d, L, b)
     rows += vn_rows(d, L, b)
     hp_m = next(r["stage3"] for r in rows if r["id"] == "power_takeoff")
     to_detail = takeoff_power_detail(d, L, b, hp_m)
-    return {"rows": rows, "mission_legs": legs, "anderson_w0": aw, "cd0_detail": cd0,
+    return {"rows": rows, "mission_legs": legs, "anderson_w0": aw, "cd0_detail": cd0, "climb_bracket": bracket,
             "takeoff_power_detail": to_detail,
             "record_facts": {"propeller_model": L.get("propeller_model", "flat"),
                              "engine": d.get("engine", {}).get("fixed"), "unchoked_fuel_share": d.get("unchoked_fuel_share"),
@@ -761,6 +856,14 @@ def git_commit():
                           check=False, cwd=REPO).stdout.strip()
 
 
+def git_dirty_files():
+    """Lines of `git status --porcelain` for the code and data a record depends on (review S3A-10); an empty
+    list means the record was made from a clean committed tree."""
+    out = subprocess.run(["git", "status", "--porcelain", "--", "conceptual", "measurement", "data"],
+                         capture_output=True, text=True, check=False, cwd=REPO).stdout
+    return [ln for ln in out.splitlines() if ln.strip()]
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--design", required=True)
@@ -769,12 +872,14 @@ def main(argv=None):
     ap.add_argument("--compare", nargs="+", help="perf.json of earlier runs: adds one row-by-row comparison table "
                     "for each (for example the old record measured with this code, and the file recorded then)")
     a = ap.parse_args(argv)
+    dirty = git_dirty_files()
     res = compute(a.design)
     res["inputs"] = {
         "design": a.design, "design_sha256": sha256(a.design),
         "ledger": res.pop("ledger_path"), "ledger_sha256": sha256(Path(a.design).parent / "ledger.yaml"),
         **_table_inputs(a.design),
-        "git_commit": git_commit(), "python": platform.python_version(), "numpy": np.__version__,
+        "git_commit": git_commit(), "git_dirty": bool(dirty), "git_dirty_files": dirty,
+        "python": platform.python_version(), "numpy": np.__version__,
         "seed": None, "rebuild_tolerance": REBUILD_TOLERANCE,
         "command": "python -m measurement.stage3_perf " + " ".join(sys.argv[1:] if argv is None else argv)}
     if a.compare:
@@ -874,11 +979,20 @@ def _diag_cd0(res, r):
 
 
 def _diag_best_climb(res, r):
+    """Flat records: the closed form has no 1.2 V_stall floor, Stage 1's search has. App. L records: the row is not
+    judged and does not come here with a verdict 'outside'; the text is kept for a record that does (review S3A-2)."""
     roc = next((x for x in res["rows"] if x["id"] == "roc_sl"), None)
+    br = res.get("climb_bracket")
+    if br:
+        return (f"The closed form returns the minimum-power-required speed ({fmt(br['v_closed_form_kt'])} kt) because it "
+                f"assumes power available independent of speed; with the App. L disk the efficiency rises with speed "
+                f"({fmt(br['eta_at_closed_form_speed'])} at that speed, {fmt(br['eta_at_stage1_speed'])} at Stage 1's "
+                f"{fmt(br['v_stage1_kt'])} kt), so the best climb is at a higher speed.")
     txt = (f"Stage 1 searches speeds from 1.2 V_stall upward and lands on that floor ({fmt(r['stage1'])} kt); the "
            f"closed form has no floor ({fmt(r['stage3'])} kt).")
     if roc:
-        txt += f" The sea-level rate of climb agrees to {100 * roc['deviation']:+.2f} %."
+        txt += (f" The sea-level rate of climb deviates by {100 * roc['deviation']:+.2f} % "
+                f"(tolerance {tolerance_text(roc)}, verdict {roc['verdict']}).")
     return txt
 
 
@@ -931,6 +1045,11 @@ def generated_sections(res):
         txt = f(res, r) if f else None
         L.append(f"- **{r['quantity']}**, {deviation_text(r)} against {tolerance_text(r)}. "
                  + (txt or "No diagnosis is coded for this row; see its note above."))
+    if res.get("climb_bracket"):
+        L += ["", "## Rows not judged: closed form does not apply with the App. L disk", ""]
+        for r in rows:
+            if r["id"] in ("roc_sl", "v_best_climb"):
+                L.append(f"- **{r['quantity']}**: {r['note']}")
     t = res.get("takeoff_power_detail")
     fl = {r["id"]: r for r in rows}
     if t and "takeoff_distance" in fl and "landing_distance" in fl:
@@ -962,7 +1081,9 @@ def report_text(res):
         f"{c}: " + ", ".join(f"{n} {v}" for v, n in sorted(cc[c].items())) for c in (*CLASSES, "unclassified") if c in cc)
     lines = [
         "# Task 12 Stage 3: performance measured against independent book relations", "",
-        (f"Design: `{i['design']}` (sha256 `{i['design_sha256']}`). Git commit `{i['git_commit']}`. "
+        (f"Design: `{i['design']}` (sha256 `{i['design_sha256']}`). Git commit `{i['git_commit']}`"
+        + ("" if "git_dirty" not in i else (", working tree clean for code and data" if not i["git_dirty"] else
+                                            ", working tree DIRTY: " + "; ".join(i["git_dirty_files"]))) + ". "
         f"Python {i['python']}, numpy {i['numpy']}. Generated by `python -m measurement.stage3_perf` "
         "from the JSON next to this report; tolerances are spec section 7.1a, fixed before the run. "
         "A row outside tolerance is reported, not adjusted."), "",
@@ -972,6 +1093,11 @@ def report_text(res):
            "check is waived (G-5), so with the propeller rows here using the same relation and factor as Stage 1 there is "
            "no independent propeller check left. The three propeller rows are coding checks.", ""]
           if (res.get("record_facts") or {}).get("propeller_model") == "app_l" else []),
+        *(["**Climb rows.** The closed forms (5.118) and (5.121) assume power available independent of speed, which the "
+           "App. L disk does not give. The sea-level rate of climb and the best-climb speed are therefore **not judged** "
+           "(they are not coding errors; the bracket is in their notes and in `climb_bracket` of the record). The "
+           "excess-power row is the coding check of Stage 1's climb arithmetic.", ""]
+          if res.get("climb_bracket") else []),
         ("Each row has a class, which says what a \"within\" means: **independent** (another source, method and "
          "input), **partly independent** (another relation, with inputs or sub-models shared with Stage 1), "
          "**coding check** (same inputs and an algebraically equal formula: it can only show that the code is "
@@ -987,7 +1113,7 @@ def report_text(res):
         lines.append(f"| {r['quantity']} ({r['unit']}) | {r.get('class') or '-'} | {fmt(r['stage1'])} | {fmt(r['stage3'])} | "
                      f"{r['source']} | {deviation_text(r)} | {tolerance_text(r)} | {v} |")
     for cmp_ in res.get("comparisons", []):
-        lines += ["", "## Against an earlier record", "",
+        lines += ["", f"## Against an earlier record: `{cmp_['old_perf']}`", "",
                   (f"Old: `{cmp_['old_design']}` (perf record `{cmp_['old_perf']}`, sha256 `{cmp_['old_perf_sha256']}`, "
                    f"commit `{cmp_['old_git_commit']}`). New: `{cmp_['new_design']}`. Every cell is read from the two "
                    "perf records; verdict is within or outside the tolerance of that row. Class changes are marked; a class '-' means that record carries none."), "",
@@ -1014,7 +1140,8 @@ def report_text(res):
     if "W0" in aw:
         lines += ["", (f"Anderson first estimate: fuel fraction {fmt(aw['fuel_fraction'])}, cruise "
                   f"fraction {fmt(aw['f_cruise'])}, loiter fraction {fmt(aw['f_loiter'])}, "
-                  f"(L/D)max {fmt(aw['LD_max'])}, best-range speed {fmt(aw['V_best_range_kt'])} kt. "
+                  f"(L/D)max {fmt(aw['LD_max'])}, best-range speed {fmt(aw['V_best_range_kt'])} kt, "
+                  f"propeller efficiency held per leg: cruise {aw['eta_cruise']:.4f}, loiter {aw['eta_loiter']:.4f}. "
                   f"Build-up (8.83) converged after {aw['buildup_passes']} passes to "
                   f"{fmt(aw['buildup_W0'])} lb with empty weight {fmt(aw['buildup_We'])} lb. "
                   f"Diagnostic: the same route with Stage 1's empty fraction "
