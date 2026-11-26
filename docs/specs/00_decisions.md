@@ -413,3 +413,15 @@ the baseline changes with G-4 and the runs are redone on the new one.
 Question 8 of the review (R13: second neutral-point estimate before Gate B) was not ruled in this
 batch. The aero report states that R13 is met by layout construction with the same downwash model as
 Stage 1 (S3M-8) and that an independent neutral point is needed.
+
+### Owner rulings on the App. L baseline (Éder, 2026-11-26)
+
+- **Edits A and B (APL-1, APL-2).** Approved: the transit-cliff score uses the record's propeller, and the
+  TP100 ledger pins `propeller_model: flat` (commit 8501980). Optional edit C (drop the inert `eta_p` from
+  the info-gap study under app_l) not made.
+- **G-8 (R13; Stage 3 review question 8, S3A).** VSPAERO's wing-and-tail neutral point is re-run on the
+  App. L baseline (3,160 lb record, `runs/task12/stage3/2026-11-25/m250_baseline_appl/`) without the
+  fuselage, and quoted in Gate B with that limit stated. Not a fuselage-inclusive estimate.
+- **G-9 (take-off factor; APL-5).** A recorded sweep of take-off distance over the propeller
+  real-to-ideal factor f is run on the App. L baseline and quoted next to R7 in Gate B, with f at static
+  and take-off conditions stated as a judgement beyond App. L.
