@@ -321,7 +321,7 @@ def main(argv=None):
               "command": "python -m conceptual.vspaero_check " + " ".join(argv if argv is not None else sys.argv[1:]),
               "python": sys.version.split()[0], "openvsp": vsp.GetVSPVersion(),
               "vspaero_path": vsp.GetVSPAEROPath(),
-              "vspaero_version": vspaero_version((out / "wing_L1.log").read_text(errors="replace")[:2000]),
+              "vspaero_version": vspaero_version((out / "wing_L1.log").read_text(errors="replace")),
               "units": "ft, lb, s, deg", "altitude_ft": h, "atmosphere": atm, "conditions": conditions,
               "reference": ref, "aspect_ratio": w["aspect_ratio"], "alpha_sweep_deg": ALPHAS,
               "levels": {k: {"wing_tail_strips_per_section": v[0], "Tess_W": v[1], "fuselage_Tess_U": v[2],
