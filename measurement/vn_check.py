@@ -7,7 +7,7 @@ from its record (measurement/stage3_perf.rebuild, which raises if the rebuild do
 record). Nothing is re-sized.
 
     python -m measurement.vn_check --design runs/task12/stage3/2026-11-25/m250_baseline_appl/P450/h1.05/design_pusher.json \
-        --out runs/task12/stage3/2026-11-26/vn_check/vn.json
+        --out runs/task12/stage3/2026-11-26/vn_check/vn.json --report docs/validation/2026-11-26_task12_vn_check.md
 
 Two lift-curve slopes are reported, because the record holds two gust values for the same point:
   "vn_record": the slope at the record's CLa (cruise Mach of the sizing), used for the record's `vn` entries;
@@ -118,6 +118,61 @@ def worst_reproduction_error(res):
     return max(abs(new / rec - 1.0) for r in res["reproduction_of_record"].values() for rec, new in r.values())
 
 
+def report_text(res):
+    """Markdown report from the record and nothing else."""
+    lim, inp = res["limits"], res["inputs"]
+    pts = res["points"]
+    L = ["# Task 12: V-n check of the frozen design (ruling B-4)", "",
+         f"Record: `{inp['command'].split('--out ')[1].split(' ')[0]}`; design `{inp['design']}` (sha256 {inp['design_sha256'][:12]}); "
+         f"commit {inp['git_commit'][:7]}, git_dirty {inp['git_dirty']}. Command: `{inp['command']}`.", "",
+         "Stage 1's own loads code (`conceptual/raymer_loads.py`), the design rebuilt from its record, not re-sized. "
+         f"W0 {res['design_W0_lb']:.1f} lb, fuel {res['fuel_lb']:.1f} lb, W/S {res['W_S']:g}, clean CL_max {res['CL_max_clean']:g}.", "",
+         "## Speeds and limits", "",
+         f"- V_C {res['V_C_eas_kt']:.1f} kt EAS, V_D {res['V_D_eas_kt']:.1f} kt EAS (1.5 V_C), corner speed {res['V_corner_eas_kt']:.1f} kt EAS.",
+         f"- Level top speed: {res['level_top_speed_eas_kt']['sea_level']:.1f} kt EAS at sea level, "
+         f"{res['level_top_speed_eas_kt']['mission_altitude']:.1f} kt EAS at 20,000 ft.",
+         f"- Limits (ledger): positive {lim['positive']:g}; negative {lim['negative']:g} with a {lim['negative_margin_g']:g} g margin, "
+         f"so the negative gust must stay at or above {lim['negative_with_margin']:g}.", "",
+         f"Reproduction of the record: at V_C and V_D the check reproduces the record's `vn` and `gusts` entries; "
+         f"worst relative difference {res['worst_relative_reproduction_error']:.1e} (test `tests/task12/test_vn_check.py`, limit 1e-5).", "",
+         "## Load factors", "",
+         "Gust load factor with the lift slope at the speed's own Mach number (the value the structure was sized with, the record's `gusts`); "
+         "the record's `vn` entries use the slope at the sizing Mach and differ slightly (both are in the record). "
+         "U_de 30 ft/s up to V_C, falling to 15 ft/s at V_D and 15 ft/s above (Raymer p. 339). "
+         "Manoeuvre: aerodynamic limit q CL_max/(W/S), capped at the structural limit 3.8. "
+         "The last two columns are a sensitivity, not the rule: U_de held at 30 ft/s at every speed.", "",
+         "| Altitude | Speed | V EAS (kt) | U_de (ft/s) | Weight | n gust + | n gust - | n manoeuvre (aero) | n manoeuvre (capped) | exceeds | n gust + (U_de 30) | n gust - (U_de 30) |",
+         "|---|---|---|---|---|---|---|---|---|---|---|---|"]
+    for p in pts:
+        for wl, w in p["weights"].items():
+            ex = []
+            if w["exceeds_positive_limit"]:
+                ex.append("positive")
+            if w["exceeds_negative_limit"]:
+                ex.append("negative")
+            elif w["exceeds_negative_limit_with_margin"]:
+                ex.append("negative margin")
+            L.append(f"| {p['altitude']} | {p['speed']} | {p['V_eas_kt']:.1f} | {p['U_de_fps']:.1f} | {wl.replace('_weight', '')} | "
+                     f"{w['n_gust_sizing']:.3f} | {w['n_gust_neg_sizing']:.3f} | {w['n_manoeuvre_aero']:.3f} | {w['n_manoeuvre']:.3f} | "
+                     f"{', '.join(ex) or 'no'} | {w['n_gust_sizing_full_ude_sensitivity']:.3f} | {w['n_gust_neg_full_ude_sensitivity']:.3f} |")
+    over = [(p["altitude"], p["speed"], wl) for p in pts for wl, w in p["weights"].items()
+            if w["exceeds_positive_limit"] or w["exceeds_negative_limit_with_margin"]]
+    sens = [(p["altitude"], p["speed"], wl, w["n_gust_sizing_full_ude_sensitivity"], w["n_gust_neg_full_ude_sensitivity"])
+            for p in pts for wl, w in p["weights"].items()
+            if w["n_gust_sizing_full_ude_sensitivity"] > lim["positive"] or w["n_gust_neg_full_ude_sensitivity"] < lim["negative_with_margin"]]
+    L += ["", "## Result", ""]
+    L.append("Points that exceed a limit under the design gust rule: " +
+             ("; ".join(f"{a}, {s}, {w}" for a, s, w in over) if over else "none (every gust load factor above is inside +3.8 and the negative limit with margin)") + ".")
+    L.append("")
+    L.append("Points that would exceed a limit if U_de stayed at 30 ft/s at every speed (sensitivity, not the rule; positive / negative): " +
+             ("; ".join(f"{a}, {s}, {w} ({p:.3f} / {n:.3f})" for a, s, w, p, n in sens) if sens else "none") + ".")
+    L += ["", "The structure is sized at V_C 115 kt EAS (the per-design rule, ruling B-4) and V_D 172.5 kt EAS. The sea-level level top speed "
+          f"({res['level_top_speed_eas_kt']['sea_level']:.1f} kt EAS) is above V_D: the structure is not cleared to it. "
+          "Envelope protection (the autopilot holding the aircraft at or below V_C, and below V_D at sea level) is a preliminary-design "
+          "requirement per ruling B-4. No negative manoeuvre load factor is computed: the record has no negative CL_max."]
+    return "\n".join(L) + "\n"
+
+
 def git(*args):
     return subprocess.run(["git", *args], capture_output=True, text=True, check=False, cwd=REPO).stdout.strip()
 
@@ -126,6 +181,7 @@ def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--design", required=True)
     ap.add_argument("--out", required=True)
+    ap.add_argument("--report")
     a = ap.parse_args(argv)
     res = compute(a.design)
     res["worst_relative_reproduction_error"] = worst_reproduction_error(res)
@@ -137,6 +193,9 @@ def main(argv=None):
                      "command": "python -m measurement.vn_check " + " ".join(sys.argv[1:] if argv is None else argv)}
     Path(a.out).parent.mkdir(parents=True, exist_ok=True)
     Path(a.out).write_text(json.dumps(res, indent=2, default=float))
+    if a.report:
+        Path(a.report).parent.mkdir(parents=True, exist_ok=True)
+        Path(a.report).write_text(report_text(res))
     print("worst reproduction error", res["worst_relative_reproduction_error"])
 
 
