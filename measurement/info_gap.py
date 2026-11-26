@@ -64,6 +64,7 @@ import numpy as np
 import yaml
 
 from conceptual import raymer_performance as perf
+from conceptual import raymer_propulsion as prop
 from conceptual import sizing, uav
 from conceptual.engine_model import ENGINE_POWER_BAND, TableEngine, table_for_run
 from conceptual.units import isa
@@ -342,9 +343,10 @@ def leg_power_ratio(W, S, atm, h_ft, CD0, K, clmax_clean, L, model, bhp):
     fails if the two drift apart."""
     floor = L["speed_over_stall"] * perf.stall_speed(W / S, atm["rho"], clmax_clean)
     best = math.inf
+    eta_p = uav._propeller(L, atm, uav._prop_diameter_ft(bhp, L))      # as in uav._leg_speed (ruling G-4)
     for i in range(76):
         Vi = floor * (1.0 + 0.02 * i)
-        shp = perf.drag(W, S, atm["rho"], Vi, CD0, K) * Vi / (uav.HP * L["eta_p"])
+        shp = prop.shaft_hp(perf.drag(W, S, atm["rho"], Vi, CD0, K) * Vi, Vi, eta_p)
         best = min(best, shp / (bhp * model.lapse(h_ft, Vi / uav.KT)))
     return best
 

@@ -1,5 +1,7 @@
 """Tests of the per-design V_C placard (owner ruling 2026-11-23), the fixed-h targets of the robustness curve
 and the review items RC2-5 and RC2-6."""
+from pathlib import Path
+
 import pytest
 import yaml
 
@@ -213,3 +215,34 @@ def test_built_refuses_a_per_design_ledger_and_sized_aircraft_drops_the_rule():
     with pytest.raises(ValueError, match="per_design"):
         info_gap.Built("in memory", True, record=(rec, dict(L, vc_placard_rule="per_design"), TP100_TABLE))
     info_gap.Built("in memory", True, record=(rec, L, TP100_TABLE))
+
+
+def test_transit_ratio_uses_the_app_l_propeller(monkeypatch):
+    """Owner ruling G-4, review APL-1: under propeller_model app_l the cliff ratio uses the actuator disk, as
+    uav._leg_speed does, and not the flat eta_p. Same check as above with the App. L ledger lines; the propeller
+    diameter is held (it falls with bhp, which would move the grid test's edge)."""
+    a, L, _ = rs.sized_aircraft(400.0, 13.0, 8.0, 8.0)
+    d = a["design"]
+    D = uav._prop_diameter_ft(d["bhp"], L)
+    monkeypatch.setattr(uav, "_prop_diameter_ft", lambda bhp, L: D)
+    S, alt, model = d["geom"]["S"], isa(L["mission_altitude_ft"]), d["engine_model"]
+    L_t = dict(L, headwind_kt=0.0, propeller_model="app_l", prop_real_to_ideal=0.85)
+    W = 0.92 * d["W0"]
+    r = info_gap.leg_power_ratio(W, S, alt, L["mission_altitude_ft"], d["CD0_alt"], d["K"], d["clmax"]["clean"],
+                                 L_t, model, d["bhp"])
+    args = (W, S, alt, L["mission_altitude_ft"], d["CD0_alt"], d["K"], d["clmax"]["clean"], L_t, "range", model)
+    uav._leg_speed(*args, d["bhp"] * r * (1.0 + 1e-6))
+    with pytest.raises(ValueError, match="no speed on the leg"):
+        uav._leg_speed(*args, d["bhp"] * r * (1.0 - 1e-6))
+    # the flat eta_p no longer moves the score
+    r_flat_low = info_gap.leg_power_ratio(W, S, alt, L["mission_altitude_ft"], d["CD0_alt"], d["K"],
+                                          d["clmax"]["clean"], dict(L_t, eta_p=0.75), model, d["bhp"])
+    assert r_flat_low == r
+
+
+def test_tp100_ledger_stays_flat_outside_pytest_setup():
+    """Review APL-2: the TP100 helper pins propeller_model flat itself (no test conftest)."""
+    from measurement import rubber_tp100
+    assert rubber_tp100.tp100_ledger_values()["propeller_model"] == "flat"
+    text = rubber_tp100.tp100_ledger_text(Path("data/task12/ledger.yaml").read_text())
+    assert "propeller_model:       {value: flat," in text and "{value: app_l," not in text

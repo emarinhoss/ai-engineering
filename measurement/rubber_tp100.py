@@ -27,23 +27,26 @@ from measurement import info_gap
 
 POWERS = (260.0, 280.0, 300.0, 330.0, 360.0)
 TP100 = "PBS_TP100"
-# The ledger now holds the M250's values (ruling R-b 1.02, TCDS rpm 2,030); the TP100 sweeps used these
-TP100_LEDGER = {"engine_sfc_allowance": 1.05, "propeller_rpm": 2158.0}
+# The ledger now holds the M250's values (ruling R-b 1.02, TCDS rpm 2,030) and the App. L propeller (ruling G-4);
+# the TP100 sweeps used these
+TP100_LEDGER = {"engine_sfc_allowance": 1.05, "propeller_rpm": 2158.0, "propeller_model": "flat"}
 
 
 def tp100_ledger_values():
-    """The current ledger's values with the two engine-specific ones the TP100 records were sized with."""
+    """The current ledger's values with the three the TP100 records were sized with (TP100_LEDGER)."""
     return dict(uav.load_ledger()[0], **TP100_LEDGER)
 
 
-TP100_LEDGER_LINES = {      # the two ledger lines as the TP100 records had them (git show 1b11d3b:data/task12/ledger.yaml)
+TP100_LEDGER_LINES = {      # the ledger lines as the TP100 records had them (git show 1b11d3b:data/task12/ledger.yaml);
+                            # those records have no propeller_model line, which reads as flat
     "engine_sfc_allowance": '  engine_sfc_allowance:  {value: 1.05, units: "-", confidence: requirement, source: "Gate A round 5 ruling 2 (Eder 2026-11-21): every SFC from the TP100 App. K table multiplied by 1.05 in sizing, covering the model\'s part-power optimism against the book (MSH reads 5-9 % low, calibration absorbs the design-point part)"}',
     "propeller_rpm": '  propeller_rpm:         {value: 2158.0, units: rpm, confidence: datasheet, source: "PBS TP100 output shaft speed 2,158 RPM, maker\'s brochure p. 12 (Gate A round 4, R4-10); was an assumed 2,000 rpm"}',
+    "propeller_model": '  propeller_model:       {value: flat, units: "-", confidence: requirement, source: "TP100 records: flat eta_p, as sized before owner ruling G-4"}',
 }
 
 
 def tp100_ledger_text(text):
-    """Ledger text with the TP100's two engine-specific lines (TP100_LEDGER_LINES) in place of the M250's."""
+    """Ledger text with the TP100's lines (TP100_LEDGER_LINES) in place of the M250's."""
     for key, line in TP100_LEDGER_LINES.items():
         text, n = re.subn(rf"^\s*{key}:.*$", lambda m, line=line: line, text, flags=re.MULTILINE)
         if n != 1:
