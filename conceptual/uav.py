@@ -525,7 +525,7 @@ def _build(W0, concept, W_S, A, L, fuel_guess, engine=None, mission=True):
     # maximum level speed), so the structure is sized at the speed it is cleared to fly
     q_design = 0.5 * RHO0 * v_c_eas["sea_level"] ** 2
     fuel_gal = fuel_guess / L["fuel_density_lb_gal"]
-    f = wts.COMPOSITE_FUDGE
+    f = wts.composite_fudge(L["composite_factor"], L.get("composite_model"))       # ruling B-2
     eng = geo.turboprop_statistical(bhp)
     if engine is not None:
         eng = dict(geo.turboprop_statistical(bhp), weight_lb=engine["weight_lb"],
@@ -550,7 +550,8 @@ def _build(W0, concept, W_S, A, L, fuel_guess, engine=None, mission=True):
         "avionics": W_av,
         "electrical": wts.electrical(W_fs, W_av),
     }
-    We = sum(comp.values())
+    # ruling B-2: the fit-against-build-up multiplier acts on the sum; 1 (or no ledger line) changes nothing
+    We = L.get("empty_weight_factor", 1.0) * sum(comp.values())
     return {"geom": geom, "e": e, "K": K, "clmax": clmax, "bhp": bhp, "power_req": req, "engine_model": model,
             "D_prop": D_prop, "gear_length_in": gear_in, "gear_drag_area": gear_dq,
             "engine": eng, "CLa": CLa, "gusts": gusts, "n_gust": n_gust, "n_limit": n_limit,
@@ -604,7 +605,7 @@ def statistical_empty_fractions(d, L):
     Vmax in mph is the computed sea-level maximum level speed."""
     W0 = d["W0"]
     comp = d["components"]
-    f = wts.COMPOSITE_FUDGE
+    f = wts.composite_fudge(L["composite_factor"], L.get("composite_model"))
     vmax_mph = d["V_c_eas"]["sea_level"] / KT * 1.151
     furnishings = max(0.0, 0.0582 * W0 - 65.0)                                   # (15.59)
     fudge_of = {"wing": f["wing"], "horizontal_tail": f["tails"], "vertical_tail": f["tails"],

@@ -218,7 +218,9 @@ def trades(concept, W_S, A, L, engine, eng_raw):
             run(f"engine table power cap x{f:g}", eng=dict(engine, model=engine["model"].scaled(power_cap=f)))
     _, entries = uav.load_ledger()
     for name, q in entries.items():
-        if "band" in q and name in L and name != "composite_factor" and not name.startswith("cbhp"):
+        if name == "composite_factor" and not L.get("composite_model"):
+            continue                # no composite_model line: the factor does not reach the build-up
+        if "band" in q and name in L and not name.startswith("cbhp"):
             for end, v in zip(("lo", "hi"), q["band"]):
                 run(f"{name}={v:g} ({end})", **{name: float(v)})
     return out

@@ -6,6 +6,25 @@ import math
 # Table 15.4, p. 408: advanced composites
 COMPOSITE_FUDGE = {"wing": 0.85, "tails": 0.83, "fuselage": 0.90, "landing_gear": 0.95,
                    "air_induction": 0.85}
+COMPOSITE_FIRST_PASS = 0.95      # p. 14: statistical empty-weight fraction x 0.95 for advanced composites
+
+
+def composite_fudge(c=COMPOSITE_FIRST_PASS, model=None):
+    """Table 15.4 composite factors as moved by the ledger's composite_factor c (owner ruling B-2).
+    The book prints one number per group and no range, so how c acts on them is a judgement:
+    model None: the printed factors, c ignored (every record made before 2026-11-26).
+    model "saving": the weight saving 1 - f of every group is scaled by (1 - c)/(1 - 0.95). c = 0.95 gives
+      the printed factors, c = 1.00 gives 1 for every group (a metal aircraft, as c = 1.00 does in the
+      Table 3.1 fit), c = 0.90 doubles every saving.
+    model "scale": every factor is multiplied by c/0.95 (the probe of review GB-1), kept for comparison."""
+    if model is None:
+        return dict(COMPOSITE_FUDGE)
+    if model == "saving":
+        r = (c - COMPOSITE_FIRST_PASS) / (1.0 - COMPOSITE_FIRST_PASS)
+        return {k: f + (1.0 - f) * r for k, f in COMPOSITE_FUDGE.items()}
+    if model == "scale":
+        return {k: f * (c / COMPOSITE_FIRST_PASS) for k, f in COMPOSITE_FUDGE.items()}
+    raise ValueError(f"composite_model must be saving or scale, not {model!r}")
 
 
 def wing(S_w, W_fw, A, sweep, q, taper, t_c, Nz, Wdg):
