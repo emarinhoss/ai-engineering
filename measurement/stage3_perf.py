@@ -968,6 +968,10 @@ def report_text(res):
         "A row outside tolerance is reported, not adjusted."), "",
         (f"Rows: {s['within']} within, {s['outside']} outside, {s['not judged']} not judged, "
          f"{s['not computed']} not computed."), "",
+        *(["**Propeller.** Stage 1 of this record is on the App. L actuator disk (owner ruling G-4) and the blade-element "
+           "check is waived (G-5), so with the propeller rows here using the same relation and factor as Stage 1 there is "
+           "no independent propeller check left. The three propeller rows are coding checks.", ""]
+          if (res.get("record_facts") or {}).get("propeller_model") == "app_l" else []),
         ("Each row has a class, which says what a \"within\" means: **independent** (another source, method and "
          "input), **partly independent** (another relation, with inputs or sub-models shared with Stage 1), "
          "**coding check** (same inputs and an algebraically equal formula: it can only show that the code is "
