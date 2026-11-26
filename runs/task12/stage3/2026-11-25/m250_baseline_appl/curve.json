@@ -1,0 +1,1096 @@
+{
+ "inputs": {
+  "commit": "85019809ca73ae305c23e6c5fa9821ad8063c54d",
+  "git_dirty": true,
+  "git_dirty_files": [
+   "?? runs/task12/stage3/2026-11-25/"
+  ],
+  "seed": 20261122,
+  "n_samples": 200,
+  "ledger": "data/task12/ledger.yaml",
+  "ledger_sha256": "a869023c44313081b7d321925b1e705ff67132b437697d9e97ec6065d9334716",
+  "table_sha256": "114b0e0f1cbdbcfca8ba4d1e881e7f5699a5bb6751191c4367292630f1df0790",
+  "python": "3.13.18",
+  "numpy": "2.5.3",
+  "pyyaml": "6.0.3",
+  "engine_as_is": true,
+  "power_band": "cap",
+  "engine": "RR_M250_B17F as is: rated 450 hp, 212 lb, its table, the ledger's SFC allowance and propeller rpm",
+  "weight_law": "engine weight 212 lb (FAA TCDS E10CE), no scaling",
+  "note": "robustness targets"
+ },
+ "targets": [
+  1.05
+ ],
+ "study_h": 1.05,
+ "powers": [
+  450.0
+ ],
+ "vc_rule": "per_design",
+ "grid": {
+  "P_hp": [
+   450.0
+  ],
+  "W_S": [
+   16.0
+  ],
+  "A": [
+   7.0
+  ],
+  "L_sized_range_h": [
+   8.0,
+   16.0
+  ],
+  "L_tol_h": 0.05
+ },
+ "max_iterations": 3,
+ "seed_corners": "runs/task12/stage3/2026-11-23/curve/seed_corners.json",
+ "seed_corners_sha256": "f21041cd62dc03dcbb26c26d661ba0e5eeb4c6f9edcfafd6361616bdd499cd38",
+ "step_refinement_factor": 2,
+ "previous_fixed_placard_h1": {
+  "380": {
+   "W0_lb": 4253.42932612326,
+   "W_S": 12.0,
+   "A": 8.0,
+   "L_sized_h": 8.6875
+  },
+  "400": {
+   "W0_lb": 4240.206938996608,
+   "W_S": 13.0,
+   "A": 8.0,
+   "L_sized_h": 8.53125
+  },
+  "420": {
+   "W0_lb": 4297.848693115235,
+   "W_S": 14.0,
+   "A": 9.0,
+   "L_sized_h": 8.5
+  },
+  "450": {
+   "W0_lb": 4450.931962818882,
+   "W_S": 13.0,
+   "A": 8.0,
+   "L_sized_h": 8.34375
+  },
+  "480": {
+   "W0_lb": 4654.785620046545,
+   "W_S": 13.0,
+   "A": 9.0,
+   "L_sized_h": 8.375
+  }
+ },
+ "out": "runs/task12/stage3/2026-11-25/m250_baseline_appl",
+ "previous_curve": "runs/task12/stage3/2026-11-23/curve/curve.json",
+ "per_P": {
+  "450": {
+   "1.05": {
+    "P_hp": 450.0,
+    "h_T": 1.05,
+    "iterations": [
+     {
+      "iteration": 1,
+      "n_endurance_corners": 1,
+      "n_cliff_corners": 1,
+      "n_candidates": 1,
+      "search_s": 73.15123915672302,
+      "candidates": [
+       {
+        "P_hp": 450.0,
+        "W_S": 16.0,
+        "A": 7.0,
+        "ok": true,
+        "L_sized_h": 8.1875,
+        "failed": [],
+        "status": "bisected",
+        "closure": [
+         {
+          "L_h": 8.0,
+          "guess_lb": 4254.0,
+          "retried": false,
+          "closed": true
+         },
+         {
+          "L_h": 12.0,
+          "guess_lb": 5854.0,
+          "retried": false,
+          "closed": true
+         },
+         {
+          "L_h": 10.0,
+          "guess_lb": 5054.0,
+          "retried": false,
+          "closed": true
+         },
+         {
+          "L_h": 9.0,
+          "guess_lb": 4654.0,
+          "retried": false,
+          "closed": true
+         },
+         {
+          "L_h": 8.5,
+          "guess_lb": 4454.0,
+          "retried": false,
+          "closed": true
+         },
+         {
+          "L_h": 8.25,
+          "guess_lb": 4354.0,
+          "retried": false,
+          "closed": true
+         },
+         {
+          "L_h": 8.125,
+          "guess_lb": 4304.0,
+          "retried": false,
+          "closed": true
+         },
+         {
+          "L_h": 8.1875,
+          "guess_lb": 4329.0,
+          "retried": false,
+          "closed": true
+         },
+         {
+          "L_h": 8.15625,
+          "guess_lb": 4316.5,
+          "retried": false,
+          "closed": true
+         }
+        ],
+        "trace": [
+         {
+          "L_h": 8.0,
+          "class": "small",
+          "hours_E": [
+           3.4235030813488
+          ],
+          "ratio_C": [
+           0.8182895955269482
+          ]
+         },
+         {
+          "L_h": 12.0,
+          "class": "ok",
+          "hours_E": [
+           5.93831353162012
+          ],
+          "ratio_C": [
+           0.9306673910031005
+          ]
+         },
+         {
+          "L_h": 10.0,
+          "class": "ok",
+          "hours_E": [
+           4.680380378164224
+          ],
+          "ratio_C": [
+           0.8729052887350194
+          ]
+         },
+         {
+          "L_h": 9.0,
+          "class": "ok",
+          "hours_E": [
+           4.051961153832126
+          ],
+          "ratio_C": [
+           0.8452100808735055
+          ]
+         },
+         {
+          "L_h": 8.5,
+          "class": "ok",
+          "hours_E": [
+           3.6951011842041392
+          ],
+          "ratio_C": [
+           0.8404340372235161
+          ]
+         },
+         {
+          "L_h": 8.25,
+          "class": "ok",
+          "hours_E": [
+           3.539606817180166
+          ],
+          "ratio_C": [
+           0.8336208487800424
+          ]
+         },
+         {
+          "L_h": 8.125,
+          "class": "small",
+          "hours_E": [
+           3.4618136487023135
+          ],
+          "ratio_C": [
+           0.8302716611746243
+          ]
+         },
+         {
+          "L_h": 8.1875,
+          "class": "ok",
+          "hours_E": [
+           3.500701421050188
+          ],
+          "ratio_C": [
+           0.8319586385457961
+          ]
+         },
+         {
+          "L_h": 8.15625,
+          "class": "small",
+          "hours_E": [
+           3.481291088601571
+          ],
+          "ratio_C": [
+           0.831116043665996
+          ]
+         }
+        ],
+        "corner_hours": [
+         3.500701421050188
+        ],
+        "corner_ratio": [
+         0.8319586385457961
+        ],
+        "W0_lb": 3060.19174517267,
+        "fuel_lb": 909.0547611349668,
+        "We_lb": 1651.1358440452395,
+        "engine_weight_lb": 212.0,
+        "span_ft": 36.590079099573465,
+        "power_margin": 0.3668780923371916,
+        "W0_at_8h_lb": 3024.183800658672
+       }
+      ],
+      "reasons_not_selected": {},
+      "winner": {
+       "P_hp": 450.0,
+       "W_S": 16.0,
+       "A": 7.0,
+       "L_sized_h": 8.1875,
+       "W0_lb": 3060.19174517267,
+       "fuel_lb": 909.0547611349668,
+       "We_lb": 1651.1358440452395,
+       "engine_weight_lb": 212.0,
+       "span_ft": 36.590079099573465,
+       "power_margin": 0.3668780923371916,
+       "failed": [],
+       "status": "bisected",
+       "corner_hours": [
+        3.500701421050188
+       ],
+       "corner_ratio": [
+        0.8319586385457961
+       ]
+      },
+      "worst_at_target": {
+       "endurance": {
+        "moved": {
+         "prop_real_to_ideal": 0.7975000000000001,
+         "airfoil_cl_max": 1.29,
+         "wing_t_c": 0.1815,
+         "laminar_fraction_wing": 0.0975,
+         "sensor_drag_area_ft2": 0.8200000000000001,
+         "fuselage_fineness": 5.9,
+         "fuselage_fill": 0.8525,
+         "avionics_uninstalled_lb": 102.0,
+         "gust_ude_fps": 51.0,
+         "main_gear_station_guess": 0.295,
+         "rotation_angle_deg_pusher": 15.25,
+         "sponson_length_per_tyre": 2.9699999999999998,
+         "sponson_depth_per_tyre": 1.41,
+         "sponson_weight_per_wetted": 1.82,
+         "engine_sfc_mult": 1.105,
+         "engine_power_mult": 0.895
+        },
+        "score": 959.6619503647792,
+        "reason": null,
+        "hours": 2.9737257357202864,
+        "hours_reason": null,
+        "flyable": true,
+        "n_evals": 514
+       },
+       "cliff": {
+        "moved": {
+         "prop_real_to_ideal": 0.7975000000000001,
+         "airfoil_cl_max": 1.29,
+         "wing_t_c": 0.1185,
+         "laminar_fraction_wing": 0.0975,
+         "sensor_drag_area_ft2": 0.8200000000000001,
+         "fuselage_fineness": 5.9,
+         "fuselage_fill": 0.8525,
+         "avionics_uninstalled_lb": 102.0,
+         "gust_ude_fps": 51.0,
+         "main_gear_station_guess": 0.295,
+         "rotation_angle_deg_pusher": 15.25,
+         "sponson_length_per_tyre": 2.9699999999999998,
+         "sponson_depth_per_tyre": 1.41,
+         "sponson_weight_per_wetted": 1.82,
+         "engine_sfc_mult": 0.895,
+         "engine_power_mult": 0.895
+        },
+        "score": 0.8839135604368447,
+        "reason": null,
+        "transit_ratio": 0.8839135604368447,
+        "flyable": true,
+        "n_evals": 613
+       }
+      },
+      "violating_modes": [
+       "endurance"
+      ],
+      "corners_added": [
+       "endurance"
+      ],
+      "converged": false
+     },
+     {
+      "iteration": 2,
+      "n_endurance_corners": 2,
+      "n_cliff_corners": 1,
+      "n_candidates": 1,
+      "search_s": 43.698755741119385,
+      "candidates": [
+       {
+        "P_hp": 450.0,
+        "W_S": 16.0,
+        "A": 7.0,
+        "ok": true,
+        "L_sized_h": 9.03125,
+        "failed": [],
+        "status": "bisected",
+        "closure": [
+         {
+          "L_h": 8.0,
+          "guess_lb": 4254.0,
+          "retried": false,
+          "closed": true
+         },
+         {
+          "L_h": 12.0,
+          "guess_lb": 5854.0,
+          "retried": false,
+          "closed": true
+         },
+         {
+          "L_h": 10.0,
+          "guess_lb": 5054.0,
+          "retried": false,
+          "closed": true
+         },
+         {
+          "L_h": 9.0,
+          "guess_lb": 4654.0,
+          "retried": false,
+          "closed": true
+         },
+         {
+          "L_h": 9.5,
+          "guess_lb": 4854.0,
+          "retried": false,
+          "closed": true
+         },
+         {
+          "L_h": 9.25,
+          "guess_lb": 4754.0,
+          "retried": false,
+          "closed": true
+         },
+         {
+          "L_h": 9.125,
+          "guess_lb": 4704.0,
+          "retried": false,
+          "closed": true
+         },
+         {
+          "L_h": 9.0625,
+          "guess_lb": 4679.0,
+          "retried": false,
+          "closed": true
+         },
+         {
+          "L_h": 9.03125,
+          "guess_lb": 4666.5,
+          "retried": false,
+          "closed": true
+         }
+        ],
+        "trace": [
+         {
+          "L_h": 8.0,
+          "class": "small",
+          "hours_E": [
+           3.4235030813488,
+           2.9047947964278844
+          ],
+          "ratio_C": [
+           0.8182895955269482
+          ]
+         },
+         {
+          "L_h": 12.0,
+          "class": "ok",
+          "hours_E": [
+           5.93831353162012,
+           5.201135519288895
+          ],
+          "ratio_C": [
+           0.9306673910031005
+          ]
+         },
+         {
+          "L_h": 10.0,
+          "class": "ok",
+          "hours_E": [
+           4.680380378164224,
+           4.0687895234288645
+          ],
+          "ratio_C": [
+           0.8729052887350194
+          ]
+         },
+         {
+          "L_h": 9.0,
+          "class": "small",
+          "hours_E": [
+           4.051961153832126,
+           3.4887346210898715
+          ],
+          "ratio_C": [
+           0.8452100808735055
+          ]
+         },
+         {
+          "L_h": 9.5,
+          "class": "ok",
+          "hours_E": [
+           4.36599629762051,
+           3.778924376683738
+          ],
+          "ratio_C": [
+           0.8589608607453368
+          ]
+         },
+         {
+          "L_h": 9.25,
+          "class": "ok",
+          "hours_E": [
+           4.208913291860683,
+           3.6338484256907924
+          ],
+          "ratio_C": [
+           0.8520538646806566
+          ]
+         },
+         {
+          "L_h": 9.125,
+          "class": "ok",
+          "hours_E": [
+           4.130466946193468,
+           3.561786320153674
+          ],
+          "ratio_C": [
+           0.8486274058257138
+          ]
+         },
+         {
+          "L_h": 9.0625,
+          "class": "ok",
+          "hours_E": [
+           4.091170949373926,
+           3.525221219675895
+          ],
+          "ratio_C": [
+           0.8469146602250719
+          ]
+         },
+         {
+          "L_h": 9.03125,
+          "class": "ok",
+          "hours_E": [
+           4.071520157584881,
+           3.5069361969157753
+          ],
+          "ratio_C": [
+           0.846060774279155
+          ]
+         }
+        ],
+        "corner_hours": [
+         4.071520157584881,
+         3.5069361969157753
+        ],
+        "corner_ratio": [
+         0.846060774279155
+        ],
+        "W0_lb": 3160.3054928259653,
+        "fuel_lb": 977.2721099194301,
+        "We_lb": 1683.0321998117784,
+        "engine_weight_lb": 212.0,
+        "span_ft": 37.18378212489095,
+        "power_margin": 0.3466143124114739,
+        "W0_at_8h_lb": 3024.183800658672
+       }
+      ],
+      "reasons_not_selected": {},
+      "winner": {
+       "P_hp": 450.0,
+       "W_S": 16.0,
+       "A": 7.0,
+       "L_sized_h": 9.03125,
+       "W0_lb": 3160.3054928259653,
+       "fuel_lb": 977.2721099194301,
+       "We_lb": 1683.0321998117784,
+       "engine_weight_lb": 212.0,
+       "span_ft": 37.18378212489095,
+       "power_margin": 0.3466143124114739,
+       "failed": [],
+       "status": "bisected",
+       "corner_hours": [
+        4.071520157584881,
+        3.5069361969157753
+       ],
+       "corner_ratio": [
+        0.846060774279155
+       ]
+      },
+      "worst_at_target": {
+       "endurance": {
+        "moved": {
+         "prop_real_to_ideal": 0.7975000000000001,
+         "airfoil_cl_max": 1.29,
+         "wing_t_c": 0.1815,
+         "laminar_fraction_wing": 0.0975,
+         "sensor_drag_area_ft2": 0.8200000000000001,
+         "fuselage_fineness": 5.9,
+         "fuselage_fill": 0.8525,
+         "avionics_uninstalled_lb": 102.0,
+         "gust_ude_fps": 51.0,
+         "main_gear_station_guess": 0.295,
+         "rotation_angle_deg_pusher": 15.25,
+         "sponson_length_per_tyre": 2.9699999999999998,
+         "sponson_depth_per_tyre": 1.41,
+         "sponson_weight_per_wetted": 1.82,
+         "engine_sfc_mult": 1.105,
+         "engine_power_mult": 0.895
+        },
+        "score": 976.5915694470575,
+        "reason": null,
+        "hours": 3.5069361969157753,
+        "hours_reason": null,
+        "flyable": true,
+        "n_evals": 514
+       },
+       "cliff": {
+        "moved": {
+         "prop_real_to_ideal": 0.7975000000000001,
+         "airfoil_cl_max": 1.29,
+         "wing_t_c": 0.1185,
+         "laminar_fraction_wing": 0.0975,
+         "sensor_drag_area_ft2": 0.8200000000000001,
+         "fuselage_fineness": 5.9,
+         "fuselage_fill": 0.8525,
+         "avionics_uninstalled_lb": 102.0,
+         "gust_ude_fps": 51.0,
+         "main_gear_station_guess": 0.295,
+         "rotation_angle_deg_pusher": 15.25,
+         "sponson_length_per_tyre": 2.9699999999999998,
+         "sponson_depth_per_tyre": 1.41,
+         "sponson_weight_per_wetted": 1.82,
+         "engine_sfc_mult": 0.895,
+         "engine_power_mult": 0.895
+        },
+        "score": 0.8987937981488201,
+        "reason": null,
+        "transit_ratio": 0.8987937981488201,
+        "flyable": true,
+        "n_evals": 613
+       }
+      },
+      "violating_modes": [],
+      "corners_added": [],
+      "converged": true,
+      "stopped_by_budget": false
+     }
+    ],
+    "corner_sets": {
+     "endurance": [
+      {
+       "label": "E1@h1.05",
+       "moved": {
+        "eta_p": 0.7475,
+        "airfoil_cl_max": 1.29,
+        "wing_t_c": 0.1185,
+        "laminar_fraction_wing": 0.0975,
+        "sensor_drag_area_ft2": 0.8200000000000001,
+        "fuselage_fineness": 5.9,
+        "fuselage_fill": 0.8525,
+        "avionics_uninstalled_lb": 102.0,
+        "gust_ude_fps": 51.0,
+        "main_gear_station_guess": 0.295,
+        "rotation_angle_deg_pusher": 15.25,
+        "sponson_length_per_tyre": 2.9699999999999998,
+        "sponson_depth_per_tyre": 1.41,
+        "sponson_weight_per_wetted": 1.82,
+        "engine_sfc_mult": 1.105,
+        "engine_power_mult": 1.105
+       }
+      },
+      {
+       "label": "E2(P450 h1.05 it1)",
+       "moved": {
+        "prop_real_to_ideal": 0.7975000000000001,
+        "airfoil_cl_max": 1.29,
+        "wing_t_c": 0.1815,
+        "laminar_fraction_wing": 0.0975,
+        "sensor_drag_area_ft2": 0.8200000000000001,
+        "fuselage_fineness": 5.9,
+        "fuselage_fill": 0.8525,
+        "avionics_uninstalled_lb": 102.0,
+        "gust_ude_fps": 51.0,
+        "main_gear_station_guess": 0.295,
+        "rotation_angle_deg_pusher": 15.25,
+        "sponson_length_per_tyre": 2.9699999999999998,
+        "sponson_depth_per_tyre": 1.41,
+        "sponson_weight_per_wetted": 1.82,
+        "engine_sfc_mult": 1.105,
+        "engine_power_mult": 0.895
+       }
+      }
+     ],
+     "cliff": [
+      {
+       "label": "C1@h1.05",
+       "moved": {
+        "eta_p": 0.7475,
+        "airfoil_cl_max": 1.29,
+        "wing_t_c": 0.1185,
+        "laminar_fraction_wing": 0.0975,
+        "sensor_drag_area_ft2": 0.8200000000000001,
+        "fuselage_fineness": 5.9,
+        "fuselage_fill": 0.8525,
+        "avionics_uninstalled_lb": 102.0,
+        "gust_ude_fps": 51.0,
+        "main_gear_station_guess": 0.295,
+        "rotation_angle_deg_pusher": 15.25,
+        "sponson_length_per_tyre": 2.9699999999999998,
+        "sponson_depth_per_tyre": 1.41,
+        "sponson_weight_per_wetted": 1.82,
+        "engine_sfc_mult": 0.895,
+        "engine_power_mult": 0.895
+       }
+      }
+     ]
+    },
+    "full_study": true,
+    "power_band": "cap",
+    "design": {
+     "P_hp": 450.0,
+     "W_S": 16.0,
+     "A": 7.0,
+     "L_sized_h": 9.03125,
+     "W0_lb": 3160.3054928259653,
+     "fuel_lb": 977.2721099194301,
+     "We_lb": 1683.0321998117784,
+     "engine_weight_lb": 212.0,
+     "span_ft": 37.18378212489095,
+     "power_margin": 0.3466143124114739,
+     "failed": [],
+     "status": "bisected",
+     "corner_hours": [
+      4.071520157584881,
+      3.5069361969157753
+     ],
+     "corner_ratio": [
+      0.846060774279155
+     ]
+    },
+    "final_iteration": 2,
+    "converged": true,
+    "violating_modes": [],
+    "worst_at_target": {
+     "endurance": {
+      "moved": {
+       "prop_real_to_ideal": 0.7975000000000001,
+       "airfoil_cl_max": 1.29,
+       "wing_t_c": 0.1815,
+       "laminar_fraction_wing": 0.0975,
+       "sensor_drag_area_ft2": 0.8200000000000001,
+       "fuselage_fineness": 5.9,
+       "fuselage_fill": 0.8525,
+       "avionics_uninstalled_lb": 102.0,
+       "gust_ude_fps": 51.0,
+       "main_gear_station_guess": 0.295,
+       "rotation_angle_deg_pusher": 15.25,
+       "sponson_length_per_tyre": 2.9699999999999998,
+       "sponson_depth_per_tyre": 1.41,
+       "sponson_weight_per_wetted": 1.82,
+       "engine_sfc_mult": 1.105,
+       "engine_power_mult": 0.895
+      },
+      "score": 976.5915694470575,
+      "reason": null,
+      "hours": 3.5069361969157753,
+      "hours_reason": null,
+      "flyable": true,
+      "n_evals": 514
+     },
+     "cliff": {
+      "moved": {
+       "prop_real_to_ideal": 0.7975000000000001,
+       "airfoil_cl_max": 1.29,
+       "wing_t_c": 0.1185,
+       "laminar_fraction_wing": 0.0975,
+       "sensor_drag_area_ft2": 0.8200000000000001,
+       "fuselage_fineness": 5.9,
+       "fuselage_fill": 0.8525,
+       "avionics_uninstalled_lb": 102.0,
+       "gust_ude_fps": 51.0,
+       "main_gear_station_guess": 0.295,
+       "rotation_angle_deg_pusher": 15.25,
+       "sponson_length_per_tyre": 2.9699999999999998,
+       "sponson_depth_per_tyre": 1.41,
+       "sponson_weight_per_wetted": 1.82,
+       "engine_sfc_mult": 0.895,
+       "engine_power_mult": 0.895
+      },
+      "score": 0.8987937981488201,
+      "reason": null,
+      "transit_ratio": 0.8987937981488201,
+      "flyable": true,
+      "n_evals": 613
+     }
+    },
+    "vc_kt": 115.0,
+    "fastest_step_eas_kt": 104.27269720610255,
+    "design_row": {
+     "P_hp": 450.0,
+     "W_S": 16.0,
+     "A": 7.0,
+     "ok": true,
+     "L_sized_h": 9.03125,
+     "failed": [],
+     "status": "bisected",
+     "closure": [
+      {
+       "L_h": 8.0,
+       "guess_lb": 4254.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 12.0,
+       "guess_lb": 5854.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 10.0,
+       "guess_lb": 5054.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 9.0,
+       "guess_lb": 4654.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 9.5,
+       "guess_lb": 4854.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 9.25,
+       "guess_lb": 4754.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 9.125,
+       "guess_lb": 4704.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 9.0625,
+       "guess_lb": 4679.0,
+       "retried": false,
+       "closed": true
+      },
+      {
+       "L_h": 9.03125,
+       "guess_lb": 4666.5,
+       "retried": false,
+       "closed": true
+      }
+     ],
+     "trace": [
+      {
+       "L_h": 8.0,
+       "class": "small",
+       "hours_E": [
+        3.4235030813488,
+        2.9047947964278844
+       ],
+       "ratio_C": [
+        0.8182895955269482
+       ]
+      },
+      {
+       "L_h": 12.0,
+       "class": "ok",
+       "hours_E": [
+        5.93831353162012,
+        5.201135519288895
+       ],
+       "ratio_C": [
+        0.9306673910031005
+       ]
+      },
+      {
+       "L_h": 10.0,
+       "class": "ok",
+       "hours_E": [
+        4.680380378164224,
+        4.0687895234288645
+       ],
+       "ratio_C": [
+        0.8729052887350194
+       ]
+      },
+      {
+       "L_h": 9.0,
+       "class": "small",
+       "hours_E": [
+        4.051961153832126,
+        3.4887346210898715
+       ],
+       "ratio_C": [
+        0.8452100808735055
+       ]
+      },
+      {
+       "L_h": 9.5,
+       "class": "ok",
+       "hours_E": [
+        4.36599629762051,
+        3.778924376683738
+       ],
+       "ratio_C": [
+        0.8589608607453368
+       ]
+      },
+      {
+       "L_h": 9.25,
+       "class": "ok",
+       "hours_E": [
+        4.208913291860683,
+        3.6338484256907924
+       ],
+       "ratio_C": [
+        0.8520538646806566
+       ]
+      },
+      {
+       "L_h": 9.125,
+       "class": "ok",
+       "hours_E": [
+        4.130466946193468,
+        3.561786320153674
+       ],
+       "ratio_C": [
+        0.8486274058257138
+       ]
+      },
+      {
+       "L_h": 9.0625,
+       "class": "ok",
+       "hours_E": [
+        4.091170949373926,
+        3.525221219675895
+       ],
+       "ratio_C": [
+        0.8469146602250719
+       ]
+      },
+      {
+       "L_h": 9.03125,
+       "class": "ok",
+       "hours_E": [
+        4.071520157584881,
+        3.5069361969157753
+       ],
+       "ratio_C": [
+        0.846060774279155
+       ]
+      }
+     ],
+     "corner_hours": [
+      4.071520157584881,
+      3.5069361969157753
+     ],
+     "corner_ratio": [
+      0.846060774279155
+     ],
+     "W0_lb": 3160.3054928259653,
+     "fuel_lb": 977.2721099194301,
+     "We_lb": 1683.0321998117784,
+     "engine_weight_lb": 212.0,
+     "span_ft": 37.18378212489095,
+     "power_margin": 0.3466143124114739,
+     "W0_at_8h_lb": 3024.183800658672
+    },
+    "modes": {
+     "endurance": {
+      "h_hat": 1.0513916015625,
+      "status": "bracketed",
+      "limit": 977.2721099194301,
+      "h_hat_search_evals_at_1": 514,
+      "worst_at_h1": {
+       "moved": {
+        "prop_real_to_ideal": 0.8,
+        "airfoil_cl_max": 1.3,
+        "wing_t_c": 0.18,
+        "laminar_fraction_wing": 0.1,
+        "sensor_drag_area_ft2": 0.8,
+        "fuselage_fineness": 6.0,
+        "fuselage_fill": 0.85,
+        "avionics_uninstalled_lb": 100.0,
+        "gust_ude_fps": 50.0,
+        "main_gear_station_guess": 0.3,
+        "rotation_angle_deg_pusher": 15.0,
+        "sponson_length_per_tyre": 3.0,
+        "sponson_depth_per_tyre": 1.4,
+        "sponson_weight_per_wetted": 1.8,
+        "engine_sfc_mult": 1.1,
+        "engine_power_mult": 0.9
+       },
+       "score": 952.043882631701,
+       "reason": null,
+       "hours": 3.768097813154325,
+       "hours_reason": null,
+       "flyable": true
+      },
+      "worst_at_h_hat": {
+       "moved": {
+        "prop_real_to_ideal": 0.797430419921875,
+        "airfoil_cl_max": 1.2897216796875,
+        "wing_t_c": 0.181541748046875,
+        "laminar_fraction_wing": 0.09743041992187501,
+        "sensor_drag_area_ft2": 0.820556640625,
+        "fuselage_fineness": 5.897216796875,
+        "fuselage_fill": 0.852569580078125,
+        "avionics_uninstalled_lb": 102.0556640625,
+        "gust_ude_fps": 51.02783203125,
+        "main_gear_station_guess": 0.29486083984375,
+        "rotation_angle_deg_pusher": 15.2569580078125,
+        "sponson_length_per_tyre": 2.9691650390625,
+        "sponson_depth_per_tyre": 1.4102783203125,
+        "sponson_weight_per_wetted": 1.820556640625,
+        "engine_sfc_mult": 1.10513916015625,
+        "engine_power_mult": 0.89486083984375
+       },
+       "score": 977.2673029654063,
+       "reason": null,
+       "hours": 3.4999496586480987,
+       "hours_reason": null,
+       "flyable": true
+      }
+     },
+     "cliff": {
+      "h_hat": 1.17822265625,
+      "status": "bracketed",
+      "limit": 1.0,
+      "h_hat_search_evals_at_1": 613,
+      "worst_at_h1": {
+       "moved": {
+        "prop_real_to_ideal": 0.8,
+        "airfoil_cl_max": 1.3,
+        "wing_t_c": 0.12,
+        "laminar_fraction_wing": 0.1,
+        "sensor_drag_area_ft2": 0.8,
+        "fuselage_fineness": 6.0,
+        "fuselage_fill": 0.85,
+        "avionics_uninstalled_lb": 100.0,
+        "gust_ude_fps": 50.0,
+        "main_gear_station_guess": 0.3,
+        "rotation_angle_deg_pusher": 15.0,
+        "sponson_length_per_tyre": 3.0,
+        "sponson_depth_per_tyre": 1.4,
+        "sponson_weight_per_wetted": 1.8,
+        "engine_sfc_mult": 0.9,
+        "engine_power_mult": 0.9
+       },
+       "score": 0.8637385604283918,
+       "reason": null,
+       "transit_ratio": 0.8637385604283918,
+       "flyable": true
+      },
+      "worst_at_h_hat": {
+       "moved": {
+        "prop_real_to_ideal": 0.7910888671875,
+        "airfoil_cl_max": 1.26435546875,
+        "wing_t_c": 0.1146533203125,
+        "laminar_fraction_wing": 0.0910888671875,
+        "sensor_drag_area_ft2": 0.8712890625,
+        "fuselage_fineness": 5.6435546875,
+        "fuselage_fill": 0.8589111328125,
+        "avionics_uninstalled_lb": 107.12890625,
+        "gust_ude_fps": 53.564453125,
+        "main_gear_station_guess": 0.282177734375,
+        "rotation_angle_deg_pusher": 15.89111328125,
+        "sponson_length_per_tyre": 2.89306640625,
+        "sponson_depth_per_tyre": 1.43564453125,
+        "sponson_weight_per_wetted": 1.8712890625,
+        "engine_sfc_mult": 0.882177734375,
+        "engine_power_mult": 0.882177734375
+       },
+       "score": 0.999940350725426,
+       "reason": null,
+       "transit_ratio": 0.999940350725426,
+       "flyable": true
+      }
+     },
+     "R5_guarantee_min": 1.0513916015625,
+     "binding_mode": "endurance"
+    },
+    "step_bias": {
+     "closed": true,
+     "n_cruise_steps": 20,
+     "n_loiter_steps": 32,
+     "W0_as_run_lb": 3160.3054928259653,
+     "W0_x2_lb": 3161.285193748773,
+     "W0_bias_lb": 0.9797009228077513,
+     "fuel_as_run_lb": 977.2721099194301,
+     "fuel_x2_lb": 977.8898613914295,
+     "fuel_bias_lb": 0.6177514719993269,
+     "vc_as_run_kt": 115.0,
+     "vc_x2_kt": 115.0
+    },
+    "study": {
+     "h_hat": {
+      "R5": 0.19757080078125,
+      "TO": 1.505859375,
+      "LD": 1.60565185546875,
+      "R5_reserve_usable": 0.3680419921875,
+      "R5_guarantee": 1.0513916015625,
+      "R7": 1.505859375
+     },
+     "R5_guarantee": 1.0513916015625,
+     "R7": 1.505859375,
+     "runtime_s": 2243.911161661148,
+     "min_of_modes": 1.0513916015625
+    },
+    "runtime_s": 2614.8492023944855
+   }
+  }
+ },
+ "runtime_s": 2614.9771513938904,
+ "command": "python -m measurement.robust_sizing --curve-targets --engine-as-is --targets 1.05 --ws 16 --A 7 --out runs/task12/stage3/2026-11-25/m250_baseline_appl --report docs/validation/2026-11-25_task12_m250_baseline_appl.md"
+}
