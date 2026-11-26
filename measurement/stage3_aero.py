@@ -27,6 +27,7 @@ import argparse
 import json
 import math
 import subprocess
+import sys
 from pathlib import Path
 
 from conceptual import raymer_aero as aero
@@ -273,7 +274,8 @@ def main(argv=None):
     commit = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True,
                             check=False, cwd=REPO).stdout.strip()
     res = measure(d, L)
-    res["inputs"] = {"commit": commit, "design": a.design, "ledger": str(ledger) if ledger.exists() else "default", "seed": None}
+    res["inputs"] = {"commit": commit, "design": a.design, "ledger": str(ledger) if ledger.exists() else "default", "seed": None,
+                     "command": "python -m measurement.stage3_aero " + " ".join(sys.argv[1:] if argv is None else argv)}
     Path(a.out).parent.mkdir(parents=True, exist_ok=True)
     Path(a.out).write_text(json.dumps(res, indent=2, default=float))
     if a.report:

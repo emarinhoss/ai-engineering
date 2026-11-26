@@ -25,6 +25,7 @@ import json
 import math
 import platform
 import subprocess
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -219,7 +220,8 @@ def main(argv=None):
                      "ledger": res.pop("ledger_path"),
                      "ledger_sha256": sha256(Path(a.design).parent / "ledger.yaml"),
                      "git_commit": git_commit(), "python": platform.python_version(),
-                     "numpy": np.__version__, "out": a.out, "report": a.report, "seed": None}
+                     "numpy": np.__version__, "out": a.out, "report": a.report, "seed": None,
+                     "command": "python -m measurement.stage3_rotation " + " ".join(sys.argv[1:] if argv is None else argv)}
     Path(a.out).parent.mkdir(parents=True, exist_ok=True)
     Path(a.out).write_text(json.dumps(res, indent=2, default=float))
     if a.report:

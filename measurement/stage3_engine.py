@@ -23,6 +23,7 @@ import hashlib
 import json
 import platform
 import subprocess
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -48,12 +49,14 @@ def _frozen(L, eng, cbhp=None):
 
 
 def _level_power(d, W, V, h):
-    """Shaft hp for level flight, (D V)/(550 eta_p) with the design polar at altitude h."""
+    """Shaft hp for level flight, (D V)/(550 eta_p) with the design polar at altitude h. eta_p is the
+    ledger's flat number, or for an app_l ledger the actuator disk at the thrust D (review APL-3)."""
     a = isa(h)
     q = 0.5 * a["rho"] * V * V
     S = d["geom"]["S"]
     D = q * S * d["CD0_alt"] + d["K"] * W * W / (q * S)
-    return D * V / (HP * d["ledger_used"]["eta_p"])
+    eta_p = prop.propeller(d["ledger_used"], a["rho"], d.get("D_prop") or d.get("propeller_diameter_ft"))
+    return D * V / (HP * prop.efficiency_for_thrust(eta_p, D, V))
 
 
 def _segment_points(d):
@@ -248,8 +251,10 @@ def _record_points(d, L):
                          ("end", leg["W_end"])):
             q = 0.5 * a["rho"] * V * V
             D = q * S * d["CD0"]["mission_altitude"] + d["K"] * W * W / (q * S)
+            eta_p = prop.propeller(L, a["rho"], d["propeller_diameter_ft"])
             pts.append({"segment": leg["segment"], "where": where, "W_lb": W, "V_kt": leg["V_kt"],
-                        "shaft_hp": D * V / (HP * L["eta_p"]), "stage1_cbhp_leg": leg["cbhp_mean"]})
+                        "shaft_hp": D * V / (HP * prop.efficiency_for_thrust(eta_p, D, V)),
+                        "stage1_cbhp_leg": leg["cbhp_mean"]})
     return pts
 
 
@@ -593,7 +598,8 @@ def main(argv=None):
                          "ledger": res.pop("ledger_path"),
                          "ledger_sha256": sp.sha256(Path(a.design).parent / "ledger.yaml"),
                          "engines_sha256": hashlib.sha256(stage1.ENGINES.read_bytes()).hexdigest(),
-                         "family_grid": m250.GRID, "v_climb_kt": V_CLIMB_KT, "seed": None}
+                         "family_grid": m250.GRID, "v_climb_kt": V_CLIMB_KT, "seed": None,
+                         "command": "python -m measurement.stage3_engine " + " ".join(sys.argv[1:] if argv is None else argv)}
         (out / "engine.json").write_text(json.dumps(res, indent=2, default=float))
         for r in res["rows"]:
             m = r["stage3"]

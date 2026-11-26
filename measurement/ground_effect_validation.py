@@ -15,6 +15,7 @@ import json
 import math
 import platform
 import subprocess
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -84,7 +85,8 @@ def main(argv=None):
     res = compute()
     res["inputs"] = {"commit": subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True,
                                               check=False, cwd=REPO).stdout.strip(),
-                     "python": platform.python_version(), "numpy": np.__version__, "seed": None}
+                     "python": platform.python_version(), "numpy": np.__version__, "seed": None,
+                     "command": "python -m measurement.ground_effect_validation " + " ".join(sys.argv[1:] if argv is None else argv)}
     Path(a.out).parent.mkdir(parents=True, exist_ok=True)
     Path(a.out).write_text(json.dumps(res, indent=2, default=float))
     for r in res["rows"]:

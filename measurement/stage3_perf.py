@@ -25,6 +25,7 @@ import json
 import math
 import platform
 import subprocess
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -132,31 +133,57 @@ RECORD = "record"
 RECOMPUTED = "recomputed with conceptual code from the record's inputs"
 
 
+# ---- the propeller of the record (review APL-3) ---------------------------------------------------
+def is_app_l(L):
+    """True when the record was sized with the App. L actuator disk (ledger propeller_model app_l)."""
+    return L.get("propeller_model", "flat") == "app_l"
+
+
+def record_propeller(L, rho, diameter):
+    """The propeller Stage 1 used for this record at air density rho: the ledger's flat eta_p (a number)
+    for propeller_model flat, an ActuatorDisk (conceptual.raymer_propulsion) for app_l. The same call
+    as uav._propeller, so a Stage 3 row that reads Stage 1's propeller cannot drift from it."""
+    return prop.propeller(L, rho, diameter)
+
+
+def mattingly_shaft_hp(W0, W_S, q, V, power_lapse, K, CD0, eta_p, n=1.0, ps=0.0):
+    """Sea-level-rated shaft hp from Mattingly (2.11), M.shaft_power_loading times W0. eta_p is a number
+    (flat propeller, used as before) or an ActuatorDisk: then eta is that of the disk at the thrust
+    the condition needs, T = t_w W0, as Stage 1's uav._min_power_for takes it."""
+    t_w = M.master_thrust_loading(W_S, q, 1.0, 1.0, K, 0.0, CD0, 0.0, n, ps, V)
+    eta = prop.efficiency_for_thrust(eta_p, t_w * W0, V)
+    return W0 * M.shaft_power_loading(W_S, q, V, 1.0, power_lapse, K, 0.0, CD0, eta, 0.0, n, ps)
+
+
 # ---- installed power by constraint: Mattingly (2.11) --------------------------------------------
 def _min_power_mattingly(W0, S, rho, CD0, K, eta, ps, lapse, n=1.0, clmax=1.35, floor=1.2):
     """Smallest sea-level-rated shaft hp from (2.11) over speed, from `floor` x stall upward on a
-    0.1 ft/s grid (Stage 1 used a 1 ft/s grid from the same floor)."""
+    0.1 ft/s grid (Stage 1 used a 1 ft/s grid from the same floor). eta: a number or an ActuatorDisk."""
     W_S = W0 / S
     v_lo = floor * perf.stall_speed(n * W_S, rho, clmax)
     best = None
     for i in range(4000):
         V = v_lo + 0.1 * i
         q = 0.5 * rho * V ** 2
-        hp = W0 * M.shaft_power_loading(W_S, q, V, 1.0, lapse, K, 0.0, CD0, eta, 0.0, n, ps)
+        hp = mattingly_shaft_hp(W0, W_S, q, V, lapse, K, CD0, eta, n, ps)
         best = hp if best is None or hp < best else best
     return best
 
 
 def power_rows(d, L, b):
-    W0, S, K, eta = d["W0_lb"], b["geom"]["S"], d["K"], L["eta_p"]
+    W0, S, K = d["W0_lb"], b["geom"]["S"], d["K"]
     model, clean = b["engine_model"], b["clmax"]["clean"]
     sl, alt, ceil = isa(0.0), isa(L["mission_altitude_ft"]), isa(L["ceiling_ft"])
+    D = b["D_prop"]
+    eta_sl, eta_alt, eta_ceil = (record_propeller(L, a["rho"], D) for a in (sl, alt, ceil))
     W_S = W0 / S
     src = "Mattingly (2.11) p. 24 with T = 550 eta_p P/V (shaft_power_loading)"
+    if is_app_l(L):
+        src += "; eta_p from the App. L actuator disk at the thrust of each condition, as Stage 1"
     rec = d["power_required_hp"]
     out = []
     # climb at sea level, full lapse 1
-    p = _min_power_mattingly(W0, S, sl["rho"], d["CD0"]["sea_level"], K, eta,
+    p = _min_power_mattingly(W0, S, sl["rho"], d["CD0"]["sea_level"], K, eta_sl,
                              L["climb_rate_sl_fpm"] / 60.0, 1.0, clmax=clean)
     out.append(make_row("power_climb_sl", "installed power, sea-level climb 1,000 ft/min", "hp",
                         rec["climb_sl"], RECORD, p, src, 0.05, "relative",
@@ -167,7 +194,7 @@ def power_rows(d, L, b):
     v_ceil = L["climb_speed_over_stall"] * perf.stall_speed(W_S, ceil["rho"], clean)
     cd0_c = uav._polar(b["geom"], L, v_ceil, ceil, b["bhp"])[0]
     lap_c = model.lapse(L["ceiling_ft"], v_ceil / KT)
-    p = _min_power_mattingly(W0, S, ceil["rho"], cd0_c, K, eta, L["ceiling_rate_fpm"] / 60.0,
+    p = _min_power_mattingly(W0, S, ceil["rho"], cd0_c, K, eta_ceil, L["ceiling_rate_fpm"] / 60.0,
                              lap_c, clmax=clean)
     out.append(make_row("power_ceiling", "installed power, 100 ft/min at the ceiling altitude "
                         f"{L['ceiling_ft']:.0f} ft", "hp", rec["ceiling"], RECORD, p, src,
@@ -204,8 +231,7 @@ def power_rows(d, L, b):
     n_turn = M.turn_load_factor(G * math.tan(phi) / V, V)          # (2.16): n = 1/cos(bank)
     lap = model.lapse(L["mission_altitude_ft"], V / KT)
     q = 0.5 * alt["rho"] * V ** 2
-    p = W0 * M.shaft_power_loading(W_S, q, V, 1.0, lap, K, 0.0, d["CD0"]["mission_altitude"], eta,
-                                   0.0, n_turn, 0.0)
+    p = mattingly_shaft_hp(W0, W_S, q, V, lap, K, d["CD0"]["mission_altitude"], eta_alt, n_turn, 0.0)
     out.append(make_row("power_turn", "installed power, sustained 30 deg turn at loiter speed",
                         "hp", rec["turn_at_loiter"], RECORD, p,
                         src + "; n from (2.16) p. 27", 0.05, "relative",
@@ -215,7 +241,7 @@ def power_rows(d, L, b):
     V = b["V_cruise_start"]
     lap = model.lapse(L["mission_altitude_ft"], V / KT)
     q = 0.5 * alt["rho"] * V ** 2
-    p = W0 * M.shaft_power_loading(W_S, q, V, 1.0, lap, K, 0.0, d["CD0"]["mission_altitude"], eta)
+    p = mattingly_shaft_hp(W0, W_S, q, V, lap, K, d["CD0"]["mission_altitude"], eta_alt)
     out.append(make_row("power_cruise", "installed power, level cruise at mission altitude",
                         "hp", rec["cruise_at_altitude"], RECORD, p, src, 0.05, "relative",
                         "Cruise speed (Stage 1's best-range speed at W0) recomputed with "
@@ -232,9 +258,11 @@ def mission_fuel_mattingly(d, L, b):
     climb (3.17)/(3.20) p. 61-62, cruise (3.23) p. 63, loiter (3.36)-(3.37) p. 66-67, TSFC from
     C_bhp by C = C_bhp V/(550 eta_p). Take-off, landing, and the 1.06 reserve factor are taken as
     Stage 1 had them (Mattingly's module has no tested relation for them)."""
-    W0, S, K, eta = d["W0_lb"], b["geom"]["S"], b["K"], L["eta_p"]
+    W0, S, K = d["W0_lb"], b["geom"]["S"], b["K"]
     geom, bhp, model, clmax = b["geom"], b["bhp"], b["engine_model"], b["clmax"]
     sl, alt = isa(0.0), isa(L["mission_altitude_ft"])
+    D_prop = b["D_prop"]
+    eta_sl, eta_alt = record_propeller(L, sl["rho"], D_prop), record_propeller(L, alt["rho"], D_prop)
     h_alt = L["mission_altitude_ft"]
     stage1 = {r["segment"]: r for r in d["mission"]}
     legs = []
@@ -248,16 +276,20 @@ def mission_fuel_mattingly(d, L, b):
     # climb: the inputs (best-climb speed, cruise speed, D/T, SFC) as uav._mission forms them
     CD0_sl = uav._polar(geom, L, 200.0, sl, bhp)[0]
     v_lo = L["climb_speed_over_stall"] * perf.stall_speed(W / S, sl["rho"], clmax["clean"])
-    V_cl = perf.best_rate_of_climb(W, S, sl["rho"], CD0_sl, K, bhp, eta, v_lo, v_lo + 350.0)[1]
+    V_cl = perf.best_rate_of_climb(W, S, sl["rho"], CD0_sl, K, bhp, eta_sl, v_lo, v_lo + 350.0)[1]
     CD0_alt = uav._polar(geom, L, CD0_REFERENCE_SPEED, alt, bhp)[0]
     V_cr = uav._cruise_speed(W, S, alt["rho"], CD0_alt, K, clmax["clean"], L, "range")[0]
     lapse = model.lapse(h_alt, V_cl / KT)
-    d_t = 0.5 * (perf.drag(W, S, sl["rho"], V_cl, CD0_sl, K) / prop.thrust_from_power(bhp, eta, V_cl)
+    d_t = 0.5 * (perf.drag(W, S, sl["rho"], V_cl, CD0_sl, K) / prop.thrust_from_power(bhp, eta_sl, V_cl)
                  + perf.drag(W, S, alt["rho"], V_cl, CD0_alt, K)
-                 / prop.thrust_from_power(bhp * lapse, eta, V_cl))
+                 / prop.thrust_from_power(bhp * lapse, eta_alt, V_cl))
     dhe = sizing.energy_height_change(0.0, V_cl, h_alt, V_cr)
     c_cl = model.bsfc(0.5 * h_alt, V_cl / KT, bhp * model.lapse(0.5 * h_alt, V_cl / KT))
-    f = M.climb_fraction(M.equivalent_tsfc(c_cl, V_cl, eta), V_cl, dhe, min(d_t, 0.95))
+    # efficiency of the climb's equivalent TSFC at the mid-altitude of the climb, as uav._mission takes it
+    mid = isa(0.5 * h_alt)
+    eta_cl = prop.efficiency_at_power(record_propeller(L, mid["rho"], D_prop),
+                                      bhp * model.lapse(0.5 * h_alt, V_cl / KT), V_cl)
+    f = M.climb_fraction(M.equivalent_tsfc(c_cl, V_cl, eta_cl), V_cl, dhe, min(d_t, 0.95))
     legs.append({"segment": "climb", "fraction_stage3": f, "fraction_stage1": frac_of("climb"),
                  "basis": "Mattingly (3.17)/(3.20); best-climb speed, D/T, SFC as Stage 1 formed them"})
     W *= f
@@ -272,6 +304,7 @@ def mission_fuel_mattingly(d, L, b):
             q = 0.5 * alt["rho"] * V ** 2
             CL = W / (q * S)
             CD_over_CL = (CD0 + K * CL ** 2) / CL
+            eta = prop.efficiency_for_thrust(eta_alt, W * CD_over_CL, V)      # thrust = drag = W CD/CL
             tsfc = M.equivalent_tsfc(cbhp, V, eta)
             if distance_ft:
                 vw = L.get("headwind_kt", 0.0) * KT
@@ -301,8 +334,18 @@ def anderson_w0(d, L, b, empty_fraction=A.EMPTY_FRACTION_HISTORICAL):
     loiter (5.169), landing 0.995, and the book's own best-range and best-endurance speeds. Inputs
     taken from the record or the ledger copy: polar CD0 (mission altitude) and K, SFC each leg used,
     eta_p, radius, headwind, loiter time, W/S. Returns a dict, or one with a reason. The empty
-    fraction defaults to Anderson's 0.62; the diagnostic run passes Stage 1's."""
-    eta, CD0, K, WS = L["eta_p"], d["CD0"]["mission_altitude"], d["K"], d["W_S"]
+    fraction defaults to Anderson's 0.62; the diagnostic run passes Stage 1's.
+
+    Propeller: his (5.153) and (5.169) take one constant eta_pr. For a flat record that is the ledger's
+    eta_p. For an app_l record it is the actuator disk's efficiency at the thrust at the start of the
+    leg for the record's own take-off weight (cruise: W/(L/D) at his best-range speed, one value for
+    both cruise legs; loiter: thrust at his best-endurance speed with the weight after the first
+    cruise), then held constant while W0 iterates. Letting the disk's efficiency follow the iterated
+    W0 would load the record's fixed propeller with a different aircraft, which is not the question the
+    row asks.
+    """
+    eta_p, CD0, K, WS = record_propeller(L, isa(L["mission_altitude_ft"])["rho"], b["D_prop"]), \
+        d["CD0"]["mission_altitude"], d["K"], d["W_S"]
     rho = isa(L["mission_altitude_ft"])["rho"]
     vw = L["headwind_kt"] * KT
     V = A.speed_ld_max(WS, rho, CD0, K)
@@ -310,15 +353,20 @@ def anderson_w0(d, L, b, empty_fraction=A.EMPTY_FRACTION_HISTORICAL):
         return {"reason": "the (L/D)max speed is below the headwind"}
     LD, k32 = A.ld_max(CD0, K), A.cl32_cd_max(CD0, K)
     c_cr, c_lo = A.cbhp_to_c(d["cbhp_used"]["cruise"]), A.cbhp_to_c(d["cbhp_used"]["loiter"])
-    f_cr = A.breguet_cruise_fraction(L["radius_nm"] * NM * V / (V - vw), c_cr, eta, LD)
+    V_lo = A.speed_cl32_cd_max(WS, rho, CD0, K)
+    LD_lo = math.sqrt(3.0 * CD0 / K) / (4.0 * CD0)               # CL/CD at (CL^1.5/CD)max: CL = sqrt(3 CD0/K), CD = 4 CD0
     E = L["loiter_h"] * 3600.0
+    W_c = d["W0_lb"] * 0.97 * 0.985                              # the record's weight at the start of the cruise
+    eta = prop.efficiency_for_thrust(eta_p, W_c / LD, V)
+    f_cr = A.breguet_cruise_fraction(L["radius_nm"] * NM * V / (V - vw), c_cr, eta, LD)
+    eta_lo = prop.efficiency_for_thrust(eta_p, W_c * f_cr / LD_lo, V_lo)
     W0 = 3000.0
     for _ in range(500):
         S = W0 / WS
         Wa = W0 * 0.97 * 0.985 * f_cr
         # (5.169) solved for W1
-        W1 = (Wa ** -0.5 + E * c_lo / (eta * math.sqrt(2.0 * rho * S) * k32)) ** -2
-        assert abs(A.endurance_s(eta, c_lo, rho, S, k32, Wa, W1) - E) < 1e-3
+        W1 = (Wa ** -0.5 + E * c_lo / (eta_lo * math.sqrt(2.0 * rho * S) * k32)) ** -2
+        assert abs(A.endurance_s(eta_lo, c_lo, rho, S, k32, Wa, W1) - E) < 1e-3
         f_lo = W1 / Wa
         ff = A.fuel_fraction([0.97, 0.985, f_cr, f_lo, f_cr, 0.995])
         if 1.0 - ff - empty_fraction <= 0.0:
@@ -334,7 +382,7 @@ def anderson_w0(d, L, b, empty_fraction=A.EMPTY_FRACTION_HISTORICAL):
              d["fuselage"]["s_wet"])
     rows = A.iterate_buildup(d["payload_lb"], ff, areas, d["engine"]["weight_lb"], W_new)
     return {"W0": W_new, "fuel_fraction": ff, "f_cruise": f_cr, "f_loiter": f_lo, "LD_max": LD,
-            "V_best_range_kt": V / KT, "buildup_W0": rows[-1][2], "buildup_We": rows[-1][0],
+            "V_best_range_kt": V / KT, "eta_cruise": eta, "eta_loiter": eta_lo, "buildup_W0": rows[-1][2], "buildup_We": rows[-1][0],
             "buildup_passes": len(rows), "buildup_areas_ft2": list(areas)}
 
 
@@ -367,7 +415,7 @@ def ceiling_anderson(d, L, b):
     """Highest altitude where Anderson's best climb rate (5.121) p. 277 is 100 ft/min, by bisection.
     Power: the engine table's full-throttle shaft hp at the climb speed; CD0 recomputed at each
     altitude and climb speed as Stage 1 did; no 1.2 V_stall floor (the closed form has none)."""
-    W0, K, eta = d["W0_lb"], d["K"], L["eta_p"]
+    W0, K = d["W0_lb"], d["K"]
     model, W_S = b["engine_model"], d["W_S"]
 
     def roc(h):
@@ -376,6 +424,8 @@ def ceiling_anderson(d, L, b):
         for _ in range(4):
             cd0 = uav._polar(b["geom"], L, V, a, b["bhp"])[0]
             hp = model.power_available(h, V / KT)
+            # one constant eta in (5.121): the flat number, or the disk at full power at the speed of this pass
+            eta = prop.efficiency_at_power(record_propeller(L, a["rho"], b["D_prop"]), hp, V)
             r = A.max_rate_of_climb_prop(eta * hp * 550.0 / W0, W_S, a["rho"], cd0, K)
             V = A.speed_cl32_cd_max(W_S, a["rho"], cd0, K)
         return r
@@ -405,14 +455,24 @@ def speed_rows(d, L, b):
                     "kt", perf.speed_min_power(WS, alt["rho"], cd0, K)[0] / KT, RECOMPUTED,
                     A.speed_cl32_cd_max(WS, alt["rho"], cd0, K) / KT, "Anderson (5.41) p. 221",
                     0.03, "relative", note, klass=CODING)]
-    P_over_W = L["eta_p"] * d["bhp_sl"] * 550.0 / d["W0_lb"]
-    rc = A.max_rate_of_climb_prop(P_over_W, WS, sl["rho"], d["CD0"]["sea_level"], K) * 60.0
     v_cl = A.speed_cl32_cd_max(WS, sl["rho"], d["CD0"]["sea_level"], K) / KT
+    # (5.121) takes one constant eta. Flat: the ledger number. App. L: the disk at full power at the speed where
+    # Stage 1's own search put the best climb (record performance.v_best_climb_kt), i.e. Stage 1's efficiency at
+    # its climb point. The closed form's best speed lies elsewhere, where the disk is less efficient, and a
+    # constant eta cannot follow that; the note gives that value.
+    disk_sl = record_propeller(L, sl["rho"], b["D_prop"])
+    eta_cl = prop.efficiency_at_power(disk_sl, d["bhp_sl"], d["performance"]["v_best_climb_kt"] * KT)
+    eta_cl_at_closed_form_speed = prop.efficiency_at_power(disk_sl, d["bhp_sl"], v_cl * KT)
+    P_over_W = eta_cl * d["bhp_sl"] * 550.0 / d["W0_lb"]
+    rc = A.max_rate_of_climb_prop(P_over_W, WS, sl["rho"], d["CD0"]["sea_level"], K) * 60.0
     out.append(make_row("roc_sl", "sea-level rate of climb at W0", "ft/min",
                         d["performance"]["roc_sl_fpm"], RECORD, rc,
                         "Anderson (5.121) p. 277 (5.122 misprinted, per the notes)", 0.03,
                         "relative",
-                        f"Rated {d['bhp_sl']:g} hp at sea level, eta_p 0.8, CD0 at sea level from the record, "
+                        f"Rated {d['bhp_sl']:g} hp at sea level, eta_p {eta_cl:.4g}" + (f" (App. L disk at full power at Stage 1's best-climb speed {d['performance']['v_best_climb_kt']:.1f} kt; "
+                                                     f"at the closed form's own best-climb speed {v_cl:.1f} kt it would be {eta_cl_at_closed_form_speed:.4g}, "
+                                                     "which a constant eta cannot follow)" if is_app_l(L) else "")
+                        + ", CD0 at sea level from the record, "
                         "as Stage 1. Same inputs, closed form against a numerical search: a coding check.",
                         klass=CODING))
     out.append(make_row("v_best_climb", "best-climb speed, sea level", "kt",
@@ -520,30 +580,45 @@ def _prop_eta_fixed_point(shp, V, rho, diameter, real_to_ideal=REAL_TO_IDEAL):
 
 
 def prop_rows(d, L):
-    """Propeller efficiency at climb, cruise and loiter (tolerance +-0.05 absolute against Raymer's
-    eta_p, Table 3.4) by the actuator disk with the real-to-ideal factor (App. L). The shaft power,
-    speed and diameter are the record's; density is sea level for climb and the mission altitude
-    for cruise and loiter. The blade-element estimate of the spec row is not computed."""
+    """Propeller efficiency at climb, cruise and loiter (tolerance +-0.05 absolute) by the actuator disk
+    with the real-to-ideal factor (App. L). The shaft power, speed and diameter are the record's; density
+    is sea level for climb and the mission altitude for cruise and loiter. The blade-element estimate of
+    the spec row is not computed. Stage 1's value is Raymer's flat eta_p (Table 3.4) for a flat record
+    (the row is then independent); for an app_l record it is Stage 1's own App. L efficiency from the
+    record's propeller_points, and the row is a coding check (same relation, same factor; review APL-3)."""
     out = []
     pts = d["propeller_points"]
     sl, alt = isa(0.0), isa(L["mission_altitude_ft"])
+    app_l = is_app_l(L)
+    factor = L["prop_real_to_ideal"] if app_l else REAL_TO_IDEAL
     for rid, name, key, a in (("prop_eta_climb", "climb (sea level, full power)", "climb_sea_level", sl),
                               ("prop_eta_cruise", "cruise (outbound leg)", "cruise_out", alt),
                               ("prop_eta_loiter", "loiter", "loiter", alt)):
         p = pts[key]
-        eta, T = _prop_eta_fixed_point(p["shaft_hp"], p["V_kt"] * KT, a["rho"], d["propeller_diameter_ft"])
+        eta, T = _prop_eta_fixed_point(p["shaft_hp"], p["V_kt"] * KT, a["rho"], d["propeller_diameter_ft"], factor)
         area = math.pi * d["propeller_diameter_ft"] ** 2 / 4.0
-        out.append(make_row(rid, f"propeller efficiency, {name}", "-", L["eta_p"], "ledger eta_p (Raymer Table 3.4)",
+        if app_l:
+            s1, s1_src = p["eta_p"], "Stage 1's App. L value (record propeller_points)"
+            klass = CODING
+            why = ("Coding check, not independent: Stage 1 is on the same App. L actuator disk with the same factor "
+                   f"({factor}, ledger prop_real_to_ideal), so this row re-codes (L.7)-(L.9) in measurement/mattingly.py "
+                   "against conceptual/raymer_propulsion.py and agreement cannot confirm the physics. With the "
+                   "blade-element check waived (owner ruling G-5) no independent propeller check is left. ")
+        else:
+            s1, s1_src, klass, why = L["eta_p"], "ledger eta_p (Raymer Table 3.4)", INDEPENDENT, ""
+        out.append(make_row(rid, f"propeller efficiency, {name}", "-", s1, s1_src,
                             eta, "Mattingly App. L (L.7)-(L.9) p. 612 actuator disk, real-to-ideal "
-                            f"{REAL_TO_IDEAL}", 0.05, "absolute",
-                            f"Shaft {p['shaft_hp']:.1f} hp at {p['V_kt']:.1f} kt, diameter "
+                            f"{factor}", 0.05, "absolute",
+                            why + f"Shaft {p['shaft_hp']:.1f} hp at {p['V_kt']:.1f} kt, diameter "
                             f"{d['propeller_diameter_ft']:.2f} ft, thrust {T:,.0f} lb. The 0.85 factor is the book's "
                             "typical value, applied to every point; no blade-element or propeller-map estimate "
-                            "was made (owner ruling G-5: waived before Gate B, listed as open). The cruise "
-                            "and loiter shaft powers are Stage 1's power required divided by eta_p, so the "
-                            "thrust used here is not exactly the drag.", klass=INDEPENDENT))
+                            "was made (owner ruling G-5: waived before Gate B, listed as open). "
+                            + ("The shaft powers are Stage 1's, found from the same disk, so the thrust used here is the "
+                               "drag." if app_l else
+                               "The cruise and loiter shaft powers are Stage 1's power required divided by eta_p, so the "
+                               "thrust used here is not exactly the drag."), klass=klass))
         out[-1]["detail"] = {"shaft_hp": p["shaft_hp"], "V_kt": p["V_kt"], "thrust_lb": T, "disk_area_ft2": area,
-                             "disk_loading_psf": T / area, "ideal_efficiency": eta / REAL_TO_IDEAL}
+                             "disk_loading_psf": T / area, "ideal_efficiency": eta / factor}
     return out
 
 
@@ -648,9 +723,27 @@ def compute(design_path):
     to_detail = takeoff_power_detail(d, L, b, hp_m)
     return {"rows": rows, "mission_legs": legs, "anderson_w0": aw, "cd0_detail": cd0,
             "takeoff_power_detail": to_detail,
-            "record_facts": {"engine": d.get("engine", {}).get("fixed"), "unchoked_fuel_share": d.get("unchoked_fuel_share"),
+            "record_facts": {"propeller_model": L.get("propeller_model", "flat"),
+                             "engine": d.get("engine", {}).get("fixed"), "unchoked_fuel_share": d.get("unchoked_fuel_share"),
                              "W0_lb": d["W0_lb"], "fuel_fraction": d["fuel_lb"] / d["W0_lb"], "empty_fractions": d.get("empty_fraction_comparison")},
             "rebuild_check": check, "ledger_path": str(ledger_path)}
+
+
+def compare_with(new, old_path):
+    """Each row of `new` beside the same row id of an earlier perf.json (Stage 1 and Stage 3 values,
+    verdict, class), read from the two records and nothing else."""
+    old = json.loads(Path(old_path).read_text())
+    olds = {r["id"]: r for r in old["rows"]}
+    rows = []
+    for r in new["rows"]:
+        o = olds.get(r["id"])
+        rows.append({"id": r["id"], "quantity": r["quantity"], "unit": r["unit"],
+                     "old": None if o is None else {k: o.get(k) for k in ("stage1", "stage3", "deviation", "verdict", "class")},
+                     "new": {k: r.get(k) for k in ("stage1", "stage3", "deviation", "verdict", "class")}})
+    return {"old_perf": str(old_path), "old_perf_sha256": sha256(old_path),
+            "old_design": old["inputs"]["design"], "old_git_commit": old["inputs"]["git_commit"],
+            "new_design": new["inputs"]["design"], "rows": rows,
+            "rows_only_in_old": [i for i in olds if i not in {r["id"] for r in new["rows"]}]}
 
 
 def _table_inputs(design):
@@ -673,6 +766,8 @@ def main(argv=None):
     ap.add_argument("--design", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--report")
+    ap.add_argument("--compare", nargs="+", help="perf.json of earlier runs: adds one row-by-row comparison table "
+                    "for each (for example the old record measured with this code, and the file recorded then)")
     a = ap.parse_args(argv)
     res = compute(a.design)
     res["inputs"] = {
@@ -680,7 +775,10 @@ def main(argv=None):
         "ledger": res.pop("ledger_path"), "ledger_sha256": sha256(Path(a.design).parent / "ledger.yaml"),
         **_table_inputs(a.design),
         "git_commit": git_commit(), "python": platform.python_version(), "numpy": np.__version__,
-        "seed": None, "rebuild_tolerance": REBUILD_TOLERANCE}
+        "seed": None, "rebuild_tolerance": REBUILD_TOLERANCE,
+        "command": "python -m measurement.stage3_perf " + " ".join(sys.argv[1:] if argv is None else argv)}
+    if a.compare:
+        res["comparisons"] = [compare_with(res, p) for p in a.compare]
     res["summary"] = {v: sum(r["verdict"] == v for r in res["rows"])
                       for v in ("within", "outside", "not judged", "not computed")}
     Path(a.out).parent.mkdir(parents=True, exist_ok=True)
@@ -786,6 +884,8 @@ def _diag_best_climb(res, r):
 
 def _diag_prop_climb(res, r):
     dt = r.get("detail")
+    if res.get("record_facts", {}).get("propeller_model") == "app_l":
+        return None                 # the text below argues from a flat Stage 1 efficiency
     p1 = next((x for x in res["rows"] if x["id"] == "power_climb_sl"), None)
     if not dt:
         return None
@@ -816,7 +916,10 @@ def generated_sections(res):
         if r["verdict"] == "not computed":
             L.append(f"- **{r['quantity']}**: {r['note']}")
     L += ["- **Section polars and C_L,max (SU2)**: not run (owner ruling G-5: waived before Gate B, listed open in the Gate B report).",
-          "- **Propeller efficiency by blade element**: no code (G-5: waived, open).",
+          "- **Propeller efficiency by blade element**: no code (G-5: waived, open)."
+          + (" Stage 1 is on the App. L actuator disk (owner ruling G-4) and the propeller rows here use the same relation "
+             "and factor, so with the blade-element check waived there is no independent propeller check left." if
+             (res.get("record_facts") or {}).get("propeller_model") == "app_l" else ""),
           "- **Static margin by Anderson (8.76)-(8.78)**: computed in the aero report (`measurement/stage3_aero.py`).",
           "- **Engine rows**: in the engine report."]
     L += ["", "## Rows outside tolerance, not tuned", ""]
@@ -879,6 +982,22 @@ def report_text(res):
                             if "numerically_within" in r else "")
         lines.append(f"| {r['quantity']} ({r['unit']}) | {r.get('class') or '-'} | {fmt(r['stage1'])} | {fmt(r['stage3'])} | "
                      f"{r['source']} | {deviation_text(r)} | {tolerance_text(r)} | {v} |")
+    for cmp_ in res.get("comparisons", []):
+        lines += ["", "## Against an earlier record", "",
+                  (f"Old: `{cmp_['old_design']}` (perf record `{cmp_['old_perf']}`, sha256 `{cmp_['old_perf_sha256']}`, "
+                   f"commit `{cmp_['old_git_commit']}`). New: `{cmp_['new_design']}`. Every cell is read from the two "
+                   "perf records; verdict is within or outside the tolerance of that row. Class changes are marked; a class "-" means that record carries none."), "",
+                  "| Row | Old Stage 1 | Old Stage 3 | Old verdict | Old class | New Stage 1 | New Stage 3 | New verdict | New class |",
+                  "|---|---|---|---|---|---|---|---|---|"]
+        for c in cmp_["rows"]:
+            o, n = c["old"] or {}, c["new"]
+            chg = " **(changed)**" if o.get("class") and o.get("class") != n.get("class") else ""
+            lines.append(f"| {c['quantity']} ({c['unit']}) | {fmt(o.get('stage1'))} | {fmt(o.get('stage3'))} | "
+                         f"{o.get('verdict', 'not in old')} | {o.get('class') or '-'} | {fmt(n.get('stage1'))} | "
+                         f"{fmt(n.get('stage3'))} | {n['verdict']} | {(n.get('class') or '-')}{chg} |")
+        if cmp_["rows_only_in_old"]:
+            lines.append("")
+            lines.append("Rows only in the old record: " + ", ".join(cmp_["rows_only_in_old"]) + ".")
     lines += ["", "## Notes per row", ""]
     for r in res["rows"]:
         lines.append(f"- **{r['quantity']}** (Stage 1 value: {r['stage1_source']}). {r['note']}")
