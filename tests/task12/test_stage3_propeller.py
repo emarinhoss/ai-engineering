@@ -158,3 +158,14 @@ def test_anderson_w0_new_record_uses_the_disk(new_perf):
     aw = new_perf["anderson_w0"]
     assert 0.78 < aw["eta_cruise"] < 0.83 and aw["eta_cruise"] != 0.8
     assert aw["eta_loiter"] < aw["eta_cruise"]                 # heavier thrust loading at the best-endurance speed
+
+
+def test_report_with_comparison_tables_renders(new_perf):
+    res = dict(new_perf, inputs={"design": "new", "design_sha256": "x", "git_commit": "c", "python": "p", "numpy": "n"},
+               summary={v: sum(r["verdict"] == v for r in new_perf["rows"])
+                        for v in ("within", "outside", "not judged", "not computed")})
+    res["comparisons"] = [sp.compare_with(res, OLD_PERF)]
+    text = sp.report_text(res)
+    assert "## Against an earlier record" in text and "carries none" in text
+    ids = [c["id"] for c in res["comparisons"][0]["rows"]]
+    assert "prop_eta_climb" in ids

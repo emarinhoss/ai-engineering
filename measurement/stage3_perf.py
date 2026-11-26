@@ -986,7 +986,7 @@ def report_text(res):
         lines += ["", "## Against an earlier record", "",
                   (f"Old: `{cmp_['old_design']}` (perf record `{cmp_['old_perf']}`, sha256 `{cmp_['old_perf_sha256']}`, "
                    f"commit `{cmp_['old_git_commit']}`). New: `{cmp_['new_design']}`. Every cell is read from the two "
-                   "perf records; verdict is within or outside the tolerance of that row. Class changes are marked; a class "-" means that record carries none."), "",
+                   "perf records; verdict is within or outside the tolerance of that row. Class changes are marked; a class '-' means that record carries none."), "",
                   "| Row | Old Stage 1 | Old Stage 3 | Old verdict | Old class | New Stage 1 | New Stage 3 | New verdict | New class |",
                   "|---|---|---|---|---|---|---|---|---|"]
         for c in cmp_["rows"]:
