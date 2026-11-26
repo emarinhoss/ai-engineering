@@ -425,3 +425,27 @@ Stage 1 (S3M-8) and that an independent neutral point is needed.
 - **G-9 (take-off factor; APL-5).** A recorded sweep of take-off distance over the propeller
   real-to-ideal factor f is run on the App. L baseline and quoted next to R7 in Gate B, with f at static
   and take-off conditions stated as a judgement beyond App. L.
+
+### Owner rulings at Gate B (Éder, 2026-11-26; review docs/reviews/2026-11-26_task12_gateB_performance_review.md)
+
+- **B-1 (7.4 part 1).** The declared evidence classes (independent, partly independent, coding check,
+  ruling or waiver, assumption, layout construction) stand in for "independent measurement" for every
+  requirement.
+- **B-2 (composite band, GB-1).** Record an info-gap run on the frozen design with the composite band
+  acting on the Table 15.4 component factors, plus an empty-weight band; decide on a re-size from the result.
+- **B-3 (R9).** The negative limit is -1.8 with the 0.1 g margin (Gate A round 1 and round 4 rulings);
+  spec section 3 is updated.
+- **B-4 (R18, V_C).** The per-design V_C rule of 2026-11-23 (10 % above the fastest cruise sub-step,
+  rounded up to 5 kt, at least 110 kt EAS; 115 kt for the frozen design) is confirmed and written into
+  spec R18. Envelope protection (level top speed above V_D at sea level) is a preliminary-design
+  requirement. One recorded V-n check at V_D and at level top speed is run.
+- **B-5 (outside rows).** Take-off power (-10.9 %), CD0 (-18.6 %) and Fig. K.3 (about -5.7 %) are explained
+  and carried. Spec 7.1a's take-off power row is replaced by the take-off distance row at installed
+  power. The +-10 % SFC band covers K.3 as well as the engine model.
+- **B-6 (R13 and the G-5 waivers).** R13 is accepted by layout construction with the G-8 VSPAERO run as
+  support. SU2 polars and C_L,max, the gust second source, the blade-element propeller and a
+  fuselage-inclusive neutral point are named entry items for preliminary design.
+- **B-7 (Stage 1 package).** The Stage 1 compliance table is generated for the frozen design and Gate A
+  items A1 to A12 are re-checked before the pass.
+- **B-8 (8 h nominal).** The nominal's small robustness (horizon 0.198) is acknowledged as what the
+  restated R5 of 2026-11-22 allows; no new target.
