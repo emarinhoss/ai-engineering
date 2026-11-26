@@ -24,7 +24,12 @@ class ActuatorDisk:
     2026-11-25). The ideal efficiency eta* follows from the thrust loading C_T* = T/(rho V^2 A/2) and
     C_T* = 4 (1 - eta*)/eta*^2 (L.8); a real propeller reaches the factor `real_to_ideal` (about 0.85,
     p. 612) of it: eta = f eta*. Thrust and efficiency depend on each other (T = 550 eta P/V), so
-    from a shaft power the pair is found by iteration. rho in slug/ft^3, D in ft."""
+    from a shaft power the pair is found by iteration. rho in slug/ft^3, D in ft.
+
+    At low speed this gives a static thrust of f^(2/3) of the momentum limit `static_thrust_limit` (eta = f eta*
+    puts f x 550 P = T^(3/2)/sqrt(2 rho A)), so for f <= 1 the thrust is below that limit at every speed and a cap
+    at the limit is only a guard. Taking the same f down to zero speed, where it acts as a static figure of merit,
+    is a judgement beyond App. L, which speaks of efficiency in flight."""
 
     def __init__(self, rho, D, real_to_ideal):
         self.rho, self.D, self.f = rho, D, real_to_ideal
@@ -62,7 +67,9 @@ def propeller(L, rho, D):
 
 def static_thrust_limit(bhp, rho, D):
     """Momentum limit of static thrust: P = T^(3/2)/sqrt(2 rho A) (from (L.8) with V -> 0), so
-    T = (2 rho A)^(1/3) (550 bhp)^(2/3). No propeller of this disk area and power can exceed it."""
+    T = (2 rho A)^(1/3) (550 bhp)^(2/3). No propeller of this disk area and power can exceed it. The App. L
+    disk with factor f <= 1 stays below it (static thrust f^(2/3) of it), so as a cap it is a guard, not a limit
+    that binds."""
     area = math.pi * D ** 2 / 4.0
     return (2.0 * rho * area) ** (1.0 / 3.0) * (HP * bhp) ** (2.0 / 3.0)
 

@@ -285,7 +285,9 @@ def _vmax_consistent(W, S, geom, L, atm, h_ft, K, bhp, model, v_lo):
 def _thrust_fn(bhp, L, D_prop):
     """Take-off thrust T(V) at sea level: the smaller of the static thrust from C_T/C_P (13.16) and
     550 bhp eta_p/V. With the App. L propeller (owner ruling G-4) eta_p follows from the thrust and
-    the thrust is also capped at the momentum limit of the disk (prop.static_thrust_limit)."""
+    the thrust is also capped at the momentum limit of the disk (prop.static_thrust_limit). That cap is a guard
+    that does not bind for f <= 1: the disk's static thrust is f^(2/3) of the limit. The factor f taken to static
+    conditions is a judgement beyond App. L, which speaks of efficiency in flight."""
     n_rps = L["propeller_rpm"] / 60.0
     eta_p = _propeller(L, isa(0.0), D_prop)
     cap = (prop.static_thrust_limit(bhp, RHO0, D_prop) if isinstance(eta_p, prop.ActuatorDisk)
