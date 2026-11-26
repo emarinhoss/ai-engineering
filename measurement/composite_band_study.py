@@ -186,6 +186,12 @@ def _moved(m):
     return ", ".join(f"`{k}` {v:.4g}" for k, v in m.items())
 
 
+def _changes(old, new):
+    """Which variables a worst point moves differently from another one."""
+    diff = [f"`{k}` {old.get(k, 'nominal')} -> {new.get(k, 'nominal')}" for k in dict(old, **new) if old.get(k) != new.get(k)]
+    return "; ".join(diff) if diff else "the same variables at the same ends"
+
+
 def _holds(x, limit):
     return "holds" if x >= limit else "does NOT hold"
 
@@ -273,6 +279,8 @@ def report_text(res, folder):
         g, f, w = s["guarantee_worst_at_h_hat"], s["guarantee_first_failing"], s["worst_at_h1"]
         out += [f"**{LABEL[c]}**", "",
                 f"- R5 at h = 1: {w['R5_hours']:.3f} h; moved: {_moved(w['R5_moved'])}.",
+                *([f"  - Against the bands-off worst point at h = 1: {_changes(cases['bands_off']['worst_at_h1']['R5_moved'], w['R5_moved'])}."]
+                  if c != "bands_off" and "bands_off" in cases else []),
                 f"- R5 guarantee at its horizon h = {g['h']:.4f}: {g['hours']:.3f} h; moved: {_moved(g['moved'])}."]
         if f:
             out.append(f"- First failing h = {f['h']:.4f}: {f['hours']:.3f} h"
@@ -283,10 +291,11 @@ def report_text(res, folder):
                 f"{m['cliff']['transit_ratio']:.4f} (above 1 cannot fly); moved: {_moved(m['cliff']['moved'])}.",
                 f"- Take-off at its horizon h = {t['h']:.4f}: {t['takeoff_ft']:.0f} ft; moved: {_moved(t['moved'])}.",
                 f"- Random sampling points beating the search (per check): {s['sampling_beats_search']}.", ""]
+    plain = []
     if RULING_CASE in cases:
         s = cases[RULING_CASE]
         hg, h1 = s["h_hat"]["R5_guarantee"], s["worst_at_h1"]["R5_hours"]
-        out += ["## Plain statement for the owner", "",
+        plain += ["## Plain statement for the owner", "",
                 f"With both bands acting as the ledger now defines them ({LABEL[RULING_CASE]}):", "",
                 f"- **h_T = 1.05 (ruling R-d) {_holds(hg, 1.05)}.** The R5 guarantee horizon is {hg:.4f}.",
                 f"- **h = 1 (Gate B, spec 7.4) {_holds(hg, 1.0)} for R5.** The worst member of the ledger bands gives "
@@ -294,18 +303,22 @@ def report_text(res, folder):
                 f"- **R7 {_holds(s['h_hat']['R7'], 1.0)} at h = 1.** Horizon {s['h_hat']['R7']:.4f}; worst take-off at h = 1 "
                 f"{s['worst_at_h1']['takeoff_ft']:.0f} ft and landing {s['worst_at_h1']['landing_ft']:.0f} ft against 2,500 ft.",
                 f"- Nominal hours on station are unchanged ({s['nominal']['R5_hours']:.3f} h): both new variables are at "
-                "their nominal values in the frozen design.", ""]
-        out += ["By case, the R5 guarantee:", ""]
-        out += [f"- {LABEL[c]}: horizon {cases[c]['h_hat']['R5_guarantee']:.4f}; h_T 1.05 "
+                "their nominal values in the frozen design.",
+                f"- The transit-cliff mode alone has horizon {s['modes']['cliff']:.4f}; the endurance mode binds.", ""]
+        plain += ["By case, the R5 guarantee:", ""]
+        plain += [f"- {LABEL[c]}: horizon {cases[c]['h_hat']['R5_guarantee']:.4f}; h_T 1.05 "
                 f"{_holds(cases[c]['h_hat']['R5_guarantee'], 1.05)}, h = 1 {_holds(cases[c]['h_hat']['R5_guarantee'], 1.0)}."
                 for c in done]
-        out += [""]
+        plain += ["", "Whether to re-size is the owner's decision (ruling B-2); nothing here re-sizes.", ""]
+    out[out.index("## What was run"):out.index("## What was run")] = plain
     out += ["## Limits", "",
             "- Both mappings and the +-5 % empty-weight band are judgements, stated in the ledger; the library gives no range "
             "for Table 15.4 and no accuracy for the (15.46)-(15.57) equations. The comparison cases show how far the "
             "answer depends on them.",
             "- The empty-weight multiplier acts on the summed weight only: the component list and the centre of gravity are "
             "not changed, and R13 was not re-checked at the band ends.",
+            "- Each case's `modes.json` flags a dirty tree: the only entry is the untracked output folder of this run. "
+            "`summary.json` records that the tree was clean when the run started.",
             "- The worst case is a search, not a proof (as in every info-gap record of this task); the random sampling "
             "counts are given above.",
             "- No re-size was run. What a design sized to h_T 1.05 with these bands would weigh is not known from this record.", ""]

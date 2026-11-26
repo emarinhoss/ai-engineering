@@ -116,3 +116,25 @@ def test_case_ledger_text():
     added = [ln for ln in both.splitlines() if ln not in rec.splitlines()]
     assert len(added) == 2 and "{value: scale," in added[0] and added[1] == cb.ledger_line(cur, "empty_weight_factor")
     assert cb.ledger_line(cb.case_ledger(rec, cur, "saving", False), "composite_model") == cb.ledger_line(cur, "composite_model")
+
+
+# ---- the committed record (runs/task12/stage3/2026-11-26/composite_band_study) ------------------------------
+STUDY = ROOT / "runs/task12/stage3/2026-11-26/composite_band_study"
+DOC = ROOT / "docs/validation/2026-11-26_task12_composite_band_study.md"
+
+
+def test_recorded_study_reproduces_the_frozen_record_with_the_bands_off():
+    res = json.loads((STUDY / "summary.json").read_text())
+    assert res["reproduction"]["identical"] and not res["runs"][0]["code_dirty"]
+    frozen = json.loads((FROZEN / "info_gap.json").read_text())["h_hat"]
+    assert res["cases"]["bands_off"]["h_hat"]["R5_guarantee"] == frozen["R5_guarantee"]["h_hat"]
+    assert res["cases"]["bands_off"]["new_variables_inert"] == {"composite_factor": True}
+    for case in ("composite_saving", "composite_saving_empty_weight", "composite_scale", "composite_scale_empty_weight"):
+        assert not any(res["cases"][case]["new_variables_inert"].values()), case
+        assert (STUDY / case / "ledger.yaml").read_text() == cb.case_ledger(
+            (FROZEN / "ledger.yaml").read_text(), uav.LEDGER.read_text(), *cb.CASES[case]), case
+
+
+def test_report_is_the_generated_text_of_the_record():
+    res = json.loads((STUDY / "summary.json").read_text())
+    assert DOC.read_text() == cb.report_text(res, str(STUDY.relative_to(ROOT)))
