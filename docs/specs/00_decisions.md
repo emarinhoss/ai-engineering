@@ -439,6 +439,10 @@ Stage 1 (S3M-8) and that an independent neutral point is needed.
   R5 (guarantee horizon 0.906, worst endurance at h = 1 is 2.915 h against 3.5 h). The design is re-sized
   robustly to h_T 1.05 with both bands acting, and Stage 3, VSPAERO, V-n and the compliance table are re-run
   on the new design before the Gate B pass.
+- **B-2b (cell, 2026-11-26; record runs/task12/stage3/2026-11-26/m250_bands_resize/).** W/S 16, A 7 has no
+  design under both bands. Before a cell is chosen, the full info-gap study is run on W/S 13 A 8 and W/S 13 A 9
+  as well as the tool's lightest design W/S 14 A 8 (cliff horizon 1.062); the cell is chosen from the three
+  recorded horizons.
 - **B-3 (R9).** The negative limit is -1.8 with the 0.1 g margin (Gate A round 1 and round 4 rulings);
   spec section 3 is updated.
 - **B-4 (R18, V_C).** The per-design V_C rule of 2026-11-23 (10 % above the fastest cruise sub-step,
