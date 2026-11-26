@@ -80,6 +80,8 @@ def report_text(res):
           "Limits are the record's ledger values with their Gate A margins (negative gust -1.8 plus 0.1 g, ceiling +500 ft, power margin 0). "
           "The R9 positive row compares n_limit, which Stage 1 sets to the larger of 3.8 and the gust load factor; "
           "the gust value itself is in the V-n report (`docs/validation/2026-11-26_task12_vn_check.md`). "
+          + "".join(f"Row {i} passes the 5-20 % limits but its value {fmt(r['value'])} is above the 0.08-0.15 optimum named in its label. "
+                    for i, r in enumerate(rows, 1) if r["rule"] == "nose" and r["value"] > 0.15) +
           "The Gate A items A1 to A12 are not re-checked here (a review task)."]
     return "\n".join(L) + "\n"
 
