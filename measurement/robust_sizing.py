@@ -1460,6 +1460,7 @@ def run_target(P, h_T, out, cache_, need, grid_ws, grid_a, t_start, budget_min, 
         iterations.append(rec_it)
         if best is None:
             log(f"P={P:g} h_T={h_T:.2f}: no compliant design satisfies both corner sets", flush=True)
+            final = None          # an earlier iteration's design does not meet the grown sets: it is not the cell's design
             break
         rec = cache_[(P, best["W_S"], best["A"], round(best["L_sized_h"], 6), VC_RULE)][0][2]
         ifolder = folder / f"iteration{it}"
