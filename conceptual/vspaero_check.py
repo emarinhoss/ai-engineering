@@ -67,6 +67,13 @@ BULK = (".adb", ".dat", ".slc", ".vspgeom", ".lod")      # solution, mesh and lo
 
 # ---------------------------------------------------------------- pure functions (no OpenVSP)
 
+def select_cases(no_fuselage):
+    """(cases, mesh pairs) to run. no_fuselage drops every configuration with the fuselage plates."""
+    if not no_fuselage:
+        return CASES, PAIRS
+    return [c for c in CASES if c[0] != "full"], [p for p in PAIRS if p[0] != "full"]
+
+
 def line_fit(x, y):
     """Least-squares line y = a + b x. Returns (a, b, max |residual|)."""
     n = len(x)
@@ -261,6 +268,8 @@ def main(argv=None):
     ap.add_argument("--design", required=True)
     ap.add_argument("--model", required=True, help="the .vsp3 written by conceptual.openvsp_model")
     ap.add_argument("--out", required=True)
+    ap.add_argument("--no-fuselage", action="store_true",
+                    help="run only the wing and wing + tails configurations (no fuselage plates)")
     a = ap.parse_args(argv)
     design = Path(a.design)
     d = json.loads(design.read_text())
@@ -281,8 +290,9 @@ def main(argv=None):
     vsp.VSPRenew()
     vsp.ReadVSPFile(a.model)
     geoms = {vsp.GetGeomName(g): g for g in vsp.FindGeoms()}
+    cases, pairs = select_cases(a.no_fuselage)
     results = {}
-    for config, level in CASES:
+    for config, level in cases:
         rows, mesh = run_case(geoms, config, level, machs, ref, out)
         case = {"mesh": mesh, "polar": {}}
         for name, c in conditions.items():
@@ -294,7 +304,7 @@ def main(argv=None):
             case["polar"][name] = der
         results[f"{config}_{level}"] = case
     sens = {}
-    for config, l1, l2 in PAIRS:
+    for config, l1, l2 in pairs:
         for name in conditions:
             p1, p2 = (results[f"{config}_{lv}"]["polar"][name] for lv in (l1, l2))
             key = f"{config} {l1}->{l2} {name}"
@@ -316,7 +326,7 @@ def main(argv=None):
               "reference": ref, "aspect_ratio": w["aspect_ratio"], "alpha_sweep_deg": ALPHAS,
               "levels": {k: {"wing_tail_strips_per_section": v[0], "Tess_W": v[1], "fuselage_Tess_U": v[2],
                              "fuselage_strips_per_section": v[3]} for k, v in LEVELS.items()},
-              "in_lattice": CONFIGS, "left_out": ["Propeller", "SensorTurret", "Sponson"],
+              "in_lattice": {k: v for k, v in CONFIGS.items() if k != "full" or not a.no_fuselage}, "left_out": ["Propeller", "SensorTurret", "Sponson"],
               "cases": results, "mesh_sensitivity": sens,
               "raymer_stage1": raymer_values(d, ledger_text),
               "note": "conceptual model (render3d layout, display sections NACA 4415 / 0012); inviscid lattice"}

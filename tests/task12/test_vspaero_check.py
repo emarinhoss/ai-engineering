@@ -95,3 +95,10 @@ def test_valid_polar_gate():
 def test_vspaero_version():
     assert v.vspaero_version("VSPAERO v.7.2.2 --- Compiled on: Nov 24 2026") == "VSPAERO v.7.2.2"
     assert v.vspaero_version("nothing here") is None
+
+
+def test_select_cases_no_fuselage_drops_full_only():
+    assert v.select_cases(False) == (v.CASES, v.PAIRS)
+    cases, pairs = v.select_cases(True)
+    assert cases == [("wing", "L1"), ("wing", "L2"), ("tails", "L1"), ("tails", "L2")]
+    assert pairs == [("wing", "L1", "L2"), ("tails", "L1", "L2")]
