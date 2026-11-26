@@ -103,7 +103,7 @@
       "deviation": 1.24936075563591,
       "deviation_kind": "relative",
       "tolerance": 0.1,
-      "note": "Anderson's own best-range and best-endurance speeds and (L/D)max (no 1.3 V_stall floor, headwind applied to the air distance at his best-range speed); polar, SFC used, eta_p, radius, headwind, loiter time and W/S from the record or its ledger copy. The empty fraction is Anderson's own; the fuel fraction rests on his relations with Stage 1's polar, SFC and eta_p.",
+      "note": "Anderson's own best-range and best-endurance speeds and (L/D)max (no 1.3 V_stall floor, headwind applied to the air distance at his best-range speed); polar, SFC used, radius, headwind, loiter time and W/S from the record or its ledger copy. Propeller: the App. L disk's efficiency at the thrust at the start of each leg for the record's own take-off weight, held constant while W0 iterates (cruise 0.8028, loiter 0.7677); (5.153) and (5.169) take one constant eta. The empty fraction is Anderson's own; the fuel fraction rests on his relations with Stage 1's polar, SFC and propeller.",
       "class": "partly independent",
       "verdict": "outside"
     },
@@ -242,14 +242,29 @@
       "unit": "ft/min",
       "stage1": 2636.134240628626,
       "stage1_source": "record",
-      "stage3": 2845.2013121618174,
-      "source": "Anderson (5.121) p. 277 (5.122 misprinted, per the notes)",
-      "deviation": 0.07930820377468195,
+      "stage3": 2237.774158416417,
+      "source": "Anderson (5.121) p. 277 (5.122 misprinted, per the notes), eta at the closed form's own speed",
+      "deviation": -0.15111524901600382,
+      "deviation_kind": "relative",
+      "tolerance": null,
+      "note": "Not judged: closed form (5.121) assumes power available independent of speed. With the App. L disk it is not independent of speed (disk efficiency 0.5902 at the closed form's own best-climb speed 64.6 kt, 0.7195 at Stage 1's 99.0 kt), so the closed form does not apply. Bracket: 2,238 ft/min with the efficiency at the closed form's own speed (this row's Stage 3 value, lower) to 2,845 ft/min with the efficiency at Stage 1's speed (upper). Stage 1's 2,636 ft/min lies inside the bracket. Rated 450 hp at sea level, CD0 at sea level from the record. Not judged; the coding check of Stage 1's climb arithmetic is the next row.",
+      "class": "coding check",
+      "verdict": "not judged"
+    },
+    {
+      "id": "roc_sl_excess_power",
+      "quantity": "sea-level rate of climb at W0, excess power at Stage 1's best-climb speed",
+      "unit": "ft/min",
+      "stage1": 2636.134240628626,
+      "stage1_source": "record",
+      "stage3": 2636.134240628627,
+      "source": "(eta(V) P - D(V) V)/W with eta of the App. L disk at full power at Stage 1's speed",
+      "deviation": 4.440892098500626e-16,
       "deviation_kind": "relative",
       "tolerance": 0.03,
-      "note": "Rated 450 hp at sea level, eta_p 0.7195 (App. L disk at full power at Stage 1's best-climb speed 99.0 kt; at the closed form's own best-climb speed 64.6 kt it would be 0.5902, which a constant eta cannot follow), CD0 at sea level from the record, as Stage 1. Same inputs, closed form against a numerical search: a coding check.",
+      "note": "Same inputs and the same relation as Stage 1 (thrust power less drag power over weight at 99.0 kt, disk efficiency 0.7195 there): a coding check of the climb arithmetic, which the closed-form row cannot give with this propeller.",
       "class": "coding check",
-      "verdict": "outside"
+      "verdict": "within"
     },
     {
       "id": "v_best_climb",
@@ -261,10 +276,10 @@
       "source": "Anderson (5.118)/(5.41) p. 221, 277",
       "deviation": -0.34788565454702236,
       "deviation_kind": "relative",
-      "tolerance": 0.03,
-      "note": "Stage 1 searches speeds from 1.2 V_stall upward (Raymer p. 489) and lands on that floor; the closed form has no floor. Same polar and power: the difference is a modelling choice (the floor), not a second source.",
+      "tolerance": null,
+      "note": "Not judged. The closed form (5.118)/(5.41) returns the minimum-power-required speed, 64.6 kt, because it assumes power available independent of speed. With the App. L disk the efficiency rises with speed (0.5902 at 64.6 kt, 0.7195 at 99.0 kt), so thrust power grows faster than power required and the best climb moves to a higher speed. Stage 1's search puts it at 99.0 kt, 1.67 V_stall (V_stall 59.2 kt, 1.2 V_stall floor 71.0 kt), above the floor; the search re-run here with the disk gives 99.0 kt at 2,636 ft/min.",
       "class": "coding check",
-      "verdict": "outside"
+      "verdict": "not judged"
     },
     {
       "id": "ceiling",
@@ -277,7 +292,7 @@
       "deviation": -396.4472016923537,
       "deviation_kind": "absolute",
       "tolerance": 1000.0,
-      "note": "Same engine table as Stage 1 (shared input); CD0 recomputed per altitude; the closed form has no 1.2 V_stall floor, Stage 1 does. Spec 7.1b declares the rows that use the engine table not independent: reported, not judged.",
+      "note": "Same engine table as Stage 1 (shared input); CD0 recomputed per altitude; the closed form has no 1.2 V_stall floor, Stage 1 does. Spec 7.1b declares the rows that use the engine table not independent: reported, not judged. App. L disk: (5.121) assumes power available independent of speed, so the answer depends on the speed at which the disk efficiency is taken. The value above takes it at the closed form's own best-climb speed at each altitude (lower bound, 29,350 ft); at the speed of Stage 1's own search at each altitude it is 29,893 ft (upper bound). Stage 1's 29,747 ft lies inside the bracket.",
       "class": "coding check",
       "verdict": "not judged",
       "numerically_within": true
@@ -415,6 +430,26 @@
     "Cfe_flat_plate_only": 0.002079055760266756,
     "Cfe_for_Stage1_CD0": 0.005284376659114385
   },
+  "climb_bracket": {
+    "v_closed_form_kt": 64.55524613626895,
+    "eta_at_closed_form_speed": 0.5902483611437743,
+    "roc_lower_fpm": 2237.774158416417,
+    "v_stage1_kt": 98.99375253189223,
+    "eta_at_stage1_speed": 0.7195180830611636,
+    "roc_upper_fpm": 2845.2013121618174,
+    "roc_stage1_fpm": 2636.134240628626,
+    "stage1_inside_roc_bracket": true,
+    "roc_excess_power_at_stage1_speed_fpm": 2636.134240628627,
+    "v_stall_kt": 59.16574607571007,
+    "v_floor_kt": 70.99889529085208,
+    "v_stage1_over_v_stall": 1.6731598787787987,
+    "search_with_disk_speed_kt": 98.99375253189223,
+    "search_with_disk_rate_fpm": 2636.134240628626,
+    "ceiling_lower_ft": 29350.14601867806,
+    "ceiling_upper_ft": 29893.301333904674,
+    "ceiling_stage1_ft": 29746.593220370414,
+    "stage1_inside_ceiling_bracket": true
+  },
   "takeoff_power_detail": {
     "stage1_hp": 159.706192234961,
     "mattingly_hp": 142.31330860991102,
@@ -499,7 +534,9 @@
     "ledger_sha256": "d656d2043541a99301f4a63fb82c76545e7d6b07fc3fa174ebd9f065d38e1be4",
     "engine_table": "runs/task12/stage3/2026-11-25/m250_baseline_appl/P450/h1.05/m250_table.json",
     "engine_table_sha256": "114b0e0f1cbdbcfca8ba4d1e881e7f5699a5bb6751191c4367292630f1df0790",
-    "git_commit": "f2a1df1019f835b7ce184ae6ba2e5c1745b3990f",
+    "git_commit": "0fe7021b3ae5afa9c8bc04af9b50e91c4d049952",
+    "git_dirty": false,
+    "git_dirty_files": [],
     "python": "3.13.18",
     "numpy": "2.5.3",
     "seed": null,
@@ -509,9 +546,9 @@
   "comparisons": [
     {
       "old_perf": "runs/task12/stage3/2026-11-26/m250_baseline_measure_rerun/perf.json",
-      "old_perf_sha256": "44b991f4cf70b40ab159ff9309b3461e32f16b87a340cc1cdc3c4a7234affd3c",
+      "old_perf_sha256": "73530c3fa2005784eb3f771797f1997e771487ae64db53bf71ec09d27d9b670e",
       "old_design": "runs/task12/stage3/2026-11-24/m250_baseline_ws16_a7/P450/h1.05/design_pusher.json",
-      "old_git_commit": "3f0c099c42f78da09541b7c718ac334e241c76fd",
+      "old_git_commit": "0fe7021b3ae5afa9c8bc04af9b50e91c4d049952",
       "new_design": "runs/task12/stage3/2026-11-25/m250_baseline_appl/P450/h1.05/design_pusher.json",
       "rows": [
         {
@@ -793,9 +830,22 @@
           },
           "new": {
             "stage1": 2636.134240628626,
-            "stage3": 2845.2013121618174,
-            "deviation": 0.07930820377468195,
-            "verdict": "outside",
+            "stage3": 2237.774158416417,
+            "deviation": -0.15111524901600382,
+            "verdict": "not judged",
+            "class": "coding check"
+          }
+        },
+        {
+          "id": "roc_sl_excess_power",
+          "quantity": "sea-level rate of climb at W0, excess power at Stage 1's best-climb speed",
+          "unit": "ft/min",
+          "old": null,
+          "new": {
+            "stage1": 2636.134240628626,
+            "stage3": 2636.134240628627,
+            "deviation": 4.440892098500626e-16,
+            "verdict": "within",
             "class": "coding check"
           }
         },
@@ -814,7 +864,7 @@
             "stage1": 98.99375253189223,
             "stage3": 64.55524613626895,
             "deviation": -0.34788565454702236,
-            "verdict": "outside",
+            "verdict": "not judged",
             "class": "coding check"
           }
         },
@@ -1202,9 +1252,22 @@
           },
           "new": {
             "stage1": 2636.134240628626,
-            "stage3": 2845.2013121618174,
-            "deviation": 0.07930820377468195,
-            "verdict": "outside",
+            "stage3": 2237.774158416417,
+            "deviation": -0.15111524901600382,
+            "verdict": "not judged",
+            "class": "coding check"
+          }
+        },
+        {
+          "id": "roc_sl_excess_power",
+          "quantity": "sea-level rate of climb at W0, excess power at Stage 1's best-climb speed",
+          "unit": "ft/min",
+          "old": null,
+          "new": {
+            "stage1": 2636.134240628626,
+            "stage3": 2636.134240628627,
+            "deviation": 4.440892098500626e-16,
+            "verdict": "within",
             "class": "coding check"
           }
         },
@@ -1223,7 +1286,7 @@
             "stage1": 98.99375253189223,
             "stage3": 64.55524613626895,
             "deviation": -0.34788565454702236,
-            "verdict": "outside",
+            "verdict": "not judged",
             "class": "coding check"
           }
         },
@@ -1330,9 +1393,9 @@
     }
   ],
   "summary": {
-    "within": 11,
-    "outside": 5,
-    "not judged": 4,
+    "within": 12,
+    "outside": 3,
+    "not judged": 6,
     "not computed": 1
   }
 }
