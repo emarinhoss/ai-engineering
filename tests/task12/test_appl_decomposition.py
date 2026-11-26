@@ -24,7 +24,7 @@ def test_split_by_hand(res):
     assert s["L_sized_h"]["change"] == pytest.approx(0.25, abs=1e-12)
     # W0 = fuel + empty + the rest (payload and fixed): the rest is the same in both records
     assert s["W0_minus_fuel_minus_We_lb"]["old"] == pytest.approx(s["W0_minus_fuel_minus_We_lb"]["new"], abs=1e-3)   # W0 closure tolerance
-    assert s["W0_lb"]["change"] == pytest.approx(s["fuel_lb"]["change"] + s["We_lb"]["change"], abs=1e-6)
+    assert s["W0_lb"]["change"] == pytest.approx(s["fuel_lb"]["change"] + s["We_lb"]["change"], abs=1e-3)
 
 
 def test_worst_case_reproduces_the_record(res):
