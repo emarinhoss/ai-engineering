@@ -73,6 +73,57 @@ Every power has a design at every target.
 - Each mode's worst case is a search, not a proof (see `measurement/info_gap.py`); the grid is coarse in W/S and A.
 - The per-design V_C changes the gust loads and structure with the engine; those loads were not re-checked against a V-n diagram beyond the Stage 1 rows listed in each record.
 
+## Why this baseline is 43 lb heavier than the flat-propeller baseline (added after the run, review S3A-1)
+
+Added to this generated report by hand on 2026-11-26; regenerating the report with `measurement/robust_sizing.py` would drop it. Every number below is read from one record, `runs/task12/stage3/2026-11-26/appl_decomposition/decomposition.json`, made by `measurement/appl_decomposition.py` from the two designs' `design_pusher.json` and `target_result.json` (old: `runs/task12/stage3/2026-11-24/m250_baseline_ws16_a7/P450/h1.05`, flat propeller; new: this run). Record commit `bc6c07cfe185b4207fd723d2f97e75b4eb5c2ed8`, working tree dirty: false; command: `python -m measurement.appl_decomposition --old runs/task12/stage3/2026-11-24/m250_baseline_ws16_a7/P450/h1.05 --new runs/task12/stage3/2026-11-25/m250_baseline_appl/P450/h1.05 --out runs/task12/stage3/2026-11-26/appl_decomposition/decomposition.json`.
+
+**Split of the weight (the two records, read).**
+
+| Quantity | Flat (old) | App. L (new) | Change |
+|---|---|---|---|
+| W0 (lb) | 3,116.9 | 3,160.3 | +43.4 |
+| Fuel (lb) | 950.0 | 977.3 | +27.3 |
+| Empty weight (lb) | 1,667.0 | 1,683.0 | +16.1 |
+| Sized loiter (h) | 8.78125 | 9.03125 | +0.25000 |
+| W0 sized at an 8 h loiter (lb) | 3,017.0 | 3,024.2 | +7.2 |
+| W0 - fuel - empty weight (lb) | 500.0 | 500.0 | - |
+
+The W0 change of +43.4 lb is +27.3 lb of fuel and +16.1 lb of empty weight (the remainder, payload and fixed items, is the same in both). The sized loiter is +0.25 h longer (8 steps of the 1/32 h lattice). Sized to an 8 h loiter the two designs differ by +7.2 lb only; the other 36.2 lb of the 43.4 lb arises between the 8 h loiter and the sized one, that is, from what the worst case at h = 1.05 needs.
+
+**Where the worst case spends the fuel.** At each design's worst endurance point (the moved values of `worst_at_target.endurance`, loiter time the record's hours on station at that point: 3.507 h new, 3.512 h old), segment fuel in lb (weight lost; the reserve factor 1.06 applies to the total), with the record's propeller and with the other propeller swapped in. The flat swap uses the old record's low end eta_p 0.7475; the disk swap uses the new record's low end f = 0.7975.
+
+| Segment | New design, disk (record) | New design, flat 0.7475 swapped in | Old design, flat (record) | Old design, disk swapped in |
+|---|---|---|---|---|
+| takeoff | 26.8 | 26.8 | 26.8 | 26.8 |
+| climb | 83.1 | 64.6 | 63.1 | 80.9 |
+| cruise_out | 232.9 | 233.0 | 231.3 | 231.0 |
+| loiter | 350.5 | 349.5 | 347.4 | 348.2 |
+| cruise_back | 215.5 | 216.1 | 214.5 | 213.9 |
+| mission fuel with reserve | 977.3 | 957.5 | 950.0 | 968.6 |
+| W0 at that point (lb) | 3,559.7 | 3,559.7 | 3,512.6 | 3,512.6 |
+| hours on station at the record's fuel | 3.507 | 3.713 | 3.512 | 3.318 |
+
+On the new design the disk costs +19.7 lb of fuel against the flat low end, of which the climb segment is +18.5 lb; the cruise and loiter segments differ by at most 0.9 lb each. Hours on station at the record's fuel: 3.507 h with the disk, 3.713 h with the flat low end. On the old design the disk swapped in gives 3.318 h against the record's 3.512 h.
+
+**Mean propeller efficiency per leg and climb inputs** (mean over the sub-steps the mission code used; the climb efficiency is at the mid-altitude of the climb).
+
+| Case | Cruise out | Loiter | Cruise back | Climb eta | D/T | Climb speed (kt) | Climb fraction |
+|---|---|---|---|---|---|---|---|
+| Old, worst point, flat 0.7475 (record) | 0.7475 | 0.7475 | 0.7475 | 0.7475 | 0.474 | 81.0 | 0.9819 |
+| New, worst point, disk f 0.7975 (record) | 0.7455 | 0.7384 | 0.7472 | 0.6673 | 0.550 | 87.7 | 0.9765 |
+| New, worst point, flat 0.7475 swapped in | 0.7475 | 0.7475 | 0.7475 | 0.7475 | 0.480 | 80.9 | 0.9817 |
+| New, nominal, disk f 0.85, sized loiter | 0.8144 | 0.7917 | 0.8156 | 0.7271 | 0.360 | 99.2 | 0.9868 |
+| New, nominal, flat 0.80 swapped in, sized loiter | 0.8000 | 0.8000 | 0.8000 | 0.8000 | 0.312 | 70.7 | 0.9886 |
+
+At nominal the same exchange (disk f 0.85 against the ledger's flat 0.80) changes the mission fuel by +4.8 lb at the sized loiter, against +19.7 lb at the worst point. The low ends are about equally far below nominal in relative terms: flat 0.7475/0.8 = 0.9344, disk factor 0.7975/0.85 = 0.9382. The disk's efficiency at the worst point's climb (0.667) lies below the flat low end (0.7475); that aircraft is heavier (3560 lb against 3160 lb nominal), which loads the disk more (not isolated by a run here).
+
+What this supports and what it does not: the extra weight of this baseline comes mainly from the climb leg at the worst endurance point, where the disk's efficiency is lower than the flat low end, and from the longer sized loiter that follows. It rests on the disk at its most heavily loaded point, where the factor f = 0.85 at low speed is a judgement beyond App. L (review APL-5), and on the two-point climb model of Stage 1 (mean drag over thrust of sea level and the mission altitude at one speed). No run here isolates the take-off use of f, and none varies f over its band for the climb.
+
+## Seed corners and the binding R7 mode (added after the run, review S3A-9)
+
+- The seed corners (`runs/task12/stage3/2026-11-23/curve/seed_corners.json`) were found for the flat propeller and carry `eta_p` (the first endurance corner here moves `eta_p` to 0.7475). Under `propeller_model: app_l` `eta_p` is inert (it is in this run's `inert_variables`: yes), so the first endurance corner has a nominal propeller: iteration 1 sized to W0 3,060.2 lb with L_sized 8.1875 h and a worst corner at 3.501 h. The mode search then added the corner with `prop_real_to_ideal` 0.7975 and the second iteration closed with no violation, so the result stands; but the sentence under Method that the directions of the ledger quantities carry over does not hold for the propeller (the seeds were not mapped from `eta_p` to `prop_real_to_ideal`).
+- The binding R7 mode changed. On the flat baseline landing bound it (h 1.605, take-off 1.725); on this baseline take-off binds (h 1.506, landing 1.606). The take-off horizon fell from 1.725 to 1.506, while the landing horizon is nearly the same. The take-off thrust under `app_l` rests on f at low speed (review APL-5), so R7's binding value now depends on that judgement.
+
 ## Inputs
 
 - commit 85019809ca73ae305c23e6c5fa9821ad8063c54d; the working tree was dirty: 1 untracked path(s) (runs/task12/stage3/2026-11-25/): new run outputs, tests or reports, none of which the sizing code reads.
