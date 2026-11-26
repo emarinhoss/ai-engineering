@@ -15,6 +15,8 @@ Two lift-curve slopes are reported, because the record holds two gust values for
                (the value the structure was sized with, Gate A round 4 re-check RC-6).
 Speeds above V_C use the design gust velocity of raymer_loads.design_gust_velocity (30 ft/s at V_C falling
 linearly to 15 ft/s at V_D, and 15 ft/s beyond V_D). Negative gust load factor is 2 - n, as in Stage 1.
+"n_gust_sizing_full_ude_sensitivity" is the same with U_de held at its V_C value at every speed: a
+sensitivity the Raymer rule does not call for, shown because the Stage 3 review (GB-3) scaled the gust that way.
 Negative manoeuvre loads are not computed: the record has no negative CL_max.
 """
 import argparse
@@ -54,11 +56,14 @@ def point(b, d, L, label, V_kt, V_C, V_D, h_ft, cl_alpha_record):
         rho_vn = RHO0 if h_ft == 0.0 else atm["rho"]
         n_rec = loads.gust_load_factor(W / S, V, U, cl_alpha_record, mac, rho_vn)[0]
         n_siz = loads.gust_load_factor(W / S, V, U, lift_slope_at(b, d["A"], L, M), mac, atm["rho"])[0]
+        # sensitivity, not the rule: the full V_C gust velocity (30 ft/s) at this speed, no fall to V_D
+        n_full = loads.gust_load_factor(W / S, V, L["gust_ude_fps"], lift_slope_at(b, d["A"], L, M), mac, atm["rho"])[0]
         n_aero = 0.5 * RHO0 * V ** 2 * d["CL_max"]["clean"] / (W / S)      # EAS: sea-level density
         out["weights"][wlabel] = {
             "W_lb": W,
             "n_gust_vn_record": n_rec, "n_gust_neg_vn_record": 2.0 - n_rec,
             "n_gust_sizing": n_siz, "n_gust_neg_sizing": 2.0 - n_siz,
+            "n_gust_sizing_full_ude_sensitivity": n_full,
             "n_manoeuvre_aero": n_aero, "n_manoeuvre": min(n_aero, L["limit_load_factor"])}
     return out
 
