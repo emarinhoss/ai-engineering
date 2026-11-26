@@ -433,6 +433,12 @@ Stage 1 (S3M-8) and that an independent neutral point is needed.
   requirement.
 - **B-2 (composite band, GB-1).** Record an info-gap run on the frozen design with the composite band
   acting on the Table 15.4 component factors, plus an empty-weight band; decide on a re-size from the result.
+- **B-2a (result and re-size, 2026-11-26; record runs/task12/stage3/2026-11-26/composite_band_study/).** The
+  agent's mapping is confirmed: `composite_model: saving` (each Table 15.4 saving scaled by (1 - c)/0.05, so
+  c = 1.00 is metal) and `empty_weight_factor` 1.0 with band 0.95-1.05. With both bands the frozen design fails
+  R5 (guarantee horizon 0.906, worst endurance at h = 1 is 2.915 h against 3.5 h). The design is re-sized
+  robustly to h_T 1.05 with both bands acting, and Stage 3, VSPAERO, V-n and the compliance table are re-run
+  on the new design before the Gate B pass.
 - **B-3 (R9).** The negative limit is -1.8 with the 0.1 g margin (Gate A round 1 and round 4 rulings);
   spec section 3 is updated.
 - **B-4 (R18, V_C).** The per-design V_C rule of 2026-11-23 (10 % above the fastest cruise sub-step,
