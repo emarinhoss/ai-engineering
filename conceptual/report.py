@@ -293,8 +293,13 @@ def add_comparison(add, new, old, old_run, new_run):
     add("")
     add(f"Earlier run `{old_run}` (flat propeller efficiency 0.80, static thrust from C_T/C_P) against this run "
         f"`{new_run}` (propeller_model app_l: App. L actuator disk times the real-to-ideal factor at each "
-        "operating point, static thrust also capped at the momentum limit of the disk). Same engine, ledger "
-        "otherwise unchanged, same selection rule.")
+        "operating point, static thrust also capped at the momentum limit of the disk; the cap is a guard that "
+        "does not bind for a factor of 1 or less, the disk's static thrust being f^(2/3) of that limit). Same "
+        "engine, ledger otherwise unchanged, same selection rule. The take-off rows (power needed, take-off "
+        "distance) change for two reasons together: the propeller, and the move of the selected cell from W/S "
+        f"{old['W_S']:g} to W/S {new['W_S']:g} (the selection rule picks a different cell under the new "
+        "propeller). The table does not separate the two, and no run isolating them is recorded in this report, "
+        "so no split is quoted (review APL-8).")
     add("")
     add("| Quantity | Earlier | This run | Change |")
     add("|---|---|---|---|")
@@ -468,8 +473,13 @@ def main(argv=None):
                 f"{ledger['assumptions']['prop_real_to_ideal']['band'][0]} to "
                 f"{ledger['assumptions']['prop_real_to_ideal']['band'][1]}), evaluated at the shaft power, true speed, "
                 "density and diameter of every operating point (climb, ceiling, turn, cruise, mission legs, level "
-                "speed), and take-off thrust is capped at the momentum limit of the disk. The review that led to the "
-                "ruling: docs/reviews/2026-11-24_task12_stage3_m250_review.md, finding S3M-3. The first-pass sketch "
+                "speed), and take-off thrust is capped at the momentum limit of the disk. Wording correction (review "
+                "APL-4, APL-5; no number changes): with eta = f eta* the static thrust of the disk is f^(2/3) of the "
+                "momentum limit, so for f <= 1 it lies below the limit at every speed and the cap is a guard that "
+                "does not bind. Taking f = 0.85 to static and take-off conditions is a judgement beyond App. L, which "
+                "speaks of efficiency in flight, and the take-off distance depends on it; no take-off sweep over f was "
+                "run, so none is quoted. The review that led to the ruling: "
+                "docs/reviews/2026-11-24_task12_stage3_m250_review.md, finding S3M-3. The first-pass sketch "
                 "still uses Table 3.4's 0.80. The comparison with the 2026-11-23 run is in the section before "
                 "Appendix A.")
             add("")
@@ -482,6 +492,17 @@ def main(argv=None):
         "(1992), through `conceptual/`. Review records: `docs/reviews/2026-11-20_task12_gateA_round1.md` to `..._round3.md` and "
         "`docs/reviews/2026-11-21_task12_gateA_round4.md`.")
     add("")
+    if ledger["assumptions"].get("propeller_model", {}).get("value") == "app_l":
+        add("**Wording update, 2026-11-26** (review `docs/reviews/2026-11-25_task12_appl_propeller_review.md`, APL-4, "
+            "APL-5, APL-6, APL-8; no number changed): the propeller paragraph above and the comparison section carry "
+            "corrections, and the repository ledger (`data/task12/ledger.yaml`) now words `propeller_model` and "
+            "`prop_real_to_ideal` as follows: the cap is a guard (static thrust f^(2/3) of the momentum limit); the "
+            "value 0.85 is published, its band 0.80 to 0.90 is a judgement (labelled as `cbhp_cruise` is: confidence "
+            "`published`, band by judgement in the source text), and its use at static and take-off conditions is a "
+            f"judgement beyond App. L. Appendix A below is this run's own ledger copy (`{run}/ledger.yaml`) and keeps "
+            "the earlier wording. These corrections are written by `conceptual/report.py` (they were first added to the "
+            "generated file by hand, then moved into the generator, review S3A-8).")
+        add("")
     add("## Summary")
     add("")
     add(f"- **Frozen concept: {rec}** (Éder, Gate A round 3, on corrected figures). With the round-1 "
