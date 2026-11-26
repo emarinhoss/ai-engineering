@@ -63,7 +63,7 @@ def point(b, d, L, label, V_kt, V_C, V_D, h_ft, cl_alpha_record):
             "W_lb": W,
             "n_gust_vn_record": n_rec, "n_gust_neg_vn_record": 2.0 - n_rec,
             "n_gust_sizing": n_siz, "n_gust_neg_sizing": 2.0 - n_siz,
-            "n_gust_sizing_full_ude_sensitivity": n_full,
+            "n_gust_sizing_full_ude_sensitivity": n_full, "n_gust_neg_full_ude_sensitivity": 2.0 - n_full,
             "n_manoeuvre_aero": n_aero, "n_manoeuvre": min(n_aero, L["limit_load_factor"])}
     return out
 
