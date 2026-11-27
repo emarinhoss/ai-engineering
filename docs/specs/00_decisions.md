@@ -460,6 +460,12 @@ Stage 1 (S3M-8) and that an independent neutral point is needed.
   (f) B-6 covers the VSPAERO L2 full-fuel margin 0.004 above the 5-15 % band.
   (g) The +-5 % empty-weight band stands; the gap to Anderson's build-up (+14.7 %) and to Table 15.2 is a named
   preliminary-design risk.
+- **B-10 (gate close-out, 2026-11-27; report docs/validation/2026-11-27_task12_performance.md).** (a) B-8 is
+  confirmed at the new baseline's nominal 8 h horizon 0.4135; no new target. (b) The ledger label of
+  `prop_real_to_ideal` becomes a judgement (APL-6); no number changes. (c) Before the Gate B ruling, three gaps are
+  closed from existing records: a recorded pytest report at the gate commit, a worst-case robustness-curve figure
+  (spec 7.3), and the Gate A re-check generated as a record. (d) Gate B passes on the W/S 13, A 8 baseline once (a)-(c)
+  are recorded, with the open items carried to preliminary design.
 - **B-3 (R9).** The negative limit is -1.8 with the 0.1 g margin (Gate A round 1 and round 4 rulings);
   spec section 3 is updated.
 - **B-4 (R18, V_C).** The per-design V_C rule of 2026-11-23 (10 % above the fastest cruise sub-step,
