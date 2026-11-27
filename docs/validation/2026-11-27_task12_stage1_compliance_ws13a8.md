@@ -25,7 +25,7 @@ Tolerance 0.0001. Verdicts: 19 pass, 0 fail, 11 not tested (by construction, not
 |---|---|---|---|---|---|---|
 | 1 | R1/R2 single turboprop, one engine | - | RR_M250_B17F |  | by construction | not tested |
 | 2 | R4 payload | lb | 500 | 500 | by construction | not tested |
-| 3 | R5 mission 200 nm + 8 h + 200 nm | fuel lb | 1099 | 1099 | sized to it | not tested |
+| 3 | R5 mission 200 nm + 11 h + 200 nm | fuel lb | 1099 | 1099 | sized to it | not tested |
 | 4 | R6 note: no starting (relight) envelope in our sources for this engine; an in-flight relight is not assessed (the TP100's envelope is not reused) | ft |  | 20,000 | note | not tested |
 | 5 | R6 mission altitude 20,000 ft: no maximum operating altitude in our sources for this engine (not checked, none invented) | ft | 20,000 |  | note | not tested |
 | 6 | R7 take-off over 50 ft | ft | 711 | 2500 | <= | pass |
@@ -56,4 +56,4 @@ Tolerance 0.0001. Verdicts: 19 pass, 0 fail, 11 not tested (by construction, not
 
 Failed rows: none.
 
-Limits are the record's ledger values with their Gate A margins (negative gust -1.8 plus 0.1 g, ceiling +500 ft, power margin 0). The R9 positive row compares n_limit, which Stage 1 sets to the larger of 3.8 and the gust load factor; the gust value itself is in the V-n check of the same design. Row 25 passes the 5-20 % limits but its value 0.1633 is above the 0.08-0.15 optimum named in its label. Row 26 passes the 5-20 % limits but its value 0.1515 is above the 0.08-0.15 optimum named in its label. The Gate A items A1 to A12 are not re-checked here (a review task).
+Limits are the record's ledger values with their Gate A margins (negative gust -1.8 plus 0.1 g, ceiling +500 ft, power margin 0). The R9 positive row compares n_limit, which Stage 1 sets to the larger of 3.8 and the gust load factor; the gust value itself is in the V-n check of the same design. Row 25 passes the 5-20 % limits but its value 0.1633 is above the 0.08-0.15 optimum named in its label. Row 26 passes the 5-20 % limits but its value 0.1515 is above the 0.08-0.15 optimum named in its label. Row 14: the Stage 1 service ceiling (31,738 ft) is above the engine table's top altitude (30,000 ft), where the lookup clamps and holds the table's power constant, so it leans on that clamp. The cycle's own power keeps falling; the Stage 3 engine report gives the ceiling with it. Quote this row with that caveat. The Gate A items A1 to A12 are not re-checked here (a review task).
