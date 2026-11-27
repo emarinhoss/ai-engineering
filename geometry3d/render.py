@@ -38,7 +38,7 @@ def view(parts, name, path, label, propeller=None):
     c, r = (lo + hi) / 2, (hi - lo).max() / 2
     for k, f in enumerate((ax.set_xlim, ax.set_ylim, ax.set_zlim)):
         f(c[k] - r, c[k] + r)
-    ax.set_box_aspect((1, 1, 1), zoom=2.2 if proj == "ortho" else 1.9)
+    ax.set_box_aspect((1, 1, 1), zoom=1.7)
     ax.view_init(elev=elev, azim=azim)
     ax.set_axis_off()
     fig.suptitle(f"{title}. {label}", fontsize=10, y=0.98)

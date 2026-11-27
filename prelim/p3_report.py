@@ -275,9 +275,11 @@ def report_text(out):
           "area was **not established**; the row is reported as it came out. One more reading, from section 4: Raymer's (7.11) on the loft's "
           f"exposed planform gives {num(c3['wing']['raymer_form_on_loft_ft2'])} ft^2 for the wing and {num(c3['vertical_tail']['raymer_form_on_loft_ft2'])} ft^2 "
           "for the fin (it does not know the sponsons).")
-        w("- No verdict of gate 3 changes if OpenVSP's areas are used instead: " + "; ".join(
-            f"{k.replace('_', ' ')} {pct(v['openvsp_default_mesh_wetted_ft2'] / c3[k]['stage1_ft2'] - 1)}" for k, v in g["8"]["components"].items())
-          + " against Stage 1.\n")
+        vs = {k: v["openvsp_default_mesh_wetted_ft2"] / c3[k]["stage1_ft2"] - 1 for k, v in g["8"]["components"].items()}
+        changed = [k for k, v in vs.items() if ("pass" if abs(v) <= 0.05 else "fail") != c3[k]["verdict"]]
+        w(("- No verdict of gate 3 changes if OpenVSP's areas are used instead: " if not changed else
+           "- With OpenVSP's areas the gate 3 verdict would change for " + ", ".join(c.replace("_", " ") for c in changed) + ": ")
+          + "; ".join(f"{k.replace('_', ' ')} {pct(v)}" for k, v in vs.items()) + " against Stage 1.\n")
 
     ts = r["tail_section"]
     src = r["tail_source"]
@@ -306,7 +308,9 @@ def report_text(out):
             w(f"| {cname} | {tail.replace('_', ' ')} | {q['reynolds']:,.0f} | {q['a0_per_deg']:.4f} | {q['cl_max']:.3f} | {q['cl_max_negative']:.3f} | {q['cd0_min']:.5f} |")
     w("")
     eq = src["section_equations"]
-    w(f"- Loft geometry of the 0012 and 4415: {eq['thickness']['source']}; {eq['mean_line']['source']}; {eq['combination']['source']}. "
+    t4 = src["reports"]["tr460"]
+    w(f"- Loft geometry of the 0012 and 4415: {t4['number']}, \"{t4['title']}\", {t4['authors']}, {t4['year']}; NTRS {t4['ntrs_id']}, "
+      f"sha256 {t4['pdf_sha256'][:12]}; opened in this session, not committed. {eq['thickness']['source']}; {eq['mean_line']['source']}; {eq['combination']['source']}. "
       "The tests check the polynomial against the printed ordinates of Report 460, Fig. 1, and of the 0012 in Report 586, Fig. 3.\n")
 
     w("## 10. Findings for r1\n")
