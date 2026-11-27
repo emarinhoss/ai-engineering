@@ -43,7 +43,7 @@ def test_record_has_its_files_and_says_where_it_comes_from(p):
 
 def test_record_carries_the_source_record_and_the_figure_check(p, acc):
     s = p["source"]
-    assert s == yaml.safe_load(p2.SOURCE.read_text())
+    assert s == json.loads(json.dumps(yaml.safe_load(p2.SOURCE.read_text())))        # JSON turns the set numbers into text
     assert s["report"]["opened_in_this_session"] is True and s["reading"]["read_twice"] is True
     assert s["sections"]["naca4415"]["figure"] is None and s["sections"]["naca4415"]["page"] == 142
     want = p2.figure_check(s, p2.measured_sets("naca4415"))
