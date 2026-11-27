@@ -1,0 +1,754 @@
+{
+  "design": "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/",
+  "review": "docs/reviews/2026-11-27_task12_gateB_ws13a8_review.md",
+  "rulings": "B-9a (A9 and A11 inherited), B-10c",
+  "status_counts": {
+    "pass": 5,
+    "pass with caveat": 4,
+    "pass on the reviewer's run; no record yet": 1,
+    "inherited (B-9a)": 2
+  },
+  "items": [
+    {
+      "id": "A1",
+      "item": "Every requirement traces to a number with its margin",
+      "status": "pass",
+      "review_verdict": "pass. The table gives value and limit, not a margin column; R3 and R11 have no row; R6 is not checked (assumption R-f)",
+      "records": [
+        "runs/task12/stage3/2026-11-27/compliance_ws13a8/compliance.json",
+        "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/info_gap.json"
+      ],
+      "record_sha256": {
+        "runs/task12/stage3/2026-11-27/compliance_ws13a8/compliance.json": "b09ee55e87128f218c9ae215f1517e6d607305b314c4e6545f807046eb93dc69",
+        "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/info_gap.json": "cdcdeb37fde41d46e7d3a90f8e246bda2a0c2db5ae86e9aefb5f5c6e95de152c"
+      },
+      "values": [
+        {
+          "name": "compliance rows",
+          "value": 30,
+          "units": "",
+          "arithmetic": "count of rows"
+        },
+        {
+          "name": "rows pass",
+          "value": 19,
+          "units": "",
+          "arithmetic": "count of verdict pass"
+        },
+        {
+          "name": "rows fail",
+          "value": 0,
+          "units": "",
+          "arithmetic": "count of verdict fail"
+        },
+        {
+          "name": "rows not tested",
+          "value": 11,
+          "units": "",
+          "arithmetic": "count of verdict not tested"
+        },
+        {
+          "name": "R5 guarantee horizon",
+          "value": 1.05010986328125,
+          "units": "",
+          "source": "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/info_gap.json",
+          "key": [
+            "h_hat",
+            "R5_guarantee",
+            "h_hat"
+          ]
+        },
+        {
+          "name": "worst endurance at h = 1",
+          "value": 3.8268290024591667,
+          "units": "h",
+          "source": "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/info_gap.json",
+          "key": [
+            "worst_case_curve",
+            4,
+            "R5",
+            "hours"
+          ]
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "A2",
+      "item": "Weight closes; fractions sum below 1; fit against build-up reported and explained",
+      "status": "pass with caveat",
+      "review_verdict": "pass on closure; the explanation of the build-up against the fits is not written for this design",
+      "records": [
+        "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/design_pusher.json"
+      ],
+      "record_sha256": {
+        "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/design_pusher.json": "a82647354c6d08719221bc39a78839bc388d657463fca0cd6a6e4dba70b16547"
+      },
+      "values": [
+        {
+          "name": "empty weight",
+          "value": 1918.5609953623753,
+          "units": "lb",
+          "source": "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/design_pusher.json",
+          "key": [
+            "We_lb"
+          ]
+        },
+        {
+          "name": "fuel",
+          "value": 1098.6876236696955,
+          "units": "lb",
+          "source": "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/design_pusher.json",
+          "key": [
+            "fuel_lb"
+          ]
+        },
+        {
+          "name": "payload",
+          "value": 500.0,
+          "units": "lb",
+          "source": "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/design_pusher.json",
+          "key": [
+            "payload_lb"
+          ]
+        },
+        {
+          "name": "W0",
+          "value": 3517.2502473171944,
+          "units": "lb",
+          "source": "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/design_pusher.json",
+          "key": [
+            "W0_lb"
+          ]
+        },
+        {
+          "name": "sum of the 13 components",
+          "value": 1918.5609953623753,
+          "units": "lb",
+          "arithmetic": "sum of components_lb"
+        },
+        {
+          "name": "empty + fuel + payload",
+          "value": 3517.2486190320706,
+          "units": "lb",
+          "arithmetic": "We + fuel + payload"
+        },
+        {
+          "name": "empty fraction",
+          "value": 0.5454718488756295,
+          "units": "",
+          "arithmetic": "We / W0"
+        },
+        {
+          "name": "fuel fraction",
+          "value": 0.31237118385526497,
+          "units": "",
+          "arithmetic": "fuel / W0"
+        },
+        {
+          "name": "empty fraction, build_up",
+          "value": 0.5454718488756295,
+          "units": "",
+          "source": "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/design_pusher.json",
+          "key": [
+            "empty_fraction_comparison",
+            "build_up"
+          ]
+        },
+        {
+          "name": "empty fraction, table_3_1",
+          "value": 0.515607255328803,
+          "units": "",
+          "source": "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/design_pusher.json",
+          "key": [
+            "empty_fraction_comparison",
+            "table_3_1"
+          ]
+        },
+        {
+          "name": "empty fraction, table_6_2",
+          "value": 0.4952480288392004,
+          "units": "",
+          "source": "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/design_pusher.json",
+          "key": [
+            "empty_fraction_comparison",
+            "table_6_2"
+          ]
+        },
+        {
+          "name": "empty fraction, table_15_2_approximate",
+          "value": 0.62201315739299,
+          "units": "",
+          "source": "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/design_pusher.json",
+          "key": [
+            "empty_fraction_comparison",
+            "table_15_2_approximate"
+          ]
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "A3",
+      "item": "Fuel closes for every segment, with the 6 % allowance",
+      "status": "pass",
+      "review_verdict": "pass",
+      "records": [
+        "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/design_pusher.json"
+      ],
+      "record_sha256": {
+        "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/design_pusher.json": "a82647354c6d08719221bc39a78839bc388d657463fca0cd6a6e4dba70b16547"
+      },
+      "values": [
+        {
+          "name": "W at start of mission",
+          "value": 3517.2502473171944,
+          "units": "lb",
+          "source": "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/design_pusher.json",
+          "key": [
+            "mission",
+            0,
+            "W_start"
+          ]
+        },
+        {
+          "name": "W at end of mission",
+          "value": 2480.7524891382363,
+          "units": "lb",
+          "source": "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/design_pusher.json",
+          "key": [
+            "mission",
+            5,
+            "W_end"
+          ]
+        },
+        {
+          "name": "fuel on board",
+          "value": 1098.6876236696955,
+          "units": "lb",
+          "source": "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/design_pusher.json",
+          "key": [
+            "fuel_lb"
+          ]
+        },
+        {
+          "name": "fuel burned over six segments",
+          "value": 1036.497758178958,
+          "units": "lb",
+          "arithmetic": "W start - W end"
+        },
+        {
+          "name": "1.06 x burned",
+          "value": 1098.6876236696955,
+          "units": "lb",
+          "arithmetic": "1.06 x fuel burned"
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "A4",
+      "item": "Static margin in R13 full and empty; trim with authority; rotation possible",
+      "status": "pass",
+      "review_verdict": "pass. Margins by layout construction (B-6); the rotation margin is thin",
+      "records": [
+        "runs/task12/stage3/2026-11-27/compliance_ws13a8/compliance.json",
+        "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/design_pusher.json"
+      ],
+      "record_sha256": {
+        "runs/task12/stage3/2026-11-27/compliance_ws13a8/compliance.json": "b09ee55e87128f218c9ae215f1517e6d607305b314c4e6545f807046eb93dc69",
+        "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/design_pusher.json": "a82647354c6d08719221bc39a78839bc388d657463fca0cd6a6e4dba70b16547"
+      },
+      "values": [
+        {
+          "name": "compliance row 15: R13 static margin, full",
+          "value": 0.11256023208703346,
+          "units": "MAC",
+          "source": "runs/task12/stage3/2026-11-27/compliance_ws13a8/compliance.json",
+          "key": [
+            "rows",
+            14,
+            "value"
+          ]
+        },
+        {
+          "name": "compliance row 16: R13 static margin, empty",
+          "value": 0.0874397679129658,
+          "units": "MAC",
+          "source": "runs/task12/stage3/2026-11-27/compliance_ws13a8/compliance.json",
+          "key": [
+            "rows",
+            15,
+            "value"
+          ]
+        },
+        {
+          "name": "largest tail CL over the mission legs",
+          "value": 0.13286570038080775,
+          "units": "",
+          "arithmetic": "max of layout.trim CL_tail"
+        },
+        {
+          "name": "compliance row 30: nose rotation",
+          "value": 0.9676507196012006,
+          "units": "tail CL",
+          "source": "runs/task12/stage3/2026-11-27/compliance_ws13a8/compliance.json",
+          "key": [
+            "rows",
+            29,
+            "value"
+          ]
+        },
+        {
+          "name": "compliance row 30: nose rotation",
+          "value": 1.0,
+          "units": "tail CL",
+          "source": "runs/task12/stage3/2026-11-27/compliance_ws13a8/compliance.json",
+          "key": [
+            "rows",
+            29,
+            "limit"
+          ]
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "A5",
+      "item": "Structure sized for the larger of manoeuvre and gust at both altitudes",
+      "status": "pass",
+      "review_verdict": "pass",
+      "records": [
+        "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/design_pusher.json"
+      ],
+      "record_sha256": {
+        "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/design_pusher.json": "a82647354c6d08719221bc39a78839bc388d657463fca0cd6a6e4dba70b16547"
+      },
+      "values": [
+        {
+          "name": "n_limit",
+          "value": 3.8,
+          "units": "",
+          "source": "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/design_pusher.json",
+          "key": [
+            "n_limit"
+          ]
+        },
+        {
+          "name": "gust load factor, mission altitude, zero-fuel weight",
+          "value": 3.50353475821359,
+          "units": "",
+          "source": "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/design_pusher.json",
+          "key": [
+            "n_gust"
+          ]
+        },
+        {
+          "name": "negative gust load factor",
+          "value": -1.5035347582135898,
+          "units": "",
+          "source": "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/design_pusher.json",
+          "key": [
+            "n_negative_gust"
+          ]
+        },
+        {
+          "name": "ultimate load factor",
+          "value": 5.699999999999999,
+          "units": "",
+          "source": "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/design_pusher.json",
+          "key": [
+            "Nz_ultimate"
+          ]
+        },
+        {
+          "name": "gust sea_level/takeoff_weight",
+          "value": 2.5773743478356637,
+          "units": "",
+          "source": "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/design_pusher.json",
+          "key": [
+            "gusts",
+            "sea_level/takeoff_weight"
+          ]
+        },
+        {
+          "name": "gust sea_level/zero_fuel_weight",
+          "value": 2.991373046150941,
+          "units": "",
+          "source": "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/design_pusher.json",
+          "key": [
+            "gusts",
+            "sea_level/zero_fuel_weight"
+          ]
+        },
+        {
+          "name": "gust mission_altitude/takeoff_weight",
+          "value": 2.888449652935453,
+          "units": "",
+          "source": "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/design_pusher.json",
+          "key": [
+            "gusts",
+            "mission_altitude/takeoff_weight"
+          ]
+        },
+        {
+          "name": "gust mission_altitude/zero_fuel_weight",
+          "value": 3.50353475821359,
+          "units": "",
+          "source": "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/design_pusher.json",
+          "key": [
+            "gusts",
+            "mission_altitude/zero_fuel_weight"
+          ]
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "A6",
+      "item": "Installed power at 20,000 ft meets climb and ceiling; production engine within the rubber engine's band; fixed-engine re-size recorded",
+      "status": "pass with caveat",
+      "review_verdict": "pass on power; the rubber-band clause is not testable (the engine was fixed by ruling R-a)",
+      "records": [
+        "runs/task12/stage3/2026-11-27/compliance_ws13a8/compliance.json"
+      ],
+      "record_sha256": {
+        "runs/task12/stage3/2026-11-27/compliance_ws13a8/compliance.json": "b09ee55e87128f218c9ae215f1517e6d607305b314c4e6545f807046eb93dc69"
+      },
+      "values": [
+        {
+          "name": "compliance row 23: engine power",
+          "value": 281.13016848995244,
+          "units": "hp",
+          "source": "runs/task12/stage3/2026-11-27/compliance_ws13a8/compliance.json",
+          "key": [
+            "rows",
+            22,
+            "value"
+          ]
+        },
+        {
+          "name": "compliance row 23: engine power",
+          "value": 450.0,
+          "units": "hp",
+          "source": "runs/task12/stage3/2026-11-27/compliance_ws13a8/compliance.json",
+          "key": [
+            "rows",
+            22,
+            "limit"
+          ]
+        },
+        {
+          "name": "compliance row 13: R12 sea-level",
+          "value": 2325.825329779217,
+          "units": "ft/min",
+          "source": "runs/task12/stage3/2026-11-27/compliance_ws13a8/compliance.json",
+          "key": [
+            "rows",
+            12,
+            "value"
+          ]
+        },
+        {
+          "name": "compliance row 14: R12 service ceiling",
+          "value": 31738.33202377864,
+          "units": "ft",
+          "source": "runs/task12/stage3/2026-11-27/compliance_ws13a8/compliance.json",
+          "key": [
+            "rows",
+            13,
+            "value"
+          ]
+        },
+        {
+          "name": "compliance row 14: R12 service ceiling",
+          "value": 23500.0,
+          "units": "ft",
+          "source": "runs/task12/stage3/2026-11-27/compliance_ws13a8/compliance.json",
+          "key": [
+            "rows",
+            13,
+            "limit"
+          ]
+        }
+      ],
+      "note": "The ceiling row value 31,738 ft is Stage 1's, read above the 30,000 ft engine-table top; ruling B-9c quotes the engine-cycle value 30,407 to 30,432 ft with that caveat. R12 is met by every value."
+    },
+    {
+      "id": "A7",
+      "item": "Every assumption has a source and a band; out-of-calibration uses listed",
+      "status": "pass with caveat",
+      "review_verdict": "pass on sources; partly on bands; the out-of-calibration list is not testable on this design",
+      "records": [
+        "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/ledger.yaml",
+        "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/info_gap.json"
+      ],
+      "record_sha256": {
+        "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/ledger.yaml": "b11165a332bed30cddada413d98281fd4e4aceaf6be7a75c2f1dfaa357863342",
+        "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/info_gap.json": "cdcdeb37fde41d46e7d3a90f8e246bda2a0c2db5ae86e9aefb5f5c6e95de152c"
+      },
+      "values": [
+        {
+          "name": "ledger entries",
+          "value": 111,
+          "units": "",
+          "arithmetic": "requirements + assumptions"
+        },
+        {
+          "name": "entries without a source",
+          "value": 0,
+          "units": "",
+          "arithmetic": "count"
+        },
+        {
+          "name": "requirements without a band",
+          "value": 19,
+          "units": "",
+          "arithmetic": "count"
+        },
+        {
+          "name": "assumptions without a band",
+          "value": 39,
+          "units": "",
+          "arithmetic": "count"
+        },
+        {
+          "name": "info-gap variables",
+          "value": 55,
+          "units": "",
+          "source": "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/info_gap.json",
+          "key": [
+            "n_variables"
+          ]
+        },
+        {
+          "name": "info-gap active variables",
+          "value": 30,
+          "units": "",
+          "source": "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/info_gap.json",
+          "key": [
+            "n_act"
+          ]
+        },
+        {
+          "name": "info-gap inert variables",
+          "value": 25,
+          "units": "",
+          "arithmetic": "length of inert_variables"
+        }
+      ],
+      "note": "Unbanded entries are as at earlier rounds, which passed A7."
+    },
+    {
+      "id": "A8",
+      "item": "Every Raymer equation used has a passing printed-value test",
+      "status": "pass on the reviewer's run; no record yet",
+      "review_verdict": "pass on the reviewer's run (397 passed, 1 xfailed at 4ee2ae4), which was not a record; the recorded report is the pytest record below",
+      "records": [
+        "runs/task12/stage3/2026-11-27/pytest_gate/summary.json"
+      ],
+      "record_sha256": {},
+      "values": [],
+      "note": "The reviewer's run is not a record and is not quoted as a value. The last earlier record is runs/task12/stage1/2026-11-25/test_report.txt. No pytest record existed when this file was generated."
+    },
+    {
+      "id": "A9",
+      "item": "Concept choice justified by its scoring table; rejected concept kept",
+      "status": "inherited (B-9a)",
+      "review_verdict": "not testable on this design; inherited from the frozen configuration (pusher frozen at Gate A round 3)",
+      "records": [
+        "runs/task12/stage1/2026-11-25/concept_scores.json",
+        "docs/validation/2026-11-25_task12_conceptual_m250_appl.md"
+      ],
+      "record_sha256": {
+        "runs/task12/stage1/2026-11-25/concept_scores.json": "0719f3e1d037780f476d8e1f11e1219e55ae183b1d90df498f486d6763730d7a"
+      },
+      "values": [
+        {
+          "name": "score, pusher",
+          "value": 4.107467585952915,
+          "units": "",
+          "source": "runs/task12/stage1/2026-11-25/concept_scores.json",
+          "key": [
+            "score",
+            "pusher"
+          ]
+        },
+        {
+          "name": "score, tractor",
+          "value": 3.95,
+          "units": "",
+          "source": "runs/task12/stage1/2026-11-25/concept_scores.json",
+          "key": [
+            "score",
+            "tractor"
+          ]
+        },
+        {
+          "name": "W0, pusher (superseded sizes)",
+          "value": 3004.514933159471,
+          "units": "lb",
+          "source": "runs/task12/stage1/2026-11-25/concept_scores.json",
+          "key": [
+            "table",
+            0,
+            "pusher"
+          ]
+        },
+        {
+          "name": "W0, tractor (superseded sizes)",
+          "value": 2715.2816765986163,
+          "units": "lb",
+          "source": "runs/task12/stage1/2026-11-25/concept_scores.json",
+          "key": [
+            "table",
+            0,
+            "tractor"
+          ]
+        },
+        {
+          "name": "weight of the W0 criterion",
+          "value": 0.4,
+          "units": "",
+          "source": "runs/task12/stage1/2026-11-25/concept_scores.json",
+          "key": [
+            "table",
+            0,
+            "weight"
+          ]
+        }
+      ],
+      "note": "Scores are those of the 2026-11-25 package, not of the W/S 13, A 8 sizes."
+    },
+    {
+      "id": "A10",
+      "item": "Layout fits: tanks, payload bay, gear, CG range",
+      "status": "pass with caveat",
+      "review_verdict": "pass on the recorded rows; the payload bay is not testable (no row has ever checked it)",
+      "records": [
+        "runs/task12/stage3/2026-11-27/compliance_ws13a8/compliance.json"
+      ],
+      "record_sha256": {
+        "runs/task12/stage3/2026-11-27/compliance_ws13a8/compliance.json": "b09ee55e87128f218c9ae215f1517e6d607305b314c4e6545f807046eb93dc69"
+      },
+      "values": [
+        {
+          "name": "compliance row 24: fuel fits",
+          "value": 21.921334532936385,
+          "units": "ft^3",
+          "source": "runs/task12/stage3/2026-11-27/compliance_ws13a8/compliance.json",
+          "key": [
+            "rows",
+            23,
+            "value"
+          ]
+        },
+        {
+          "name": "compliance row 24: fuel fits",
+          "value": 73.16850090283364,
+          "units": "ft^3",
+          "source": "runs/task12/stage3/2026-11-27/compliance_ws13a8/compliance.json",
+          "key": [
+            "rows",
+            23,
+            "limit"
+          ]
+        },
+        {
+          "name": "compliance row 25: nose-wheel load, full",
+          "value": 0.1633297781941415,
+          "units": "",
+          "source": "runs/task12/stage3/2026-11-27/compliance_ws13a8/compliance.json",
+          "key": [
+            "rows",
+            24,
+            "value"
+          ]
+        },
+        {
+          "name": "compliance row 26: nose-wheel load, empty",
+          "value": 0.1514639767728986,
+          "units": "",
+          "source": "runs/task12/stage3/2026-11-27/compliance_ws13a8/compliance.json",
+          "key": [
+            "rows",
+            25,
+            "value"
+          ]
+        },
+        {
+          "name": "compliance row 27: main gear stows",
+          "value": 4.730617059876367,
+          "units": "ft",
+          "source": "runs/task12/stage3/2026-11-27/compliance_ws13a8/compliance.json",
+          "key": [
+            "rows",
+            26,
+            "value"
+          ]
+        },
+        {
+          "name": "compliance row 28: propeller clearance",
+          "value": 14.443207340048785,
+          "units": "in",
+          "source": "runs/task12/stage3/2026-11-27/compliance_ws13a8/compliance.json",
+          "key": [
+            "rows",
+            27,
+            "value"
+          ]
+        },
+        {
+          "name": "compliance row 28: propeller clearance",
+          "value": 8.95,
+          "units": "in",
+          "source": "runs/task12/stage3/2026-11-27/compliance_ws13a8/compliance.json",
+          "key": [
+            "rows",
+            27,
+            "limit"
+          ]
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "A11",
+      "item": "Every risk names how Stage 3 will measure it",
+      "status": "inherited (B-9a)",
+      "review_verdict": "not testable on this design; inherited. The 2026-11-25 package's risk list is the same configuration",
+      "records": [
+        "docs/validation/2026-11-25_task12_conceptual_m250_appl.md"
+      ],
+      "record_sha256": {},
+      "values": [],
+      "note": "No value is read: the item is a list in the package, not a number."
+    },
+    {
+      "id": "A12",
+      "item": "Defaults R10 to R15 confirmed or changed by the owner",
+      "status": "pass",
+      "review_verdict": "pass; confirmed at rounds 1 and 2, R12 revised at round 4, R13 ruled at Gate B (B-6)",
+      "records": [
+        "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/ledger.yaml"
+      ],
+      "record_sha256": {
+        "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/ledger.yaml": "b11165a332bed30cddada413d98281fd4e4aceaf6be7a75c2f1dfaa357863342"
+      },
+      "values": [
+        {
+          "name": "ledger loiter_h",
+          "value": 11.0,
+          "units": "h",
+          "source": "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/ledger.yaml",
+          "key": [
+            "requirements",
+            "loiter_h",
+            "value"
+          ]
+        }
+      ],
+      "note": ""
+    }
+  ]
+}
