@@ -9,9 +9,13 @@ ROOT = Path(__file__).resolve().parents[2]
 REC = ROOT / "runs/task12/stage3/2026-11-25/m250_baseline_appl/P450/h1.05"
 
 
-@pytest.fixture(scope="module")
-def res():
-    return ts.run(REC)
+# the App. L baseline and the W/S 13 A 8 baseline (ruling B-9b): the tool takes the record directory as it is
+REC_WS13A8 = ROOT / "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8"
+
+
+@pytest.fixture(scope="module", params=[REC, REC_WS13A8], ids=["appl", "ws13_a8"])
+def res(request):
+    return ts.run(request.param)
 
 
 def test_f085_reproduces_the_record(res):
