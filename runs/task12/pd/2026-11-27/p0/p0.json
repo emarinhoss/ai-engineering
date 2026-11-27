@@ -1,0 +1,990 @@
+{
+ "inputs": {
+  "commit": "885f97043bfb06bc1f28dac36e03f5bff27fcebc",
+  "git_dirty": false,
+  "git_dirty_files": [],
+  "seed": 20261122,
+  "n_samples": 200,
+  "ledger": "data/task12/ledger.yaml",
+  "ledger_sha256": "f8f56b791fd8d62bb667cfb59d60722cbbe9e9378694f807b49935c6b7eb0885",
+  "table_sha256": "48e24462bb6468bffc72974469f0ac92aefd047d80eecee0fc6c190aa05316a7",
+  "python": "3.13.18",
+  "numpy": "2.5.3",
+  "pyyaml": "6.0.3",
+  "engine_as_is": true,
+  "power_band": "cap",
+  "engine": "RR_M250_B17F as is: rated 450 hp, 212 lb, its table, the ledger's SFC allowance and propeller rpm",
+  "weight_law": "engine weight 212 lb (FAA TCDS E10CE), no scaling",
+  "note": "preliminary design P0, baseline record r0",
+  "excluded": "runs/task12/pd/2026-11-27/p0",
+  "command": "python -m prelim.p0_baseline --out runs/task12/pd/2026-11-27/p0 --processes 2",
+  "processes": 2,
+  "tree_unchanged_during_run": true
+ },
+ "gate_b_record": "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8",
+ "evidence_class": "coding check (same model, extended range)",
+ "table_regenerated": {
+  "equals_committed": true,
+  "committed": "data/task12/m250_table.json",
+  "sha256": "48e24462bb6468bffc72974469f0ac92aefd047d80eecee0fc6c190aa05316a7"
+ },
+ "table": {
+  "old_altitudes_ft": [
+   0.0,
+   2500.0,
+   5000.0,
+   7500.0,
+   10000.0,
+   12500.0,
+   15000.0,
+   17500.0,
+   20000.0,
+   22500.0,
+   25000.0,
+   27500.0,
+   30000.0
+  ],
+  "new_altitudes_ft": [
+   0.0,
+   2500.0,
+   5000.0,
+   7500.0,
+   10000.0,
+   12500.0,
+   15000.0,
+   17500.0,
+   20000.0,
+   22500.0,
+   25000.0,
+   27500.0,
+   30000.0,
+   32500.0,
+   35000.0
+  ],
+  "old_top_ft": 30000.0,
+  "new_top_ft": 35000.0,
+  "every_old_altitude_kept": true,
+  "arrays_at_or_below_old_top": {
+   "full_throttle_shp": {
+    "cells": 143,
+    "max_relative_difference": 0.0,
+    "bit_identical": true
+   },
+   "bsfc": {
+    "cells": 2717,
+    "max_relative_difference": 0.0,
+    "bit_identical": true
+   },
+   "lp_turbine_pressure_ratio": {
+    "cells": 2717,
+    "max_relative_difference": 0.0,
+    "bit_identical": true
+   }
+  },
+  "other_keys_equal": {
+   "V_kt": true,
+   "power_fraction": true,
+   "rated_shp": true,
+   "hp_turbine_pressure_ratio": true,
+   "critical_pressure_ratio": true,
+   "member": true,
+   "calibration_bsfc": true,
+   "burner": true,
+   "control_law": true,
+   "engine": true,
+   "calibration_mgt_c": true
+  },
+  "new_rows": [
+   {
+    "h_ft": 32500.0,
+    "full_throttle_shp_min": 104.33371882962307,
+    "full_throttle_shp_max": 130.5088952820934,
+    "cells": 209,
+    "choked_cells": 121,
+    "all_finite": true,
+    "power_below_row_beneath_at_every_speed": true
+   },
+   {
+    "h_ft": 35000.0,
+    "full_throttle_shp_min": 91.79178480143327,
+    "full_throttle_shp_max": 115.37573227519691,
+    "cells": 209,
+    "choked_cells": 121,
+    "all_finite": true,
+    "power_below_row_beneath_at_every_speed": true
+   }
+  ],
+  "tolerance": 1e-12,
+  "passed": true,
+  "unchoked_cells": {
+   "share": 0.42743221690590116,
+   "n_cells": 3135,
+   "lowest_choked_fraction_min": 0.45000000000000007,
+   "lowest_choked_fraction_max": 0.55,
+   "fraction_axis": [
+    0.1,
+    1.0
+   ]
+  },
+  "unchoked_cells_gate_b": {
+   "share": 0.42841369157158626,
+   "n_cells": 2717,
+   "lowest_choked_fraction_min": 0.45000000000000007,
+   "lowest_choked_fraction_max": 0.55,
+   "fraction_axis": [
+    0.1,
+    1.0
+   ]
+  }
+ },
+ "table_extension": {
+  "speed_kt": 95.0,
+  "full_throttle_state": [
+   {
+    "h_ft": 27500.0,
+    "shp": 138.43073254744164,
+    "lapse": 0.30762385010542587,
+    "pi_c": 6.223536973305737,
+    "pi_c_over_rated": 1.0000000001606801,
+    "mgt_c": 612.2391600149622
+   },
+   {
+    "h_ft": 30000.0,
+    "shp": 122.54310661965604,
+    "lapse": 0.2723180147103468,
+    "pi_c": 6.223536973305734,
+    "pi_c_over_rated": 1.0000000001606797,
+    "mgt_c": 593.9781486908767
+   },
+   {
+    "h_ft": 32500.0,
+    "shp": 108.19526701607097,
+    "lapse": 0.24043392670237992,
+    "pi_c": 6.223536973305734,
+    "pi_c_over_rated": 1.0000000001606797,
+    "mgt_c": 575.7043585777293
+   },
+   {
+    "h_ft": 35000.0,
+    "shp": 95.2665785543876,
+    "lapse": 0.21170350789863912,
+    "pi_c": 6.223536973305734,
+    "pi_c_over_rated": 1.0000000001606797,
+    "mgt_c": 557.4178844672651
+   }
+  ],
+  "interpolation_at_midpoints": [
+   {
+    "h_ft": 28750.0,
+    "cycle_shp": 130.2866207930148,
+    "table_shp": 130.5311119701662,
+    "table_over_cycle": 1.0018765639607754
+   },
+   {
+    "h_ft": 31250.0,
+    "cycle_shp": 115.18442336435385,
+    "table_shp": 115.4091403345014,
+    "table_over_cycle": 1.0019509319366624
+   },
+   {
+    "h_ft": 33750.0,
+    "cycle_shp": 101.56078734917357,
+    "table_shp": 101.76696566837481,
+    "table_over_cycle": 1.0020300976841818
+   }
+  ]
+ },
+ "book_validation": {
+  "burner": "msh",
+  "n_rows": 18,
+  "n_pass": 16,
+  "failed": [
+   {
+    "group": "envelope_S",
+    "case": "K.3 S pi_c=17",
+    "book": 0.6,
+    "model": 0.5655069423110399,
+    "deviation": -0.057488429481600045,
+    "tolerance_kind": "rel",
+    "tolerance": 0.05,
+    "verdict": "FAIL"
+   },
+   {
+    "group": "envelope_S",
+    "case": "K.3 S pi_c=35",
+    "book": 0.535,
+    "model": 0.5048852323559722,
+    "deviation": -0.05628928531593991,
+    "tolerance_kind": "rel",
+    "tolerance": 0.05,
+    "verdict": "FAIL"
+   }
+  ],
+  "lapse_rows": [
+   {
+    "group": "lapse",
+    "case": "K.7 F/F_SL h=5000 ft",
+    "book": 0.9142857142857143,
+    "model": 0.9134858483988656,
+    "deviation": -0.0007998658868486608,
+    "tolerance_kind": "abs",
+    "tolerance": 0.015,
+    "verdict": "PASS"
+   },
+   {
+    "group": "lapse",
+    "case": "K.7 F/F_SL h=10000 ft",
+    "book": 0.8285714285714286,
+    "model": 0.8295213607057422,
+    "deviation": 0.0009499321343136025,
+    "tolerance_kind": "abs",
+    "tolerance": 0.015,
+    "verdict": "PASS"
+   },
+   {
+    "group": "lapse",
+    "case": "K.7 F/F_SL h=15000 ft",
+    "book": 0.6785714285714286,
+    "model": 0.6812889439836544,
+    "deviation": 0.002717515412225757,
+    "tolerance_kind": "abs",
+    "tolerance": 0.015,
+    "verdict": "PASS"
+   },
+   {
+    "group": "lapse",
+    "case": "K.7 F/F_SL h=20000 ft",
+    "book": 0.55,
+    "model": 0.5553007237656108,
+    "deviation": 0.005300723765610749,
+    "tolerance_kind": "abs",
+    "tolerance": 0.015,
+    "verdict": "PASS"
+   },
+   {
+    "group": "lapse",
+    "case": "K.7 F/F_SL h=25000 ft",
+    "book": 0.44285714285714284,
+    "model": 0.4489019749708138,
+    "deviation": 0.0060448321136709615,
+    "tolerance_kind": "abs",
+    "tolerance": 0.015,
+    "verdict": "PASS"
+   },
+   {
+    "group": "lapse",
+    "case": "K.7 F/F_SL h=30000 ft",
+    "book": 0.35714285714285715,
+    "model": 0.3596671421884397,
+    "deviation": 0.0025242850455825527,
+    "tolerance_kind": "abs",
+    "tolerance": 0.015,
+    "verdict": "PASS"
+   }
+  ],
+  "lapse_highest_altitude_case": "K.7 F/F_SL h=30000 ft"
+ },
+ "brochure_validation": {
+  "n_members": 9,
+  "n_pass": 9,
+  "range": "sea level, 70 to 100 % power (measurement/m250_engine.py)"
+ },
+ "design_fields": {
+  "n_compared": 322,
+  "max_relative_difference": 0.0,
+  "different": [],
+  "added": [
+   {
+    "path": "performance.engine_table_top_ft",
+    "new": 35000.0
+   },
+   {
+    "path": "performance.service_ceiling_above_table_top",
+    "new": false
+   }
+  ],
+  "removed": [],
+  "skipped": [
+   {
+    "path": "performance.service_ceiling_ft",
+    "old": 31738.17980585227,
+    "new": 30438.50893383933
+   }
+  ]
+ },
+ "ledger": {
+  "values_equal": true,
+  "bands_equal": true,
+  "n_values": 111,
+  "n_bands": 55,
+  "ignored": []
+ },
+ "power_margin": {
+  "r0": 0.37526476379025486,
+  "gate_b_row": 0.37526476379025486
+ },
+ "unchoked_fuel_share": {
+  "r0": 0.774339835462907,
+  "gate_b": 0.774339835462907
+ },
+ "table_reads_above_top": {
+  "stage1_sizing_and_performance_ft": [
+   37500.0,
+   45000.0
+  ],
+  "mode_scans_ft": []
+ },
+ "ceiling": {
+  "stage1_ft": 30438.50893383933,
+  "above_table_top": false,
+  "table_top_ft": 35000.0,
+  "ceiling_with_no_power_above_table_top_ft": 30438.50893383933,
+  "independent_of_reads_above_top": true,
+  "gate_b_engine_record": "runs/task12/stage3/2026-11-27/m250_ws13a8_measure/engine.json",
+  "engine_cycle_family_ft": {
+   "min": 30407.13719357882,
+   "max": 30432.458065824903
+  },
+  "deviation_ft": [
+   31.371740260510705,
+   6.050868014426669
+  ],
+  "tolerance_ft": 1000.0,
+  "within": true,
+  "engine_cycle_nominal_member_ft": 30419.776861108403,
+  "table_minus_nominal_cycle_ft": 18.73207273092703,
+  "r12_required_ft": 23500.0,
+  "r12_margin_stage1_ft": 6938.50893383933,
+  "r12_margin_engine_cycle_min_ft": 6907.137193578819,
+  "r12_met_by_both": true
+ },
+ "climb": {
+  "mission_altitude_ft": 20000.0,
+  "step_ft": 1000.0,
+  "W_start_lb": 3493.7754530049615,
+  "V_cruise_top_of_climb_kt": 103.27683033998045,
+  "stage1_two_point_fuel_lb": 46.116089400231886,
+  "integrated": {
+   "time_s": 931.3428208725835,
+   "fuel_lb": 44.99904666739667,
+   "distance_ft": 147413.91071862425,
+   "W_end": 3448.776406337565
+  },
+  "integrated_height_only": {
+   "time_s": 924.4890606214021,
+   "fuel_lb": 44.76966828547938,
+   "distance_ft": 145678.56945475642,
+   "W_end": 3449.005784719482
+  },
+  "steps": [
+   {
+    "h_from_ft": 0.0,
+    "h_to_ft": 1000.0,
+    "W_lb": 3493.7754530049615,
+    "rate_from_fpm": 2337.5220953891803,
+    "rate_to_fpm": 2234.420803477091,
+    "V_from_kt": 93.40780353651316,
+    "V_to_kt": 93.16617587547468,
+    "energy_height_ft": 998.0042332504373,
+    "time_s": 26.19466398404716,
+    "fuel_lb": 2.0057678647762516
+   },
+   {
+    "h_from_ft": 1000.0,
+    "h_to_ft": 2000.0,
+    "W_lb": 3491.769685140185,
+    "rate_from_fpm": 2235.9206646182483,
+    "rate_to_fpm": 2132.5833215733564,
+    "V_from_kt": 93.1475934152617,
+    "V_to_kt": 92.92624682602978,
+    "energy_height_ft": 998.1766492783318,
+    "time_s": 27.41927174428957,
+    "fuel_lb": 2.016250943030135
+   },
+   {
+    "h_from_ft": 2000.0,
+    "h_to_ft": 3000.0,
+    "W_lb": 3489.753434197155,
+    "rate_from_fpm": 2134.039229288781,
+    "rate_to_fpm": 2034.18792420131,
+    "V_from_kt": 92.90728361362105,
+    "V_to_kt": 93.29928277345883,
+    "energy_height_ft": 1003.2314109053403,
+    "time_s": 28.882247745984568,
+    "fuel_lb": 2.037968524650461
+   },
+   {
+    "h_from_ft": 3000.0,
+    "h_to_ft": 4000.0,
+    "W_lb": 3487.7154656725047,
+    "rate_from_fpm": 2035.6145009110812,
+    "rate_to_fpm": 1938.9074097631185,
+    "V_from_kt": 93.27982223111964,
+    "V_to_kt": 93.10079981392032,
+    "energy_height_ft": 998.5228648531242,
+    "time_s": 30.147712473435412,
+    "fuel_lb": 2.0411994319287645
+   },
+   {
+    "h_from_ft": 4000.0,
+    "h_to_ft": 5000.0,
+    "W_lb": 3485.674266240576,
+    "rate_from_fpm": 1940.2887307849915,
+    "rate_to_fpm": 1843.217179908508,
+    "V_from_kt": 93.08100830987239,
+    "V_to_kt": 92.9240726334585,
+    "energy_height_ft": 998.7077142676878,
+    "time_s": 31.675627986571723,
+    "fuel_lb": 2.0562017737763383
+   },
+   {
+    "h_from_ft": 5000.0,
+    "h_to_ft": 6000.0,
+    "W_lb": 3483.6180644667998,
+    "rate_from_fpm": 1844.5612019685575,
+    "rate_to_fpm": 1754.5433622979006,
+    "V_from_kt": 92.90382654352756,
+    "V_to_kt": 92.76962319263727,
+    "energy_height_ft": 998.8968737365618,
+    "time_s": 33.30484644388706,
+    "fuel_lb": 2.0728428972096142
+   },
+   {
+    "h_from_ft": 6000.0,
+    "h_to_ft": 7000.0,
+    "W_lb": 3481.54522156959,
+    "rate_from_fpm": 1755.8542840785856,
+    "rate_to_fpm": 1665.6673293090669,
+    "V_from_kt": 92.74889453711529,
+    "V_to_kt": 92.63809251772298,
+    "energy_height_ft": 999.0906334396899,
+    "time_s": 35.04022173750313,
+    "fuel_lb": 2.0912211558157967
+   },
+   {
+    "h_from_ft": 7000.0,
+    "h_to_ft": 8000.0,
+    "W_lb": 3479.4540004137743,
+    "rate_from_fpm": 1666.9396720548507,
+    "rate_to_fpm": 1579.935652622111,
+    "V_from_kt": 92.6168511716428,
+    "V_to_kt": 92.53014391899553,
+    "energy_height_ft": 999.2893035407186,
+    "time_s": 36.93234400271184,
+    "fuel_lb": 2.1119010985792093
+   },
+   {
+    "h_from_ft": 8000.0,
+    "h_to_ft": 9000.0,
+    "W_lb": 3477.3420993151954,
+    "rate_from_fpm": 1581.178468520756,
+    "rate_to_fpm": 1497.3805859768,
+    "V_from_kt": 92.5083526870148,
+    "V_to_kt": 93.03894280024343,
+    "energy_height_ft": 1004.3583874967908,
+    "time_s": 39.14916178838257,
+    "fuel_lb": 2.145149549033413
+   },
+   {
+    "h_from_ft": 9000.0,
+    "h_to_ft": 10000.0,
+    "W_lb": 3475.196949766162,
+    "rate_from_fpm": 1498.60656122528,
+    "rate_to_fpm": 1414.245276611674,
+    "V_from_kt": 93.01645526343276,
+    "V_to_kt": 92.98011892594516,
+    "energy_height_ft": 999.7008023666448,
+    "time_s": 41.184414094017626,
+    "fuel_lb": 2.1606398720798596
+   },
+   {
+    "h_from_ft": 10000.0,
+    "h_to_ft": 11000.0,
+    "W_lb": 3473.036309894082,
+    "rate_from_fpm": 1415.4393636430032,
+    "rate_to_fpm": 1337.1970634520821,
+    "V_from_kt": 92.95710486192637,
+    "V_to_kt": 92.9471004979928,
+    "energy_height_ft": 999.9176638123708,
+    "time_s": 43.59098007872859,
+    "fuel_lb": 2.1896344485650845
+   },
+   {
+    "h_from_ft": 11000.0,
+    "h_to_ft": 12000.0,
+    "W_lb": 3470.846675445517,
+    "rate_from_fpm": 1338.3694228137215,
+    "rate_to_fpm": 1259.6560417099154,
+    "V_from_kt": 92.92339984739836,
+    "V_to_kt": 92.94052926002001,
+    "energy_height_ft": 1000.1409449899439,
+    "time_s": 46.195433816041934,
+    "fuel_lb": 2.2220193722558848
+   },
+   {
+    "h_from_ft": 12000.0,
+    "h_to_ft": 13000.0,
+    "W_lb": 3468.624656073261,
+    "rate_from_fpm": 1260.807796434873,
+    "rate_to_fpm": 1184.6902413877194,
+    "V_from_kt": 92.9160855805053,
+    "V_to_kt": 92.9611806242619,
+    "energy_height_ft": 1000.3710796577213,
+    "time_s": 49.087968054887945,
+    "fuel_lb": 2.258978962365366
+   },
+   {
+    "h_from_ft": 13000.0,
+    "h_to_ft": 14000.0,
+    "W_lb": 3466.365677110896,
+    "rate_from_fpm": 1185.8244616278262,
+    "rate_to_fpm": 1112.3020921645384,
+    "V_from_kt": 92.93592172679335,
+    "V_to_kt": 93.00984544910818,
+    "energy_height_ft": 1000.608530263994,
+    "time_s": 52.24822080991797,
+    "fuel_lb": 2.300528842543952
+   },
+   {
+    "h_from_ft": 14000.0,
+    "h_to_ft": 15000.0,
+    "W_lb": 3464.065148268352,
+    "rate_from_fpm": 1113.4217135069443,
+    "rate_to_fpm": 1039.3789093610933,
+    "V_from_kt": 92.98369568446677,
+    "V_to_kt": 93.08734373009145,
+    "energy_height_ft": 1000.8537917605719,
+    "time_s": 55.78893546178181,
+    "fuel_lb": 2.348247285265931
+   },
+   {
+    "h_from_ft": 15000.0,
+    "h_to_ft": 16000.0,
+    "W_lb": 3461.716900983086,
+    "rate_from_fpm": 1040.6032829977182,
+    "rate_to_fpm": 971.8618616648635,
+    "V_from_kt": 93.65268950907735,
+    "V_to_kt": 93.786991301131,
+    "energy_height_ft": 1001.1144366906733,
+    "time_s": 59.69481395565881,
+    "fuel_lb": 2.4020598592705236
+   },
+   {
+    "h_from_ft": 16000.0,
+    "h_to_ft": 17000.0,
+    "W_lb": 3459.3148411238153,
+    "rate_from_fpm": 972.9648550382586,
+    "rate_to_fpm": 903.6737012813562,
+    "V_from_kt": 93.75876411356148,
+    "V_to_kt": 93.92468439937588,
+    "energy_height_ft": 1001.3785976060125,
+    "time_s": 64.03227265477531,
+    "fuel_lb": 2.4634910837673463
+   },
+   {
+    "h_from_ft": 17000.0,
+    "h_to_ft": 18000.0,
+    "W_lb": 3456.851350040048,
+    "rate_from_fpm": 904.7709764085988,
+    "rate_to_fpm": 837.6403330367259,
+    "V_from_kt": 93.89524404614485,
+    "V_to_kt": 94.09378420660519,
+    "energy_height_ft": 1001.652315320429,
+    "time_s": 68.98387148136402,
+    "fuel_lb": 2.535070285882833
+   },
+   {
+    "h_from_ft": 18000.0,
+    "h_to_ft": 19000.0,
+    "W_lb": 3454.3162797541654,
+    "rate_from_fpm": 838.7364040504247,
+    "rate_to_fpm": 773.7673352307531,
+    "V_from_kt": 94.06297009214057,
+    "V_to_kt": 94.29516929344581,
+    "energy_height_ft": 1001.9362310110267,
+    "time_s": 74.56252335571043,
+    "fuel_lb": 2.6175028148312007
+   },
+   {
+    "h_from_ft": 19000.0,
+    "h_to_ft": 20000.0,
+    "W_lb": 3451.698776939334,
+    "rate_from_fpm": 774.8667608961839,
+    "rate_to_fpm": 709.2956093545206,
+    "V_from_kt": 94.26280430419763,
+    "V_to_kt": 103.27683033998045,
+    "energy_height_ft": 1078.828835782492,
+    "time_s": 87.22728920288606,
+    "fuel_lb": 2.9223706017690665
+   }
+  ],
+  "fuel_difference_lb": -1.1170427328352162,
+  "fuel_difference_relative": -0.024222408000397322,
+  "mission_fuel_lb": 1098.6876236696955,
+  "reserve_factor": 1.06,
+  "mission_fuel_change_bound": 0.0010777087784519372,
+  "tolerance": 0.01,
+  "finding_for_r1": false,
+  "profile_at_takeoff_weight": [
+   {
+    "h_ft": 0.0,
+    "rate_fpm": 2319.4555756204227,
+    "V_kt": 93.62172692477274,
+    "shaft_hp_available": 449.4374720003757
+   },
+   {
+    "h_ft": 1000.0,
+    "rate_fpm": 2216.975836500527,
+    "V_kt": 93.38326312410835,
+    "shaft_hp_available": 432.69587151446103
+   },
+   {
+    "h_ft": 2000.0,
+    "rate_fpm": 2114.3064860788068,
+    "V_kt": 93.16542606924145,
+    "shaft_hp_available": 415.96056657127224
+   },
+   {
+    "h_ft": 3000.0,
+    "rate_fpm": 2014.98897661552,
+    "V_kt": 92.96881238583941,
+    "shaft_hp_available": 399.8466557000754
+   },
+   {
+    "h_ft": 4000.0,
+    "rate_fpm": 1918.9538383221536,
+    "V_kt": 92.79404027734152,
+    "shaft_hp_available": 384.34374320724294
+   },
+   {
+    "h_ft": 5000.0,
+    "rate_fpm": 1822.6087676589168,
+    "V_kt": 92.64175046389838,
+    "shaft_hp_available": 368.8332068093715
+   },
+   {
+    "h_ft": 6000.0,
+    "rate_fpm": 1733.4523701765743,
+    "V_kt": 93.10509092030131,
+    "shaft_hp_available": 354.5833960514391
+   },
+   {
+    "h_ft": 7000.0,
+    "rate_fpm": 1644.1353439632633,
+    "V_kt": 92.99978290890385,
+    "shaft_hp_available": 340.38093253199315
+   },
+   {
+    "h_ft": 8000.0,
+    "rate_fpm": 1557.8988345613236,
+    "V_kt": 92.91902457751893,
+    "shaft_hp_available": 326.7617506654693
+   },
+   {
+    "h_ft": 9000.0,
+    "rate_fpm": 1474.7370076884847,
+    "V_kt": 92.86355710281521,
+    "shaft_hp_available": 313.7261541288167
+   },
+   {
+    "h_ft": 10000.0,
+    "rate_fpm": 1391.1678464528325,
+    "V_kt": 92.83414964960872,
+    "shaft_hp_available": 300.68057573156995
+   },
+   {
+    "h_ft": 11000.0,
+    "rate_fpm": 1313.674134831338,
+    "V_kt": 92.83160064288155,
+    "shaft_hp_available": 288.7343891268415
+   },
+   {
+    "h_ft": 12000.0,
+    "rate_fpm": 1235.7489753961102,
+    "V_kt": 92.85673910753763,
+    "shaft_hp_available": 276.7785140267124
+   },
+   {
+    "h_ft": 13000.0,
+    "rate_fpm": 1160.5517539589712,
+    "V_kt": 93.50290983117252,
+    "shaft_hp_available": 265.33054079401984
+   },
+   {
+    "h_ft": 14000.0,
+    "rate_fpm": 1087.8275644248988,
+    "V_kt": 93.58603984748927,
+    "shaft_hp_available": 254.39087169817554
+   },
+   {
+    "h_ft": 15000.0,
+    "rate_fpm": 1014.6101612219,
+    "V_kt": 93.69954251209639,
+    "shaft_hp_available": 243.44144777817675
+   },
+   {
+    "h_ft": 16000.0,
+    "rate_fpm": 946.6269654252301,
+    "V_kt": 93.8443841530984,
+    "shaft_hp_available": 233.44822639621157
+   },
+   {
+    "h_ft": 17000.0,
+    "rate_fpm": 878.1270594658537,
+    "V_kt": 94.0215695689073,
+    "shaft_hp_available": 223.44554748370746
+   },
+   {
+    "h_ft": 18000.0,
+    "rate_fpm": 811.7764787250707,
+    "V_kt": 94.23214387229677,
+    "shaft_hp_available": 213.8829641657025
+   },
+   {
+    "h_ft": 19000.0,
+    "rate_fpm": 747.6966037696684,
+    "V_kt": 95.06967818920232,
+    "shaft_hp_available": 204.76088427659693
+   },
+   {
+    "h_ft": 20000.0,
+    "rate_fpm": 682.9411583891656,
+    "V_kt": 95.35033671216057,
+    "shaft_hp_available": 195.62927947727363
+   },
+   {
+    "h_ft": 21000.0,
+    "rate_fpm": 622.6652554523137,
+    "V_kt": 95.6677813825637,
+    "shaft_hp_available": 187.32514150718856
+   },
+   {
+    "h_ft": 22000.0,
+    "rate_fpm": 561.9179376219802,
+    "V_kt": 96.02323918677537,
+    "shaft_hp_available": 179.03271427246463
+   },
+   {
+    "h_ft": 23000.0,
+    "rate_fpm": 503.1715519189796,
+    "V_kt": 97.01047209251936,
+    "shaft_hp_available": 171.14392076244263
+   },
+   {
+    "h_ft": 24000.0,
+    "rate_fpm": 446.09560476364993,
+    "V_kt": 97.44584462084589,
+    "shaft_hp_available": 163.63254188247498
+   },
+   {
+    "h_ft": 25000.0,
+    "rate_fpm": 388.35032644337133,
+    "V_kt": 97.92322908137784,
+    "shaft_hp_available": 156.10947808983647
+   },
+   {
+    "h_ft": 26000.0,
+    "rate_fpm": 334.39885788450795,
+    "V_kt": 98.4440734584789,
+    "shaft_hp_available": 149.29670533120975
+   },
+   {
+    "h_ft": 27000.0,
+    "rate_fpm": 279.87194021502705,
+    "V_kt": 99.60237197756602,
+    "shaft_hp_available": 142.47263084984357
+   },
+   {
+    "h_ft": 28000.0,
+    "rate_fpm": 226.6885717562203,
+    "V_kt": 100.8072171010555,
+    "shaft_hp_available": 135.97149177936637
+   },
+   {
+    "h_ft": 29000.0,
+    "rate_fpm": 174.73515516337463,
+    "V_kt": 102.65273798042585,
+    "shaft_hp_available": 129.7938152534934
+   },
+   {
+    "h_ft": 30000.0,
+    "rate_fpm": 121.78229514429991,
+    "V_kt": 104.54816911130257,
+    "shaft_hp_available": 123.6047478394893
+   },
+   {
+    "h_ft": 30438.50893383933,
+    "rate_fpm": 100.00000000227124,
+    "V_kt": 105.39553157824724,
+    "shaft_hp_available": 121.15880964982307
+   }
+  ]
+ },
+ "acceptance": [
+  {
+   "row": 1,
+   "what": "table cells at or below 30,000 ft equal the Gate B record's table; new rows carry the choked flag",
+   "value": 0.0,
+   "tolerance": 1e-12,
+   "verdict": "pass"
+  },
+  {
+   "row": 2,
+   "what": "every field of r0's design record other than performance.service_ceiling_ft equals the Gate B record",
+   "value": 0.0,
+   "tolerance": 1e-09,
+   "n_compared": 322,
+   "n_different": 0,
+   "n_added": 2,
+   "n_removed": 0,
+   "verdict": "pass"
+  },
+  {
+   "row": 3,
+   "what": "no ceiling above the table top: the B-9c flag is stored and false",
+   "value": false,
+   "reads_above_top": {
+    "stage1_sizing_and_performance_ft": [
+     37500.0,
+     45000.0
+    ],
+    "mode_scans_ft": []
+   },
+   "verdict": "pass"
+  },
+  {
+   "row": 4,
+   "what": "service ceiling: Stage 1 on the extended table against the engine-cycle value; R12 under both",
+   "value": 30438.50893383933,
+   "reference": {
+    "min": 30407.13719357882,
+    "max": 30432.458065824903
+   },
+   "deviation": [
+    31.371740260510705,
+    6.050868014426669
+   ],
+   "tolerance": 1000.0,
+   "verdict": "pass"
+  },
+  {
+   "row": 5,
+   "what": "integrated climb fuel against the two-point estimate: change of total mission fuel",
+   "value": 0.0010777087784519372,
+   "tolerance": 0.01,
+   "verdict": "pass (no finding)"
+  },
+  {
+   "row": 6,
+   "what": "info-gap horizons of r0 (seed 20261122) against Gate B: R5 guarantee and R7",
+   "value": {
+    "R5_guarantee": 1.05010986328125,
+    "R7": 1.28448486328125
+   },
+   "reference": {
+    "R5_guarantee": 1.05010986328125,
+    "R7": 1.28448486328125
+   },
+   "deviation": {
+    "R5_guarantee": 0.0,
+    "R7": 0.0
+   },
+   "tolerance": 0.0001,
+   "verdict": "pass"
+  }
+ ],
+ "info_gap": {
+  "seed": 20261122,
+  "n_samples": 200,
+  "horizons": {
+   "R5": {
+    "r0": 0.4134521484375,
+    "gate_b": 0.4134521484375,
+    "difference": 0.0
+   },
+   "TO": {
+    "r0": 1.28448486328125,
+    "gate_b": 1.28448486328125,
+    "difference": 0.0
+   },
+   "LD": {
+    "r0": 1.640625,
+    "gate_b": 1.640625,
+    "difference": 0.0
+   },
+   "R5_reserve_usable": {
+    "r0": 0.5386962890625,
+    "gate_b": 0.5386962890625,
+    "difference": 0.0
+   },
+   "R5_guarantee": {
+    "r0": 1.05010986328125,
+    "gate_b": 1.05010986328125,
+    "difference": 0.0
+   },
+   "R7": {
+    "r0": 1.28448486328125,
+    "gate_b": 1.28448486328125,
+    "difference": 0.0
+   },
+   "mode_endurance": {
+    "r0": 1.050048828125,
+    "gate_b": 1.050048828125,
+    "difference": 0.0
+   },
+   "mode_cliff": {
+    "r0": 1.0924072265625,
+    "gate_b": 1.0924072265625,
+    "difference": 0.0
+   }
+  },
+  "nominal": {
+   "r0": {
+    "R5_hours": 11.000008142816982,
+    "takeoff_ft": 710.9570170858435,
+    "landing_ft": 1348.6316573288618
+   },
+   "gate_b": {
+    "R5_hours": 11.000008142816982,
+    "takeoff_ft": 710.9570170858435,
+    "landing_ft": 1348.6316573288618
+   }
+  },
+  "tolerance": 0.0001,
+  "files": {
+   "info_gap.json": {
+    "n_compared": 2960,
+    "max_relative_difference": 0.0,
+    "different": [],
+    "added": [],
+    "removed": [],
+    "skipped": [
+     "inputs",
+     "record",
+     "runtime_s"
+    ]
+   },
+   "cell_result.json": {
+    "n_compared": 166,
+    "max_relative_difference": 0.0,
+    "different": [],
+    "added": [],
+    "removed": [],
+    "skipped": [
+     "command",
+     "inputs",
+     "runtime_s",
+     "source_curve_sha256"
+    ]
+   }
+  },
+  "runtime_s": 1800.7630338668823
+ },
+ "tree_at_end": {
+  "commit": "885f97043bfb06bc1f28dac36e03f5bff27fcebc",
+  "git_dirty": false,
+  "git_dirty_files": [],
+  "excluded": "runs/task12/pd/2026-11-27/p0"
+ },
+ "runtime_s": 3026.3307139873505
+}
