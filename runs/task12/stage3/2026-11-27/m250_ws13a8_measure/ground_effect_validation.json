@@ -1,0 +1,65 @@
+{
+  "what": "ground-effect model check, the same call as tests/task12/test_ground_effect.py",
+  "wing": {
+    "span_ft": 40.0,
+    "aspect_ratio": 10.0,
+    "taper": 0.45,
+    "lattice": "medium",
+    "alpha_deg": 4.0
+  },
+  "tolerance": 0.15,
+  "rows": [
+    {
+      "h_over_b": 0.1,
+      "lattice_induced_drag_ratio": 0.4454587090177196,
+      "anderson_G_6_77": 0.7191011235955057,
+      "raymer_12_61": 0.5106558667914025,
+      "deviation_anderson": -0.3805339827722337,
+      "deviation_raymer": -0.1276733746022255,
+      "within_anderson": false,
+      "within_raymer": true,
+      "raymer_over_anderson": 0.7101308147567941
+    },
+    {
+      "h_over_b": 0.2,
+      "lattice_induced_drag_ratio": 0.6835890254066944,
+      "anderson_G_6_77": 0.911032028469751,
+      "raymer_12_61": 0.7469385723159074,
+      "deviation_anderson": -0.2496542338309331,
+      "deviation_raymer": -0.08481225800509362,
+      "within_anderson": false,
+      "within_raymer": true,
+      "raymer_over_anderson": 0.8198817922686327
+    },
+    {
+      "h_over_b": 0.3,
+      "lattice_induced_drag_ratio": 0.7977810102264256,
+      "anderson_G_6_77": 0.9584026622296173,
+      "raymer_12_61": 0.8442962602788034,
+      "deviation_anderson": -0.1675930778713859,
+      "deviation_raymer": -0.05509351662533435,
+      "within_anderson": false,
+      "within_raymer": true,
+      "raymer_over_anderson": 0.8809410632422932
+    },
+    {
+      "h_over_b": 0.5,
+      "lattice_induced_drag_ratio": 0.900695656376809,
+      "anderson_G_6_77": 0.9846153846153847,
+      "raymer_12_61": 0.9210563412427157,
+      "deviation_anderson": -0.0852309739923034,
+      "deviation_raymer": -0.02210579739175944,
+      "within_anderson": true,
+      "within_raymer": true,
+      "raymer_over_anderson": 0.9354478465746331
+    }
+  ],
+  "verdict": "inside +-15 % of Raymer (12.61) at 4 of 4 h/b values and of Anderson (6.77) at 1 of 4; the two books differ by 29 % at h/b 0.1. The references were fixed in advance, so a row outside is reported, not tuned",
+  "inputs": {
+    "commit": "1cfa9640a0fba632477b0283e88c38ffe104ce37",
+    "python": "3.13.18",
+    "numpy": "2.5.3",
+    "seed": null,
+    "command": "python -m measurement.ground_effect_validation --out runs/task12/stage3/2026-11-27/m250_ws13a8_measure/ground_effect_validation.json"
+  }
+}
