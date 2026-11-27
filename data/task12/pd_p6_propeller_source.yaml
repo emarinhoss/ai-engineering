@@ -1,0 +1,218 @@
+# Task 12 preliminary design P6: where the propeller data comes from, and every value read from a figure.
+# Written by hand on 2026-11-27 from files opened in that session. No value here is from memory.
+# Read by prelim/p6_propeller.py; tests/task12_pd/test_p6_bem.py checks its internal consistency.
+# The PDFs are kept in the session scratchpad only and are not committed.
+
+reports:
+  tr640:
+    number: "NACA Report 640 (NACA-TR-640)"
+    title: "The Aerodynamic Characteristics of Full-Scale Propellers Having 2, 3, and 4 Blades of Clark Y and R.A.F. 6 Airfoil Sections"
+    authors: "Edwin P. Hartman, David Biermann"
+    year: 1938
+    ntrs_id: "19930091715"
+    url: "https://ntrs.nasa.gov/api/citations/19930091715/downloads/19930091715.pdf"
+    pdf_sha256: "8dbac568053c7cde59c32364d4853bb47702c745e630e1ce174d1af5048493e0"
+    pdf_bytes: 20528338
+    pdf_pages: 30
+    pdf_committed: false
+    opened_in_this_session: true
+    used_for: "validation row 5: the measured propeller (blade geometry, Fig. 2; efficiency, Fig. 12)"
+    why_this_one: >-
+      Of the three candidates (TR-640, TR-650, TR-642; NTRS metadata of all three was read) TR-640 has a
+      three-blade propeller, prints the blade-form curves and the efficiency curves of that propeller, and
+      was opened first. TR-650 and TR-642 were not downloaded.
+  tr259:
+    number: "NACA Report 259 (NACA-TR-259)"
+    title: "Characteristics of Propeller Sections Tested in the Variable Density Wind Tunnel"
+    authors: "Eastman N. Jacobs"
+    year: 1928
+    ntrs_id: "19930091327"
+    url: "https://ntrs.nasa.gov/api/citations/19930091327/downloads/19930091327.pdf"
+    found_by: "https://ntrs.nasa.gov/api/citations/search?q=%22propeller%20sections%22%20variable%20density%20wind%20tunnel (one hit)"
+    pdf_sha256: "e2bf001c7b4bd07546f021f9f95192b772ceb0afeb5723787ed2178b722f5607"
+    pdf_bytes: 867925
+    pdf_pages: 16
+    pdf_committed: false
+    opened_in_this_session: true
+    used_for: "section lift and drag of the blade elements (data/task12/pd_p6_tr259_sections.yaml)"
+  acr4b04:
+    number: "NACA ACR 4B04 (reissued as a NACA Wartime Report)"
+    title: "Comparison of Calculated and Experimental Propeller Characteristics for Four-, Six-, and Eight-Blade Single-Rotating Propellers"
+    authors: "John L. Crigler"
+    year: 1944
+    ntrs_id: "19930093324"
+    url: "https://ntrs.nasa.gov/api/citations/19930093324/downloads/19930093324.pdf"
+    pdf_sha256: "27c59836777023f4634d7d6415b0268aa77c3e44273bb70482e0129d98cb7e08"
+    pdf_bytes: 32249852
+    pdf_pages: 31
+    pdf_committed: false
+    opened_in_this_session: true
+    used_for: >-
+      the open statement of strip theory with a correction for a finite number of blades, recorded before
+      use (spec P6 step 2). Its pages 4 to 6 (printed) state the method "as used by Lock": the element
+      solidity sigma = B b/(2 pi r), the inflow angle from tan(eps) = sigma C_L/(4 F sin(phi)) with F the
+      Goldstein factor read from a chart, and tan(gamma) = C_D/C_L. Only the first 8 PDF pages were read.
+    what_it_does_not_give: >-
+      It takes F from Goldstein's chart, not from Prandtl's closed form, and it writes the light-loading
+      (vortex) form, not the momentum balance per annulus. prelim/bem.py writes the momentum balance
+      itself (it follows from Mattingly (L.3) and (L.5) applied to one annulus) and uses Prandtl's
+      closed form for F. No opened open source prints Prandtl's F; it is written from its textbook
+      definition and that is listed as an assumption in the report.
+  opened_and_not_used:
+    - {ntrs_id: "19980017535", number: "NASA/TM-1998-206637", sha256: "845814e1a4ac704f5d9e51f7e5d9f96f3e0de65c07e1aec0ef2fcb9592086d76",
+       why: "names Glauert's and Adkins and Liebeck's strip theory (PDF pages 53 to 54) but prints no equation of it"}
+    - {ntrs_id: "20190027611", number: "AIAA 2019-1219 (slides)", sha256: "a447b546c4fb760023036c09d5f662ae7cd5bf7acb5476b446db22fb93405bb2",
+       why: "slides; no equations"}
+
+library_figure:
+  what: "Mattingly, Aircraft Engine Design 2nd ed., Fig. L.5, p. 616: element efficiency against inflow angle, (1 - a')/(1 + a) = 0.8"
+  page_opened: "2026-11-27, uv run alex page mattingly-aircraft-engine-design 616 (rendered page, 1600 px long side)"
+  axis_check: "the frame's 1.0 and 0.0 lines are 500 px apart; the drawn C_L/C_D = infinity line reads 0.800"
+  plateau:           # highest value of each curve, near 45 deg
+    - {lift_to_drag: 50, reading_eye: 0.768, reading_pixel: 0.768}
+    - {lift_to_drag: 10, reading_eye: 0.656, reading_pixel: 0.655}
+  reading_uncertainty: 0.01     # the drawn line is 2 px wide (0.004); 0.01 is taken
+
+tr640_test:
+  propeller: "Navy design, drawing 5868-9, Clark Y sections, 3 blades (printed page 1)"
+  diameter_ft: 10.0
+  blades: 3
+  body: "geared Curtiss Conqueror engine in a liquid-cooled engine nacelle, 43 in deep, 38 in wide, 126 in long (printed page 2)"
+  tunnel: "N.A.C.A. 20-foot wind tunnel, open throat, up to about 115 miles per hour (printed pages 1 and 2)"
+  rpm_schedule_3_blades: {15: 1000, 20: 1000, 25: 1000, 30: 900, 35: 800, 40: 800, 45: 700}     # table on printed page 3, row 5868-9, 3 blades
+  rpm_note: "held below 115 mph tunnel speed; above, the tunnel speed is held and rpm is about 1,000/(V/nD) (printed page 3)"
+  efficiency_definition: >-
+    eta = C_T (V/nD)/C_P with the effective thrust T_e = T - delta D, shaft tension less the change of body
+    drag due to the slipstream (printed page 3): a propulsive efficiency of the propeller and engine unit,
+    not of the isolated propeller.
+  precision: "repeat tests usually checked first tests within about 1 percent (printed page 3)"
+
+blade_geometry:
+  figure: "Figure 2, printed page 2 (PDF page 6): blade-form curves for propellers 5868-9, 5868-R6 and 37-3647"
+  scan: "PDF page 6 rendered at 300 dpi (pdftoppm -r 300), figure crop x 170 to 1299, y 1435 to 2801"
+  grid: "vertical lines every 0.05 in r/R; horizontal lines every 0.005 in b/D, 0.02 in h/b, 0.1 in p/D; the page is skewed by about 3 px in 1,000"
+  readings: >-
+    eye_tile: by eye on 4x and 5x enlarged tiles, the curve where it crosses the station's grid line, against
+    a mark drawn at a trial value. code: prelim/p6_figure_read.py, a straight line through the curve's
+    crossings of up to ten columns 8 to 20 px either side of the grid line; null where the fit landed on a
+    neighbouring curve or a label (seen on the tile) or found fewer than four crossings. eye_crop: the first
+    reading, by eye on 2x enlarged crops, used as the second reading where the code has none.
+  value_rule: "value = mean of eye_tile and the second reading (code, or eye_crop where code is null)"
+  uncertainty_rule: "half the difference of the two readings, at least 1.5 px: 0.00015 in b/D, 0.0006 in h/b, 0.003 in p/D"
+  # rows: [r/R, eye_tile, code, eye_crop]
+  b_over_D:
+    - [0.20, 0.0380, null,    0.0382]
+    - [0.25, 0.0452, 0.04534, 0.0452]
+    - [0.30, 0.0533, 0.05327, 0.0536]
+    - [0.35, 0.0612, null,    0.0612]
+    - [0.40, 0.0690, null,    0.0693]
+    - [0.45, 0.0743, 0.07410, 0.0746]
+    - [0.50, 0.0761, 0.07605, 0.0762]
+    - [0.55, 0.0753, 0.07529, 0.0754]
+    - [0.60, 0.0734, 0.07319, 0.0736]
+    - [0.65, 0.0700, 0.06996, 0.0701]
+    - [0.70, 0.0659, null,    0.0658]
+    - [0.75, 0.0612, 0.06135, 0.0610]
+    - [0.80, 0.0563, 0.05635, 0.0563]
+    - [0.85, 0.0507, 0.05070, 0.0505]
+    - [0.90, 0.0447, 0.04441, 0.0450]
+    - [0.95, 0.0378, 0.03785, 0.0377]
+  h_over_b_note: >-
+    Inboard of r/R 0.35 the thickness ratio is above 0.20, the thickest section with data; the curve leaves
+    the plot (above 0.44) near r/R 0.29. No value is read there and the model takes the 0.20 section.
+  h_over_b:
+    - [0.35, 0.2446, null,    0.2446]
+    - [0.40, 0.1745, 0.17493, 0.1720]
+    - [0.45, 0.1382, 0.13784, 0.1386]
+    - [0.50, 0.1188, null,    0.1214]
+    - [0.55, 0.1087, 0.10856, 0.1097]
+    - [0.60, 0.1015, 0.10200, 0.1019]
+    - [0.65, 0.0964, 0.09638, 0.0968]
+    - [0.70, 0.0923, 0.09238, 0.0923]
+    - [0.75, 0.0890, 0.08916, 0.0889]
+    - [0.80, 0.0864, 0.08661, 0.0863]
+    - [0.85, 0.0847, 0.08480, 0.0844]
+    - [0.90, 0.0830, 0.08305, 0.0830]
+    - [0.95, 0.0822, null,    0.0822]
+  pitch_set_25_note: "p/D of the curve marked 25 deg (set 25 deg at 0.75R); the blade angle is atan(p/D / (pi r/R))"
+  pitch_set_25:
+    - [0.20, 0.6480, 0.64894, 0.647]
+    - [0.25, 0.7590, 0.76010, 0.754]
+    - [0.30, 0.8445, 0.84513, 0.843]
+    - [0.35, 0.9040, 0.90536, 0.903]
+    - [0.40, 0.9425, 0.94225, 0.945]
+    - [0.45, 0.9600, 0.95979, 0.960]
+    - [0.50, 0.9770, 0.97800, 0.976]
+    - [0.55, 0.9990, null,    0.999]
+    - [0.60, 1.0220, 1.02069, 1.023]
+    - [0.65, 1.0465, 1.04606, 1.047]
+    - [0.70, 1.0725, 1.07301, 1.072]
+    - [0.75, 1.0995, 1.10006, 1.099]
+    - [0.80, 1.1275, 1.12692, 1.128]
+    - [0.85, 1.1565, 1.15629, 1.157]
+    - [0.90, 1.1880, null,    1.188]
+    - [0.95, 1.2150, null,    1.216]
+  pitch_set_15_note: "the curve marked 15 deg, read as a cross-check of the twist only: [r/R, null, code, eye_crop]"
+  pitch_set_15:
+    - [0.20, null, 0.46314, 0.458]
+    - [0.25, null, 0.53408, 0.528]
+    - [0.30, null, 0.58880, 0.592]
+    - [0.35, null, 0.62554, 0.625]
+    - [0.40, null, 0.64072, 0.640]
+    - [0.45, null, 0.63880, 0.640]
+    - [0.50, null, 0.63572, 0.637]
+    - [0.55, null, 0.63223, 0.633]
+    - [0.60, null, 0.62970, 0.6305]
+    - [0.70, null, 0.62896, 0.630]
+    - [0.75, null, 0.62981, 0.631]
+    - [0.80, null, 0.63127, 0.630]
+    - [0.90, null, 0.63766, 0.639]
+    - [0.95, null, 0.64217, 0.643]
+  not_read: "the 35 deg pitch curve (read in part by eye only, not used); r/R beyond 0.95 (the plot ends at 0.975)"
+
+efficiency:
+  figure: "Figure 12, printed page 7 (PDF page 11): efficiency curves for propeller 5868-9, Clark Y section, 3 blades"
+  scan: "PDF page 11 rendered at 300 dpi, figure crop x 171 to 2332, y 2360 to 3249"
+  grid: >-
+    lines every 0.1 in V/nD and in eta. The page is skewed (about 20 px in 1,600) and the frame's top and
+    bottom lines are not on the pitch of the inner lines, so the scale is taken from the 0.1 and 0.9 lines.
+  stations: >-
+    Chosen before any calculation, where the curve is above 0.5 (it is drawn solid there; dashed below about
+    V/nD 0.25). 15 deg: every 0.05 from 0.30 to 0.75. 25 deg: 0.45 (the lowest 0.05 station above 0.5), every
+    0.1 from 0.5 to 1.0, and every 0.05 from 1.0 to 1.25, where the curve turns down.
+  readings: >-
+    code: prelim/p6_figure_read.py, a straight line through the curve's crossings of up to ten columns 8 to
+    24 px either side of the station. eye_tile: by eye on 4x enlarged tiles against a mark at a trial value.
+  value_rule: "value = mean of the two readings"
+  uncertainty_rule: "half the difference of the two readings, at least 0.004 (the drawn line is about 3 px wide)"
+  judged_rule: "a station is judged in row 5 if its reading uncertainty is at most 0.015, half the row's tolerance"
+  # rows: [V/nD, code, eye_tile]
+  blade_angle_15:
+    - [0.30, 0.5224, 0.5240]
+    - [0.35, 0.5862, 0.5840]
+    - [0.40, 0.6402, 0.6400]
+    - [0.45, 0.6834, 0.6830]
+    - [0.50, 0.7192, 0.7190]
+    - [0.55, 0.7463, 0.7460]
+    - [0.60, 0.7666, 0.7670]
+    - [0.65, 0.7781, 0.7764]
+    - [0.70, 0.7580, 0.7547]
+    - [0.75, 0.6755, 0.6748]
+  blade_angle_25:
+    - [0.45, 0.5238, 0.5240]
+    - [0.50, 0.5807, 0.5810]
+    - [0.60, 0.6700, 0.6700]
+    - [0.70, 0.7283, 0.7280]
+    - [0.80, 0.7756, 0.7760]
+    - [0.90, 0.8158, 0.8162]
+    - [1.00, 0.8441, 0.8437]
+    - [1.05, 0.8452, 0.8450]
+    - [1.10, 0.8391, 0.8390]
+    - [1.15, 0.8113, 0.8144]
+    - [1.20, 0.7561, 0.7576]
+    - [1.25, 0.5946, 0.5560]
+  note_1_25: >-
+    At V/nD 1.25 the 25 deg curve falls at about 7 in eta per unit of V/nD; the code's straight-line fit is
+    biased high by the curvature and the two readings differ by 0.039. By the judged rule the station is
+    reported and not judged.
+  not_read: "the 20, 30, 35, 40 and 45 deg curves"

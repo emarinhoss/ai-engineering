@@ -1,0 +1,14 @@
+# Task 12 preliminary design P6: the blade choices of the representative propeller (spec P6 step 1, decision PD-10).
+# Same entry form as data/task12/ledger.yaml. They are assumptions of P6, proposed for r1's ledger (P9); the
+# Gate B ledger and r0's copy of it are not edited. Fixed on 2026-11-27 before any blade-element run.
+# prelim/p6_propeller.py reads this file; the sensitivity table of the report moves each entry to its band ends.
+entries:
+  prop_blades:             {value: 3, units: "-", confidence: assumed, source: "PD-10: three blades, as the OpenVSP model draws; the record fixes no blade count. Not varied"}
+  prop_activity_factor:    {value: 100.0, units: "-", confidence: assumed, band: [90.0, 140.0], source: "Activity factor per blade, Raymer (13.14) p. 327: range about 90 to 200, typical light aircraft 100, large turboprop 140; Fig. 13.8 p. 328 is drawn for 100. Band by judgement inside Raymer's range"}
+  prop_design_cl:          {value: 0.5, units: "-", confidence: assumed, band: [0.4, 0.6], source: "Section lift coefficient of every station at the loiter point, which sets the twist (spec P6 step 1: about 0.5; Raymer Fig. 13.8 p. 328 is for a blade design C_L of 0.5). Band by judgement"}
+  prop_planform:           {value: "navy_5868_9", units: "-", confidence: assumed, source: "Chord distribution b/D against r/R of the Navy propeller 5868-9 (NACA Report 640 Fig. 2), scaled by one factor to the activity factor above. Chosen because it is the propeller the strip theory is validated on. Not varied"}
+  prop_thickness_scale:    {value: 1.0, units: "-", confidence: assumed, band: [0.8, 1.2], source: "Factor on the thickness ratio h/b of propeller 5868-9 (NACA Report 640 Fig. 2: 0.089 at 0.75R, 0.082 at 0.95R). Band by judgement"}
+  prop_hub_fraction:       {value: 0.2, units: "-", confidence: assumed, band: [0.2, 0.3], source: "Radius where the blade starts, as a fraction of the tip radius: the blade-form curves of NACA Report 640 Fig. 2 start at 0.2. The upper end leaves out the shank stations whose thickness ratio is above the thickest section with data"}
+  prop_section_family:     {value: "usnps_tr259", units: "-", confidence: assumed, source: "Flat-bottomed propeller sections U.S.N.P.S. 1 to 6 of NACA Report 259, thickness ratios 0.04 to 0.20, measured at a Reynolds number of about 3.6 million on a wing of aspect ratio 6. Not varied"}
+  prop_section_span_factor: {value: 0.95, units: "-", confidence: published, band: [0.90, 1.00], source: "Factor e in the induced angle C_L/(pi e A) and the induced drag C_L^2/(pi e A) removed from the aspect-ratio-6 data: Anderson APD (2.15) p. 81, e1 typically about 0.95. Band by judgement; 1.0 is the elliptic wing"}
+  prop_compressibility:    {value: "none", units: "-", confidence: assumed, source: "Section data are low-speed data used at every relative Mach number. The Prandtl-Glauert factor on the lift (Anderson APD p. 82) is run as a sensitivity only"}
