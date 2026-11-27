@@ -288,7 +288,7 @@ def report_text(out):
           "The aircraft is r0 as built (wing area, tanks, fuel); only the section maximum lift changes. Hours on station are the "
           "loiter time at which the mission burns r0's fuel (`measurement.info_gap.Built`, as the info-gap study). The mission "
           "holds every cruise and loiter sub-step at or above 1.3 V_stall clean at the current weight (R17).", ""]
-    T += table(["Case", "Section", "Wing clean", "Hours on station", "Loiter speed, mean (kt)", "Loiter speed, start (kt)",
+    T += table(["Case", "Section", "Wing clean", "Hours on station", "Loiter speed, mean (kt)", "Loiter speed, fastest sub-step (kt)",
                 "Loiter sub-steps on the floor", "Stall, sea level, W0 (kt)", "Take-off (ft)", "Landing (ft)"],
                [[name, n(f[k]["airfoil_cl_max"], 3), n(f[k]["CL_max"]["clean"], 3), n(f[k]["hours_on_station"], 2),
                  n(f[k]["loiter_speed_kt"], 2), n(f[k]["loiter_top_speed_kt"], 2), n(f[k]["loiter_floor_fraction"], 2),
@@ -356,8 +356,8 @@ def report_text(out):
           f"3. The section moment is the mean of the quarter-chord moment points between {n(p2.LINEAR_RANGE_DEG[0], 0)} and "
           f"{n(p2.LINEAR_RANGE_DEG[1], 0)} deg, taken as the ledger's zero-lift moment `airfoil_cm0`.",
           "4. A public third-party digitization of the report's figure was used because the report could not be opened. The "
-          "caller's rule was to stop if no open source could be reached; one could, so the data steps were done and the "
-          "difference is stated in sections 3, 4 and 14.",
+          "package brief said to stop the data steps if no open source could be reached; one could, so the data steps were "
+          "done and the difference is stated in sections 3, 4 and 14.",
           "5. The digitizer's file is committed unchanged and parsed, instead of being typed into a table.",
           "6. The Reynolds numbers of the sets are the archive's approximate values. The order of the sets agrees with them: "
           "maximum lift rises and lowest drag falls from set 1 to set 3.",
