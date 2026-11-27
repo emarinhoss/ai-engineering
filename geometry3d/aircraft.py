@@ -42,13 +42,16 @@ def build(d, L, A):
     m["fuselage"] = Body(rows, lo["nose_length_over_length"] * L_f)
     z_w = lo["wing_z_over_diameter"] * D_f
     m["wing"] = LiftingSurface(WING_SECTION, lay["x_le"], z_w, w["span"] / 2, w["root_chord"], w["tip_chord"])
-    x_ht = lay["x_ac"] + d["tail_arm_ft"] - 0.25 * ht["mac"]
+    # r0's record has no tail sweep: the root leading edges are a quarter of the mean chord ahead of the tail arm's
+    # station, the tailplane unswept and the fin at the drawing's slope. A record with "le_slope" in a tail (P4,
+    # PD-20) gives that tail's leading-edge slope and has the mean chord's quarter point at the tail arm.
+    x_ht = lay["x_ac"] + d["tail_arm_ft"] - 0.25 * ht["mac"] - ht.get("le_slope", 0.0) * ht.get("mac_y", 0.0)
     m["horizontal_tail"] = LiftingSurface(TAIL_SECTION, x_ht, lo["tail_z_over_diameter"] * D_f, ht["span"] / 2,
-                                          ht["root_chord"], ht["tip_chord"])
-    x_vt = lay["x_ac"] + d["tail_arm_ft"] - 0.25 * vt["mac"]
+                                          ht["root_chord"], ht["tip_chord"], ht.get("le_slope", 0.0))
+    x_vt = lay["x_ac"] + d["tail_arm_ft"] - 0.25 * vt["mac"] - vt.get("le_slope", 0.0) * vt.get("mac_y", 0.0)
     z_vt = lo["fin_root_z_over_stage1_radius"] * stage1_radius(x_vt, L_f, D_f)
     m["vertical_tail"] = LiftingSurface(TAIL_SECTION, x_vt, z_vt, vt["height"], vt["root_chord"],
-                                        L["vt_taper"] * vt["root_chord"], lo["fin_le_slope"], vertical=True)
+                                        L["vt_taper"] * vt["root_chord"], vt.get("le_slope", lo["fin_le_slope"]), vertical=True)
     gt = lay["gear_track"]
     sl, sd = gt["sponson_length_ft"], gt["sponson_depth_ft"]
     fa, fb, fc = lo["sponson_semi_axes_over_size"]

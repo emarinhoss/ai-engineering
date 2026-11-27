@@ -37,15 +37,17 @@ neutral_point:
 trim_and_rotation:
   airfoil_cm0: {value: -0.0911, source: "P2 record runs/task12/pd/2026-11-27/p2b/p2.json (section moment about the quarter chord, NACA 4415 measured); the ledger has -0.08"}
   # Forward limit of the envelope: the most forward centre of gravity at which (a) the tail lift coefficient at
-  # rotation stays within the ledger's tail_cl_max_rotation, at take-off weight, and (b) the tail lift coefficient
-  # in trim stays within tail_cl_max_trim at the mission leg with the largest lift coefficient. Stage 1's own
-  # equations (conceptual/uav.layout), with P2's section moment.
+  # rotation stays within the ledger's tail_cl_max_rotation, for loadings with the gear down, each at its own
+  # weight, and (b) the tail lift coefficient in trim stays within tail_cl_max_trim at the mission leg with the
+  # largest lift coefficient, for every loading. Stage 1's own equations (conceptual/uav.layout), with P2's
+  # section moment.
 
 r1:
   # What P4 hands to the closing re-record (PD-20). Not applied to r0.
   propeller_clearance_ft: {value: 1.0, band: [0.5, 2.0], source: "Least distance, along the axis, from the propeller plane forward to any part of a tail surface inside the propeller disc's radius. A judgement: the library gives no number (Raymer p. 222-223 says only that a propeller behind a wing should be mounted as far behind it as possible). 1 ft is about 0.15 propeller diameters and leaves room for the blades' deflection and the elevator's trailing edge. Solved at the band ends as a sensitivity"}
   tail_volume_coefficients: "kept: horizontal c_ht times r0's ht_volume_scale, vertical c_vt (Raymer (6.28), (6.29), p. 111); the areas grow as the arm shortens. Aspect ratios and tapers kept."
+  tail_trailing_edges: "straight (all the taper on the leading edge), both tails. Added on 2026-11-27 after a trial of the methods, before any recorded run: with r0's planforms the solution does not exist (PD-20). The first form is still solved in the record."
   wing_position_rule: "Stage 1's own rule: the mean of the full-fuel and empty-fuel static margins (payload on, gear up, nominal empty weight) is 0.10 MAC, the middle of R13, here with the independent neutral point, power off."
   main_gear_rule: "Stage 1's own rule: the main wheels are the tipback angle (15 deg) behind the aftmost centre of gravity with the gear down (Raymer p. 232). The nose wheel stays at r0's station."
   moves_with_the_wing: ["wing", "fuel_system", "sponsons", "fuel"]
-  weights: "Tail weights by the area terms of Raymer (15.47) and (15.48) (S^0.896 and S^0.873) and the fuselage by the tail-arm term of (15.49) (L_t^-0.051), as ratios on r0's component weights, p. 404; nothing else changes and the aircraft is not re-sized (the take-off weight moves by the same pounds)."
+  weights: "Tail weights by Raymer (15.47) and (15.48) (area to the 0.896 and 0.873; the tailplane's quarter-chord sweep terms; the fin weighed unswept, as Stage 1 weighs r0's) and the fuselage by the tail-arm term of (15.49) (L_t^-0.051), as ratios on r0's component weights, p. 404; nothing else changes and the aircraft is not re-sized (the take-off weight moves by the same pounds)."
