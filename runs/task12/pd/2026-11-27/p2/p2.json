@@ -1,0 +1,2977 @@
+{
+ "inputs": {
+  "commit": "0eee58d88d2158c11e95165de321835ab98f228d",
+  "git_dirty": false,
+  "git_dirty_files": [],
+  "excluded": "runs/task12/pd/2026-11-27/p2",
+  "command": "python -m prelim.p2_section --out runs/task12/pd/2026-11-27/p2",
+  "seed": null,
+  "seed_note": "no random numbers are drawn in P2",
+  "python": "3.13.18",
+  "numpy": "2.5.3",
+  "pyyaml": "6.0.3",
+  "matplotlib": "3.11.2",
+  "files": {
+   "r0_design": "runs/task12/pd/2026-11-27/p0/r0/design_pusher.json",
+   "r0_ledger": "runs/task12/pd/2026-11-27/p0/r0/ledger.yaml",
+   "r0_cell_result": "runs/task12/pd/2026-11-27/p0/r0/cell_result.json",
+   "r0_engine_table": "runs/task12/pd/2026-11-27/p0/r0/m250_table.json",
+   "source_record": "data/task12/pd_p2_section_source.yaml",
+   "digitized_4415": "data/task12/tr824_digitized/142.ALL",
+   "digitized_index": "data/task12/tr824_digitized/NACA.LST"
+  },
+  "sha256": {
+   "r0_design": "2af85aca9acd46a527342765735f3cb2dd7f4e9846ef81f7b9973022ed8261a0",
+   "r0_ledger": "a3b88c45e6cb182dce8b2c57b1f6e0c1825272ab69d661251f82e70f7c952cbe",
+   "r0_cell_result": "83c078c1433fea90bc07f3c67fd3430c42f11fcf3ad881cf7b3ab75a0cc2e3d4",
+   "r0_engine_table": "48e24462bb6468bffc72974469f0ac92aefd047d80eecee0fc6c190aa05316a7",
+   "source_record": "becb7cd4e3502fa85891702630cbb5ba1936043f02cf2ef8ef815e6258a93cb5",
+   "digitized_4415": "c6f95d8eb794a0277a8b9864a8b51a2e8fcf9608d86be39574fcf73bff89db70",
+   "digitized_index": "2d140795c8bf9c786d749ac24d84d09ddb4f12e9c52b522fe5ec66be85e7144d"
+  },
+  "tree_unchanged_during_run": true
+ },
+ "evidence_class": "independent of Stage 1 and of the library (measured data), but read through a third party's digitization that was not checked against the report",
+ "baseline": "runs/task12/pd/2026-11-27/p0/r0",
+ "source": {
+  "report": {
+   "number": "NACA Report 824 (TR-824)",
+   "title_as_given_by_the_archive": "NACA TR 824",
+   "opened_in_this_session": false,
+   "why_not": "The report is a scan and its hosts were not reachable from the container on 2026-11-27. The points used here were therefore not read from the report's figure by this project. They are a third party's digitization of that figure (below).",
+   "blocked": [
+    {
+     "host": "ntrs.nasa.gov",
+     "url": "https://ntrs.nasa.gov/api/citations/19930090976/downloads/19930090976.pdf",
+     "tool": "curl",
+     "error": "curl: (56) CONNECT tunnel failed, response 403 (egress proxy: connect_rejected)"
+    },
+    {
+     "host": "ntrs.nasa.gov",
+     "url": "https://ntrs.nasa.gov/citations/19930090976",
+     "tool": "WebFetch",
+     "error": "getaddrinfo ENOTFOUND ntrs.nasa.gov (outside the session's allowed network domains)"
+    },
+    {
+     "host": "archive.org",
+     "tool": "curl",
+     "error": "no connection through the proxy (HTTP code 000)"
+    },
+    {
+     "host": "web.archive.org",
+     "tool": "curl",
+     "error": "no connection through the proxy (HTTP code 000)"
+    },
+    {
+     "host": "digital.library.unt.edu",
+     "tool": "curl",
+     "error": "no connection through the proxy (HTTP code 000)"
+    },
+    {
+     "host": "naca.central.cranfield.ac.uk",
+     "tool": "curl",
+     "error": "no connection through the proxy (HTTP code 000)"
+    },
+    {
+     "host": "m-selig.ae.illinois.edu",
+     "tool": "curl",
+     "error": "no connection through the proxy (HTTP code 000)"
+    },
+    {
+     "host": "airfoiltools.com",
+     "tool": "curl",
+     "error": "no connection through the proxy (HTTP code 000)"
+    }
+   ],
+   "ntrs_document_id_from_web_search": "19930090976"
+  },
+  "digitization": {
+   "what": "Text files of the plotted points of NACA TR 824, one file per page of the report, made in 1994 by Gregory P. D. Siemens at the University of Saskatchewan and declared public domain in the archive's Readme.txt. Each file holds angle of attack against lift coefficient, angle of attack against moment coefficient about the quarter chord, lift coefficient against drag coefficient, and lift coefficient against moment coefficient about the aerodynamic centre.",
+   "repository": "https://github.com/enritoomey/Perfiles2D",
+   "repository_licence": "MIT (file License of the repository)",
+   "commit": "64511f3a404398b6637fae047e2747b99ab0bf53",
+   "folder": "TR824-Digitized",
+   "fetched": "2026-11-27, git clone --depth 1 through the session proxy",
+   "files": {
+    "142.ALL": {
+     "url": "https://github.com/enritoomey/Perfiles2D/blob/64511f3a404398b6637fae047e2747b99ab0bf53/TR824-Digitized/142.ALL",
+     "committed_as": "data/task12/tr824_digitized/142.ALL",
+     "sha256": "c6f95d8eb794a0277a8b9864a8b51a2e8fcf9608d86be39574fcf73bff89db70",
+     "note": "byte for byte the same as TR824-Digitized/4415.txt of the same commit (cmp, 2026-11-27)"
+    },
+    "NACA.LST": {
+     "url": "https://github.com/enritoomey/Perfiles2D/blob/64511f3a404398b6637fae047e2747b99ab0bf53/TR824-Digitized/NACA.LST",
+     "committed_as": "data/task12/tr824_digitized/NACA.LST",
+     "sha256": "2d140795c8bf9c786d749ac24d84d09ddb4f12e9c52b522fe5ec66be85e7144d"
+    },
+    "Readme.txt": {
+     "url": "https://github.com/enritoomey/Perfiles2D/blob/64511f3a404398b6637fae047e2747b99ab0bf53/TR824-Digitized/Readme.txt",
+     "committed_as": null,
+     "sha256": "49e5118b9279d4aaa45e2c34c4c20da3f75ed51e78f7a582911754f7cb7eb2f5"
+    }
+   }
+  },
+  "sections": {
+   "naca4415": {
+    "file": "142.ALL",
+    "page": 142,
+    "page_checked_against_the_report": false,
+    "figure": null,
+    "sets": {
+     "1": {
+      "reynolds": 3000000.0,
+      "surface": "smooth"
+     },
+     "2": {
+      "reynolds": 6000000.0,
+      "surface": "smooth"
+     },
+     "3": {
+      "reynolds": 9000000.0,
+      "surface": "smooth"
+     },
+     "4": {
+      "reynolds": 6000000.0,
+      "surface": "standard roughness"
+     },
+     "5": {
+      "reynolds": null,
+      "surface": "simple split flap (not used here: the aircraft has slotted flaps)"
+     }
+    }
+   },
+   "naca0012": {
+    "file": null,
+    "status": "not obtained",
+    "reason": "NACA.LST of the archive lists the NACA 0006 and 0009 and no 0012, and the report could not be opened to look for it. No measured 0012 data is used in P2."
+   }
+  },
+  "reading": {
+   "read_twice": false,
+   "how_read": "Not transcribed by hand at all. The committed file is the archive's file, byte for byte (sha256 above), and the loader parses it. So there is no transcription step of this project that could be wrong, and there is no second reading of the report's figure either: the digitizer's reading error is unknown.",
+   "uncertainty_method": "The scatter of the digitized lift points about a straight line fitted between -6 and +6 degrees is computed in the run and reported as the reading scatter. It contains the tunnel's own scatter and any curvature, so it over-states the digitizing error alone. The highest plotted point is taken as the maximum lift; the test points are about 2 degrees apart, so a faired peak between two points could be higher by an amount the points do not show.",
+   "to_close": "When ntrs.nasa.gov (or another host of the scan) is allowed: open page 142 of NACA Report 824, record the figure number, and read the maximum lift, the minimum lift and five points of each lift curve twice against this file."
+  }
+ },
+ "ledger": {
+  "airfoil_cl_max": 1.5,
+  "airfoil_cm0": -0.08,
+  "wing_t_c": 0.15,
+  "speed_over_stall": 1.3,
+  "mission_altitude_ft": 20000.0,
+  "flap_delta_cl_max": 1.3,
+  "flap_span_fraction": 0.6,
+  "takeoff_flap_fraction": 0.6
+ },
+ "sections": {
+  "wing": "naca4415",
+  "tail": "naca0012",
+  "tail_data": {
+   "status": "not obtained",
+   "reason": "NACA.LST of the archive lists the NACA 0006 and 0009 and no 0012, and the report could not be opened to look for it. No measured 0012 data is used in P2."
+  }
+ },
+ "reynolds": [
+  {
+   "condition": "stall, sea level, W0",
+   "station": "root",
+   "V_kt": 53.33128280676374,
+   "altitude_ft": 0.0,
+   "chord_ft": 8.021340610642103,
+   "reynolds": 4592348.110189271,
+   "mach": 0.08062604649326456
+  },
+  {
+   "condition": "stall, sea level, W0",
+   "station": "mean",
+   "V_kt": 53.33128280676374,
+   "altitude_ft": 0.0,
+   "chord_ft": 6.094374877740723,
+   "reynolds": 3489128.851534606,
+   "mach": 0.08062604649326456
+  },
+  {
+   "condition": "stall, sea level, W0",
+   "station": "tip",
+   "V_kt": 53.33128280676374,
+   "altitude_ft": 0.0,
+   "chord_ft": 3.609603274788946,
+   "reynolds": 2066556.6495851718,
+   "mach": 0.08062604649326456
+  },
+  {
+   "condition": "stall, mission altitude, start of loiter",
+   "station": "root",
+   "V_kt": 70.5999167428824,
+   "altitude_ft": 20000.0,
+   "chord_ft": 8.021340610642103,
+   "reynolds": 3643659.15284278,
+   "mach": 0.11491791924349265
+  },
+  {
+   "condition": "stall, mission altitude, start of loiter",
+   "station": "mean",
+   "V_kt": 70.5999167428824,
+   "altitude_ft": 20000.0,
+   "chord_ft": 6.094374877740723,
+   "reynolds": 2768343.3333667554,
+   "mach": 0.11491791924349265
+  },
+  {
+   "condition": "stall, mission altitude, start of loiter",
+   "station": "tip",
+   "V_kt": 70.5999167428824,
+   "altitude_ft": 20000.0,
+   "chord_ft": 3.609603274788946,
+   "reynolds": 1639646.618779251,
+   "mach": 0.11491791924349265
+  },
+  {
+   "condition": "loiter, mission altitude",
+   "station": "root",
+   "V_kt": 87.25725877184887,
+   "altitude_ft": 20000.0,
+   "chord_ft": 8.021340610642103,
+   "reynolds": 4503343.973250098,
+   "mach": 0.14203164932149573
+  },
+  {
+   "condition": "loiter, mission altitude",
+   "station": "mean",
+   "V_kt": 87.25725877184887,
+   "altitude_ft": 20000.0,
+   "chord_ft": 6.094374877740723,
+   "reynolds": 3421506.16818197,
+   "mach": 0.14203164932149573
+  },
+  {
+   "condition": "loiter, mission altitude",
+   "station": "tip",
+   "V_kt": 87.25725877184887,
+   "altitude_ft": 20000.0,
+   "chord_ft": 3.609603274788946,
+   "reynolds": 2026504.7879625438,
+   "mach": 0.14203164932149573
+  },
+  {
+   "condition": "cruise out, mission altitude",
+   "station": "root",
+   "V_kt": 129.2732227039132,
+   "altitude_ft": 20000.0,
+   "chord_ft": 8.021340610642103,
+   "reynolds": 6671786.354055205,
+   "mach": 0.21042248280741832
+  },
+  {
+   "condition": "cruise out, mission altitude",
+   "station": "mean",
+   "V_kt": 129.2732227039132,
+   "altitude_ft": 20000.0,
+   "chord_ft": 6.094374877740723,
+   "reynolds": 5069023.885092517,
+   "mach": 0.21042248280741832
+  },
+  {
+   "condition": "cruise out, mission altitude",
+   "station": "tip",
+   "V_kt": 129.2732227039132,
+   "altitude_ft": 20000.0,
+   "chord_ft": 3.609603274788946,
+   "reynolds": 3002303.859324842,
+   "mach": 0.21042248280741832
+  }
+ ],
+ "measured": [
+  {
+   "set": 1,
+   "reynolds": 3000000.0,
+   "surface": "smooth",
+   "summary": {
+    "n_points": 15,
+    "cl_max": 1.41777,
+    "alpha_cl_max_deg": 12.0704,
+    "cl_max_is_a_turning_point": true,
+    "cl_min": -0.836957,
+    "alpha_cl_min_deg": -12.2544,
+    "cl_min_is_a_turning_point": false,
+    "fit": {
+     "n_points": 5,
+     "slope_per_deg": 0.1019195400791601,
+     "cl_at_zero": 0.43101391567172737,
+     "alpha_zero_lift_deg": -4.228962526096196,
+     "rms_residual": 0.033776146668166994
+    },
+    "cm_c4_linear_range": -0.0911291,
+    "cm_n_points": 5,
+    "cd_min": 0.00741276,
+    "cl_at_cd_min": 0.488086,
+    "cm_min": -0.0935155,
+    "cm_max": -0.0881645
+   },
+   "lift": [
+    [
+     20.4159,
+     1.21442
+    ],
+    [
+     18.3288,
+     1.28014
+    ],
+    [
+     16.3073,
+     1.3343
+    ],
+    [
+     14.2874,
+     1.40822
+    ],
+    [
+     12.0704,
+     1.41777
+    ],
+    [
+     10.3729,
+     1.34001
+    ],
+    [
+     8.24961,
+     1.188
+    ],
+    [
+     4.13324,
+     0.828098
+    ],
+    [
+     2.14067,
+     0.639981
+    ],
+    [
+     -0.111017,
+     0.470024
+    ],
+    [
+     -2.10397,
+     0.24245
+    ],
+    [
+     -4.19608,
+     -0.0394624
+    ],
+    [
+     -6.05509,
+     -0.18947
+    ],
+    [
+     -10.1012,
+     -0.604706
+    ],
+    [
+     -12.2544,
+     -0.836957
+    ]
+   ],
+   "moment": [
+    [
+     20.3352,
+     -0.08074275
+    ],
+    [
+     18.1803,
+     -0.07661325
+    ],
+    [
+     16.0915,
+     -0.0724855
+    ],
+    [
+     14.1342,
+     -0.0675335
+    ],
+    [
+     12.0814,
+     -0.0497905
+    ],
+    [
+     10.2206,
+     -0.065062
+    ],
+    [
+     6.11128,
+     -0.08362875
+    ],
+    [
+     3.99326,
+     -0.0881645
+    ],
+    [
+     1.97424,
+     -0.08898775
+    ],
+    [
+     -0.272293,
+     -0.092696
+    ],
+    [
+     -2.09439,
+     -0.09228175
+    ],
+    [
+     -4.33892,
+     -0.0935155
+    ],
+    [
+     -6.06235,
+     -0.0943375
+    ]
+   ],
+   "drag": [
+    [
+     1.43267,
+     0.0232513
+    ],
+    [
+     1.34098,
+     0.0167692
+    ],
+    [
+     1.2074,
+     0.0117744
+    ],
+    [
+     1.05947,
+     0.00859712
+    ],
+    [
+     0.853376,
+     0.00748533
+    ],
+    [
+     0.663512,
+     0.00754826
+    ],
+    [
+     0.488086,
+     0.00741276
+    ],
+    [
+     0.25076,
+     0.00749146
+    ],
+    [
+     0.044153,
+     0.00783601
+    ],
+    [
+     -0.187086,
+     0.00818048
+    ],
+    [
+     -0.405431,
+     0.00922246
+    ],
+    [
+     -0.615818,
+     0.0103818
+    ],
+    [
+     -0.840947,
+     0.0131536
+    ]
+   ]
+  },
+  {
+   "set": 2,
+   "reynolds": 6000000.0,
+   "surface": "smooth",
+   "summary": {
+    "n_points": 19,
+    "cl_max": 1.56987,
+    "alpha_cl_max_deg": 14.2927,
+    "cl_max_is_a_turning_point": true,
+    "cl_min": -0.879693,
+    "alpha_cl_min_deg": -14.3019,
+    "cl_min_is_a_turning_point": true,
+    "fit": {
+     "n_points": 4,
+     "slope_per_deg": 0.09700280644989967,
+     "cl_at_zero": 0.43740700623919687,
+     "alpha_zero_lift_deg": -4.509220116895384,
+     "rms_residual": 0.007037110471631751
+    },
+    "cm_c4_linear_range": -0.0901399,
+    "cm_n_points": 5,
+    "cd_min": 0.00661739,
+    "cl_at_cd_min": 0.463605,
+    "cm_min": -0.09186725,
+    "cm_max": -0.08775225
+   },
+   "lift": [
+    [
+     20.4847,
+     1.32501
+    ],
+    [
+     18.2997,
+     1.39235
+    ],
+    [
+     16.1817,
+     1.48441
+    ],
+    [
+     14.2927,
+     1.56987
+    ],
+    [
+     12.3351,
+     1.53161
+    ],
+    [
+     10.342,
+     1.39112
+    ],
+    [
+     8.31466,
+     1.18472
+    ],
+    [
+     6.15968,
+     1.03935
+    ],
+    [
+     4.06818,
+     0.82974
+    ],
+    [
+     2.20601,
+     0.64658
+    ],
+    [
+     -0.144834,
+     0.435408
+    ],
+    [
+     -4.38942,
+     0.0066787
+    ],
+    [
+     -6.15306,
+     -0.201007
+    ],
+    [
+     -8.33868,
+     -0.405351
+    ],
+    [
+     -10.1672,
+     -0.631069
+    ],
+    [
+     -12.449,
+     -0.830357
+    ],
+    [
+     -14.3019,
+     -0.879693
+    ],
+    [
+     -16.2157,
+     -0.848301
+    ],
+    [
+     -18.2869,
+     -0.716464
+    ]
+   ],
+   "moment": [
+    [
+     20.2054,
+     -0.07413475
+    ],
+    [
+     18.2469,
+     -0.06670325
+    ],
+    [
+     16.1253,
+     -0.06381575
+    ],
+    [
+     14.2005,
+     -0.059278
+    ],
+    [
+     12.1118,
+     -0.06629775
+    ],
+    [
+     10.1215,
+     -0.07413975
+    ],
+    [
+     8.00205,
+     -0.07826625
+    ],
+    [
+     6.07887,
+     -0.0823915
+    ],
+    [
+     4.02589,
+     -0.08775225
+    ],
+    [
+     1.9743,
+     -0.08857525
+    ],
+    [
+     -0.174477,
+     -0.0914595
+    ],
+    [
+     -2.06167,
+     -0.09104525
+    ],
+    [
+     -4.17607,
+     -0.09186725
+    ],
+    [
+     -6.0299,
+     -0.0947495
+    ],
+    [
+     -10.1898,
+     -0.0959795
+    ],
+    [
+     -12.2007,
+     -0.078269
+    ],
+    [
+     -14.1438,
+     -0.04780275
+    ],
+    [
+     -16.3798,
+     -0.02764075
+    ],
+    [
+     -18.2566,
+     0.00074478
+    ]
+   ],
+   "drag": [
+    [
+     1.55155,
+     0.0179422
+    ],
+    [
+     1.39881,
+     0.0139747
+    ],
+    [
+     1.20731,
+     0.0111791
+    ],
+    [
+     1.0643,
+     0.0083987
+    ],
+    [
+     0.861465,
+     0.00733654
+    ],
+    [
+     0.676389,
+     0.00677045
+    ],
+    [
+     0.463605,
+     0.00661739
+    ],
+    [
+     0.236021,
+     0.00672901
+    ],
+    [
+     0.0196,
+     0.00679121
+    ],
+    [
+     -0.18391,
+     0.00750053
+    ],
+    [
+     -0.42349,
+     0.00822654
+    ],
+    [
+     -0.620833,
+     0.00933577
+    ],
+    [
+     -0.826512,
+     0.0105788
+    ]
+   ]
+  },
+  {
+   "set": 3,
+   "reynolds": 9000000.0,
+   "surface": "smooth",
+   "summary": {
+    "n_points": 18,
+    "cl_max": 1.62761,
+    "alpha_cl_max_deg": 14.3598,
+    "cl_max_is_a_turning_point": true,
+    "cl_min": -0.869815,
+    "alpha_cl_min_deg": -14.1716,
+    "cl_min_is_a_turning_point": false,
+    "fit": {
+     "n_points": 5,
+     "slope_per_deg": 0.10288751746607407,
+     "cl_at_zero": 0.4274532836645488,
+     "alpha_zero_lift_deg": -4.154568933063201,
+     "rms_residual": 0.008202079764303621
+    },
+    "cm_c4_linear_range": -0.09203615000000001,
+    "cm_n_points": 5,
+    "cd_min": 0.00630244,
+    "cl_at_cd_min": 0.448937,
+    "cm_min": -0.094752,
+    "cm_max": -0.0881645
+   },
+   "lift": [
+    [
+     20.5537,
+     1.44386
+    ],
+    [
+     18.6959,
+     1.53597
+    ],
+    [
+     16.2836,
+     1.6098
+    ],
+    [
+     14.3598,
+     1.62761
+    ],
+    [
+     12.303,
+     1.54809
+    ],
+    [
+     10.3751,
+     1.40432
+    ],
+    [
+     8.3162,
+     1.22923
+    ],
+    [
+     6.15962,
+     1.0377
+    ],
+    [
+     4.23192,
+     0.856134
+    ],
+    [
+     1.94515,
+     0.63337
+    ],
+    [
+     -0.079942,
+     0.430468
+    ],
+    [
+     -2.00762,
+     0.209491
+    ],
+    [
+     -4.29263,
+     -0.0130953
+    ],
+    [
+     -6.12106,
+     -0.21419
+    ],
+    [
+     -8.20953,
+     -0.426775
+    ],
+    [
+     -10.2003,
+     -0.645898
+    ],
+    [
+     -12.1893,
+     -0.835312
+    ],
+    [
+     -14.1716,
+     -0.869815
+    ]
+   ],
+   "moment": [
+    [
+     20.2713,
+     -0.06959175
+    ],
+    [
+     18.2475,
+     -0.06174825
+    ],
+    [
+     16.1582,
+     -0.06133875
+    ],
+    [
+     14.2323,
+     -0.0654695
+    ],
+    [
+     12.2087,
+     -0.07290075
+    ],
+    [
+     10.2511,
+     -0.0799165
+    ],
+    [
+     8.13128,
+     -0.0865175
+    ],
+    [
+     6.11139,
+     -0.082804
+    ],
+    [
+     3.99326,
+     -0.0881645
+    ],
+    [
+     2.03905,
+     -0.0910495
+    ],
+    [
+     -0.174599,
+     -0.092284
+    ],
+    [
+     -1.93197,
+     -0.09393075
+    ],
+    [
+     -4.24155,
+     -0.094752
+    ],
+    [
+     -6.09511,
+     -0.0959855
+    ],
+    [
+     -8.24041,
+     -0.0963945
+    ],
+    [
+     -10.1574,
+     -0.09597975
+    ]
+   ],
+   "drag": [
+    [
+     1.64204,
+     0.0174459
+    ],
+    [
+     1.55769,
+     0.015876
+    ],
+    [
+     1.41317,
+     0.0126853
+    ],
+    [
+     1.25738,
+     0.0102866
+    ],
+    [
+     1.07559,
+     0.00803499
+    ],
+    [
+     0.885768,
+     0.00715496
+    ],
+    [
+     0.655237,
+     0.00643897
+    ],
+    [
+     0.448937,
+     0.00630244
+    ],
+    [
+     0.22296,
+     0.00636423
+    ],
+    [
+     0.008183,
+     0.00662522
+    ],
+    [
+     -0.205175,
+     0.00683674
+    ],
+    [
+     -0.425191,
+     0.00762912
+    ],
+    [
+     -0.635607,
+     0.00862167
+    ]
+   ]
+  },
+  {
+   "set": 4,
+   "reynolds": 6000000.0,
+   "surface": "standard roughness",
+   "summary": {
+    "n_points": 13,
+    "cl_max": 1.28748,
+    "alpha_cl_max_deg": 12.0661,
+    "cl_max_is_a_turning_point": true,
+    "cl_min": -0.410295,
+    "alpha_cl_min_deg": -8.27388,
+    "cl_min_is_a_turning_point": false,
+    "fit": {
+     "n_points": 5,
+     "slope_per_deg": 0.09793101837064923,
+     "cl_at_zero": 0.39312842960444067,
+     "alpha_zero_lift_deg": -4.014340258533089,
+     "rms_residual": 0.005128532760953345
+    },
+    "cm_c4_linear_range": null,
+    "cm_n_points": 0,
+    "cd_min": 0.0107057,
+    "cl_at_cd_min": 0.204009
+   },
+   "lift": [
+    [
+     16.2694,
+     1.16929
+    ],
+    [
+     14.2817,
+     1.23667
+    ],
+    [
+     12.0661,
+     1.28748
+    ],
+    [
+     10.3042,
+     1.23776
+    ],
+    [
+     8.31215,
+     1.11216
+    ],
+    [
+     6.2553,
+     0.980007
+    ],
+    [
+     4.06658,
+     0.785229
+    ],
+    [
+     2.10681,
+     0.603712
+    ],
+    [
+     -0.016024,
+     0.399154
+    ],
+    [
+     -2.10619,
+     0.183115
+    ],
+    [
+     -4.19533,
+     -0.019685
+    ],
+    [
+     -6.05566,
+     -0.204302
+    ],
+    [
+     -8.27388,
+     -0.410295
+    ]
+   ],
+   "moment": [],
+   "drag": [
+    [
+     1.25613,
+     0.0230392
+    ],
+    [
+     1.13246,
+     0.0196653
+    ],
+    [
+     0.998881,
+     0.0153469
+    ],
+    [
+     0.802258,
+     0.0129796
+    ],
+    [
+     0.613711,
+     0.0113391
+    ],
+    [
+     0.413786,
+     0.0107244
+    ],
+    [
+     0.204009,
+     0.0107057
+    ],
+    [
+     -0.005831,
+     0.0116984
+    ],
+    [
+     -0.219074,
+     0.0131898
+    ],
+    [
+     -0.415948,
+     0.0169735
+    ]
+   ]
+  }
+ ],
+ "section_at_stall": {
+  "n_points": 15,
+  "cl_max": 1.41777,
+  "alpha_cl_max_deg": 12.0704,
+  "cl_max_is_a_turning_point": true,
+  "cl_min": -0.836957,
+  "alpha_cl_min_deg": -12.2544,
+  "cl_min_is_a_turning_point": false,
+  "fit": {
+   "n_points": 5,
+   "slope_per_deg": 0.1019195400791601,
+   "cl_at_zero": 0.43101391567172737,
+   "alpha_zero_lift_deg": -4.228962526096196,
+   "rms_residual": 0.033776146668166994
+  },
+  "cm_c4_linear_range": -0.0911291,
+  "cm_n_points": 5,
+  "cd_min": 0.00741276,
+  "cl_at_cd_min": 0.488086,
+  "cm_min": -0.0935155,
+  "cm_max": -0.0881645,
+  "set": 1,
+  "reynolds": 3000000.0,
+  "stall_reynolds": 3489128.851534606,
+  "stall_reynolds_mission_altitude": 2768343.3333667554,
+  "lowest_tabulated_reynolds": 3000000.0,
+  "reading_scatter": 0.033776146668166994,
+  "cl_max_minus_two_scatter": 1.350217706663666
+ },
+ "reynolds_sensitivity": {
+  "cl_max_interpolated_at_stall_reynolds": 1.4509132555437176,
+  "by_station": [
+   {
+    "condition": "stall, sea level, W0",
+    "station": "root",
+    "reynolds": 4592348.110189271,
+    "cl_max_interpolated": 1.5112003916993573
+   },
+   {
+    "condition": "stall, sea level, W0",
+    "station": "mean",
+    "reynolds": 3489128.851534606,
+    "cl_max_interpolated": 1.4509132555437176
+   },
+   {
+    "condition": "stall, sea level, W0",
+    "station": "tip",
+    "reynolds": 2066556.6495851718,
+    "cl_max_interpolated": null
+   },
+   {
+    "condition": "stall, mission altitude, start of loiter",
+    "station": "root",
+    "reynolds": 3643659.15284278,
+    "cl_max_interpolated": 1.460422719675954
+   },
+   {
+    "condition": "stall, mission altitude, start of loiter",
+    "station": "mean",
+    "reynolds": 2768343.3333667554,
+    "cl_max_interpolated": null
+   },
+   {
+    "condition": "stall, mission altitude, start of loiter",
+    "station": "tip",
+    "reynolds": 1639646.618779251,
+    "cl_max_interpolated": null
+   }
+  ],
+  "note": "straight line in ln(Re) between the tabulated sets; None below the lowest or above the highest set"
+ },
+ "roughness": {
+  "reynolds": 6000000.0,
+  "rough": {
+   "n_points": 13,
+   "cl_max": 1.28748,
+   "alpha_cl_max_deg": 12.0661,
+   "cl_max_is_a_turning_point": true,
+   "cl_min": -0.410295,
+   "alpha_cl_min_deg": -8.27388,
+   "cl_min_is_a_turning_point": false,
+   "fit": {
+    "n_points": 5,
+    "slope_per_deg": 0.09793101837064923,
+    "cl_at_zero": 0.39312842960444067,
+    "alpha_zero_lift_deg": -4.014340258533089,
+    "rms_residual": 0.005128532760953345
+   },
+   "cm_c4_linear_range": null,
+   "cm_n_points": 0,
+   "cd_min": 0.0107057,
+   "cl_at_cd_min": 0.204009
+  },
+  "smooth": {
+   "n_points": 19,
+   "cl_max": 1.56987,
+   "alpha_cl_max_deg": 14.2927,
+   "cl_max_is_a_turning_point": true,
+   "cl_min": -0.879693,
+   "alpha_cl_min_deg": -14.3019,
+   "cl_min_is_a_turning_point": true,
+   "fit": {
+    "n_points": 4,
+    "slope_per_deg": 0.09700280644989967,
+    "cl_at_zero": 0.43740700623919687,
+    "alpha_zero_lift_deg": -4.509220116895384,
+    "rms_residual": 0.007037110471631751
+   },
+   "cm_c4_linear_range": -0.0901399,
+   "cm_n_points": 5,
+   "cd_min": 0.00661739,
+   "cl_at_cd_min": 0.463605,
+   "cm_min": -0.09186725,
+   "cm_max": -0.08775225
+  },
+  "wing_clean_12_15_rough": 1.158732
+ },
+ "digitization_check": {
+  "alpha0_thin_airfoil_deg": -4.154480845734289,
+  "alpha0_difference_deg": -0.07448168036190683,
+  "slope_over_2pi": 0.9293947593392867,
+  "ok": true
+ },
+ "wing": {
+  "record": {
+   "section_cl_max": 1.5,
+   "clean_12_15": 1.35,
+   "clean_12_16_zero_sweep": 1.35,
+   "le_sweep_deg": 2.7145772690010657,
+   "clean_12_16_at_le_sweep_rough": 1.3262474488962408,
+   "delta_y_percent_chord": 3.9,
+   "clean": 1.35,
+   "landing": 2.13,
+   "takeoff": 1.818
+  },
+  "measured": {
+   "section_cl_max": 1.41777,
+   "clean_12_15": 1.275993,
+   "clean_12_16_zero_sweep": 1.275993,
+   "le_sweep_deg": 2.7145772690010657,
+   "clean_12_16_at_le_sweep_rough": 1.2535425637477489,
+   "delta_y_percent_chord": 3.9,
+   "clean": 1.275993,
+   "landing": 2.055993,
+   "takeoff": 1.743993
+  },
+  "measured_minus_two_scatter": {
+   "section_cl_max": 1.350217706663666,
+   "clean_12_15": 1.2151959359972995,
+   "clean_12_16_zero_sweep": 1.2151959359972995,
+   "le_sweep_deg": 2.7145772690010657,
+   "clean_12_16_at_le_sweep_rough": 1.19381519261148,
+   "delta_y_percent_chord": 3.9,
+   "clean": 1.2151959359972995,
+   "landing": 1.9951959359972995,
+   "takeoff": 1.6831959359972994
+  },
+  "interpolated_at_stall_reynolds": {
+   "section_cl_max": 1.4509132555437176,
+   "clean_12_15": 1.3058219299893459,
+   "clean_12_16_zero_sweep": 1.3058219299893459,
+   "le_sweep_deg": 2.7145772690010657,
+   "clean_12_16_at_le_sweep_rough": 1.2828466691563967,
+   "delta_y_percent_chord": 3.9,
+   "clean": 1.3058219299893459,
+   "landing": 2.085821929989346,
+   "takeoff": 1.7738219299893458
+  },
+  "stall_mach": 0.08062604649326456,
+  "mach_correction_applies": false,
+  "r7_stall_clause_floor": 0.7836132101735243
+ },
+ "refly": {
+  "record": {
+   "airfoil_cl_max": 1.5,
+   "CL_max": {
+    "clean": 1.35,
+    "landing": 2.13,
+    "takeoff": 1.818
+   },
+   "W0_lb": 3517.248566154491,
+   "hours_on_station": 11.000008142816982,
+   "reason": null,
+   "loiter_speed_kt": 87.25723393812503,
+   "loiter_top_speed_kt": 91.77986923527249,
+   "loiter_floor_fraction": 1.0,
+   "cruise_out_speed_kt": 129.2731914534671,
+   "cruise_out_floor_fraction": 0.0,
+   "cruise_back_speed_kt": 119.06527926553936,
+   "cruise_back_floor_fraction": 0.0,
+   "V_stall_clean_sl_kt": 53.331270061214234,
+   "V_stall_clean_loiter_start_kt": 70.59989941174807,
+   "floor_speed_loiter_start_kt": 91.77986923527249,
+   "takeoff_ft": 710.9570170858435,
+   "landing_ft": 1348.6316573288618
+  },
+  "measured": {
+   "airfoil_cl_max": 1.41777,
+   "CL_max": {
+    "clean": 1.275993,
+    "landing": 2.055993,
+    "takeoff": 1.743993
+   },
+   "W0_lb": 3517.248566154491,
+   "hours_on_station": 10.904030429568655,
+   "reason": null,
+   "loiter_speed_kt": 89.75185178626192,
+   "loiter_top_speed_kt": 94.40376137623186,
+   "loiter_floor_fraction": 1.0,
+   "cruise_out_speed_kt": 129.33392253443338,
+   "cruise_out_floor_fraction": 0.0,
+   "cruise_back_speed_kt": 118.96275699841452,
+   "cruise_back_floor_fraction": 0.0,
+   "V_stall_clean_sl_kt": 54.85606671597288,
+   "V_stall_clean_loiter_start_kt": 72.61827798171682,
+   "floor_speed_loiter_start_kt": 94.40376137623186,
+   "takeoff_ft": 733.9305429097897,
+   "landing_ft": 1359.3992188314994
+  },
+  "measured_minus_two_scatter": {
+   "airfoil_cl_max": 1.350217706663666,
+   "CL_max": {
+    "clean": 1.2151959359972995,
+    "landing": 1.9951959359972995,
+    "takeoff": 1.6831959359972994
+   },
+   "W0_lb": 3517.248566154491,
+   "hours_on_station": 10.80384668671072,
+   "reason": null,
+   "loiter_speed_kt": 91.96954340117313,
+   "loiter_top_speed_kt": 96.73684799500012,
+   "loiter_floor_fraction": 1.0,
+   "cruise_out_speed_kt": 129.78714898953336,
+   "cruise_out_floor_fraction": 0.0,
+   "cruise_back_speed_kt": 119.16409201306784,
+   "cruise_back_floor_fraction": 0.0,
+   "V_stall_clean_sl_kt": 56.21156236085859,
+   "V_stall_clean_loiter_start_kt": 74.41295999615394,
+   "floor_speed_loiter_start_kt": 96.73684799500012,
+   "takeoff_ft": 754.3932128106776,
+   "landing_ft": 1368.77749072556
+  },
+  "interpolated_at_stall_reynolds": {
+   "airfoil_cl_max": 1.4509132555437176,
+   "CL_max": {
+    "clean": 1.3058219299893459,
+    "landing": 2.085821929989346,
+    "takeoff": 1.7738219299893458
+   },
+   "W0_lb": 3517.248566154491,
+   "hours_on_station": 10.946601643593707,
+   "reason": null,
+   "loiter_speed_kt": 88.72086060311375,
+   "loiter_top_speed_kt": 93.31958042522824,
+   "loiter_floor_fraction": 1.0,
+   "cruise_out_speed_kt": 129.36160579816544,
+   "cruise_out_floor_fraction": 0.0,
+   "cruise_back_speed_kt": 119.24772192873867,
+   "cruise_back_floor_fraction": 0.0,
+   "V_stall_clean_sl_kt": 54.22590784339545,
+   "V_stall_clean_loiter_start_kt": 71.78429263479096,
+   "floor_speed_loiter_start_kt": 93.31958042522824,
+   "takeoff_ft": 724.4283170660763,
+   "landing_ft": 1354.97708346922
+  },
+  "band_low_end": {
+   "airfoil_cl_max": 1.3,
+   "CL_max": {
+    "clean": 1.1700000000000002,
+    "landing": 1.9500000000000002,
+    "takeoff": 1.6380000000000001
+   },
+   "W0_lb": 3517.248566154491,
+   "hours_on_station": 10.714778173823596,
+   "reason": null,
+   "loiter_speed_kt": 93.7286350520791,
+   "loiter_top_speed_kt": 98.5875252494902,
+   "loiter_floor_fraction": 1.0,
+   "cruise_out_speed_kt": 129.47397019298776,
+   "cruise_out_floor_fraction": 0.0,
+   "cruise_back_speed_kt": 119.17565323979268,
+   "cruise_back_floor_fraction": 0.0,
+   "V_stall_clean_sl_kt": 57.286973613374116,
+   "V_stall_clean_loiter_start_kt": 75.83655788422323,
+   "floor_speed_loiter_start_kt": 98.5875252494902,
+   "takeoff_ft": 770.6363281979254,
+   "landing_ft": 1376.0869972134283
+  },
+  "corner_h1_record": {
+   "airfoil_cl_max": 1.3,
+   "CL_max": {
+    "clean": 1.1700000000000002,
+    "landing": 1.9500000000000002,
+    "takeoff": 1.6380000000000001
+   },
+   "W0_lb": 4454.160256743721,
+   "hours_on_station": 3.8268290024591667,
+   "reason": null,
+   "loiter_speed_kt": 107.04227036989792,
+   "loiter_top_speed_kt": 109.63051914671283,
+   "loiter_floor_fraction": 1.0,
+   "cruise_out_speed_kt": 122.14826022405013,
+   "cruise_out_floor_fraction": 0.0,
+   "cruise_back_speed_kt": 120.70627356181855,
+   "cruise_back_floor_fraction": 0.0,
+   "V_stall_clean_sl_kt": 64.46697146101701,
+   "V_stall_clean_loiter_start_kt": 84.33116857439448,
+   "floor_speed_loiter_start_kt": 109.63051914671283,
+   "takeoff_ft": 1264.3063637535522,
+   "landing_ft": 1462.4350253631715,
+   "hours_in_cell_record": 3.8268290024591667
+  },
+  "corner_h1_measured": {
+   "airfoil_cl_max": 1.41777,
+   "CL_max": {
+    "clean": 1.275993,
+    "landing": 2.055993,
+    "takeoff": 1.743993
+   },
+   "W0_lb": 4454.160256743721,
+   "hours_on_station": 3.94715316701562,
+   "reason": null,
+   "loiter_speed_kt": 102.50189769052267,
+   "loiter_top_speed_kt": 104.9807704412887,
+   "loiter_floor_fraction": 1.0,
+   "cruise_out_speed_kt": 122.09137490400367,
+   "cruise_out_floor_fraction": 0.0,
+   "cruise_back_speed_kt": 120.11195803032504,
+   "cruise_back_floor_fraction": 0.0,
+   "V_stall_clean_sl_kt": 61.73138960541399,
+   "V_stall_clean_loiter_start_kt": 80.7544388009913,
+   "floor_speed_loiter_start_kt": 104.9807704412887,
+   "takeoff_ft": 1200.1347686493589,
+   "landing_ft": 1442.0999978540278
+  },
+  "need_h": {
+   "nominal_r5": 8.0,
+   "guarantee_r5": 3.5
+  }
+ },
+ "su2": {
+  "status": "not run",
+  "reason": "owner default O-1: the Colab notebook is not started; P2 closes on measured data (PD-6)",
+  "case_files": "none written",
+  "queue": [
+   {
+    "section": "naca4415",
+    "reynolds": 3000000.0,
+    "mach": 0.08062604649326456,
+    "alpha_deg": -12,
+    "turbulence_model": "to be fixed in the SU2 case spec (spec 7.1)"
+   },
+   {
+    "section": "naca4415",
+    "reynolds": 3000000.0,
+    "mach": 0.08062604649326456,
+    "alpha_deg": -8,
+    "turbulence_model": "to be fixed in the SU2 case spec (spec 7.1)"
+   },
+   {
+    "section": "naca4415",
+    "reynolds": 3000000.0,
+    "mach": 0.08062604649326456,
+    "alpha_deg": -4,
+    "turbulence_model": "to be fixed in the SU2 case spec (spec 7.1)"
+   },
+   {
+    "section": "naca4415",
+    "reynolds": 3000000.0,
+    "mach": 0.08062604649326456,
+    "alpha_deg": 0,
+    "turbulence_model": "to be fixed in the SU2 case spec (spec 7.1)"
+   },
+   {
+    "section": "naca4415",
+    "reynolds": 3000000.0,
+    "mach": 0.08062604649326456,
+    "alpha_deg": 4,
+    "turbulence_model": "to be fixed in the SU2 case spec (spec 7.1)"
+   },
+   {
+    "section": "naca4415",
+    "reynolds": 3000000.0,
+    "mach": 0.08062604649326456,
+    "alpha_deg": 8,
+    "turbulence_model": "to be fixed in the SU2 case spec (spec 7.1)"
+   },
+   {
+    "section": "naca4415",
+    "reynolds": 3000000.0,
+    "mach": 0.08062604649326456,
+    "alpha_deg": 10,
+    "turbulence_model": "to be fixed in the SU2 case spec (spec 7.1)"
+   },
+   {
+    "section": "naca4415",
+    "reynolds": 3000000.0,
+    "mach": 0.08062604649326456,
+    "alpha_deg": 12,
+    "turbulence_model": "to be fixed in the SU2 case spec (spec 7.1)"
+   },
+   {
+    "section": "naca4415",
+    "reynolds": 3000000.0,
+    "mach": 0.08062604649326456,
+    "alpha_deg": 14,
+    "turbulence_model": "to be fixed in the SU2 case spec (spec 7.1)"
+   },
+   {
+    "section": "naca4415",
+    "reynolds": 3000000.0,
+    "mach": 0.08062604649326456,
+    "alpha_deg": 16,
+    "turbulence_model": "to be fixed in the SU2 case spec (spec 7.1)"
+   },
+   {
+    "section": "naca4415",
+    "reynolds": 6000000.0,
+    "mach": 0.08062604649326456,
+    "alpha_deg": -12,
+    "turbulence_model": "to be fixed in the SU2 case spec (spec 7.1)"
+   },
+   {
+    "section": "naca4415",
+    "reynolds": 6000000.0,
+    "mach": 0.08062604649326456,
+    "alpha_deg": -8,
+    "turbulence_model": "to be fixed in the SU2 case spec (spec 7.1)"
+   },
+   {
+    "section": "naca4415",
+    "reynolds": 6000000.0,
+    "mach": 0.08062604649326456,
+    "alpha_deg": -4,
+    "turbulence_model": "to be fixed in the SU2 case spec (spec 7.1)"
+   },
+   {
+    "section": "naca4415",
+    "reynolds": 6000000.0,
+    "mach": 0.08062604649326456,
+    "alpha_deg": 0,
+    "turbulence_model": "to be fixed in the SU2 case spec (spec 7.1)"
+   },
+   {
+    "section": "naca4415",
+    "reynolds": 6000000.0,
+    "mach": 0.08062604649326456,
+    "alpha_deg": 4,
+    "turbulence_model": "to be fixed in the SU2 case spec (spec 7.1)"
+   },
+   {
+    "section": "naca4415",
+    "reynolds": 6000000.0,
+    "mach": 0.08062604649326456,
+    "alpha_deg": 8,
+    "turbulence_model": "to be fixed in the SU2 case spec (spec 7.1)"
+   },
+   {
+    "section": "naca4415",
+    "reynolds": 6000000.0,
+    "mach": 0.08062604649326456,
+    "alpha_deg": 10,
+    "turbulence_model": "to be fixed in the SU2 case spec (spec 7.1)"
+   },
+   {
+    "section": "naca4415",
+    "reynolds": 6000000.0,
+    "mach": 0.08062604649326456,
+    "alpha_deg": 12,
+    "turbulence_model": "to be fixed in the SU2 case spec (spec 7.1)"
+   },
+   {
+    "section": "naca4415",
+    "reynolds": 6000000.0,
+    "mach": 0.08062604649326456,
+    "alpha_deg": 14,
+    "turbulence_model": "to be fixed in the SU2 case spec (spec 7.1)"
+   },
+   {
+    "section": "naca4415",
+    "reynolds": 6000000.0,
+    "mach": 0.08062604649326456,
+    "alpha_deg": 16,
+    "turbulence_model": "to be fixed in the SU2 case spec (spec 7.1)"
+   }
+  ]
+ },
+ "xfoil": {
+  "status": "run",
+  "program": "XFOIL (Debian package xfoil)",
+  "version": "6.99.dfsg+1-3",
+  "settings": "free transition, Ncrit 9 (default), 160 panels (default), viscous, 200 iterations",
+  "label": "computed, third source (PD-6): no verdict rests on it",
+  "polars": [
+   {
+    "section": "naca4415",
+    "reynolds": 3000000.0,
+    "mach": 0.08062604649326456,
+    "rows": [
+     {
+      "alpha_deg": -18.0,
+      "cl": -1.3642,
+      "cd": 0.02798,
+      "cm": -0.1141
+     },
+     {
+      "alpha_deg": -17.0,
+      "cl": -1.3619,
+      "cd": 0.02279,
+      "cm": -0.1068
+     },
+     {
+      "alpha_deg": -16.0,
+      "cl": -1.2666,
+      "cd": 0.019,
+      "cm": -0.1094
+     },
+     {
+      "alpha_deg": -15.0,
+      "cl": -1.1652,
+      "cd": 0.01659,
+      "cm": -0.1101
+     },
+     {
+      "alpha_deg": -14.0,
+      "cl": -1.0699,
+      "cd": 0.01492,
+      "cm": -0.1081
+     },
+     {
+      "alpha_deg": -13.0,
+      "cl": -0.9745,
+      "cd": 0.01313,
+      "cm": -0.1059
+     },
+     {
+      "alpha_deg": -12.0,
+      "cl": -0.8701,
+      "cd": 0.01196,
+      "cm": -0.1047
+     },
+     {
+      "alpha_deg": -11.0,
+      "cl": -0.7645,
+      "cd": 0.01075,
+      "cm": -0.1036
+     },
+     {
+      "alpha_deg": -10.0,
+      "cl": -0.6553,
+      "cd": 0.00983,
+      "cm": -0.1029
+     },
+     {
+      "alpha_deg": -9.0,
+      "cl": -0.5434,
+      "cd": 0.00904,
+      "cm": -0.1027
+     },
+     {
+      "alpha_deg": -8.0,
+      "cl": -0.4309,
+      "cd": 0.00839,
+      "cm": -0.1025
+     },
+     {
+      "alpha_deg": -7.0,
+      "cl": -0.3175,
+      "cd": 0.00785,
+      "cm": -0.1024
+     },
+     {
+      "alpha_deg": -6.0,
+      "cl": -0.2036,
+      "cd": 0.00744,
+      "cm": -0.1024
+     },
+     {
+      "alpha_deg": -5.0,
+      "cl": -0.0894,
+      "cd": 0.00712,
+      "cm": -0.1025
+     },
+     {
+      "alpha_deg": -4.0,
+      "cl": 0.0247,
+      "cd": 0.00688,
+      "cm": -0.1026
+     },
+     {
+      "alpha_deg": -3.0,
+      "cl": 0.1391,
+      "cd": 0.00672,
+      "cm": -0.1027
+     },
+     {
+      "alpha_deg": -2.0,
+      "cl": 0.2531,
+      "cd": 0.00662,
+      "cm": -0.1029
+     },
+     {
+      "alpha_deg": -1.0,
+      "cl": 0.3674,
+      "cd": 0.00656,
+      "cm": -0.1031
+     },
+     {
+      "alpha_deg": 0.0,
+      "cl": 0.482,
+      "cd": 0.0065,
+      "cm": -0.1035
+     },
+     {
+      "alpha_deg": 1.0,
+      "cl": 0.5963,
+      "cd": 0.00647,
+      "cm": -0.1038
+     },
+     {
+      "alpha_deg": 2.0,
+      "cl": 0.709,
+      "cd": 0.00615,
+      "cm": -0.1041
+     },
+     {
+      "alpha_deg": 4.0,
+      "cl": 0.9245,
+      "cd": 0.00592,
+      "cm": -0.1019
+     },
+     {
+      "alpha_deg": 5.0,
+      "cl": 1.0498,
+      "cd": 0.00646,
+      "cm": -0.105
+     },
+     {
+      "alpha_deg": 6.0,
+      "cl": 1.1519,
+      "cd": 0.00714,
+      "cm": -0.1031
+     },
+     {
+      "alpha_deg": 7.0,
+      "cl": 1.25,
+      "cd": 0.00812,
+      "cm": -0.1007
+     },
+     {
+      "alpha_deg": 8.0,
+      "cl": 1.3417,
+      "cd": 0.00938,
+      "cm": -0.0973
+     },
+     {
+      "alpha_deg": 9.0,
+      "cl": 1.4204,
+      "cd": 0.01097,
+      "cm": -0.0917
+     },
+     {
+      "alpha_deg": 10.0,
+      "cl": 1.4875,
+      "cd": 0.0128,
+      "cm": -0.0842
+     },
+     {
+      "alpha_deg": 11.0,
+      "cl": 1.5513,
+      "cd": 0.01494,
+      "cm": -0.0771
+     },
+     {
+      "alpha_deg": 12.0,
+      "cl": 1.6114,
+      "cd": 0.01744,
+      "cm": -0.0704
+     },
+     {
+      "alpha_deg": 13.0,
+      "cl": 1.6655,
+      "cd": 0.02057,
+      "cm": -0.0639
+     },
+     {
+      "alpha_deg": 14.0,
+      "cl": 1.7117,
+      "cd": 0.0246,
+      "cm": -0.0579
+     },
+     {
+      "alpha_deg": 15.0,
+      "cl": 1.7482,
+      "cd": 0.02985,
+      "cm": -0.0524
+     },
+     {
+      "alpha_deg": 16.0,
+      "cl": 1.7758,
+      "cd": 0.03653,
+      "cm": -0.048
+     },
+     {
+      "alpha_deg": 17.0,
+      "cl": 1.7928,
+      "cd": 0.04493,
+      "cm": -0.0447
+     },
+     {
+      "alpha_deg": 18.0,
+      "cl": 1.7985,
+      "cd": 0.05518,
+      "cm": -0.0428
+     },
+     {
+      "alpha_deg": 19.0,
+      "cl": 1.7888,
+      "cd": 0.06771,
+      "cm": -0.0421
+     },
+     {
+      "alpha_deg": 20.0,
+      "cl": 1.773,
+      "cd": 0.08148,
+      "cm": -0.0427
+     }
+    ],
+    "n_converged": 38,
+    "n_asked": 39,
+    "summary": {
+     "n_points": 38,
+     "cl_max": 1.7985,
+     "alpha_cl_max_deg": 18.0,
+     "cl_max_is_a_turning_point": true,
+     "cl_min": -1.3642,
+     "alpha_cl_min_deg": -18.0,
+     "cl_min_is_a_turning_point": false,
+     "fit": {
+      "n_points": 12,
+      "slope_per_deg": 0.11322380261248188,
+      "cl_at_zero": 0.4787059506531204,
+      "alpha_zero_lift_deg": -4.227962138769816,
+      "rms_residual": 0.003830604927084257
+     },
+     "cm_c4_linear_range": -0.10313333333333334,
+     "cm_n_points": 12,
+     "cd_min": 0.00592,
+     "cl_at_cd_min": 0.9245,
+     "cm_min": -0.105,
+     "cm_max": -0.1019
+    },
+    "against_measured": {
+     "slope_relative_difference": 0.11091359443480475,
+     "cl_at_zero_difference": 0.04769203498139302,
+     "cl_max_difference": 0.38073,
+     "within": {
+      "slope": false,
+      "cl_at_zero": true,
+      "cl_max": false
+     },
+     "all_within": false
+    }
+   },
+   {
+    "section": "naca4415",
+    "reynolds": 6000000.0,
+    "mach": 0.08062604649326456,
+    "rows": [
+     {
+      "alpha_deg": -18.0,
+      "cl": -1.4794,
+      "cd": 0.01995,
+      "cm": -0.1097
+     },
+     {
+      "alpha_deg": -17.0,
+      "cl": -1.3814,
+      "cd": 0.01724,
+      "cm": -0.1109
+     },
+     {
+      "alpha_deg": -16.0,
+      "cl": -1.297,
+      "cd": 0.01514,
+      "cm": -0.1078
+     },
+     {
+      "alpha_deg": -15.0,
+      "cl": -1.2021,
+      "cd": 0.01363,
+      "cm": -0.1054
+     },
+     {
+      "alpha_deg": -14.0,
+      "cl": -1.101,
+      "cd": 0.01231,
+      "cm": -0.1039
+     },
+     {
+      "alpha_deg": -13.0,
+      "cl": -0.9961,
+      "cd": 0.01106,
+      "cm": -0.1028
+     },
+     {
+      "alpha_deg": -12.0,
+      "cl": -0.8878,
+      "cd": 0.01017,
+      "cm": -0.1021
+     },
+     {
+      "alpha_deg": -11.0,
+      "cl": -0.778,
+      "cd": 0.00927,
+      "cm": -0.1015
+     },
+     {
+      "alpha_deg": -10.0,
+      "cl": -0.6657,
+      "cd": 0.00854,
+      "cm": -0.1014
+     },
+     {
+      "alpha_deg": -9.0,
+      "cl": -0.5521,
+      "cd": 0.00796,
+      "cm": -0.1013
+     },
+     {
+      "alpha_deg": -8.0,
+      "cl": -0.438,
+      "cd": 0.00745,
+      "cm": -0.1014
+     },
+     {
+      "alpha_deg": -7.0,
+      "cl": -0.3232,
+      "cd": 0.00704,
+      "cm": -0.1016
+     },
+     {
+      "alpha_deg": -6.0,
+      "cl": -0.2078,
+      "cd": 0.00672,
+      "cm": -0.1018
+     },
+     {
+      "alpha_deg": -5.0,
+      "cl": -0.0925,
+      "cd": 0.00649,
+      "cm": -0.1021
+     },
+     {
+      "alpha_deg": -4.0,
+      "cl": 0.0232,
+      "cd": 0.00631,
+      "cm": -0.1025
+     },
+     {
+      "alpha_deg": -3.0,
+      "cl": 0.1388,
+      "cd": 0.0062,
+      "cm": -0.1029
+     },
+     {
+      "alpha_deg": -2.0,
+      "cl": 0.2546,
+      "cd": 0.0061,
+      "cm": -0.1033
+     },
+     {
+      "alpha_deg": -1.0,
+      "cl": 0.3709,
+      "cd": 0.006,
+      "cm": -0.1039
+     },
+     {
+      "alpha_deg": 0.0,
+      "cl": 0.4869,
+      "cd": 0.00596,
+      "cm": -0.1045
+     },
+     {
+      "alpha_deg": 1.0,
+      "cl": 0.603,
+      "cd": 0.00593,
+      "cm": -0.1052
+     },
+     {
+      "alpha_deg": 2.0,
+      "cl": 0.7186,
+      "cd": 0.0059,
+      "cm": -0.1058
+     },
+     {
+      "alpha_deg": 3.0,
+      "cl": 0.832,
+      "cd": 0.00572,
+      "cm": -0.1062
+     },
+     {
+      "alpha_deg": 4.0,
+      "cl": 0.9432,
+      "cd": 0.00578,
+      "cm": -0.1062
+     },
+     {
+      "alpha_deg": 5.0,
+      "cl": 1.046,
+      "cd": 0.00595,
+      "cm": -0.1043
+     },
+     {
+      "alpha_deg": 6.0,
+      "cl": 1.158,
+      "cd": 0.00672,
+      "cm": -0.1046
+     },
+     {
+      "alpha_deg": 7.0,
+      "cl": 1.2567,
+      "cd": 0.00773,
+      "cm": -0.1023
+     },
+     {
+      "alpha_deg": 8.0,
+      "cl": 1.35,
+      "cd": 0.00898,
+      "cm": -0.0992
+     },
+     {
+      "alpha_deg": 9.0,
+      "cl": 1.4368,
+      "cd": 0.01037,
+      "cm": -0.095
+     },
+     {
+      "alpha_deg": 10.0,
+      "cl": 1.5116,
+      "cd": 0.01178,
+      "cm": -0.0886
+     },
+     {
+      "alpha_deg": 11.0,
+      "cl": 1.5828,
+      "cd": 0.01341,
+      "cm": -0.0822
+     },
+     {
+      "alpha_deg": 12.0,
+      "cl": 1.6506,
+      "cd": 0.01533,
+      "cm": -0.076
+     },
+     {
+      "alpha_deg": 13.0,
+      "cl": 1.7139,
+      "cd": 0.01766,
+      "cm": -0.07
+     },
+     {
+      "alpha_deg": 14.0,
+      "cl": 1.7676,
+      "cd": 0.02081,
+      "cm": -0.0638
+     },
+     {
+      "alpha_deg": 15.0,
+      "cl": 1.8144,
+      "cd": 0.02479,
+      "cm": -0.058
+     },
+     {
+      "alpha_deg": 16.0,
+      "cl": 1.8513,
+      "cd": 0.02999,
+      "cm": -0.0528
+     },
+     {
+      "alpha_deg": 17.0,
+      "cl": 1.8802,
+      "cd": 0.03653,
+      "cm": -0.0486
+     },
+     {
+      "alpha_deg": 18.0,
+      "cl": 1.8948,
+      "cd": 0.04503,
+      "cm": -0.0453
+     },
+     {
+      "alpha_deg": 19.0,
+      "cl": 1.8976,
+      "cd": 0.05542,
+      "cm": -0.0432
+     },
+     {
+      "alpha_deg": 20.0,
+      "cl": 1.8856,
+      "cd": 0.06796,
+      "cm": -0.0424
+     }
+    ],
+    "n_converged": 39,
+    "n_asked": 39,
+    "summary": {
+     "n_points": 39,
+     "cl_max": 1.8976,
+     "alpha_cl_max_deg": 19.0,
+     "cl_max_is_a_turning_point": true,
+     "cl_min": -1.4794,
+     "alpha_cl_min_deg": -18.0,
+     "cl_min_is_a_turning_point": false,
+     "fit": {
+      "n_points": 13,
+      "slope_per_deg": 0.1143241758241758,
+      "cl_at_zero": 0.4826846153846155,
+      "alpha_zero_lift_deg": -4.222069495842747,
+      "rms_residual": 0.005440097209613293
+     },
+     "cm_c4_linear_range": -0.1041,
+     "cm_n_points": 13,
+     "cd_min": 0.00572,
+     "cl_at_cd_min": 0.832,
+     "cm_min": -0.1062,
+     "cm_max": -0.1018
+    },
+    "against_measured": {
+     "slope_relative_difference": 0.1785656519455685,
+     "cl_at_zero_difference": 0.04527760914541862,
+     "cl_max_difference": 0.32772999999999985,
+     "within": {
+      "slope": false,
+      "cl_at_zero": true,
+      "cl_max": false
+     },
+     "all_within": false
+    }
+   },
+   {
+    "section": "naca4415",
+    "reynolds": 9000000.0,
+    "mach": 0.08062604649326456,
+    "rows": [
+     {
+      "alpha_deg": -18.0,
+      "cl": -1.4948,
+      "cd": 0.01728,
+      "cm": -0.1107
+     },
+     {
+      "alpha_deg": -17.0,
+      "cl": -1.4088,
+      "cd": 0.01542,
+      "cm": -0.1078
+     },
+     {
+      "alpha_deg": -16.0,
+      "cl": -1.3148,
+      "cd": 0.01395,
+      "cm": -0.1054
+     },
+     {
+      "alpha_deg": -15.0,
+      "cl": -1.2171,
+      "cd": 0.01241,
+      "cm": -0.1035
+     },
+     {
+      "alpha_deg": -14.0,
+      "cl": -1.1125,
+      "cd": 0.01123,
+      "cm": -0.1024
+     },
+     {
+      "alpha_deg": -13.0,
+      "cl": -1.0049,
+      "cd": 0.01028,
+      "cm": -0.1016
+     },
+     {
+      "alpha_deg": -12.0,
+      "cl": -0.8958,
+      "cd": 0.00938,
+      "cm": -0.101
+     },
+     {
+      "alpha_deg": -11.0,
+      "cl": -0.7836,
+      "cd": 0.00867,
+      "cm": -0.1007
+     },
+     {
+      "alpha_deg": -10.0,
+      "cl": -0.6705,
+      "cd": 0.00802,
+      "cm": -0.1007
+     },
+     {
+      "alpha_deg": -9.0,
+      "cl": -0.5564,
+      "cd": 0.00747,
+      "cm": -0.1007
+     },
+     {
+      "alpha_deg": -8.0,
+      "cl": -0.4414,
+      "cd": 0.00703,
+      "cm": -0.1009
+     },
+     {
+      "alpha_deg": -7.0,
+      "cl": -0.3258,
+      "cd": 0.00668,
+      "cm": -0.1012
+     },
+     {
+      "alpha_deg": -6.0,
+      "cl": -0.2101,
+      "cd": 0.00643,
+      "cm": -0.1015
+     },
+     {
+      "alpha_deg": -5.0,
+      "cl": -0.0939,
+      "cd": 0.0062,
+      "cm": -0.102
+     },
+     {
+      "alpha_deg": -4.0,
+      "cl": 0.0222,
+      "cd": 0.00606,
+      "cm": -0.1024
+     },
+     {
+      "alpha_deg": -3.0,
+      "cl": 0.1387,
+      "cd": 0.00595,
+      "cm": -0.103
+     },
+     {
+      "alpha_deg": -2.0,
+      "cl": 0.2556,
+      "cd": 0.00581,
+      "cm": -0.1036
+     },
+     {
+      "alpha_deg": -1.0,
+      "cl": 0.3724,
+      "cd": 0.00575,
+      "cm": -0.1043
+     },
+     {
+      "alpha_deg": 0.0,
+      "cl": 0.4895,
+      "cd": 0.00569,
+      "cm": -0.1051
+     },
+     {
+      "alpha_deg": 1.0,
+      "cl": 0.6063,
+      "cd": 0.00565,
+      "cm": -0.1059
+     },
+     {
+      "alpha_deg": 2.0,
+      "cl": 0.7223,
+      "cd": 0.00567,
+      "cm": -0.1066
+     },
+     {
+      "alpha_deg": 3.0,
+      "cl": 0.836,
+      "cd": 0.00574,
+      "cm": -0.1069
+     },
+     {
+      "alpha_deg": 4.0,
+      "cl": 0.947,
+      "cd": 0.00583,
+      "cm": -0.1069
+     },
+     {
+      "alpha_deg": 5.0,
+      "cl": 1.0546,
+      "cd": 0.00617,
+      "cm": -0.1063
+     },
+     {
+      "alpha_deg": 6.0,
+      "cl": 1.1523,
+      "cd": 0.00661,
+      "cm": -0.1034
+     },
+     {
+      "alpha_deg": 7.0,
+      "cl": 1.2588,
+      "cd": 0.00764,
+      "cm": -0.1029
+     },
+     {
+      "alpha_deg": 8.0,
+      "cl": 1.3542,
+      "cd": 0.0088,
+      "cm": -0.1001
+     },
+     {
+      "alpha_deg": 9.0,
+      "cl": 1.4465,
+      "cd": 0.00996,
+      "cm": -0.0969
+     },
+     {
+      "alpha_deg": 10.0,
+      "cl": 1.5274,
+      "cd": 0.0112,
+      "cm": -0.0916
+     },
+     {
+      "alpha_deg": 11.0,
+      "cl": 1.6028,
+      "cd": 0.01255,
+      "cm": -0.0856
+     },
+     {
+      "alpha_deg": 12.0,
+      "cl": 1.6738,
+      "cd": 0.01422,
+      "cm": -0.0796
+     },
+     {
+      "alpha_deg": 13.0,
+      "cl": 1.7394,
+      "cd": 0.01628,
+      "cm": -0.0735
+     },
+     {
+      "alpha_deg": 14.0,
+      "cl": 1.798,
+      "cd": 0.01895,
+      "cm": -0.0674
+     },
+     {
+      "alpha_deg": 15.0,
+      "cl": 1.8482,
+      "cd": 0.02245,
+      "cm": -0.0614
+     },
+     {
+      "alpha_deg": 16.0,
+      "cl": 1.8915,
+      "cd": 0.02684,
+      "cm": -0.0559
+     },
+     {
+      "alpha_deg": 17.0,
+      "cl": 1.9254,
+      "cd": 0.03255,
+      "cm": -0.0512
+     },
+     {
+      "alpha_deg": 18.0,
+      "cl": 1.9433,
+      "cd": 0.04033,
+      "cm": -0.0472
+     },
+     {
+      "alpha_deg": 19.0,
+      "cl": 1.9551,
+      "cd": 0.04934,
+      "cm": -0.0445
+     },
+     {
+      "alpha_deg": 20.0,
+      "cl": 1.9481,
+      "cd": 0.06086,
+      "cm": -0.0428
+     }
+    ],
+    "n_converged": 39,
+    "n_asked": 39,
+    "summary": {
+     "n_points": 39,
+     "cl_max": 1.9551,
+     "alpha_cl_max_deg": 19.0,
+     "cl_max_is_a_turning_point": true,
+     "cl_min": -1.4948,
+     "alpha_cl_min_deg": -18.0,
+     "cl_min_is_a_turning_point": false,
+     "fit": {
+      "n_points": 13,
+      "slope_per_deg": 0.11469945054945054,
+      "cl_at_zero": 0.4840692307692308,
+      "alpha_zero_lift_deg": -4.220327372540755,
+      "rms_residual": 0.0074773896996346585
+     },
+     "cm_c4_linear_range": -0.10445384615384615,
+     "cm_n_points": 13,
+     "cd_min": 0.00565,
+     "cl_at_cd_min": 0.6063,
+     "cm_min": -0.1069,
+     "cm_max": -0.1015
+    },
+    "against_measured": {
+     "slope_relative_difference": 0.11480433559174275,
+     "cl_at_zero_difference": 0.056615947104681985,
+     "cl_max_difference": 0.32749000000000006,
+     "within": {
+      "slope": false,
+      "cl_at_zero": false,
+      "cl_max": false
+     },
+     "all_within": false
+    }
+   },
+   {
+    "section": "naca0012",
+    "reynolds": 3000000.0,
+    "mach": 0.08062604649326456,
+    "rows": [
+     {
+      "alpha_deg": -18.0,
+      "cl": -1.6404,
+      "cd": 0.03647,
+      "cm": -0.0333
+     },
+     {
+      "alpha_deg": -17.0,
+      "cl": -1.6235,
+      "cd": 0.02842,
+      "cm": -0.0321
+     },
+     {
+      "alpha_deg": -16.0,
+      "cl": -1.5991,
+      "cd": 0.02285,
+      "cm": -0.0262
+     },
+     {
+      "alpha_deg": -15.0,
+      "cl": -1.5535,
+      "cd": 0.01971,
+      "cm": -0.0185
+     },
+     {
+      "alpha_deg": -14.0,
+      "cl": -1.4813,
+      "cd": 0.01758,
+      "cm": -0.0133
+     },
+     {
+      "alpha_deg": -13.0,
+      "cl": -1.3987,
+      "cd": 0.01554,
+      "cm": -0.0093
+     },
+     {
+      "alpha_deg": -12.0,
+      "cl": -1.3066,
+      "cd": 0.014,
+      "cm": -0.0065
+     },
+     {
+      "alpha_deg": -11.0,
+      "cl": -1.2135,
+      "cd": 0.01252,
+      "cm": -0.0035
+     },
+     {
+      "alpha_deg": -10.0,
+      "cl": -1.1224,
+      "cd": 0.01135,
+      "cm": 0.0003
+     },
+     {
+      "alpha_deg": -9.0,
+      "cl": -1.0273,
+      "cd": 0.01031,
+      "cm": 0.0035
+     },
+     {
+      "alpha_deg": -8.0,
+      "cl": -0.9004,
+      "cd": 0.00929,
+      "cm": -0.0001
+     },
+     {
+      "alpha_deg": -7.0,
+      "cl": -0.7722,
+      "cd": 0.00834,
+      "cm": -0.0038
+     },
+     {
+      "alpha_deg": -6.0,
+      "cl": -0.6582,
+      "cd": 0.00753,
+      "cm": -0.0042
+     },
+     {
+      "alpha_deg": -5.0,
+      "cl": -0.5519,
+      "cd": 0.00682,
+      "cm": -0.0026
+     },
+     {
+      "alpha_deg": -4.0,
+      "cl": -0.4441,
+      "cd": 0.0062,
+      "cm": -0.0015
+     },
+     {
+      "alpha_deg": -3.0,
+      "cl": -0.3346,
+      "cd": 0.00571,
+      "cm": -0.0008
+     },
+     {
+      "alpha_deg": -2.0,
+      "cl": -0.2239,
+      "cd": 0.00536,
+      "cm": -0.0003
+     },
+     {
+      "alpha_deg": -1.0,
+      "cl": -0.1123,
+      "cd": 0.00517,
+      "cm": -0.0001
+     },
+     {
+      "alpha_deg": 0.0,
+      "cl": 0.0,
+      "cd": 0.0051,
+      "cm": -0.0
+     },
+     {
+      "alpha_deg": 1.0,
+      "cl": 0.1123,
+      "cd": 0.00517,
+      "cm": 0.0001
+     },
+     {
+      "alpha_deg": 2.0,
+      "cl": 0.2239,
+      "cd": 0.00536,
+      "cm": 0.0003
+     },
+     {
+      "alpha_deg": 3.0,
+      "cl": 0.3346,
+      "cd": 0.00571,
+      "cm": 0.0008
+     },
+     {
+      "alpha_deg": 4.0,
+      "cl": 0.4441,
+      "cd": 0.0062,
+      "cm": 0.0015
+     },
+     {
+      "alpha_deg": 5.0,
+      "cl": 0.552,
+      "cd": 0.00682,
+      "cm": 0.0026
+     },
+     {
+      "alpha_deg": 6.0,
+      "cl": 0.6583,
+      "cd": 0.00753,
+      "cm": 0.0042
+     },
+     {
+      "alpha_deg": 7.0,
+      "cl": 0.7723,
+      "cd": 0.00834,
+      "cm": 0.0038
+     },
+     {
+      "alpha_deg": 8.0,
+      "cl": 0.9005,
+      "cd": 0.00928,
+      "cm": 0.0
+     },
+     {
+      "alpha_deg": 9.0,
+      "cl": 1.0274,
+      "cd": 0.01031,
+      "cm": -0.0036
+     },
+     {
+      "alpha_deg": 10.0,
+      "cl": 1.1223,
+      "cd": 0.01135,
+      "cm": -0.0003
+     },
+     {
+      "alpha_deg": 11.0,
+      "cl": 1.2135,
+      "cd": 0.01252,
+      "cm": 0.0035
+     },
+     {
+      "alpha_deg": 12.0,
+      "cl": 1.3068,
+      "cd": 0.014,
+      "cm": 0.0065
+     },
+     {
+      "alpha_deg": 13.0,
+      "cl": 1.399,
+      "cd": 0.01554,
+      "cm": 0.0093
+     },
+     {
+      "alpha_deg": 14.0,
+      "cl": 1.4818,
+      "cd": 0.01758,
+      "cm": 0.0132
+     },
+     {
+      "alpha_deg": 15.0,
+      "cl": 1.5544,
+      "cd": 0.01971,
+      "cm": 0.0183
+     },
+     {
+      "alpha_deg": 16.0,
+      "cl": 1.6003,
+      "cd": 0.02284,
+      "cm": 0.026
+     },
+     {
+      "alpha_deg": 17.0,
+      "cl": 1.6253,
+      "cd": 0.02839,
+      "cm": 0.0318
+     },
+     {
+      "alpha_deg": 18.0,
+      "cl": 1.6427,
+      "cd": 0.03639,
+      "cm": 0.033
+     },
+     {
+      "alpha_deg": 19.0,
+      "cl": 1.6259,
+      "cd": 0.0505,
+      "cm": 0.0286
+     },
+     {
+      "alpha_deg": 20.0,
+      "cl": 1.5413,
+      "cd": 0.0763,
+      "cm": 0.0163
+     }
+    ],
+    "n_converged": 39,
+    "n_asked": 39,
+    "summary": {
+     "n_points": 39,
+     "cl_max": 1.6427,
+     "alpha_cl_max_deg": 18.0,
+     "cl_max_is_a_turning_point": true,
+     "cl_min": -1.6404,
+     "alpha_cl_min_deg": -18.0,
+     "cl_min_is_a_turning_point": false,
+     "fit": {
+      "n_points": 13,
+      "slope_per_deg": 0.1104346153846154,
+      "cl_at_zero": 1.5384615384607107e-05,
+      "alpha_zero_lift_deg": -0.00013930972033566146,
+      "rms_residual": 0.0027216913032700497
+     },
+     "cm_c4_linear_range": 0.0,
+     "cm_n_points": 13,
+     "cd_min": 0.0051,
+     "cl_at_cd_min": 0.0,
+     "cm_min": -0.0042,
+     "cm_max": 0.0042
+    },
+    "against_measured": null
+   },
+   {
+    "section": "naca0012",
+    "reynolds": 6000000.0,
+    "mach": 0.08062604649326456,
+    "rows": [
+     {
+      "alpha_deg": -18.0,
+      "cl": -1.755,
+      "cd": 0.02581,
+      "cm": -0.0314
+     },
+     {
+      "alpha_deg": -17.0,
+      "cl": -1.7197,
+      "cd": 0.02141,
+      "cm": -0.0255
+     },
+     {
+      "alpha_deg": -16.0,
+      "cl": -1.6752,
+      "cd": 0.01843,
+      "cm": -0.0173
+     },
+     {
+      "alpha_deg": -15.0,
+      "cl": -1.6024,
+      "cd": 0.01644,
+      "cm": -0.012
+     },
+     {
+      "alpha_deg": -14.0,
+      "cl": -1.515,
+      "cd": 0.01485,
+      "cm": -0.0087
+     },
+     {
+      "alpha_deg": -13.0,
+      "cl": -1.4243,
+      "cd": 0.01319,
+      "cm": -0.0057
+     },
+     {
+      "alpha_deg": -12.0,
+      "cl": -1.3267,
+      "cd": 0.01201,
+      "cm": -0.0035
+     },
+     {
+      "alpha_deg": -11.0,
+      "cl": -1.2324,
+      "cd": 0.01081,
+      "cm": -0.0004
+     },
+     {
+      "alpha_deg": -10.0,
+      "cl": -1.129,
+      "cd": 0.0098,
+      "cm": 0.001
+     },
+     {
+      "alpha_deg": -8.0,
+      "cl": -0.8884,
+      "cd": 0.00803,
+      "cm": -0.0031
+     },
+     {
+      "alpha_deg": -7.0,
+      "cl": -0.7817,
+      "cd": 0.00735,
+      "cm": -0.0018
+     },
+     {
+      "alpha_deg": -6.0,
+      "cl": -0.673,
+      "cd": 0.00679,
+      "cm": -0.0008
+     },
+     {
+      "alpha_deg": -5.0,
+      "cl": -0.5624,
+      "cd": 0.00635,
+      "cm": -0.0003
+     },
+     {
+      "alpha_deg": -4.0,
+      "cl": -0.451,
+      "cd": 0.00593,
+      "cm": 0.0001
+     },
+     {
+      "alpha_deg": -3.0,
+      "cl": -0.339,
+      "cd": 0.00559,
+      "cm": 0.0002
+     },
+     {
+      "alpha_deg": -2.0,
+      "cl": -0.2265,
+      "cd": 0.00531,
+      "cm": 0.0002
+     },
+     {
+      "alpha_deg": -1.0,
+      "cl": -0.1133,
+      "cd": 0.00514,
+      "cm": 0.0001
+     },
+     {
+      "alpha_deg": 0.0,
+      "cl": 0.0,
+      "cd": 0.00507,
+      "cm": -0.0
+     },
+     {
+      "alpha_deg": 1.0,
+      "cl": 0.1133,
+      "cd": 0.00514,
+      "cm": -0.0001
+     },
+     {
+      "alpha_deg": 2.0,
+      "cl": 0.2265,
+      "cd": 0.00531,
+      "cm": -0.0002
+     },
+     {
+      "alpha_deg": 3.0,
+      "cl": 0.339,
+      "cd": 0.00559,
+      "cm": -0.0002
+     },
+     {
+      "alpha_deg": 4.0,
+      "cl": 0.451,
+      "cd": 0.00593,
+      "cm": -0.0001
+     },
+     {
+      "alpha_deg": 5.0,
+      "cl": 0.5624,
+      "cd": 0.00635,
+      "cm": 0.0002
+     },
+     {
+      "alpha_deg": 6.0,
+      "cl": 0.673,
+      "cd": 0.00679,
+      "cm": 0.0008
+     },
+     {
+      "alpha_deg": 7.0,
+      "cl": 0.7817,
+      "cd": 0.00735,
+      "cm": 0.0017
+     },
+     {
+      "alpha_deg": 8.0,
+      "cl": 0.8885,
+      "cd": 0.00803,
+      "cm": 0.0031
+     },
+     {
+      "alpha_deg": 10.0,
+      "cl": 1.1291,
+      "cd": 0.0098,
+      "cm": -0.001
+     },
+     {
+      "alpha_deg": 11.0,
+      "cl": 1.2323,
+      "cd": 0.0108,
+      "cm": 0.0004
+     },
+     {
+      "alpha_deg": 12.0,
+      "cl": 1.3268,
+      "cd": 0.01201,
+      "cm": 0.0035
+     },
+     {
+      "alpha_deg": 13.0,
+      "cl": 1.4245,
+      "cd": 0.01319,
+      "cm": 0.0057
+     },
+     {
+      "alpha_deg": 14.0,
+      "cl": 1.5153,
+      "cd": 0.01485,
+      "cm": 0.0087
+     },
+     {
+      "alpha_deg": 15.0,
+      "cl": 1.6029,
+      "cd": 0.01644,
+      "cm": 0.0119
+     },
+     {
+      "alpha_deg": 16.0,
+      "cl": 1.6762,
+      "cd": 0.01844,
+      "cm": 0.0171
+     },
+     {
+      "alpha_deg": 17.0,
+      "cl": 1.721,
+      "cd": 0.02141,
+      "cm": 0.0253
+     },
+     {
+      "alpha_deg": 18.0,
+      "cl": 1.7569,
+      "cd": 0.02578,
+      "cm": 0.0312
+     },
+     {
+      "alpha_deg": 19.0,
+      "cl": 1.7809,
+      "cd": 0.03245,
+      "cm": 0.0338
+     },
+     {
+      "alpha_deg": 20.0,
+      "cl": 1.7784,
+      "cd": 0.04357,
+      "cm": 0.0322
+     }
+    ],
+    "n_converged": 37,
+    "n_asked": 39,
+    "summary": {
+     "n_points": 37,
+     "cl_max": 1.7809,
+     "alpha_cl_max_deg": 19.0,
+     "cl_max_is_a_turning_point": true,
+     "cl_min": -1.755,
+     "alpha_cl_min_deg": -18.0,
+     "cl_min_is_a_turning_point": false,
+     "fit": {
+      "n_points": 13,
+      "slope_per_deg": 0.11249780219780221,
+      "cl_at_zero": -4.8205088029222136e-18,
+      "alpha_zero_lift_deg": 4.2849804251699315e-17,
+      "rms_residual": 0.0012495882669325338
+     },
+     "cm_c4_linear_range": -7.69230769230769e-06,
+     "cm_n_points": 13,
+     "cd_min": 0.00507,
+     "cl_at_cd_min": 0.0,
+     "cm_min": -0.0008,
+     "cm_max": 0.0008
+    },
+    "against_measured": null
+   }
+  ]
+ },
+ "acceptance": [
+  {
+   "row": 1,
+   "what": "section maximum lift, smooth, at the tabulated Reynolds number nearest the stall: inside the ledger band",
+   "value": 1.41777,
+   "band": [
+    1.3,
+    1.7
+   ],
+   "reynolds": 3000000.0,
+   "verdict": "pass"
+  },
+  {
+   "row": 2,
+   "what": "wing clean maximum lift by (12.15) from the measured section value against the record's",
+   "value": 1.275993,
+   "record": 1.35,
+   "hours_on_station": 10.904030429568655,
+   "hours_on_station_record": 11.000008142816982,
+   "loiter_speed_kt": 89.75185178626192,
+   "loiter_speed_kt_record": 87.25723393812503,
+   "verdict": "finding for r1"
+  },
+  {
+   "row": 3,
+   "what": "section moment about the quarter chord against the ledger band of airfoil_cm0",
+   "value": -0.0911291,
+   "band": [
+    -0.1,
+    -0.04
+   ],
+   "ledger_value": -0.08,
+   "verdict": "pass"
+  },
+  {
+   "row": 4,
+   "what": "standard roughness: a sensitivity",
+   "cl_max_rough": 1.28748,
+   "cl_max_smooth_same_reynolds": 1.56987,
+   "reynolds": 6000000.0,
+   "cd_min_rough": 0.0107057,
+   "cd_min_smooth_same_reynolds": 0.00661739,
+   "verdict": "reported, no verdict"
+  },
+  {
+   "row": 5,
+   "what": "SU2 validation row",
+   "verdict": "not run",
+   "reason": "owner default O-1: the Colab notebook is not started; P2 closes on measured data (PD-6)"
+  },
+  {
+   "row": 6,
+   "what": "added: the digitized lift curve against thin-airfoil theory (gross-error check of the source file)",
+   "alpha0_difference_deg": -0.07448168036190683,
+   "tolerance_deg": 1.0,
+   "slope_over_2pi": 0.9293947593392867,
+   "range": [
+    0.85,
+    1.15
+   ],
+   "verdict": "pass"
+  },
+  {
+   "row": 7,
+   "what": "added: XFOIL polars as a third source (PD-6)",
+   "verdict": "reported, no verdict",
+   "reason": null
+  }
+ ],
+ "tree_at_end": {
+  "commit": "0eee58d88d2158c11e95165de321835ab98f228d",
+  "git_dirty": false,
+  "git_dirty_files": [],
+  "excluded": "runs/task12/pd/2026-11-27/p2"
+ },
+ "runtime_s": 9.077272415161133
+}
