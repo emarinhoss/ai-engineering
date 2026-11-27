@@ -1,0 +1,350 @@
+{
+  "rows": [
+    {
+      "requirement": "R1/R2 single turboprop, one engine",
+      "units": "-",
+      "value": "RR_M250_B17F",
+      "limit": "",
+      "rule": "by construction",
+      "met": null,
+      "verdict": "not tested"
+    },
+    {
+      "requirement": "R4 payload",
+      "units": "lb",
+      "value": 500.0,
+      "limit": 500.0,
+      "rule": "by construction",
+      "met": null,
+      "verdict": "not tested"
+    },
+    {
+      "requirement": "R5 mission 200 nm + 8 h + 200 nm",
+      "units": "fuel lb",
+      "value": 1098.6858990845208,
+      "limit": 1098.6858990845208,
+      "rule": "sized to it",
+      "met": null,
+      "verdict": "not tested"
+    },
+    {
+      "requirement": "R6 note: no starting (relight) envelope in our sources for this engine; an in-flight relight is not assessed (the TP100's envelope is not reused)",
+      "units": "ft",
+      "value": "",
+      "limit": 20000.0,
+      "rule": "note",
+      "met": null,
+      "verdict": "not tested"
+    },
+    {
+      "requirement": "R6 mission altitude 20,000 ft: no maximum operating altitude in our sources for this engine (not checked, none invented)",
+      "units": "ft",
+      "value": 20000.0,
+      "limit": "",
+      "rule": "note",
+      "met": null,
+      "verdict": "not tested"
+    },
+    {
+      "requirement": "R7 take-off over 50 ft",
+      "units": "ft",
+      "value": 710.9566255594885,
+      "limit": 2500.0,
+      "rule": "<=",
+      "met": true,
+      "verdict": "pass"
+    },
+    {
+      "requirement": "R7 landing over 50 ft",
+      "units": "ft",
+      "value": 1348.6318045404491,
+      "limit": 2500.0,
+      "rule": "<=",
+      "met": true,
+      "verdict": "pass"
+    },
+    {
+      "requirement": "R7 clean stall at W0, sea level",
+      "units": "kt",
+      "value": 53.33128280676374,
+      "limit": 70.0,
+      "rule": "<=",
+      "met": true,
+      "verdict": "pass"
+    },
+    {
+      "requirement": "R8 retractable tricycle gear",
+      "units": "-",
+      "value": "yes",
+      "limit": "",
+      "rule": "by construction",
+      "met": null,
+      "verdict": "not tested"
+    },
+    {
+      "requirement": "R9 positive limit load (manoeuvre or gust, both weights)",
+      "units": "-",
+      "value": 3.8,
+      "limit": 3.8,
+      "rule": ">=",
+      "met": true,
+      "verdict": "pass"
+    },
+    {
+      "requirement": "R9 negative gust within the negative limit, with the round-4 margin",
+      "units": "-",
+      "value": -1.503535419223446,
+      "limit": -1.7,
+      "rule": ">=",
+      "met": true,
+      "verdict": "pass"
+    },
+    {
+      "requirement": "R10 6 % reserve and trapped fuel",
+      "units": "-",
+      "value": 1.06,
+      "limit": 1.06,
+      "rule": "by construction",
+      "met": null,
+      "verdict": "not tested"
+    },
+    {
+      "requirement": "R12 sea-level rate of climb",
+      "units": "ft/min",
+      "value": 2325.825329779217,
+      "limit": 1000.0,
+      "rule": ">=",
+      "met": true,
+      "verdict": "pass"
+    },
+    {
+      "requirement": "R12 service ceiling (last altitude with 100 ft/min), with the round-4 margin",
+      "units": "ft",
+      "value": 31738.33202377864,
+      "limit": 23500.0,
+      "rule": "ceiling",
+      "met": true,
+      "verdict": "pass"
+    },
+    {
+      "requirement": "R13 static margin, full fuel",
+      "units": "MAC",
+      "value": 0.11256023208703346,
+      "limit": "0.05-0.15",
+      "rule": "in band",
+      "met": true,
+      "verdict": "pass"
+    },
+    {
+      "requirement": "R13 static margin, empty fuel",
+      "units": "MAC",
+      "value": 0.0874397679129658,
+      "limit": "0.05-0.15",
+      "rule": "in band",
+      "met": true,
+      "verdict": "pass"
+    },
+    {
+      "requirement": "R14 no crew items in the weights",
+      "units": "-",
+      "value": "yes",
+      "limit": "",
+      "rule": "by construction",
+      "met": null,
+      "verdict": "not tested"
+    },
+    {
+      "requirement": "R15 flight avionics 60 lb uninstalled",
+      "units": "lb",
+      "value": 60.0,
+      "limit": 60.0,
+      "rule": "by construction",
+      "met": null,
+      "verdict": "not tested"
+    },
+    {
+      "requirement": "R18 V_C placard covers the fastest cruise sub-step with 10 % margin (study margin)",
+      "units": "kt EAS",
+      "value": 104.45864840844247,
+      "limit": 110.0,
+      "rule": "<=",
+      "met": true,
+      "verdict": "pass"
+    },
+    {
+      "requirement": "R17 every mission sub-step at or above 1.3 V_stall (enforced in the speed choice)",
+      "units": "-",
+      "value": "yes",
+      "limit": "",
+      "rule": "by construction",
+      "met": null,
+      "verdict": "not tested"
+    },
+    {
+      "requirement": "R19 both transit legs flown against a 25 kt headwind (air distance V/(V - V_w))",
+      "units": "kt",
+      "value": 25.0,
+      "limit": 25.0,
+      "rule": "by construction",
+      "met": null,
+      "verdict": "not tested"
+    },
+    {
+      "requirement": "R16 sustained 30 deg bank at loiter (power)",
+      "units": "hp",
+      "value": 243.45443797979473,
+      "limit": 450.0,
+      "rule": "<=",
+      "met": true,
+      "verdict": "pass"
+    },
+    {
+      "requirement": "engine power meets every requirement (achieved margin 37.5%)",
+      "units": "hp",
+      "value": 281.13016848995244,
+      "limit": 450.0,
+      "rule": "<=",
+      "met": true,
+      "verdict": "pass"
+    },
+    {
+      "requirement": "fuel fits integral wing tanks",
+      "units": "ft^3",
+      "value": 21.921334532936385,
+      "limit": 73.16850090283364,
+      "rule": "<=",
+      "met": true,
+      "verdict": "pass"
+    },
+    {
+      "requirement": "nose-wheel load, full fuel (p. 232-233; optimum 0.08-0.15)",
+      "units": "-",
+      "value": 0.1633297781941415,
+      "limit": "0.05-0.20",
+      "rule": "nose",
+      "met": true,
+      "verdict": "pass"
+    },
+    {
+      "requirement": "nose-wheel load, empty fuel",
+      "units": "-",
+      "value": 0.1514639767728986,
+      "limit": "0.05-0.20",
+      "rule": "nose",
+      "met": true,
+      "verdict": "pass"
+    },
+    {
+      "requirement": "main gear stows: sponsons at the 63 deg overturn track (p. 232; ruling round 3)",
+      "units": "ft",
+      "value": 4.730617059876367,
+      "limit": "",
+      "rule": "stow",
+      "met": true,
+      "verdict": "pass"
+    },
+    {
+      "requirement": "propeller clearance at rotation (p. 222)",
+      "units": "in",
+      "value": 14.443207340048785,
+      "limit": 8.95,
+      "rule": ">=",
+      "met": true,
+      "verdict": "pass"
+    },
+    {
+      "requirement": "trim within tail CL limit, all mission legs",
+      "units": "-",
+      "value": "yes",
+      "limit": "",
+      "rule": "flag",
+      "met": true,
+      "verdict": "pass"
+    },
+    {
+      "requirement": "nose rotation at 0.8 V_TO (p. 432-433), tail download",
+      "units": "tail CL",
+      "value": 0.9676507196012006,
+      "limit": 1.0,
+      "rule": "<=",
+      "met": true,
+      "verdict": "pass"
+    }
+  ],
+  "reproduction": {
+    "W0_lb": {
+      "record": 3517.2502473171944,
+      "rebuilt": 3517.2418517859464,
+      "relative_difference": -2.386958748323842e-06
+    },
+    "We_lb": {
+      "record": 1918.5609953623753,
+      "rebuilt": 1918.5577098517049,
+      "relative_difference": -1.712486951577219e-06
+    },
+    "fuel_lb": {
+      "record": 1098.6876236696955,
+      "rebuilt": 1098.6858990845208,
+      "relative_difference": -1.5696774384732493e-06
+    },
+    "bhp_sl": {
+      "record": 450.0,
+      "rebuilt": 450.0,
+      "relative_difference": 0.0
+    },
+    "ht_volume_scale": {
+      "record": 1.593671169862567,
+      "rebuilt": 1.5936711995496933,
+      "relative_difference": 1.8628137921083976e-08
+    },
+    "n_gust": {
+      "record": 3.50353475821359,
+      "rebuilt": 3.503535419223446,
+      "relative_difference": 1.886694158681479e-07
+    },
+    "n_negative_gust": {
+      "record": -1.5035347582135898,
+      "rebuilt": -1.503535419223446,
+      "relative_difference": 4.3963722995421506e-07
+    },
+    "performance.takeoff_ft": {
+      "record": 710.9574328821028,
+      "rebuilt": 710.9566255594885,
+      "relative_difference": -1.1355428284343105e-06
+    },
+    "performance.landing_ft": {
+      "record": 1348.6318062923108,
+      "rebuilt": 1348.6318045404491,
+      "relative_difference": -1.2989918030115177e-09
+    },
+    "performance.roc_sl_fpm": {
+      "record": 2325.818467711061,
+      "rebuilt": 2325.825329779217,
+      "relative_difference": 2.9503885410342434e-06
+    },
+    "performance.service_ceiling_ft": {
+      "record": 31738.17980585227,
+      "rebuilt": 31738.33202377864,
+      "relative_difference": 4.79605091729951e-06
+    },
+    "performance.V_stall_clean_kt": {
+      "record": 53.33128280676374,
+      "rebuilt": 53.33128280676374,
+      "relative_difference": 0.0
+    }
+  },
+  "reproduce_tolerance": 0.0001,
+  "inputs": {
+    "design": "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/design_pusher.json",
+    "design_sha256": "a82647354c6d08719221bc39a78839bc388d657463fca0cd6a6e4dba70b16547",
+    "ledger": "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/ledger.yaml",
+    "ledger_sha256": "b11165a332bed30cddada413d98281fd4e4aceaf6be7a75c2f1dfaa357863342",
+    "out": "runs/task12/stage3/2026-11-27/compliance_ws13a8/compliance.json",
+    "git_commit": "e506e25bbbaf1d71c56005ca2c8aa714479df676",
+    "git_dirty": false,
+    "git_dirty_files": [],
+    "python": "3.13.18",
+    "seed": null,
+    "command": "python -m measurement.stage1_compliance --design runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/design_pusher.json --out runs/task12/stage3/2026-11-27/compliance_ws13a8/compliance.json --report docs/validation/2026-11-27_task12_stage1_compliance_ws13a8.md"
+  }
+}
