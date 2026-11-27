@@ -1,4 +1,5 @@
 # Task 12 Stage 3 output: measured performance of the frozen design (spec 7.3)
+**Superseded (ruling B-2c, 2026-11-27).** This report describes the W/S 16, A 7 design and is kept as the record of it; the Gate B performance report of the W/S 13, A 8 baseline is `docs/validation/2026-11-27_task12_performance.md`.
 
 Written by hand on 2026-11-26 from the records and generated reports listed in section 10. **No run was
 made for this report and no figure was made for it.** Every number is copied from a record or from a
