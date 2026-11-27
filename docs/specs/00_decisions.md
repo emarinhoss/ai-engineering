@@ -443,6 +443,10 @@ Stage 1 (S3M-8) and that an independent neutral point is needed.
   design under both bands. Before a cell is chosen, the full info-gap study is run on W/S 13 A 8 and W/S 13 A 9
   as well as the tool's lightest design W/S 14 A 8 (cliff horizon 1.062); the cell is chosen from the three
   recorded horizons.
+- **B-2c (new baseline, 2026-11-27; record runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/).** W/S 13,
+  A 8 is the new baseline (W0 3,517 lb, L_sized 11.00 h, span 46.5 ft; R5 guarantee 1.0501, cliff 1.0924,
+  R7 1.2845), chosen over 14/8 for its cliff and R7 margin. The frozen design is superseded. Stage 3,
+  VSPAERO wing+tails, the V-n check, the compliance table and the Gate A re-check are re-run on it.
 - **B-3 (R9).** The negative limit is -1.8 with the 0.1 g margin (Gate A round 1 and round 4 rulings);
   spec section 3 is updated.
 - **B-4 (R18, V_C).** The per-design V_C rule of 2026-11-23 (10 % above the fastest cruise sub-step,
