@@ -467,7 +467,9 @@ def report_text(out):
     add(f"`conceptual/stage1.constraint_diagram` at r0's weight and aspect ratio, run here. Stall limit W/S {n(lim['stall'], 2)} lb/ft^2; landing limit {n(lim['landing'], 1)} lb/ft^2; "
         f"best-range wing loading at the cruise dynamic pressure {n(lim['best_range_at_cruise_q'], 2)}; best-loiter wing loading at the loiter dynamic pressure {n(lim['best_loiter_at_loiter_q'], 2)}. r0 is at {n(d['W_S'], 0)}.")
     pr = d["power_required_hp"]
-    add("Power required at r0 (hp): " + ", ".join(f"{k.replace('_', ' ')} {n(v)}" for k, v in pr.items()) + f"; installed {n(d['bhp_sl'], 0)}.")
+    add("Power required at r0 (hp): " + ", ".join(f"{k.replace('_', ' ')} {n(v)}" for k, v in pr.items()) + f"; installed {n(d['bhp_sl'], 0)}. "
+        f"The largest is {100 * max(pr.values()) / d['bhp_sl']:.1f} % of the installed power. These are requirements at nominal values; "
+        "the cell and the sized loiter of r0 were set by the robust sizing (rulings R-d, B-2c), which this diagram does not show.")
     add("")
     add("### 8.2 Carpet plot from the committed re-size grid")
     add("")
