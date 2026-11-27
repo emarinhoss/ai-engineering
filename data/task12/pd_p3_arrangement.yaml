@@ -1,0 +1,52 @@
+# Task 12 preliminary design P3: the loft's own choices and the internal arrangement.
+# Written by hand on 2026-11-27, before the recorded run. Read by geometry3d/aircraft.py.
+# Every entry is an agent's judgement under the owner's instruction of 2026-11-27 (PD-start), not an owner ruling
+# and not from the library unless its line says so. r0 and the Gate B ledger are not edited. Lengths in ft.
+
+loft:
+  # Layout convention of conceptual/render3d.py and conceptual/openvsp_model.py, kept so the three agree.
+  wing_z_over_diameter: -0.1          # wing chord plane below the fuselage reference line
+  tail_z_over_diameter: 0.3           # horizontal tail above it (ledger tail_height_over_df 0.4 above the wing plane)
+  fin_root_z_over_stage1_radius: 0.6  # fin root height over the Stage 1 body radius at the fin's leading edge
+  fin_le_slope: 0.35                  # fin leading edge, dx per unit height (taper: ledger vt_taper)
+  leading_edges_unswept: true         # wing and horizontal tail
+  sponson_semi_axes_over_size: [0.5, 0.45, 0.5]   # ellipsoid: x over length, y over depth, z over depth
+  sponson_centre_ahead_of_main_wheel_over_length: 0.3
+  sponson_centre_below_wing_over_depth: 0.45
+  turret_radius_ft: 0.45              # sphere on the keel line of the Stage 1 body at the payload station
+  propeller_plane_behind_fuselage_ft: 0.15
+  spinner_diameter_over_propeller: {value: 0.20, band: [0.15, 0.25], source: "End section of the fuselage and base of the spinner as a share of the propeller diameter; a judgement (Stage 1's body ends at 15 % of the fuselage diameter, which no hub fits)"}
+  spinner_length_over_diameter: 0.75
+  nose_length_over_length: 0.20       # the Stage 1 body: nose ellipse over the first 20 % of the length
+  # Fuselage control stations: x over length; half breadth, top and bottom over the Stage 1 radius; conic shape
+  # parameter rho (Raymer (7.2), p. 132; 0.4142 is the circle of (7.4)).
+  # Rows 2-3: payload bay, squarer sections so that boxes fit (Raymer p. 133 squares the lower fuselage the same
+  # way for landing gear, Fig. 7.17, rho about 0.6; p. 133 names about 0.7 for the middle of the Fig. 7.15 fuselage). Rows 6-7: engine bay, sized round the engine envelope plus
+  # the clearance. Row 8: circular, to meet the spinner. Maximum breadth and depth stay the Stage 1 diameter.
+  fuselage_stations:
+    - [0.00, 1.000, 1.000, 1.000, 0.4142135623730951]
+    - [0.06, 1.000, 1.000, 1.000, 0.70]
+    - [0.27, 1.000, 1.000, 1.000, 0.70]
+    - [0.36, 1.000, 1.000, 1.000, 0.4142135623730951]
+    - [0.60, 1.000, 1.000, 1.000, 0.4142135623730951]
+    - [0.81, 0.616, 0.717, 0.717, 0.65]
+    - [0.95, 0.616, 0.717, 0.717, 0.65]
+    - [1.00, null,  null,  null,  0.4142135623730951]   # the spinner radius, from spinner_diameter_over_propeller
+
+arrangement:
+  box_clearance_in: {value: 1.0, band: [0.5, 2.0], source: "Least distance from any box to the outer skin, for skin and frame depth. The spec's gate 4 names 'the ledger's clearance'; the ledger has no such entry, so it is set here; a judgement"}
+  payload_density_lb_ft3: {value: 30.0, band: [30.0, 45.0], source: "PD-12; Raymer p. 256 as cited there"}
+  avionics_density_lb_ft3: {value: 30.0, band: [30.0, 45.0], source: "Installed flight avionics at the same density as PD-12, as the P1 first check did"}
+  front_spar_chord_fraction: {value: 0.15, band: [0.12, 0.25], source: "Front spar; the rear spar is this plus the ledger's wing_tank_chord_fraction (0.45). A judgement; P7 uses the same"}
+  # Engine envelope: FAA TCDS E10CE as quoted in r0's engine_source: length x width x height 44.924 x 18.784 x 22.596 in.
+  engine_envelope_in: [44.924, 18.784, 22.596]
+  engine_centre_z_ft: 0.0             # at the record's engine station, on the reference line
+  # Nose gear (decision PD-19): the wheel stays at the record's station and retracts aft into a keel bay on the
+  # centreline. The leg is measured on the loft from the pivot to the axle with the wheel on the ground.
+  nose_gear_pivot_z_ft: -0.60
+  gear_bay_gap_in: 0.6                # gap round the stowed leg and tyre inside their bay boxes
+  # Payload bay: two boxes above the stowed nose leg; avionics behind it above the nose-wheel well (PD-19).
+  # [x0, x1, half width, z0, z1]. Sizes were chosen on the loft before the recorded run, by trial with the gates.
+  payload_bay_forward: [1.80, 3.30, 1.00, -0.38, 0.97]
+  payload_bay_aft: [3.30, 6.42, 1.35, -0.38, 1.17]
+  avionics_bay: [6.50, 7.85, 1.30, 0.16, 1.25]

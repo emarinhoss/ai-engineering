@@ -1,0 +1,104 @@
+# Task 12 preliminary design P3: where the tail section's data and the four-digit section equations come from.
+# Written by hand on 2026-11-27 from files opened in that session on ntrs.nasa.gov (the owner allowed the host).
+# No value here is from memory. The PDFs stay in the session scratchpad and are not committed.
+# Read by prelim/p3_loft.py; tests/task12_pd/test_p3_geometry.py checks this file.
+
+why: >-
+  PD-5 fixes the tails as NACA 0012. NACA Report 824 has no characteristics page for the 0012 (its list of
+  section pages, data/task12/tr824_digitized/NACA.LST, runs 0006, 0009, 1408, ...), so P2 transcribed none.
+  P4 (tail lift slope, trim and rotation limits) and P5 (negative manoeuvre) need them.
+
+reports:
+  tr586:
+    number: "NACA Report 586 (NACA-TR-586)"
+    title: "Airfoil Section Characteristics as Affected by Variations of the Reynolds Number"
+    authors: "Eastman N. Jacobs, Albert Sherman"
+    year: 1937
+    ntrs_id: "19930091662"
+    url: "https://ntrs.nasa.gov/api/citations/19930091662/downloads/19930091662.pdf"
+    pdf_sha256: "a48dbddbad04b23525d91feb62b65f8977f91c97d6ac17f0f49d9e57aefa2f70"
+    pdf_bytes: 38455528
+    pdf_pages: 46
+    pdf_committed: false
+    opened: "2026-11-27, curl through the session proxy"
+  tr460:
+    number: "NACA Report 460 (NACA-TR-460)"
+    title: "The characteristics of 78 related airfoil sections from tests in the variable-density wind tunnel"
+    authors: "Eastman N. Jacobs, Kenneth E. Ward, Robert M. Pinkerton"
+    year: 1933
+    ntrs_id: "19930091108"
+    found_by: "https://ntrs.nasa.gov/api/citations/search?q=%22characteristics of 78 related airfoil sections%22"
+    url: "https://ntrs.nasa.gov/api/citations/19930091108/downloads/19930091108.pdf"
+    pdf_sha256: "ed7f7a0c24f95bf62c3a66868765f6f6a2b6430c4bd79299724fb001201c7d41"
+    pdf_bytes: 6126770
+    pdf_pages: 61
+    pdf_committed: false
+    opened: "2026-11-27, curl through the session proxy"
+  tr824:
+    number: "NACA Report 824 (NACA-TR-824)"
+    ntrs_id: "19930090976"
+    url: "https://ntrs.nasa.gov/api/citations/19930090976/downloads/19930090976.pdf"
+    pdf_sha256: "9f27283b704821192fc9dba4ed625f62002903b5127bc869cd04ac0a5cc54efd"     # the same file as P2's record
+    opened: "2026-11-27, downloaded again for P3"
+
+# ---- geometry of the four-digit sections (the loft's 4415 and 0012) ---------------------------------------
+section_equations:
+  thickness:
+    source: "Report 460, printed p. 4 (PDF page 6), and Fig. 1 on the same page"
+    form: "+-y_t = (t/0.20) (a0 sqrt(x) + a1 x + a2 x^2 + a3 x^3 + a4 x^4)"
+    coefficients: [0.29690, -0.12600, -0.35160, 0.28430, -0.10150]
+    note: >-
+      The trailing edge of this equation is not closed (ordinate 0.210 per cent of the chord at x = 1 for the
+      20 per cent section). The loft keeps it and closes the section with a flat base.
+  mean_line:
+    source: "Report 460, printed p. 5 (PDF page 7)"
+    form: "ahead of p: y_c = m/p^2 (2 p x - x^2); behind p: y_c = m/(1-p)^2 ((1 - 2p) + 2 p x - x^2)"
+  combination:
+    source: "Report 460, printed p. 5, Fig. 2; the same in Report 824, printed p. 4 (PDF page 9), equations (1) to (4)"
+    form: "x_u = x - y_t sin(theta), y_u = y_c + y_t cos(theta), x_l = x + y_t sin(theta), y_l = y_c - y_t cos(theta)"
+  report_824_does_not_print_the_polynomial: >-
+    Report 824, printed p. 4-5, gives the combination rule, the numbering system and tables of ordinates in its
+    supplementary figures, and names Report 460 as its reference 1 for the four-digit series. The thickness
+    polynomial itself is printed in Report 460, which is therefore the source cited in geometry3d/sections.py.
+  # Printed test targets, each read twice (page image at 120 dpi and at 400 dpi); the readings agree.
+  # Report 460, Fig. 1, p. 4: "Basic ordinates of N.A.C.A. family airfoils (percent of chord)", 20 per cent thick.
+  basic_ordinates_20_percent:
+    station_percent: [0, 1.25, 2.5, 5.0, 7.5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 95, 100]
+    ordinate_percent: [0, 3.157, 4.358, 5.925, 7.000, 7.805, 8.909, 9.563, 9.902, 10.003, 9.672, 8.823, 7.606, 6.107, 4.372, 2.413, 1.344, 0.210]
+    reading_uncertainty: 0.0005       # a printed table: half of the last printed digit
+    le_radius_percent: 4.40
+  # Report 586, Fig. 3, printed p. 5 (PDF page 10): ordinates of the N.A.C.A. 0012 as tested, per cent of chord.
+  naca0012_ordinates:
+    station_percent: [0, 1.25, 2.5, 5.0, 7.5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 95, 100]
+    ordinate_percent: [0, 1.894, 2.615, 3.555, 4.200, 4.683, 5.345, 5.738, 5.941, 6.002, 5.803, 5.294, 4.563, 3.664, 2.623, 1.448, 0.807, 0.126]
+    reading_uncertainty: 0.001        # small print in a figure, read once at 110 dpi and once at 400 dpi; the readings agree
+    le_radius_percent: 1.58
+
+# ---- section characteristics of the NACA 0012 --------------------------------------------------------------
+naca0012:
+  source: "Report 586, Table I, 'Important airfoil section characteristics', printed p. 39 (PDF page 44); rows of the N.A.C.A. 0012"
+  cross_check: "Report 586, Table II, printed p. 41 (PDF page 46), row 0012 at R_e 8.37 million: c_l max 1.66, a_0 0.099, c_d0 min 0.0069, c_m a.c. 0, a.c. 0.6 ahead and 3 above; equal to the first row below"
+  figure: "Report 586, Fig. 3, printed p. 5 (PDF page 10): the test curves the table summarises (test Reynolds numbers 3,180,000 to 170,000)"
+  tunnel: "N.A.C.A. variable-density tunnel, 5 in by 30 in rectangular model, tests V.D.T. 1237-8, March 1935"
+  reynolds_number_is: >-
+    the effective Reynolds number R_e of the report: the test Reynolds number times the tunnel's turbulence
+    factor 2.64 (Table II, footnote 4). The report's method is to use R_e as the flight Reynolds number.
+  read: "twice: the whole page at 130 dpi, then the rows alone at 400 dpi. The two readings agree in every digit."
+  reading_uncertainty: "a printed table: half of the last printed digit (0.0005 in a_0, 0.005 in c_l max, 0.00005 in c_d0 min)"
+  columns: [reynolds_millions, alpha_l0_deg, a0_per_deg, cl_max, peak_type, cl_opt, cd0_min, cm_ac, ac_x_percent, ac_y_percent]
+  rows:
+    - [8.370, 0, 0.099, 1.66, A, 0, 0.0069, 0, 0.6, 3]
+    - [8.450, 0, 0.100, 1.65, A, 0, 0.0069, 0, 0.6, 3]
+    - [6.280, 0, 0.097, 1.62, A, 0, 0.0073, 0, 0.8, 3]
+    - [3.540, 0, 0.097, 1.49, A, 0, 0.0077, 0, 1.0, 4]
+    - [1.740, 0, 0.096, 1.18, A, 0, 0.0075, 0, 1.1, 3]
+    - [0.871, 0, 0.094, 0.91, D, 0, 0.0065, null, null, null]
+    - [0.449, 0, 0.098, 0.89, D, 0, 0.0105, null, null, null]
+  peak_type: "A: lift falls abruptly after the peak; D: rounded peak (sketches under Table I)"
+  negative_cl_max: >-
+    Not measured: the report's tests are at positive angles. The section is symmetrical, so the negative
+    maximum lift is taken as minus the positive one. This is a property of the shape, not a reading.
+  caveats:
+    - "Old tunnel: the variable-density tunnel's stream was turbulent. Its minimum drag is higher than a low-turbulence tunnel gives, and Report 824 exists because of that. Use c_d0 min as an upper reading."
+    - "Smooth model. No roughness data for the 0012 in this report."
+    - "The table gives no curve points; angles of stall and the shape after the peak are in Fig. 3 only and were not digitized."

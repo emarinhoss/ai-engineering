@@ -517,3 +517,20 @@ Stage 1 (S3M-8) and that an independent neutral point is needed.
   edited. No product is selected. The numbers computed with this blade are in
   `docs/validation/2026-11-27_task12_pd_p6.md`; that report says whether they may be used in r1 (they may not while its
   validation row 5 fails). Override: a maker's propeller map replaces the whole check (O-3).
+- **PD-19 (2026-11-27, package P3: nose packaging, and what the loft adds to the layout).** An agent's assumption under the
+  owner's instruction of PD-start, not an owner ruling. P1 found (its finding 4, "nose packaging") that the nose-gear leg,
+  retracted aft, passes through the payload bay and the avionics station, and that Stage 1 has no stow check for the nose gear.
+  Choice, the simplest that passes the box gate of P3 (spec gate 4): the nose wheel stays at r0's station and retracts aft into
+  a bay on the centreline (two boxes round the leg, one wheel well); the payload bay of PD-12 becomes two boxes above the
+  stowed leg and ahead of the wheel well, in fuselage sections made squarer (conic shape parameter 0.70, Raymer (7.2) and
+  p. 133); the avionics box sits above the wheel well behind the payload bay; the sensor turret stays where r0 draws it.
+  Rejected: forward retraction (the wheel is 1.14 ft from the nose); a shorter nose leg (the leg length follows from the
+  propeller's ground clearance, and a shorter nose leg alone puts the aircraft nose-down on the ground); a longer or fuller
+  nose (changes the outer lines for a packaging problem that boxes solve). Cost: the payload and the avionics move aft; the
+  masses, stations and moment change are in `docs/validation/2026-11-27_task12_pd_p3.md` section 6, for P4. r0 is not edited:
+  the moves are findings for r1 (PD-7), and P4 decides whether the wing must move to keep R13. The same entry records the
+  loft's other choices, all in `data/task12/pd_p3_arrangement.yaml` with bands where they are judgements: box clearance to the
+  skin 1.0 in (the spec names a ledger clearance that the ledger does not have); front spar at 15 % of the chord; the
+  fuselage ends in a circle of 20 % of the propeller diameter; the engine bay is drawn round the TCDS envelope at r0's
+  engine station; the layout convention of the conceptual render (wing and tail heights, unswept leading edges) is kept.
+  Override: a real payload's dimensions (PD-12) or a different gear arrangement replaces the boxes.
