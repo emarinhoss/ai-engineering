@@ -1,0 +1,230 @@
+{
+ "inputs": {
+  "commit": "20fa0e14b50fccae796e259939f8d2fd4f4bbf2b",
+  "git_dirty": true,
+  "git_dirty_files": [
+   "?? runs/task12/stage3/2026-11-26/m250_bands_cells/"
+  ],
+  "seed": 20261122,
+  "n_samples": 200,
+  "ledger": "data/task12/ledger.yaml",
+  "ledger_sha256": "31a5bf0dcc23d7d6ecf51502b5a82fafa46d8cc39c6976f509909af03a946300",
+  "table_sha256": "114b0e0f1cbdbcfca8ba4d1e881e7f5699a5bb6751191c4367292630f1df0790",
+  "python": "3.13.18",
+  "numpy": "2.5.3",
+  "pyyaml": "6.0.3",
+  "engine_as_is": true,
+  "power_band": "cap",
+  "engine": "RR_M250_B17F as is: rated 450 hp, 212 lb, its table, the ledger's SFC allowance and propeller rpm",
+  "weight_law": "engine weight 212 lb (FAA TCDS E10CE), no scaling",
+  "note": "cell of the re-size, sized again at the recorded L_sized"
+ },
+ "source": "runs/task12/stage3/2026-11-26/m250_bands_resize",
+ "source_curve_sha256": "364b4e6536c3d0d4eb9825c8a5118201c0861ec0f3702ab2589ee875d446cce5",
+ "h_T": 1.05,
+ "need_h": 3.5,
+ "design": {
+  "P_hp": 450.0,
+  "W_S": 13.0,
+  "A": 9.0,
+  "L_sized_h": 11.15625,
+  "W0_lb": 3562.864320965553,
+  "fuel_lb": 1095.0688203377806,
+  "We_lb": 1967.793541432737,
+  "engine_weight_lb": 212.0,
+  "span_ft": 49.66486057619688,
+  "power_margin": 0.3972519956042858,
+  "failed": [],
+  "status": "bisected",
+  "corner_hours": [
+   5.235490136159885,
+   3.596153122493599,
+   3.50468028717171
+  ],
+  "corner_ratio": [
+   0.7661287772781232,
+   0.9560004582812108
+  ]
+ },
+ "modes": {
+  "endurance": {
+   "h_hat": 1.050537109375,
+   "status": "bracketed",
+   "limit": 1095.0688203377806,
+   "h_hat_search_evals_at_1": 622,
+   "worst_at_h1": {
+    "moved": {
+     "prop_real_to_ideal": 0.8,
+     "airfoil_cl_max": 1.3,
+     "wing_t_c": 0.12,
+     "laminar_fraction_wing": 0.1,
+     "sensor_drag_area_ft2": 0.8,
+     "fuselage_fineness": 6.0,
+     "fuselage_fill": 0.85,
+     "composite_factor": 1.0,
+     "empty_weight_factor": 1.05,
+     "avionics_uninstalled_lb": 100.0,
+     "gust_ude_fps": 50.0,
+     "main_gear_station_guess": 0.3,
+     "rotation_angle_deg_pusher": 15.0,
+     "sponson_length_per_tyre": 3.0,
+     "sponson_depth_per_tyre": 1.4,
+     "sponson_weight_per_wetted": 1.8,
+     "engine_sfc_mult": 1.1,
+     "engine_power_mult": 0.9
+    },
+    "score": 1061.999726774882,
+    "reason": null,
+    "hours": 3.82649509680312,
+    "hours_reason": null,
+    "flyable": true
+   },
+   "worst_at_h_hat": {
+    "moved": {
+     "prop_real_to_ideal": 0.7974731445312501,
+     "airfoil_cl_max": 1.2898925781250001,
+     "wing_t_c": 0.11848388671874999,
+     "laminar_fraction_wing": 0.09747314453125,
+     "sensor_drag_area_ft2": 0.8202148437500001,
+     "fuselage_fineness": 5.89892578125,
+     "fuselage_fill": 0.85252685546875,
+     "composite_factor": 1.0,
+     "empty_weight_factor": 1.0525268554687501,
+     "avionics_uninstalled_lb": 102.021484375,
+     "gust_ude_fps": 51.0107421875,
+     "main_gear_station_guess": 0.2949462890625,
+     "rotation_angle_deg_pusher": 15.252685546875,
+     "sponson_length_per_tyre": 2.969677734375,
+     "sponson_depth_per_tyre": 1.4101074218749998,
+     "sponson_weight_per_wetted": 1.82021484375,
+     "engine_sfc_mult": 1.1050537109375,
+     "engine_power_mult": 0.8949462890625
+    },
+    "score": 1094.9955020047007,
+    "reason": null,
+    "hours": 3.5006006792167823,
+    "hours_reason": null,
+    "flyable": true
+   }
+  },
+  "cliff": {
+   "h_hat": 1.099853515625,
+   "status": "bracketed",
+   "limit": 1.0,
+   "h_hat_search_evals_at_1": 622,
+   "worst_at_h1": {
+    "moved": {
+     "prop_real_to_ideal": 0.8,
+     "airfoil_cl_max": 1.3,
+     "wing_t_c": 0.12,
+     "laminar_fraction_wing": 0.1,
+     "sensor_drag_area_ft2": 0.8,
+     "fuselage_fineness": 6.0,
+     "fuselage_fill": 0.85,
+     "composite_factor": 1.0,
+     "empty_weight_factor": 1.05,
+     "avionics_uninstalled_lb": 100.0,
+     "gust_ude_fps": 50.0,
+     "main_gear_station_guess": 0.3,
+     "rotation_angle_deg_pusher": 15.0,
+     "sponson_length_per_tyre": 3.0,
+     "sponson_depth_per_tyre": 1.4,
+     "sponson_weight_per_wetted": 1.8,
+     "engine_sfc_mult": 0.9,
+     "engine_power_mult": 0.9
+    },
+    "score": 0.9147134694355948,
+    "reason": null,
+    "transit_ratio": 0.9147134694355948,
+    "flyable": true
+   },
+   "worst_at_h_hat": {
+    "moved": {
+     "prop_real_to_ideal": 0.7950073242187501,
+     "airfoil_cl_max": 1.280029296875,
+     "wing_t_c": 0.11700439453125,
+     "laminar_fraction_wing": 0.09500732421875001,
+     "sensor_drag_area_ft2": 0.83994140625,
+     "fuselage_fineness": 5.80029296875,
+     "fuselage_fill": 0.8549926757812499,
+     "composite_factor": 1.0,
+     "empty_weight_factor": 1.05499267578125,
+     "avionics_uninstalled_lb": 103.994140625,
+     "gust_ude_fps": 51.9970703125,
+     "main_gear_station_guess": 0.29001464843749997,
+     "rotation_angle_deg_pusher": 15.499267578125,
+     "sponson_length_per_tyre": 2.940087890625,
+     "sponson_depth_per_tyre": 1.419970703125,
+     "sponson_weight_per_wetted": 1.8399414062500001,
+     "engine_sfc_mult": 0.8900146484375,
+     "engine_power_mult": 0.8900146484375
+    },
+    "score": 0.9999807182934534,
+    "reason": null,
+    "transit_ratio": 0.9999807182934534,
+    "flyable": true
+   }
+  },
+  "R5_guarantee_min": 1.050537109375,
+  "binding_mode": "endurance"
+ },
+ "worst_at_target": {
+  "endurance": {
+   "moved": {
+    "prop_real_to_ideal": 0.7975000000000001,
+    "airfoil_cl_max": 1.29,
+    "wing_t_c": 0.1185,
+    "laminar_fraction_wing": 0.0975,
+    "sensor_drag_area_ft2": 0.8200000000000001,
+    "fuselage_fineness": 5.9,
+    "fuselage_fill": 0.8525,
+    "composite_factor": 1.0,
+    "empty_weight_factor": 1.0525,
+    "avionics_uninstalled_lb": 102.0,
+    "gust_ude_fps": 51.0,
+    "main_gear_station_guess": 0.295,
+    "rotation_angle_deg_pusher": 15.25,
+    "sponson_length_per_tyre": 2.9699999999999998,
+    "sponson_depth_per_tyre": 1.41,
+    "sponson_weight_per_wetted": 1.82,
+    "engine_sfc_mult": 1.105,
+    "engine_power_mult": 0.895
+   },
+   "score": 1094.5687904387908,
+   "reason": null,
+   "hours": 3.50468028717171,
+   "hours_reason": null,
+   "flyable": true,
+   "n_evals": 622
+  },
+  "cliff": {
+   "moved": {
+    "prop_real_to_ideal": 0.7975000000000001,
+    "airfoil_cl_max": 1.29,
+    "wing_t_c": 0.1185,
+    "laminar_fraction_wing": 0.0975,
+    "sensor_drag_area_ft2": 0.8200000000000001,
+    "fuselage_fineness": 5.9,
+    "fuselage_fill": 0.8525,
+    "composite_factor": 1.0,
+    "empty_weight_factor": 1.0525,
+    "avionics_uninstalled_lb": 102.0,
+    "gust_ude_fps": 51.0,
+    "main_gear_station_guess": 0.295,
+    "rotation_angle_deg_pusher": 15.25,
+    "sponson_length_per_tyre": 2.9699999999999998,
+    "sponson_depth_per_tyre": 1.41,
+    "sponson_weight_per_wetted": 1.82,
+    "engine_sfc_mult": 0.895,
+    "engine_power_mult": 0.895
+   },
+   "score": 0.9560004582812108,
+   "reason": null,
+   "transit_ratio": 0.9560004582812108,
+   "flyable": true,
+   "n_evals": 622
+  }
+ },
+ "command": "python -m measurement.bands_cells --out runs/task12/stage3/2026-11-26/m250_bands_cells --cells 13,9",
+ "runtime_s": 2677.4006950855255
+}
