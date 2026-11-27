@@ -1,0 +1,51 @@
+# Task 12 preliminary design P4: the choices of the balance and stability package.
+# Written by hand on 2026-11-27, before the recorded run and before the module existed. Read by prelim/p4_methods.py.
+# Every entry is an agent's judgement under the owner's instruction of 2026-11-27 (PD-start), not an owner ruling,
+# and not from the library unless its line says so. r0 and the Gate B ledger are not edited. Lengths in ft.
+
+balance:
+  # Stations: r0's, with the payload and avionics at the P3 stations (PD-19) and, gear up, the two gears at the
+  # mid-points of their stowed legs (P3 record, moved_masses). Everything else is where r0 has it.
+  fuel_steps: 10                      # fuel from full to empty in ten equal steps (eleven states)
+  # Fuel on the loft: the wing tanks of P3 lie between the spars from the fuselage side to 0.8 of the half span
+  # and hold three times the fuel. The fuel is put in the inboard part of that volume, from the fuselage side
+  # outward until the needed volume over the usable fraction is reached, in two tanks of equal volume a side.
+  fuel_fills: "inboard"
+  tanks_per_side: 2
+  # Tank order. Both are run; every loading of both must pass. 'outboard_first' is the stated baseline (the
+  # inboard tank feeds the engine and is kept full longest); 'inboard_first' is its opposite.
+  tank_orders: ["outboard_first", "inboard_first"]
+  # A part-full tank keeps the fore-and-aft centre of a full one (no account of the fuel surface).
+  empty_weight_factors: [0.95, 1.0, 1.05]   # the ledger band of empty_weight_factor (NR-14)
+  # At a band end every component weight is multiplied by the factor (spec P4 step 1: 'in proportion to the
+  # component weights'); fuel and payload are unchanged, the geometry is r0's (no re-size).
+  h_cg_ft_note: "The centre of gravity is on the fuselage reference line, as in Stage 1."
+
+neutral_point:
+  # Multhopp's Fig. 8 is drawn for aspect ratio 8, which is this wing's. The verdict uses it as drawn. Two other
+  # readings are reported without a verdict: the excess over 1 scaled by r0's lift-curve slope over the figure's
+  # 4.5 (Multhopp's rule for other aspect ratios, applied to the slope), and the study's own vortex lattice.
+  upwash_for_verdict: "figure_8_as_drawn"
+  wing_chord_for_figure_8: "root"     # t in x/t is the chord at the fuselage; the root chord is used
+  downstream_rule: "linear from 0 at the root trailing edge to d(alpha_h)/d(alpha) at the tail's quarter mean chord, then constant to the end of the fuselage"
+  strips: 2000                        # midpoint strips along the fuselage
+  bodies: "The fuselage only. The sponsons lie inside the wing chord, where Multhopp's d(beta)/d(alpha) is 0, so (3.7) gives them nothing; Multhopp's nacelle term (3.10) is not applied. The turret and spinner are left out."
+  power_on_points: ["loiter", "cruise_out", "climb_sea_level"]   # r0's propeller points
+  propeller_downwash_slope: "the tail's d(alpha_h)/d(alpha) from the lattice is used at the propeller too (the hub is inside the lattice's wake sheet, where the lattice cannot be evaluated)"
+  blade_for_side_force_factor: "the P6 representative blade (PD-18): chords at 0.3, 0.6 and 0.9 R and the blade angle at 0.75 R of each point from runs/task12/pd/2026-11-27/p6/p6.json. P6 failed its validation row 5; only the blade's geometry and pitch are taken from it, and the power-on rows carry no verdict."
+
+trim_and_rotation:
+  airfoil_cm0: {value: -0.0911, source: "P2 record runs/task12/pd/2026-11-27/p2b/p2.json (section moment about the quarter chord, NACA 4415 measured); the ledger has -0.08"}
+  # Forward limit of the envelope: the most forward centre of gravity at which (a) the tail lift coefficient at
+  # rotation stays within the ledger's tail_cl_max_rotation, at take-off weight, and (b) the tail lift coefficient
+  # in trim stays within tail_cl_max_trim at the mission leg with the largest lift coefficient. Stage 1's own
+  # equations (conceptual/uav.layout), with P2's section moment.
+
+r1:
+  # What P4 hands to the closing re-record (PD-20). Not applied to r0.
+  propeller_clearance_ft: {value: 1.0, band: [0.5, 2.0], source: "Least distance, along the axis, from the propeller plane forward to any part of a tail surface inside the propeller disc's radius. A judgement: the library gives no number (Raymer p. 222-223 says only that a propeller behind a wing should be mounted as far behind it as possible). 1 ft is about 0.15 propeller diameters and leaves room for the blades' deflection and the elevator's trailing edge. Solved at the band ends as a sensitivity"}
+  tail_volume_coefficients: "kept: horizontal c_ht times r0's ht_volume_scale, vertical c_vt (Raymer (6.28), (6.29), p. 111); the areas grow as the arm shortens. Aspect ratios and tapers kept."
+  wing_position_rule: "Stage 1's own rule: the mean of the full-fuel and empty-fuel static margins (payload on, gear up, nominal empty weight) is 0.10 MAC, the middle of R13, here with the independent neutral point, power off."
+  main_gear_rule: "Stage 1's own rule: the main wheels are the tipback angle (15 deg) behind the aftmost centre of gravity with the gear down (Raymer p. 232). The nose wheel stays at r0's station."
+  moves_with_the_wing: ["wing", "fuel_system", "sponsons", "fuel"]
+  weights: "Tail weights by the area terms of Raymer (15.47) and (15.48) (S^0.896 and S^0.873) and the fuselage by the tail-arm term of (15.49) (L_t^-0.051), as ratios on r0's component weights, p. 404; nothing else changes and the aircraft is not re-sized (the take-off weight moves by the same pounds)."

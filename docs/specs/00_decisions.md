@@ -534,3 +534,26 @@ Stage 1 (S3M-8) and that an independent neutral point is needed.
   fuselage ends in a circle of 20 % of the propeller diameter; the engine bay is drawn round the TCDS envelope at r0's
   engine station; the layout convention of the conceptual render (wing and tail heights, unswept leading edges) is kept.
   Override: a real payload's dimensions (PD-12) or a different gear arrangement replaces the boxes.
+- **PD-20 (2026-11-27, package P4: the tail clear of the propeller disc, solved with the wing position).** An agent's
+  assumption under PD-3 (tail area and arm and the wing's fore-and-aft position may change) and the owner's instruction of
+  PD-start, not an owner ruling. P3 (its row 9) found the horizontal tail 1.78 ft and the fin 0.87 ft behind the propeller
+  plane inside the disc: r0 places each tail by its mean chord at a tail arm of 0.475 of the fuselage length (Raymer
+  p. 112-113), and on a pusher whose propeller is at the end of the fuselage the root chords then run past it. P3 also moved
+  the payload and avionics aft (PD-19), which takes the empty-fuel static margin below R13. Both are answered together,
+  because the tail arm and the centre of gravity depend on each other. Choice: (1) the tails move forward, as one, by the
+  least distance that puts the rearmost point of either tail inside the disc's radius 1.0 ft ahead of the propeller plane
+  (clearance band 0.5 to 2.0 ft, a judgement: the library gives no number); (2) their areas grow as the arm shortens, so
+  that both tail volume coefficients of r0 are kept (Raymer (6.28), (6.29), p. 111; aspect ratios and tapers unchanged);
+  (3) the wing is placed by Stage 1's own rule, the mean of the full-fuel and empty-fuel static margins at 0.10 MAC, with
+  the fuselage-inclusive neutral point of P4 (Multhopp, NACA TM 1036) in place of Raymer's (16.22); (4) the main wheels
+  follow by Stage 1's tipback rule and the nose wheel stays. The tail and fuselage weights follow Raymer (15.47) to
+  (15.49), p. 404, as ratios on r0's weights. Rejected: a longer fuselage or a shaft extension to carry the propeller aft
+  of the tail (moves the engine or adds a shaft; changes the outer lines more than the tail move does); tail booms or a
+  propeller ahead of the tail on a pylon (a change of configuration, outside PD-3); sweeping the tail's trailing edge
+  alone (r0's tail convention would no longer be the one the weights and the lift slope assume). The numbers (arm, areas,
+  wing station, main-wheel station, weights, the margins that result and the same solution at the clearance band ends) are
+  in `docs/validation/2026-11-27_task12_pd_p4.md`, generated from `runs/task12/pd/2026-11-27/p4/p4.json`; none is typed
+  here. r0 is not edited: these are findings for r1 (PD-7). For r1, Stage 1 needs the tail arm as an input in place of its
+  fixed fraction of the fuselage length. Not answered here and listed for P9: the sponson that does not hold the retracted
+  main gear (P3 finding 7), and where the tail roots sit on the engine bay (inlet, exhaust and structure are not drawn).
+  Override: any other way of clearing the disc replaces (1) and (2); the wing rule (3) then runs again.

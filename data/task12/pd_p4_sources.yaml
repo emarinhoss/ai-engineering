@@ -1,0 +1,119 @@
+# Task 12 preliminary design P4: the open sources of the fuselage moment method and of the propeller normal force.
+# Written by hand on 2026-11-27 from files opened in that session on ntrs.nasa.gov (the owner allowed the host).
+# No value here is from memory. The PDFs stay in the session scratchpad and are not committed.
+# Read by prelim/p4_methods.py; tests/task12_pd/test_p4_methods.py checks this file.
+
+why: >-
+  Spec P4 step 2 asks for a fuselage-inclusive neutral point by a route other than Raymer's single factor (16.22):
+  the fuselage moment slope integrated strip by strip over the loft's width with the wing's upwash and downwash
+  (Multhopp), and the pusher propeller's normal force (Raymer (16.26) with Figs. 16.15 and 16.16). The library's
+  notes do not hold those two figures at this aircraft's advance ratios and the book could not be opened in this
+  session (its file is above the download limit of the Drive connector), so the propeller term uses the open NACA
+  report that states the same method (thrust factor f times the zero-thrust normal-force derivative).
+
+reports:
+  tm1036:
+    number: "NACA Technical Memorandum 1036 (NACA-TM-1036)"
+    title: "Aerodynamics of the Fuselage"
+    author: "H. Multhopp"
+    year: 1942
+    original: "Luftfahrtforschung, vol. 18 (NTRS record: issue 2-3; the record's date is December 1942)"
+    ntrs_id: "20000004246"
+    found_by: "https://ntrs.nasa.gov/api/citations/search?q=Multhopp aerodynamics of the fuselage"
+    url: "https://ntrs.nasa.gov/api/citations/20000004246/downloads/20000004246.pdf"
+    pdf_sha256: "b0c558a61cb53485e3893f56e69ee429ee69f94a03c0d0667da7a1abab33637f"
+    pdf_bytes: 1826908
+    pdf_pages: 47
+    pdf_committed: false
+    opened: "2026-11-27, curl through the session proxy"
+  wrl25:
+    number: "NACA Wartime Report L-25 (NACA-WR-L-25), first issued as Advance Restricted Report L4I12a, October 1944"
+    title: "Notes on the Propeller and Slipstream in Relation to Stability"
+    author: "Herbert S. Ribner"
+    year: 1944
+    ntrs_id: "19930092551"
+    found_by: "https://ntrs.nasa.gov/api/citations/search?q=Notes on the propeller and slipstream in relation to stability"
+    url: "https://ntrs.nasa.gov/api/citations/19930092551/downloads/19930092551.pdf"
+    pdf_sha256: "201ff067ee7f818c0fc3d8a1dbfd3594c24ac864b03a50fef842f83e4cd47a3b"
+    pdf_bytes: 1357263
+    pdf_pages: 27
+    pdf_committed: false
+    opened: "2026-11-27, curl through the session proxy"
+
+multhopp:
+  equation_3_7:
+    page: "printed p. 11 (PDF page 12)"
+    as_read: "(1/q) dM_R/d(alpha) = -(pi/2) * integral from 0 to l of b_R^2 (d(beta)/d(alpha)) dx"
+    symbols: "M_R fuselage moment, q dynamic pressure, b_R fuselage width at the station x, l fuselage length, beta the local flow angle at the fuselage axis, alpha the angle of attack; per radian"
+    sign: "The printed sign belongs to the report's moment convention. (3.11) shows the result is a forward shift of the neutral point (unstable). The code takes the size (pi/2) integral b^2 d(beta)/d(alpha) dx as a nose-up moment slope over q."
+  rule_for_d_beta_d_alpha:
+    page: "printed p. 11 (PDF page 12)"
+    over_the_wing: "0 between the wing's leading and trailing edge at the fuselage (the flow is parallel to the chord)"
+    behind_the_wing: "rises linearly from 0 at the trailing edge to 1 - d(alpha_w)/d(alpha) (one less the downwash slope) at the fuselage stern near the tailplane"
+    ahead_of_the_wing: "greater than 1 (upwash); Fig. 8, computed for aspect ratio 8, 'or equivalent to a lift curve slope of 4.5'; for other aspect ratios 'converted approximately in proportion' to the lift-curve slope"
+  equation_3_11:
+    page: "printed p. 13 (PDF page 14)"
+    as_read: "delta x_n / t = -(1 / (c_a' q F t)) dM_R/d(alpha)"
+    symbols: "delta x_n forward shift of the neutral point, t wing chord, F wing area, c_a' lift-curve slope"
+  table_1:
+    page: "printed p. 14 (PDF page 15)"
+    what: "Measured and computed shifts of the neutral point for seven aircraft: fuselages 2.0/2.3, 4.1/4.1, 9.2/9.4, 1.4/1.5, 2.0/2.0, 5.6/6.0, 4.0/4.4, 4.0/4.1 per cent of the chord (measured/computed). Not used as a test: the report gives no dimensions of those aircraft."
+  figure_2:
+    page: "figure page headed 'Figs. 2,6,8' (PDF page 44)"
+    what: "Munk's factor K2 - K1 with the label (1/q) dM/d(alpha) = 2 (K2 - K1) Vol: the free moment of a slender body of revolution is twice its volume times q. With d(beta)/d(alpha) = 1, (3.7) gives (pi/2) integral b^2 dx = 2 Vol for a body of revolution; this is the closed-form test of the code."
+  figure_8:
+    page: "figure page headed 'Figs. 2,6,8' (PDF page 44)"
+    caption_as_read: "Normal values for uprush before the wing. To the extent that the fuselage width is constant we put: integral from 0 to x of b_R^2 (d(beta)/d(alpha)) dx = x b_R^2 times the mean d(beta)/d(alpha)"
+    axes: "abscissa x/t, the distance ahead of the wing leading edge over the wing chord, 0 to 2.4; ordinate 1 to 5"
+    curves: "two: the local d(beta)/d(alpha), drawn from x/t 0.5 outward, and its mean from the leading edge out to x, (1/x) integral 0 to x, drawn from x/t about 0.1 to 1.05 (the local value 'reaches a fairly high peak in wing proximity', so only its integral is given there)"
+    how_read: "First reading by eye on a 300 dpi enlargement at the grid lines. Second reading by pixel: the dark run of the curve in a column between two grid lines, converted with the grid lines found by pixel count (x/t 0 at 54 px, 595.4 px per unit; ordinate 1 at 980 px, 230.5 px per unit)."
+    reading_uncertainty: {local: 0.02, mean: 0.06}
+    # [x/t, value]. The code uses the second reading (more points); the test compares the two.
+    mean_first_reading: [[0.2, 3.50], [0.4, 2.54], [0.6, 2.16], [0.8, 1.91], [1.0, 1.76]]
+    mean_second_reading: [[0.15, 3.935], [0.25, 3.234], [0.35, 2.774], [0.45, 2.430], [0.55, 2.219], [0.65, 2.076], [0.75, 1.963], [0.85, 1.872], [0.95, 1.796], [1.05, 1.742]]
+    local_first_reading: [[0.6, 1.31], [0.8, 1.22], [1.0, 1.17], [1.2, 1.13], [1.6, 1.09], [2.0, 1.05]]
+    local_second_reading: [[0.5, 1.338], [0.7, 1.269], [0.9, 1.208], [1.1, 1.156], [1.3, 1.128], [1.5, 1.108], [1.9, 1.080], [2.1, 1.074]]
+    not_read: "Below x/t 0.15 the mean curve leaves the frame (it is at 4.6 near 0.1). The code takes the integral 0 to x as x times the mean, and straight to zero below the first reading."
+
+ribner:
+  method:
+    pages: "printed p. 6-7 (PDF pages 7-8); symbols printed p. 3-4 (PDF pages 4-5)"
+    as_read: "C_Y'psi = f C_Y'psi0: the derivative of the propeller normal-force coefficient (normal force over q and the disc area S', per radian of inclination of the thrust axis) is its value at zero thrust times a factor f that depends only on T_c = thrust / (rho V^2 D^2). f = 1 at T_c = 0."
+    same_as: "Raymer (16.26), p. 428: F_p_alpha = q N_B A_p (dC_N_blade/d alpha) f(T). Raymer's Figs. 16.15 and 16.16 are 'after' this report's reference chain; here N_B (dC_N_blade/d alpha) is the report's C_Y'psi0 for the whole propeller."
+  equation_6:
+    page: "printed p. 10 (PDF page 11)"
+    as_read: "delta x / c_w = (S'/S) [ (8/pi) (z/c_w) dT_c/dC_L + f C_Y'psi0 (1 - d(epsilon)/d(alpha)) (l_1/c_w) (1/C_L_alpha) ]"
+    symbols: "delta x forward shift of the neutral point by the direct propeller forces; S' disc area; S wing area; z thrust-line distance from the centre of gravity; l_1 distance from the centre of gravity to the propeller plane, positive for a tractor; epsilon the wing's downwash at the propeller"
+    use: "The code puts the same normal force into Raymer's (16.9), which also carries it in the denominator. z is zero in r0 (hub on the centreline). (6) is used in the test as the first-order check."
+  equation_12:
+    page: "printed p. 15 (PDF page 16)"
+    as_read: "f = (1 + a) [(1 + a) + (1 + 2a)^2] / [1 + (1 + 2a)^2]"
+    note: "a is the inflow factor of the symbols page; its relation to T_c is in the report's reference 3 and was not opened. The code reads f from Fig. 1. The test checks Fig. 1 against (12) with the actuator-disc relation T_c = (pi/2) a (1 + a) (thrust = 2 rho A V^2 a (1 + a): Mattingly App. L (L.3) with the disc speed of (L.5), p. 610-611, taking the speed at the disc as V (1 + a))."
+  figure_1:
+    page: "figure page 'Fig. 1' (PDF page 19)"
+    what: "f against T_c, -0.25 to 2.0"
+    how_read: "First reading by eye on an enlargement at the grid lines; second by pixel between grid lines (T_c 0 at 607 px, 826 px per unit; f 1.0 at 1261.5 px, 825 px per unit, grid found near the read region because the scan is slightly turned)."
+    reading_uncertainty: 0.01
+    first_reading: [[0.1, 1.088], [0.2, 1.168], [0.3, 1.239], [0.4, 1.302]]
+    second_reading: [[0.0, 1.0], [0.05, 1.0406], [0.09, 1.0758], [0.13, 1.1079], [0.17, 1.1400], [0.21, 1.1697], [0.29, 1.2273], [0.33, 1.2527], [0.37, 1.2770], [0.45, 1.3248]]
+    note: "The point [0.0, 1.0] is the definition of f, not a reading."
+  figure_2:
+    page: "figure page 'Fig. 2' (PDF page 20)"
+    what: "C_Y'psi0 against the blade angle at 0.75 R, 15 to 60 deg, Hamilton Standard propeller 3155-6 with a 0.164-diameter spinner, side-force factor 80.7; curves for 2, 3, 4 and 6 blades single rotation and 6 blades dual rotation. The three-blade curve was read."
+    how_read: "First reading by eye on an enlargement at the grid lines; second by pixel between grid lines (blade angle 0 at 648 px, 20.06 px per deg; ordinate 0 at 1421 px, 1990 px per unit)."
+    reading_uncertainty: 0.003
+    three_blades_first_reading: [[15.0, 0.1125], [20.0, 0.137], [25.0, 0.159], [30.0, 0.179], [35.0, 0.199]]
+    three_blades_second_reading: [[15.5, 0.1146], [17.0, 0.1221], [19.0, 0.1319], [21.0, 0.1415], [24.0, 0.1545], [26.0, 0.1633], [29.0, 0.1754], [31.0, 0.1834], [33.0, 0.1907]]
+  side_force_factor:
+    equation_4:
+      page: "printed p. 9 (PDF page 10)"
+      as_read: "S.F.F. = 525 (b/D) at 0.3 R + 525 (b/D) at 0.6 R + 270 (b/D) at 0.9 R, 'accurate to about +-4 percent'"
+      symbols: "b blade chord, D diameter"
+    figure_6:
+      page: "figure page 'Figs. 6,7' (PDF page 23)"
+      what: "Ratio of C_Y'psi0 of the desired propeller to that of the Hamilton Standard 3155-6 (S.F.F. 80.7) against the desired propeller's side-force factor, 50 to 120; one line per blade count. The three-blade line was read."
+      how_read: "First reading by eye at the line's end (S.F.F. 120); second by pixel in three columns, where the line S.F.F./80.7 drawn in the figure for comparison reads 1.302, 1.356 and 1.426 against 1.302, 1.354 and 1.425 computed."
+      reading_uncertainty: 0.01
+      three_blades_first_reading: [[80.7, 1.0], [120.0, 1.40]]
+      three_blades_second_reading: [[80.7, 1.0], [105.08, 1.252], [109.28, 1.294], [115.04, 1.347]]
+      note: "The point [80.7, 1.0] is the definition of the ratio, not a reading."
