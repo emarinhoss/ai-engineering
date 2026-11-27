@@ -28,6 +28,10 @@ def test_figure_data_equals_the_record():
     assert [g["h"], g["hours"]] in d["r5_hours_flyable"]
     assert d["takeoff_ft"][0] == [0.0, ig["nominal"]["takeoff_ft"]]
     assert d["landing_ft"][0] == [0.0, ig["nominal"]["landing_ft"]]
+    to_hat, ld_hat = ig["h_hat"]["TO"]["worst_at_h_hat"], ig["h_hat"]["LD"]["worst_at_h_hat"]
+    assert [to_hat["h"], to_hat["takeoff_ft"]] in d["takeoff_ft"]
+    assert [ld_hat["h"], ld_hat["landing_ft"]] in d["landing_ft"]
+    assert [h for h, _ in d["takeoff_ft"]] == sorted(h for h, _ in d["takeoff_ft"])
     cell = json.loads(F.CELL.read_text())
     assert [1.0, cell["modes"]["cliff"]["worst_at_h1"]["transit_ratio"]] in d["cliff_ratio"]
 

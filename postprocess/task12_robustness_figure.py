@@ -4,7 +4,7 @@ Only stored points are plotted; nothing is interpolated or recomputed. Straight 
 points and say nothing about values between them.
     python -m postprocess.task12_robustness_figure --out-dir runs/task12/stage3/2026-11-27/robustness_figure_ws13a8
 
-Stored in info_gap.json: `worst_case_curve` (8 horizons, 0 to 3; worst hours on station, take-off and landing
+Stored in info_gap.json: the worst points at the R5, take-off and landing horizons, and `worst_case_curve` (8 horizons, 0 to 3; worst hours on station, take-off and landing
 over 50 ft at each) and `h_hat.R5_guarantee.worst_at_h_hat` (the worst case at the horizon of the R5 guarantee).
 Stored in cell_result.json: the transit-cliff ratio at three horizons only (h = 1, h_T, and its own horizon).
 """
@@ -41,6 +41,11 @@ def build_data(info_gap_path=INFO_GAP, cell_path=CELL):
     r5_flyable.sort()
     takeoff = [[p["h"], p["TO"]["takeoff_ft"]] for p in curve if math.isfinite(float(p["TO"]["takeoff_ft"]))]
     landing = [[p["h"], p["LD"]["landing_ft"]] for p in curve if math.isfinite(float(p["LD"]["landing_ft"]))]
+    # the worst points stored at the R7 horizons, so the lines do not cut the limit early between h = 1 and 1.5
+    to_hat = ig["h_hat"]["TO"]["worst_at_h_hat"]
+    ld_hat = ig["h_hat"]["LD"]["worst_at_h_hat"]
+    takeoff = sorted(takeoff + [[to_hat["h"], to_hat["takeoff_ft"]]])
+    landing = sorted(landing + [[ld_hat["h"], ld_hat["landing_ft"]]])
     modes = cell["modes"]["cliff"]
     cliff = [[1.0, modes["worst_at_h1"]["transit_ratio"]],
              [cell["h_T"], cell["worst_at_target"]["cliff"]["transit_ratio"]],
