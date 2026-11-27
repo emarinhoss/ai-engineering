@@ -1,0 +1,430 @@
+# Preliminary design P1: the judgements of the Stage 1 package for r0
+# (docs/specs/task12_preliminary_design.md, package P1). Written by the package lead, not by a run.
+# Nothing here is a result. Numbers of the aircraft are not typed here: where a line needs one, it names
+# the record field (`evidence`) and prelim/p1_report.py reads it. A band written under `proposed_band`
+# is a proposal for Gate C. It is NOT applied to the ledger and no run of P1 sizes with it.
+#
+# files named in `evidence`: r0 = r0/design_pusher.json, info_gap = r0/info_gap.json,
+# cell = r0/cell_result.json, p0 = p0/p0.json, perf = the Gate B perf.json, p1 = this package's p1.json.
+
+# ---- band audit: the 58 ledger entries without a band (Gate B item 28) -------------------------------
+# class: requirement  = what the owner asked for or ruled (an R-row, a margin, a ruled value);
+#        definition   = a design choice of this aircraft, a design rule or limit used as a rule, a datum of
+#                       the chosen engine, a definition, or a model switch: not an uncertain quantity;
+#        needs a band = an estimate of a physical quantity the built aircraft will have whatever is assumed.
+# For "needs a band": proposed_band is taken from the entry's own source text in the ledger, or it is null
+# and `why_no_proposal` says why. measured_by names the package of the spec that measures the quantity, or
+# is empty when none does.
+band_audit:
+  payload_lb:            {class: requirement, reason: "R4"}
+  radius_nm:             {class: requirement, reason: "R5"}
+  loiter_h:              {class: requirement, reason: "R5. The value is the sized loiter of the robust sizing (ruling R-d), an output of that sizing, not an uncertain input"}
+  r5_robust_hours:       {class: requirement, reason: "R5 as restated at Gate B"}
+  headwind_kt:           {class: requirement, reason: "R19. The info-gap study leaves it outside the horizon by owner decision (r0/info_gap.json, exclusions)"}
+  mission_altitude_ft:   {class: requirement, reason: "R6"}
+  field_length_ft:       {class: requirement, reason: "R7"}
+  stall_speed_kt:        {class: requirement, reason: "R7"}
+  limit_load_factor:     {class: requirement, reason: "R9"}
+  negative_load_factor:  {class: requirement, reason: "R9, ruling B-3"}
+  margin_power_fraction: {class: requirement, reason: "Gate A round 4 ruling 4, relaxed at the round 4 close"}
+  margin_ceiling_ft:     {class: requirement, reason: "Gate A round 4 ruling 4"}
+  margin_gust_g:         {class: requirement, reason: "Gate A round 4 ruling 4"}
+  climb_rate_sl_fpm:     {class: requirement, reason: "R12"}
+  ceiling_ft:            {class: requirement, reason: "R12"}
+  ceiling_rate_fpm:      {class: definition,  reason: "the definition of the service ceiling in R12"}
+  static_margin_min:     {class: requirement, reason: "R13"}
+  static_margin_max:     {class: requirement, reason: "R13"}
+  speed_over_stall:      {class: requirement, reason: "R17"}
+  propeller_model:       {class: definition,  reason: "model switch (ruling G-4)"}
+  takeoff_minutes:       {class: definition,  reason: "mission-profile allowance (warm-up and take-off at full power); part of the mission the fuel is sized for, like the segments of R5"}
+  propeller_rpm:         {class: definition,  reason: "datum of the chosen engine's gearbox (ruling R-b)"}
+  tip_speed_limit_fps:   {class: definition,  reason: "design rule that sets the propeller diameter"}
+  installed_engine_factor:
+    class: needs a band
+    reason: "the installed weight of this engine in this airframe is not known; the factor is a general-aviation average"
+    proposed_band: null
+    why_no_proposal: "the ledger's source gives one value. The +-5 % empty-weight band (ruling B-2a) covers it in aggregate; a band of its own would count the same uncertainty twice unless that band is narrowed"
+    measured_by: []
+    carried_under: "B-9g (empty weight is a named risk)"
+  fuel_density_lb_gal:
+    class: needs a band
+    reason: "a fuel property that varies with temperature and batch; it sets the tank volume needed, not the fuel weight"
+    proposed_band: null
+    why_no_proposal: "no range in the ledger's source; the tank-volume margin is what matters and P3 checks it on the loft"
+    measured_by: [P3]
+  airfoil_efficiency:
+    class: needs a band
+    reason: "section lift-curve slope over 2 pi; it sets the wing lift slope and with it the gust load factor"
+    proposed_band: null
+    why_no_proposal: "P2 reads the lift-curve slope of the chosen section from measured data; the band should come from that reading"
+    measured_by: [P2]
+  wing_x_c_max_t:        {class: definition,  reason: "geometry of the wing section, fixed when P2 fixes the section (PD-5)"}
+  wing_taper:            {class: definition,  reason: "design choice, frozen (PD-3)"}
+  flap_delta_cl_max:
+    class: needs a band
+    reason: "the flap's lift increment sets the take-off and landing C_L,max; one table value"
+    proposed_band: null
+    why_no_proposal: "the ledger's source gives one value. P2 uses the same table for the flapped increment, so no package measures it"
+    measured_by: []
+    carried_under: "item 1 covers the clean value only; the flapped increment stays an assumption"
+  roughness_k_ft:
+    class: needs a band
+    reason: "surface finish in service; enters every skin-friction coefficient"
+    proposed_band: null
+    why_no_proposal: "no range in the ledger's source"
+    measured_by: []
+    carried_under: "G-3, B-5 (item 14: CD0 has no second route)"
+  leakage_fraction:
+    class: needs a band
+    reason: "it multiplies the whole parasite drag; the drag build-up has no band of its own, and Gate B found that its method resolves CD0 to about +-20 % (G-3)"
+    proposed_band: null
+    why_no_proposal: "the width is the owner's choice: this entry is the natural carrier of a CD0 band, because the info-gap study has none. The package records what +10 % on CD0 costs (leakage_fraction 0.155)"
+    measured_by: []
+    carried_under: "G-3, B-5 (item 14)"
+    extra_values: [0.155]
+  tail_interference_q:
+    class: needs a band
+    reason: "interference factor on tail drag"
+    proposed_band: [1.04, 1.05]
+    basis: "the range printed in the entry's own source text"
+    measured_by: []
+  tail_eta_h:
+    class: needs a band
+    reason: "dynamic-pressure ratio at the tail; it scales the tail's contribution to the neutral point and to trim, behind a pusher propeller"
+    proposed_band: null
+    why_no_proposal: "the ledger's source gives 'about 0.9' and no range; the slipstream at the tail is out of scope (NR-16)"
+    measured_by: []
+    carried_under: "NR-16 (out of scope); P4 uses the value"
+  engine_sfc_allowance:  {class: requirement, reason: "ruling R-b. The uncertainty of the SFC is the banded engine_sfc_mult of the info-gap study, on top of this allowance"}
+  ht_aspect_ratio:       {class: definition,  reason: "design choice, frozen (PD-3)"}
+  ht_taper:              {class: definition,  reason: "design choice, frozen (PD-3)"}
+  vt_aspect_ratio:       {class: definition,  reason: "design choice, frozen (PD-3)"}
+  vt_taper:              {class: definition,  reason: "design choice, frozen (PD-3)"}
+  tail_t_c:              {class: definition,  reason: "design choice: NACA 0012 tails (PD-5)"}
+  c_ht:                  {class: definition,  reason: "sizing rule for the first tail size; the tail is then enlarged for rotation and P4 checks the result"}
+  c_vt:                  {class: definition,  reason: "sizing rule for the vertical tail. No requirement checks its result (PD-11: no lateral-directional analysis)"}
+  composite_model:       {class: definition,  reason: "model switch (ruling B-2a)"}
+  gear_load_factor_ultimate: {class: definition, reason: "design rule in the gear weight equation"}
+  wing_tank_usable:
+    class: needs a band
+    reason: "usable share of the tank box volume"
+    proposed_band: null
+    why_no_proposal: "the ledger's source gives one value; P3 measures the tank volume on the loft"
+    measured_by: [P3]
+  cl_ground:
+    class: needs a band
+    reason: "lift coefficient in the ground attitude; it enters the ground roll and the rotation moment. The source's value is for an aircraft without large flaps, and the take-off is flown with the flap at 30 deg"
+    proposed_band: [0.0, 0.1]
+    basis: "the entry's own source text ('usually below 0.1'); the upper end is not covered by it for a deflected flap, which is why a band is needed"
+    measured_by: []
+  climb_speed_over_stall: {class: definition, reason: "speed rule: the lowest climb speed"}
+  tyre_drag_per_area:
+    class: needs a band
+    reason: "gear drag with the gear down (take-off and landing)"
+    proposed_band: [0.13, 0.25]
+    basis: "the two values in the entry's own source text (faired and regular wheel)"
+    measured_by: []
+  strut_drag_per_area:
+    class: needs a band
+    reason: "gear drag with the gear down"
+    proposed_band: null
+    why_no_proposal: "the ledger's source gives one value"
+    measured_by: []
+  gear_interference:
+    class: needs a band
+    reason: "gear drag with the gear down"
+    proposed_band: [1.2, 1.284]
+    basis: "the entry's own source text: 1.2 for mutual interference, 1.284 with the 7 % for open wells"
+    measured_by: []
+  tipback_angle_deg:     {class: definition,  reason: "layout rule"}
+  prop_clearance_in:     {class: definition,  reason: "layout rule"}
+  nose_load_min:         {class: definition,  reason: "layout rule (the optimum band)"}
+  nose_load_max:         {class: definition,  reason: "layout rule (the optimum band)"}
+  turn_bank_deg:         {class: requirement, reason: "R16"}
+  overturn_max_deg:      {class: definition,  reason: "layout rule"}
+  flap_cp_fraction:
+    class: needs a band
+    reason: "centre of pressure of the flap's lift; it enters the rotation moment, whose margin is thin (item 25)"
+    proposed_band: [0.44, 0.45]
+    basis: "the range printed in the entry's own source text"
+    measured_by: [P4]
+  vc_placard_kt_eas:     {class: requirement, reason: "R18, ruling B-4"}
+  main_wheel_load_fraction: {class: definition, reason: "rule for sizing the tyres; P4 computes the wheel loads of the layout"}
+
+# ---- out-of-calibration list ---------------------------------------------------------------------------
+# flagged_2026_11_25: the tag of the bullet in docs/validation/2026-11-25_task12_conceptual_m250_appl.md
+# (section 9, "Used outside its calibration") that this entry continues; null for an entry that is new here.
+# status: applies | applies to the concept record only | dropped (with reason).
+# carried_by: the band, ruling or package that carries or measures it.
+out_of_calibration:
+  - id: OC-1
+    flagged_2026_11_25: "Table 3.1 and Table 6.2"
+    correlation: "Raymer Table 3.1 and Table 6.2 empty-weight fits and the general-aviation group weights (15.46)-(15.57)"
+    calibrated_for: "crewed general-aviation aircraft"
+    used_here: "a crewless composite aircraft, with the crew items left out"
+    status: applies
+    carried_by: "empty_weight_factor band 0.95 to 1.05 (B-2a); named risk (B-9g); P7 sizes the wing spar from the bottom up"
+  - id: OC-2
+    flagged_2026_11_25: "Table 6.3"
+    correlation: "Raymer Table 6.3 fuselage length"
+    calibrated_for: "crewed aircraft"
+    used_here: "it sets the fuselage length, the tail arm and the fuselage wetted area"
+    status: applies
+    carried_by: "fuselage_fineness and fuselage_fill bands; P3 replaces the body with a loft and checks the areas"
+  - id: OC-3
+    flagged_2026_11_25: "Table 3.4"
+    correlation: "Raymer Table 3.4 turboprop consumption"
+    calibrated_for: "large turboprops"
+    used_here: "the rubber-engine design of the concept record only. r0 reads its App. K engine table (see OC-9)"
+    status: applies to the concept record only
+    carried_by: "the rubber-engine design is a reference, not a design of record"
+  - id: OC-4
+    flagged_2026_11_25: "Table 10.4"
+    correlation: "Raymer Table 10.4 turboprop weight and size"
+    calibrated_for: "400 to 5,000 bhp"
+    used_here: "the rubber engine of the concept record lies below the range (its record says so). For r0 the engine weight is the type certificate's and only the envelope dimensions come from the table, at a power inside its range (the record's flag)"
+    status: applies to the concept record only
+    carried_by: "P3 places the engine envelope of the record's source in the loft"
+    evidence:
+      - {label: "r0 engine inside the table's range", file: r0, path: engine.in_range}
+      - {label: "rubber engine inside the table's range", file: p1, path: concepts.designs.pusher_rubber.engine_in_range}
+  - id: OC-5
+    flagged_2026_11_25: "(13.9)"
+    correlation: "Raymer (13.9) power lapse with altitude"
+    calibrated_for: "piston engines"
+    used_here: "the rubber-engine design of the concept record only; r0 reads the App. K table"
+    status: applies to the concept record only
+    carried_by: "the rubber-engine design is a reference; its ceiling row is not a verdict on the concept"
+  - id: OC-6
+    flagged_2026_11_25: "(12.49)"
+    correlation: "Raymer (12.49) span efficiency"
+    calibrated_for: "a fit for straight wings"
+    used_here: "it sets the induced drag of a wing of aspect ratio 8"
+    status: applies
+    carried_by: "no band: the info-gap study leaves e outside the horizon by owner decision; item 21 (not comparable as specified)"
+    evidence:
+      - {label: "e", file: r0, path: e}
+  - id: OC-7
+    flagged_2026_11_25: "Downwash"
+    correlation: "downwash at the tail from the vortex lattice (planar wake, wing alone, no fuselage or slipstream)"
+    calibrated_for: "an isolated wing"
+    used_here: "the tail behind a fuselage and ahead of a pusher propeller"
+    status: applies
+    carried_by: "tail_height_over_df band; P4 (fuselage-inclusive neutral point); slipstream out of scope (NR-16)"
+  - id: OC-8
+    flagged_2026_11_25: "Gear and tyre drag"
+    correlation: "gear and tyre drag per frontal area"
+    calibrated_for: "readings of Raymer's gear-drag table as used in DR-1"
+    used_here: "take-off and landing drag with the gear down"
+    status: applies
+    carried_by: "no band today; the band audit proposes bands for tyre_drag_per_area and gear_interference"
+  - id: OC-9
+    flagged_2026_11_25: null
+    correlation: "the M250 engine table (Mattingly App. K cycle, calibrated to the brochure)"
+    calibrated_for: "sea level, 70 to 100 % power (brochure rows); the cycle's choked-turbine assumption"
+    used_here: "the mission legs at part power and 20,000 ft; most of the mission fuel burns in unchoked cells"
+    status: applies
+    carried_by: "SFC band +-10 % (R-c, B-5); G-6; item 11. No package: no maker's data (O-3)"
+    evidence:
+      - {label: "share of mission fuel burned in unchoked cells", file: r0, path: unchoked_fuel_share}
+  - id: OC-10
+    flagged_2026_11_25: null
+    correlation: "the M250 engine table above 30,000 ft"
+    calibrated_for: "the book's altitude lapse figure ends at 30,000 ft"
+    used_here: "the service ceiling is read between the 30,000 ft row and the first new row"
+    status: applies
+    carried_by: "P0 (stated as an extrapolation); R12's margin; G-6"
+    evidence:
+      - {label: "service ceiling (ft)", file: r0, path: performance.service_ceiling_ft}
+  - id: OC-11
+    flagged_2026_11_25: null
+    correlation: "Mattingly App. L actuator disk times one real-to-ideal factor f"
+    calibrated_for: "efficiency in flight; the book gives no static value"
+    used_here: "static thrust, the take-off roll and the sea-level climb, where the disk is most heavily loaded"
+    status: applies
+    carried_by: "prop_real_to_ideal band 0.80 to 0.90; G-9 sweep; P6 (blade element)"
+    evidence:
+      - {label: "efficiency at the sea-level climb point", file: r0, path: propeller_points.climb_sea_level.eta_p}
+  - id: OC-12
+    flagged_2026_11_25: null
+    correlation: "Raymer Table 15.4 composite factors, moved by the 'saving' mapping"
+    calibrated_for: "one printed factor per group, no range"
+    used_here: "a band 0.90 to 1.00 on the factor, mapped onto every group's saving (a judgement, ruling B-2a)"
+    status: applies
+    carried_by: "composite_factor band; the composite trade of this package"
+  - id: OC-13
+    flagged_2026_11_25: null
+    correlation: "Stage 1's two-point climb leg (one true airspeed from the sea-level best climb, drag over thrust averaged between sea level and 20,000 ft)"
+    calibrated_for: "a climb whose sea-level best-climb speed can be flown at 20,000 ft"
+    used_here: "the worst endurance corner of the info-gap study, where that speed is below the 20,000 ft stall speed (this package, section 7)"
+    status: applies
+    carried_by: "item 18; P9 (integrated climb in the robustness study)"
+  - id: OC-14
+    flagged_2026_11_25: null
+    correlation: "Raymer (7.12) and (7.13) with K = 3.4, and the ledger's fill factor"
+    calibrated_for: "a quick estimate from projected areas"
+    used_here: "fuselage wetted area in the drag build-up and in the fuselage weight; fuselage volume in the payload-bay first check"
+    status: applies
+    carried_by: "fuselage_fill band; P3 gates 3 and 4 (areas and volumes integrated on the loft)"
+  - id: OC-15
+    flagged_2026_11_25: null
+    correlation: "Raymer Table 6.4 tail volume coefficient, general aviation single engine"
+    calibrated_for: "tractor aircraft that rotate about a main gear close behind the centre of gravity"
+    used_here: "the pusher's horizontal tail is enlarged above the table's size until it can rotate the aircraft"
+    status: applies
+    carried_by: "tail_cl_max_rotation and rotation_angle_deg_pusher bands; P4 (rotation at the CG ends, item 25)"
+    evidence:
+      - {label: "horizontal-tail volume scale over Table 6.4", file: r0, path: ht_volume_scale}
+
+# ---- risk list (Gate A item A11: every risk names the package that measures it) --------------------------
+# measured_by: packages of docs/specs/task12_preliminary_design.md. A risk that no package measures has an
+# empty list and says under which ruling it is carried.
+risks:
+  - id: K-1
+    risk: "Empty weight comes from crewed general-aviation statistics"
+    effect: "take-off weight through the growth of the sizing; hours on station of the built aircraft"
+    items: [8, 27]
+    measured_by: [P7, P4, P9]
+    how: "P7 sizes the wing spar from the bottom up against the statistical wing weight; P4 moves the centre of gravity at the ends of the empty-weight band; P9 keeps the +-5 % band acting"
+    carried_under: "B-9g"
+    evidence:
+      - {label: "build-up empty fraction", file: r0, path: empty_fraction_comparison.build_up}
+      - {label: "approximate group weights (Raymer p. 398)", file: r0, path: empty_fraction_comparison.table_15_2_approximate}
+      - {label: "Anderson build-up W0 against Stage 1 (relative)", file: perf, path: "rows[id=w0_buildup].deviation"}
+  - id: K-2
+    risk: "Clean C_L,max rests on a judged section value"
+    effect: "the R17 speed floor sets the loiter and cruise speeds; the stall clause of R7"
+    items: [1]
+    measured_by: [P2]
+    how: "measured section data at the design Reynolds number, then the wing value"
+    evidence:
+      - {label: "clean C_L,max", file: r0, path: CL_max.clean}
+      - {label: "clean stall at W0 (kt)", file: r0, path: performance.V_stall_clean_kt}
+  - id: K-3
+    risk: "Propeller: an actuator disk times a judged factor f, with no independent check in flight, in climb or at take-off"
+    effect: "R7 take-off is the binding robustness horizon; the climb fuel at the worst corner"
+    items: [3, 13, 15, 16, 17]
+    measured_by: [P6]
+    how: "blade-element propeller at the record's operating points and at the take-off speeds"
+    evidence:
+      - {label: "R7 horizon", file: info_gap, path: h_hat.R7.h_hat}
+      - {label: "efficiency at sea-level climb", file: r0, path: propeller_points.climb_sea_level.eta_p}
+  - id: K-4
+    risk: "Engine fuel consumption at part power and altitude rests on a cycle model with no maker's data"
+    effect: "mission fuel and hours on station move directly with SFC"
+    items: [10, 11]
+    measured_by: []
+    how: "no package: no maker's part-power curve exists in the sources (O-3). The +-10 % SFC band stands in for data"
+    carried_under: "G-6, B-5"
+    evidence:
+      - {label: "share of mission fuel in unchoked cells", file: r0, path: unchoked_fuel_share}
+  - id: K-5
+    risk: "Engine operating altitude and in-flight relight are assumptions"
+    effect: "R6 and R12 are flown above every certified installation found"
+    items: [9]
+    measured_by: [P8]
+    how: "P8 states it as a declared limit (row EP-8); it is not verified by any package"
+    carried_under: "R-f"
+  - id: K-6
+    risk: "Static margin is met by layout construction; the neutral point has only Raymer's single-factor fuselage term"
+    effect: "R13; the aft limit of the centre of gravity"
+    items: [4]
+    measured_by: [P4]
+    how: "fuselage-inclusive neutral point by a route independent of (16.22), with the pusher propeller term"
+    evidence:
+      - {label: "static margin, full fuel (MAC)", file: r0, path: layout.sm_full}
+      - {label: "static margin, empty fuel (MAC)", file: r0, path: layout.sm_empty}
+  - id: K-7
+    risk: "Rotation margin is thin, with a tail half the wing area"
+    effect: "a larger tail or a moved main gear; R7 take-off"
+    items: [25]
+    measured_by: [P4]
+    how: "trim and rotation re-checked at the CG ends with the measured section moment"
+    evidence:
+      - {label: "tail lift coefficient needed at rotation", file: r0, path: layout.rotation.CL_tail_needed}
+      - {label: "horizontal-tail area (ft^2)", file: r0, path: horizontal_tail.area}
+  - id: K-8
+    risk: "Gust loads come from one source; no negative manoeuvre is computed; the worst gust point is past ultimate if the gust is held at 30 ft/s above V_C"
+    effect: "limit load factor and structure weight (R9)"
+    items: [2, 26]
+    measured_by: [P5, P7]
+    how: "second gust source and a time integration of the gust response (P5); the ultimate cases on the spar (P7)"
+    evidence:
+      - {label: "largest gust load factor", file: r0, path: n_gust}
+      - {label: "negative gust load factor", file: r0, path: n_negative_gust}
+  - id: K-9
+    risk: "The V_C placard is held only by the autopilot"
+    effect: "structural over-speed: level top speed at sea level is above V_D"
+    items: [7]
+    measured_by: [P8]
+    how: "envelope-protection requirement with numbers (EP-1 to EP-7)"
+    evidence:
+      - {label: "level top speed, sea level (kt EAS)", file: r0, path: performance.vmax_sl_kt_eas}
+      - {label: "V_C (kt EAS)", file: r0, path: V_c_eas_kt.sea_level}
+  - id: K-10
+    risk: "Parasite drag has no second route and no band of its own; the wetted areas come from factors"
+    effect: "hours on station (the band audit records what +10 % on CD0 costs)"
+    items: [14]
+    measured_by: [P3]
+    how: "P3 checks the wetted areas on the loft. A second route for CD0 is out of scope"
+    carried_under: "G-3, B-5"
+    evidence:
+      - {label: "CD0 at mission altitude", file: r0, path: CD0.mission_altitude}
+  - id: K-11
+    risk: "Stage 1's two-point climb is not valid at the worst endurance corner"
+    effect: "climb fuel at the corner, and with it the hours on station that the R5 guarantee rests on"
+    items: [18, 23]
+    measured_by: [P1, P9]
+    how: "measured first here (section 7); P9 decides whether the integrated climb goes into r1 and its robustness study"
+    evidence:
+      - {label: "integrated minus two-point climb fuel at the corner of h_T (lb)", file: p1, path: climb_check.states.corner_target.fuel_difference_lb}
+  - id: K-12
+    risk: "Payload-bay volume has never been checked, and the bay sits in the tapering nose with the nose gear and the turret"
+    effect: "a longer nose or a moved bay, and with it the centre of gravity"
+    items: [30]
+    measured_by: [P3, P4]
+    how: "first check here (section 12); P3 boxes on the loft (gate 4); P4 if the bay moves"
+  - id: K-13
+    risk: "Nose-wheel load is above the 8 to 15 % optimum"
+    effect: "steering and nose-gear loads; the main gear position"
+    items: [31]
+    measured_by: [P4]
+    how: "nose-wheel load at every loading of the CG envelope"
+    evidence:
+      - {label: "nose-wheel load, full fuel", file: r0, path: layout.nose_load.full}
+      - {label: "nose-wheel load, empty fuel", file: r0, path: layout.nose_load.empty}
+  - id: K-14
+    risk: "Sponson size, drag and weight are banded assumptions; the main gear is long"
+    effect: "drag, empty weight and whether the gear stows"
+    items: []
+    measured_by: [P3]
+    how: "sponsons and the retracted gear drawn on the loft; wetted-area gate 3"
+    evidence:
+      - {label: "sponson weight (lb)", file: r0, path: components_lb.sponsons}
+      - {label: "main gear length (in)", file: r0, path: gear_length_in}
+  - id: K-15
+    risk: "Wing tank volume is a box estimate"
+    effect: "whether the fuel fits"
+    items: []
+    measured_by: [P3]
+    how: "tank volume from the loft between the spar fractions (gate 4)"
+    evidence:
+      - {label: "fuel volume needed (ft^3)", file: r0, path: fuel_volume_ft3.needed}
+      - {label: "tank volume claimed (ft^3)", file: r0, path: fuel_volume_ft3.available}
+  - id: K-16
+    risk: "The service ceiling is read on engine-table rows that no printed value covers"
+    effect: "R12's margin"
+    items: [6]
+    measured_by: [P0]
+    how: "P0 extended the table and judged the row; the rows above 30,000 ft stay an extrapolation"
+    carried_under: "G-6, R-f"
+    evidence:
+      - {label: "service ceiling (ft)", file: r0, path: performance.service_ceiling_ft}
+  - id: K-17
+    risk: "The robustness study leaves out span efficiency, the headwind, temperature and trim drag"
+    effect: "the R5 and R7 horizons are horizons of the quantities that are varied"
+    items: [34]
+    measured_by: [P9]
+    how: "restated on r1; nothing is added to the study unless the owner accepts a band"
+    evidence:
+      - {label: "R5 guarantee horizon", file: info_gap, path: h_hat.R5_guarantee.h_hat}
