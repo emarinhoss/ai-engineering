@@ -6,11 +6,13 @@ recomputed here from the files; these tests do not require a row to pass, only t
 import json
 
 import pytest
+import yaml
 
 from conceptual import uav
 from prelim import p2_section as p2
 
-OUT = p2.REPO / "runs/task12/pd/2026-11-27/p2"
+OUT = p2.REPO / "runs/task12/pd/2026-11-27/p2b"
+OLD = p2.REPO / "runs/task12/pd/2026-11-27/p2"
 R0 = json.loads((p2.R0 / "design_pusher.json").read_text())
 LEDGER = uav.load_ledger(p2.R0 / "ledger.yaml")[0]
 
@@ -30,19 +32,29 @@ def test_record_has_its_files_and_says_where_it_comes_from(p):
         assert (OUT / name).read_text().strip(), name
     i = p["inputs"]
     assert len(i["commit"]) == 40 and i["git_dirty"] is False and i["git_dirty_files"] == []
-    assert i["excluded"] == "runs/task12/pd/2026-11-27/p2"
+    assert i["excluded"] == "runs/task12/pd/2026-11-27/p2b"
     assert i["tree_unchanged_during_run"] is True and p["tree_at_end"]["git_dirty"] is False
     assert i["seed"] is None and i["python"] and i["numpy"] and i["command"].startswith("python -m prelim.p2_section")
     for key, path in i["files"].items():                                             # the inputs are the committed files
         assert p2.sha256(p2.REPO / path) == i["sha256"][key], path
-    assert p["baseline"] == "runs/task12/pd/2026-11-27/p0/r0" and len(p["acceptance"]) == 7
-    assert "not checked against the report" in p["evidence_class"]
+    assert p["baseline"] == "runs/task12/pd/2026-11-27/p0/r0" and len(p["acceptance"]) == 8
+    assert "checked against the report's figure" in p["evidence_class"] and p["supersedes"] == "runs/task12/pd/2026-11-27/p2"
 
 
-def test_record_says_the_report_was_not_opened_and_nothing_was_read_twice(p):
+def test_record_carries_the_source_record_and_the_figure_check(p, acc):
     s = p["source"]
-    assert s["report"]["opened_in_this_session"] is False and s["reading"]["read_twice"] is False
+    assert s == yaml.safe_load(p2.SOURCE.read_text())
+    assert s["report"]["opened_in_this_session"] is True and s["reading"]["read_twice"] is True
     assert s["sections"]["naca4415"]["figure"] is None and s["sections"]["naca4415"]["page"] == 142
+    want = p2.figure_check(s, p2.measured_sets("naca4415"))
+    assert p["figure_check"]["n_rows"] == want["n_rows"] == 11 and p["figure_check"]["all_agree"] == want["all_agree"]
+    for got, w in zip(p["figure_check"]["rows"], want["rows"]):
+        assert got["agrees"] == w["agrees"] == (abs(got["digitized"] - 0.5 * (got["reading_a"] + got["reading_b"])) <= got["uncertainty"])
+        assert got["digitized"] == pytest.approx(w["digitized"], rel=1e-12)
+    assert acc[8]["verdict"] == ("pass" if want["all_agree"] else "disagreement reported")
+    at = p["section_at_stall"]["set"]
+    assert acc[1]["provisional"] == acc[2]["provisional"] == p2.is_provisional(want, "cl_max", at)
+    assert acc[3]["provisional"] == p2.is_provisional(want, "cm_c4_linear_range", at)
     assert s["digitization"]["files"]["142.ALL"]["sha256"] == p["inputs"]["sha256"]["digitized_4415"]
     assert p["sections"] == {"wing": "naca4415", "tail": "naca0012", "tail_data": p["sections"]["tail_data"]}
     assert p["sections"]["tail_data"]["status"] == "not obtained"
@@ -120,6 +132,15 @@ def test_rows_4_to_7(p, acc):
                 + p2.parse_xfoil_polar((OUT / "xfoil" / f"{name}_down.txt").read_text())
             assert {r["alpha_deg"] for r in rows} == {r["alpha_deg"] for r in q["rows"]}        # the stored polar files
             assert q["summary"]["cl_max"] == max(r["cl"] for r in q["rows"])
+
+
+def test_the_superseded_record_is_kept_and_its_numbers_did_not_change(p):
+    old = json.loads((OLD / "p2.json").read_text())
+    assert "superseded by `runs/task12/pd/2026-11-27/p2b`" in (OLD / "SUPERSEDED.md").read_text()
+    assert old["inputs"]["commit"] != p["inputs"]["commit"] and old["inputs"]["sha256"]["digitized_4415"] == p["inputs"]["sha256"]["digitized_4415"]
+    for a_old, a_new in zip(old["acceptance"], p["acceptance"]):                 # rows 1 to 7: same verdicts and values
+        assert a_old["verdict"] == a_new["verdict"] and a_old.get("value") == pytest.approx(a_new.get("value"))
+    assert old["refly"]["measured"]["hours_on_station"] == pytest.approx(p["refly"]["measured"]["hours_on_station"], abs=1e-9)
 
 
 def test_r0_is_untouched(p):

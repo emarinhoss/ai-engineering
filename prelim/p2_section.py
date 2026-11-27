@@ -1,8 +1,8 @@
 """Preliminary design package P2: the wing section and its section data
 (docs/specs/task12_preliminary_design.md, "P2. Wing section and section data"; decisions PD-5, PD-6).
 
-    python -m prelim.p2_section --out runs/task12/pd/2026-11-27/p2
-    python -m prelim.p2_section --out runs/task12/pd/2026-11-27/p2 --report-only \
+    python -m prelim.p2_section --out runs/task12/pd/2026-11-27/p2b
+    python -m prelim.p2_section --out runs/task12/pd/2026-11-27/p2b --report-only \
         --report docs/validation/2026-11-27_task12_pd_p2.md
 
 r0 is read, never written, and it is not re-sized. What is run here:
@@ -58,8 +58,9 @@ FIG_12_8_RATIO_ZERO_SWEEP = 0.9          # every curve starts at 0.9 at zero lea
 FIG_12_8_BLUNT_AT_60_DEG = 0.55          # "about 0.55" at 60 deg for the bluntest curve (delta y >= 2.5)
 DELTA_Y_PER_T_C = 26.0                   # Table 12.1, p. 271: NACA four-digit sections, delta y = 26 t/c (percent chord)
 MACH_NO_CORRECTION = 0.2                 # Fig. 12.9, p. 272: the Mach correction is zero at M = 0.2
-EVIDENCE_CLASS = ("independent of Stage 1 and of the library (measured data), but read through a third party's "
-                  "digitization that was not checked against the report")
+EVIDENCE_CLASS = ("independent of Stage 1 and of the library: measured data of NACA Report 824, read through a third "
+                  "party's digitization that was checked against the report's figure")
+SUPERSEDES = "runs/task12/pd/2026-11-27/p2"          # the record made before the report could be opened
 XFOIL_ALPHA_UP, XFOIL_ALPHA_DOWN = (0, 20), (0, -18)       # two sweeps from zero, 1 degree steps
 SU2_QUEUE_ALPHA_DEG = (-12, -8, -4, 0, 4, 8, 10, 12, 14, 16)
 
@@ -219,6 +220,29 @@ def digitization_check(summary):
             "ok": abs(diff) <= TOL_ALPHA0_DEG and SLOPE_RATIO_RANGE[0] <= ratio <= SLOPE_RATIO_RANGE[1]}
 
 
+def figure_check(source, sets):
+    """The digitized values against the two readings of the report's figure in the source record
+    (figure_check.readings). A row agrees if the digitized value is within the reading uncertainty of the mean of
+    the two readings. The digitized value is the summary of the set as the run computes it."""
+    unc = source["figure_check"]["uncertainty"]
+    which = {"cl_max": "cl", "cd_min": "cd", "alpha_zero_lift_deg": "alpha_deg", "slope_per_deg": "slope_per_deg",
+             "cm_c4_linear_range": "cm"}
+    rows = []
+    for r in source["figure_check"]["readings"]:
+        summary = next(s["summary"] for s in sets if s["set"] == r["set"])
+        value = summary["fit"][r["quantity"]] if r["quantity"] in summary["fit"] else summary[r["quantity"]]
+        mean, u = 0.5 * (r["a"] + r["b"]), unc[which[r["quantity"]]]
+        rows.append({"quantity": r["quantity"], "set": r["set"], "digitized": value, "reading_a": r["a"], "reading_b": r["b"],
+                     "mean_reading": mean, "difference": value - mean, "uncertainty": u, "agrees": abs(value - mean) <= u})
+    return {"rows": rows, "all_agree": all(r["agrees"] for r in rows), "n_rows": len(rows)}
+
+
+def is_provisional(check, quantity, set_number):
+    """A row stays provisional unless the figure check has the quantity for the set and it agrees."""
+    rows = [r for r in check["rows"] if r["quantity"] == quantity and r["set"] == set_number]
+    return not (rows and all(r["agrees"] for r in rows))
+
+
 # ---- step 3: wing maximum lift ----------------------------------------------------------------------------------
 def leading_edge_sweep_deg(root_chord, tip_chord, span):
     """Leading-edge sweep of a straight-tapered wing whose quarter-chord line is unswept:
@@ -359,18 +383,20 @@ def acceptance_rows(res):
     """The spec's rows 1 to 5 and the two rows added here, each with the numbers its verdict follows from."""
     at, wing, m = res["section_at_stall"], res["wing"]["measured"], res["refly"]
     check, xf = res["digitization_check"], res["xfoil"]
-    rough = res["roughness"]
+    rough, fc = res["roughness"], res["figure_check"]
+    lift_open, moment_open = is_provisional(fc, "cl_max", at["set"]), is_provisional(fc, "cm_c4_linear_range", at["set"])
     return [
         {"row": 1, "what": "section maximum lift, smooth, at the tabulated Reynolds number nearest the stall: inside the ledger band",
-         "value": at["cl_max"], "band": list(CL_MAX_BAND), "reynolds": at["reynolds"],
+         "value": at["cl_max"], "band": list(CL_MAX_BAND), "reynolds": at["reynolds"], "provisional": lift_open,
          "verdict": "pass" if verdict_band(at["cl_max"], CL_MAX_BAND) == "pass" else "section rejected (PD-5)"},
         {"row": 2, "what": "wing clean maximum lift by (12.15) from the measured section value against the record's",
-         "value": wing["clean_12_15"], "record": RECORD_CL_MAX_CLEAN,
+         "value": wing["clean_12_15"], "record": RECORD_CL_MAX_CLEAN, "provisional": lift_open,
          "hours_on_station": m["measured"]["hours_on_station"], "hours_on_station_record": m["record"]["hours_on_station"],
          "loiter_speed_kt": m["measured"]["loiter_speed_kt"], "loiter_speed_kt_record": m["record"]["loiter_speed_kt"],
          "verdict": verdict_wing(wing["clean_12_15"], RECORD_CL_MAX_CLEAN)},
         {"row": 3, "what": "section moment about the quarter chord against the ledger band of airfoil_cm0",
          "value": at["cm_c4_linear_range"], "band": list(CM0_BAND), "ledger_value": res["ledger"]["airfoil_cm0"],
+         "provisional": moment_open,
          "verdict": "pass" if verdict_band(at["cm_c4_linear_range"], CM0_BAND) == "pass" else "finding for P4"},
         {"row": 4, "what": "standard roughness: a sensitivity", "cl_max_rough": rough["rough"]["cl_max"],
          "cl_max_smooth_same_reynolds": rough["smooth"]["cl_max"], "reynolds": rough["reynolds"],
@@ -383,6 +409,9 @@ def acceptance_rows(res):
          "verdict": "pass" if check["ok"] else "fail"},
         {"row": 7, "what": "added: XFOIL polars as a third source (PD-6)",
          "verdict": "reported, no verdict" if xf["status"] == "run" else "not run", "reason": xf.get("reason")},
+        {"row": 8, "what": "added: the digitized values against two readings of the report's figure, within the reading uncertainty",
+         "n_rows": fc["n_rows"], "n_agree": sum(r["agrees"] for r in fc["rows"]),
+         "verdict": "pass" if fc["all_agree"] else "disagreement reported"},
     ]
 
 
@@ -405,7 +434,8 @@ def run(out, log):
                           matplotlib=matplotlib.__version__,
                           files={k: str(p.relative_to(REPO)) for k, p in files.items()},
                           sha256={k: sha256(p) for k, p in files.items()}),
-           "evidence_class": EVIDENCE_CLASS, "baseline": str(R0.relative_to(REPO)), "source": source}
+           "evidence_class": EVIDENCE_CLASS, "baseline": str(R0.relative_to(REPO)), "source": source,
+           "supersedes": SUPERSEDES}
     log(f"commit {tree['commit']}, clean tree; r0 design {res['inputs']['sha256']['r0_design'][:12]}")
     d, cell = load(R0 / "design_pusher.json"), load(R0 / "cell_result.json")
     L, entries = uav.load_ledger(R0 / "ledger.yaml")
@@ -443,6 +473,8 @@ def run(out, log):
                         "smooth": next(s["summary"] for s in smooth if s["reynolds"] == rough["reynolds"]),
                         "wing_clean_12_15_rough": aero.wing_cl_max(rough["summary"]["cl_max"])}
     res["digitization_check"] = digitization_check(near["summary"])
+    res["figure_check"] = figure_check(source, sets)
+    log(f"figure check: {sum(r['agrees'] for r in res['figure_check']['rows'])} of {res['figure_check']['n_rows']} rows agree")
     log(f"NACA 4415, set {near['set']} (Re {re_near:.1e}, smooth): cl_max {near['summary']['cl_max']:.3f}, "
         f"cm c/4 {near['summary']['cm_c4_linear_range']:.4f}, scatter {scatter:.3f}")
 

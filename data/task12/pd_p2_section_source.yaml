@@ -1,16 +1,27 @@
 # Task 12 preliminary design P2: where the section data comes from, and what was and was not checked.
 # Written by hand on 2026-11-27 from files opened in that session. No value here is from memory.
+# Second pass, same day: the report was opened on NTRS and the digitized file checked against its figure (figure_check).
 # Read by prelim/p2_section.py; tests/task12_pd/test_p2_section.py checks the hashes.
 
 report:
-  number: "NACA Report 824 (TR-824)"
-  title_as_given_by_the_archive: "NACA TR 824"          # the archive's Readme.txt; the report itself was not opened
-  opened_in_this_session: false
-  why_not: >-
-    The report is a scan and its hosts were not reachable from the container on 2026-11-27. The points used
-    here were therefore not read from the report's figure by this project. They are a third party's
-    digitization of that figure (below).
-  blocked:                                              # host, what was tried, what came back
+  number: "NACA Report 824 (NACA-TR-824)"
+  title: "Summary of Airfoil Data"
+  authors: "Ira H. Abbott, Albert E. von Doenhoff, Louis S. Stivers, Jr."
+  year: 1945
+  ntrs_id: "19930090976"
+  found_by: "https://ntrs.nasa.gov/api/citations/search?q=%22Summary%20of%20airfoil%20data%22 (two hits; this one carries NACA-TR-824)"
+  url: "https://ntrs.nasa.gov/api/citations/19930090976/downloads/19930090976.pdf"
+  pdf_sha256: "9f27283b704821192fc9dba4ed625f62002903b5127bc869cd04ac0a5cc54efd"
+  pdf_bytes: 25700816
+  pdf_pages: 261
+  pdf_committed: false                                  # kept in the session scratchpad only
+  opened_in_this_session: true
+  opened: >-
+    2026-11-27, second pass. The owner allowed ntrs.nasa.gov for P2 and P6 and the session's network list was
+    extended. In the first pass of the same day the host was refused and the record 2e5eebe was made without
+    the report; `blocked` keeps what was refused then.
+  why_not: null
+  blocked:                                              # first pass: host, what was tried, what came back
     - {host: ntrs.nasa.gov, url: "https://ntrs.nasa.gov/api/citations/19930090976/downloads/19930090976.pdf",
        tool: curl, error: "curl: (56) CONNECT tunnel failed, response 403 (egress proxy: connect_rejected)"}
     - {host: ntrs.nasa.gov, url: "https://ntrs.nasa.gov/citations/19930090976",
@@ -21,7 +32,6 @@ report:
     - {host: naca.central.cranfield.ac.uk, tool: curl, error: "no connection through the proxy (HTTP code 000)"}
     - {host: m-selig.ae.illinois.edu, tool: curl, error: "no connection through the proxy (HTTP code 000)"}
     - {host: airfoiltools.com, tool: curl, error: "no connection through the proxy (HTTP code 000)"}
-  ntrs_document_id_from_web_search: "19930090976"       # a search result's link text, not a page that was opened
 
 digitization:
   what: >-
@@ -53,12 +63,16 @@ digitization:
 sections:
   naca4415:
     file: "142.ALL"
-    page: 142            # NACA.LST: "NACA TR 824 lists these page numbers as being for the following airfoils ... 142.all NACA 4415"
-    page_checked_against_the_report: false
-    figure: null         # the archive gives no figure number and the report was not opened
-    # Readme.txt, note 2A: "There is potential for 6 Reynold's number ranges (approx. 3x10^6, 6x10^6, 9x10^6,
-    # 6x10^6 @ standard roughness and two ranges with a simple split flap)". Sets 7 to 12 are the moment
-    # curves of sets 1 to 6. The Reynolds numbers are the Readme's "approx." values, not read from the figure.
+    page: 142            # printed page number of the report; page 144 of the PDF
+    pdf_page: 144
+    page_checked_against_the_report: true
+    figure: null         # the supplementary figures of part V carry no figure number
+    figure_caption: "Aerodynamic characteristics of the NACA 4415 airfoil section, 24-inch chord."
+    figure_legend: >-
+      R: circle 3.0 x 10^6 (a.c. position x/c 0.241, y/c -0.066); square 6.0 (0.241, -0.040); diamond 9.0
+      (0.245, -0.040); triangle 6.0, standard roughness; inverted triangle 6.0, 0.20c simulated split flap
+      deflected 60 deg.
+    reynolds_checked_against_the_figure: true
     sets:
       1: {reynolds: 3000000.0, surface: smooth}
       2: {reynolds: 6000000.0, surface: smooth}
@@ -69,22 +83,67 @@ sections:
     file: null
     status: "not obtained"
     reason: >-
-      NACA.LST of the archive lists the NACA 0006 and 0009 and no 0012, and the report could not be opened
-      to look for it. No measured 0012 data is used in P2.
+      NACA Report 824 has no section-characteristics page for the NACA 0012: the index of its part V (printed
+      page 129) lists the NACA 0006 (page 131) and 0009 (page 132) and then the NACA 1408; the 0012 appears in
+      the report only as a thickness form (ordinates and pressure distribution). No measured 0012 data is used
+      in P2. A candidate that was not opened: NACA-TR-586 (NTRS 19930091662).
+
+figure_check:
+  # The digitized file against the report's figure on printed page 142, read on a 300 dpi rendering of the
+  # scan (pdftoppm -f 144 -l 144 -r 300). Axes were calibrated on the detected grid lines: angle of attack
+  # -32 to 32 deg in 2 deg lines, lift 3.6 to -2.0 in 0.1 lines (moment about the quarter chord on the same
+  # axis at 0.025 per line), drag 0.026 to 0 in 0.001 lines against lift -1.4 to 1.8 in 0.1 lines.
+  tool: "prelim/p2_figure_read.py (needs the scan, which is not committed)"
+  reading_a: >-
+    By eye on enlarged crops: the centre of each symbol against the neighbouring grid lines; for the zero-lift
+    angle and the slope, the drawn curve.
+  reading_b: >-
+    By code: centroid of the enclosed white interior of the symbol (prelim/p2_figure_read.py). For the zero-lift
+    angle and the slope, a second reading by eye on tighter crops; for the moment, the mean of the seven
+    interiors of 50 pixels or more between -6.2 and 6.1 deg.
+  uncertainty_rule: >-
+    A third of a symbol. A symbol is about 14 pixels across at 300 dpi, which is 0.039 in lift, 0.78 deg,
+    0.00039 in drag and 0.0097 in moment. For the slope: two lift readings 12 deg apart.
+  uncertainty: {cl: 0.013, alpha_deg: 0.26, cd: 0.00013, cm: 0.0032, slope_per_deg: 0.0015}
+  overlay: >-
+    Every digitized lift, moment and drag point of sets 1 to 4 was drawn on the scan; each falls on a symbol
+    of the right kind (circle, square, diamond, triangle for sets 1, 2, 3, 4). By code, 26 of the 65 lift
+    points had one clean symbol interior beside them: digitized minus centroid 0.008 root mean square and
+    0.024 at most in lift, 0.14 deg and 0.35 deg in angle. 30 of the 49 drag points: 0.00008 root mean square
+    and 0.00021 at most in drag. The other symbols overlap or are cut by a grid line.
+  readings:            # quantity, set, reading a, reading b; the digitized value is computed in the run
+    - {quantity: cl_max, set: 1, a: 1.414, b: 1.415}
+    - {quantity: cl_max, set: 2, a: 1.558, b: 1.557}
+    - {quantity: cl_max, set: 3, a: 1.626, b: 1.622}
+    - {quantity: cl_max, set: 4, a: 1.288, b: 1.283}
+    - {quantity: cd_min, set: 1, a: 0.00736, b: 0.00735}
+    - {quantity: cd_min, set: 2, a: 0.00664, b: 0.00664}
+    - {quantity: cd_min, set: 3, a: 0.00632, b: 0.00635}
+    - {quantity: cd_min, set: 4, a: 0.01075, b: 0.01073}
+    - {quantity: alpha_zero_lift_deg, set: 1, a: -4.13, b: -3.96}
+    - {quantity: slope_per_deg, set: 1, a: 0.103, b: 0.1015}
+    - {quantity: cm_c4_linear_range, set: 1, a: -0.0898, b: -0.0932}
+  notes:
+    - >-
+      Zero-lift angle and slope were read on the drawn curve, where the three smooth sets lie within the line
+      width; they are compared with the fit of the set used (set 1).
+    - >-
+      The fit of set 2 (slope 0.0970 per deg, zero-lift angle -4.51 deg) does not agree with the figure
+      (0.102, -4.0). The set has four points between -6 and 6 deg, and its point near -4.4 deg is 0.25 deg to
+      the left of its symbol. No P2 row uses the fit of set 2.
+    - >-
+      The drawn curve of the 3.0 million set peaks at about 1.43 between its two highest symbols (one reading
+      by eye). P2's rule takes the highest symbol.
 
 reading:
-  read_twice: false
+  read_twice: true
   how_read: >-
-    Not transcribed by hand at all. The committed file is the archive's file, byte for byte (sha256 above),
-    and the loader parses it. So there is no transcription step of this project that could be wrong, and
-    there is no second reading of the report's figure either: the digitizer's reading error is unknown.
+    The committed file is the archive's file, byte for byte (sha256 above), and the loader parses it; nothing
+    was typed by hand. The values P2 uses were then read twice on the report's figure (figure_check) and the
+    digitized file was compared with them.
   uncertainty_method: >-
-    The scatter of the digitized lift points about a straight line fitted between -6 and +6 degrees is
-    computed in the run and reported as the reading scatter. It contains the tunnel's own scatter and any
-    curvature, so it over-states the digitizing error alone. The highest plotted point is taken as the
-    maximum lift; the test points are about 2 degrees apart, so a faired peak between two points could be
-    higher by an amount the points do not show.
-  to_close: >-
-    When ntrs.nasa.gov (or another host of the scan) is allowed: open page 142 of NACA Report 824, record
-    the figure number, and read the maximum lift, the minimum lift and five points of each lift curve twice
-    against this file.
+    A third of a symbol on the 300 dpi scan (figure_check.uncertainty). The run also reports the scatter of
+    the digitized lift points about a straight line between -6 and +6 degrees; that contains the tunnel's own
+    scatter and any curvature. The highest plotted symbol is taken as the maximum lift; the drawn curve peaks
+    a little above it.
+  to_close: null

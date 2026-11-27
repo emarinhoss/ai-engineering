@@ -48,12 +48,20 @@ def test_committed_source_files_are_the_ones_the_source_record_names():
     assert not any(line.split()[-1:] == ["0012"] for line in index.splitlines())            # no 0012 in the archive
 
 
-def test_source_record_says_what_was_not_done():
-    assert SOURCE["report"]["opened_in_this_session"] is False and SOURCE["reading"]["read_twice"] is False
-    assert SOURCE["sections"]["naca4415"]["page_checked_against_the_report"] is False
-    assert SOURCE["sections"]["naca4415"]["figure"] is None
+def test_source_record_says_what_was_done_and_what_was_not():
+    # second pass of 2026-11-27: the report was opened on NTRS and the digitized file checked against its figure
+    r = SOURCE["report"]
+    assert r["opened_in_this_session"] is True and r["ntrs_id"] in r["url"] and len(r["pdf_sha256"]) == 64
+    assert r["pdf_committed"] is False and not list(p2.REPO.glob("data/**/*.pdf"))
+    assert SOURCE["reading"]["read_twice"] is True
+    assert SOURCE["sections"]["naca4415"]["page_checked_against_the_report"] is True
+    assert SOURCE["sections"]["naca4415"]["figure"] is None and "NACA 4415" in SOURCE["sections"]["naca4415"]["figure_caption"]
     assert SOURCE["sections"]["naca0012"]["status"] == "not obtained"
-    assert any(b["host"] == "ntrs.nasa.gov" and "403" in b["error"] for b in SOURCE["report"]["blocked"])
+    assert any(b["host"] == "ntrs.nasa.gov" and "403" in b["error"] for b in r["blocked"])     # the first pass is kept
+    check = SOURCE["figure_check"]
+    assert check["uncertainty"] == {"cl": 0.013, "alpha_deg": 0.26, "cd": 0.00013, "cm": 0.0032, "slope_per_deg": 0.0015}
+    assert {(q["quantity"], q["set"]) for q in check["readings"]} >= {("cl_max", k) for k in (1, 2, 3, 4)} | {
+        ("cd_min", k) for k in (1, 2, 3, 4)} | {("alpha_zero_lift_deg", 1), ("slope_per_deg", 1), ("cm_c4_linear_range", 1)}
     for path in p2.DATA.iterdir():
         assert "@" not in path.read_text(), path                                           # no e-mail address committed
 
@@ -201,6 +209,20 @@ def test_row_verdicts_follow_from_the_numbers():
     assert p2.verdict_band(1.29, p2.CL_MAX_BAND) == "outside the band"
     assert p2.verdict_band(-0.11, p2.CM0_BAND) == "outside the band" and p2.verdict_band(-0.09, p2.CM0_BAND) == "pass"
     assert p2.verdict_wing(1.34, 1.35) == "finding for r1" and p2.verdict_wing(1.35, 1.35) == "pass (not lower)"
+
+
+def test_figure_check_compares_the_digitized_value_with_the_mean_of_two_readings():
+    source = {"figure_check": {"uncertainty": {"cl": 0.013, "alpha_deg": 0.26, "cd": 0.00013, "cm": 0.0032, "slope_per_deg": 0.0015},
+                               "readings": [{"quantity": "cl_max", "set": 1, "a": 1.40, "b": 1.42},
+                                            {"quantity": "cl_max", "set": 2, "a": 1.50, "b": 1.50},
+                                            {"quantity": "slope_per_deg", "set": 1, "a": 0.100, "b": 0.102}]}}
+    sets = [{"set": 1, "summary": {"cl_max": 1.42, "fit": {"slope_per_deg": 0.1012}}},
+            {"set": 2, "summary": {"cl_max": 1.52, "fit": {"slope_per_deg": 0.1}}}]
+    c = p2.figure_check(source, sets)
+    assert [r["agrees"] for r in c["rows"]] == [True, False, True] and c["all_agree"] is False and c["n_rows"] == 3
+    assert c["rows"][0]["mean_reading"] == pytest.approx(1.41) and c["rows"][1]["difference"] == pytest.approx(0.02)
+    assert p2.is_provisional(c, "cl_max", 1) is False and p2.is_provisional(c, "cl_max", 2) is True
+    assert p2.is_provisional(c, "cm_c4_linear_range", 1) is True          # not read: stays provisional
 
 
 def test_computed_polar_against_measured_uses_the_row_5_tolerances():

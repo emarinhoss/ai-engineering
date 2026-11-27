@@ -10,7 +10,7 @@ from pathlib import Path
 from prelim import p2_section as p2
 
 REPO = p2.REPO
-FIGURE_LABEL = ("points: a third party's digitization of NACA Report 824, not checked against the report; "
+FIGURE_LABEL = ("points: a third party's digitization of NACA Report 824, page 142, checked against the report's figure; "
                 "lines: XFOIL, computed, no verdict rests on them")
 REFLY_NAMES = (("record", "r0: the ledger's section value"),
                ("measured", "measured value at the Reynolds number nearest the stall"),
@@ -120,8 +120,8 @@ def findings(res):
         f"the clean wing has {n(w['measured_minus_two_scatter']['clean_12_15'], 3)} and the built aircraft "
         f"{n(low['hours_on_station'], 2)} h on station at {n(low['loiter_speed_kt'], 2)} kt. "
         f"{'That is still at or above' if at['cl_max_minus_two_scatter'] >= p2.CL_MAX_BAND[0] else 'That is below'} the ledger band's low "
-        f"end of {n(p2.CL_MAX_BAND[0], 1)}. The points were not read from the report here, so this scatter is the only measure "
-        f"of the reading error that this package has.")
+        f"end of {n(p2.CL_MAX_BAND[0], 1)}. This scatter is wider than the reading uncertainty of the figure check (section 4): it is mostly "
+        f"the tunnel's own scatter over {at['fit']['n_points']} points. It is kept as the wider sensitivity.")
     if at["stall_reynolds_mission_altitude"] < at["lowest_tabulated_reynolds"]:
         out.append(
             f"**The loiter is flown at a lower Reynolds number than the data covers.** R17's floor is 1.3 times the stall speed at "
@@ -150,10 +150,24 @@ def findings(res):
         f"{n(p2.CM0_BAND[1], 2)}: " + ("inside the band, so no finding by the spec's rule; the measured value is more nose-down "
                                        "than the ledger's and goes to P4's trim check and to r1 as an input."
                                        if cm["verdict"] == "pass" else "outside the band: a finding for P4's trim check."))
+    fc = res["figure_check"]
+    worst = max((r for r in fc["rows"] if r["quantity"] == "cl_max"), key=lambda r: abs(r["difference"]))
+    used = next(r for r in fc["rows"] if r["quantity"] == "cl_max" and r["set"] == at["set"])
     out.append(
-        "**The source is a digitization, not the report.** NACA Report 824 could not be opened from the container (its hosts "
-        "were refused by the session's network proxy). The points are a public third-party digitization of the report's "
-        "figure. They were not read twice and not compared with the figure. Section 4 says what has to be done to close this.")
+        f"**The digitized file was checked against the report's figure.** NACA Report 824 was opened (NTRS "
+        f"{res['source']['report']['ntrs_id']}, printed page {res['source']['sections'][p2.WING_SECTION]['page']}). "
+        f"{sum(r['agrees'] for r in fc['rows'])} of {fc['n_rows']} values agree with two readings of the figure within the reading "
+        f"uncertainty (section 4). The maximum lift of the set used reads {n(used['reading_a'], 3)} and {n(used['reading_b'], 3)} on "
+        f"the figure against {n(used['digitized'], 3)} digitized. The largest difference in maximum lift is "
+        f"{n(worst['difference'], 3)} (set {worst['set']}; uncertainty {n(worst['uncertainty'], 3)}). "
+        + ("Rows 1 to 3 are no longer provisional. " if not any(a.get("provisional") for a in res["acceptance"]) else
+           "Rows marked provisional in section 2 stay so. ")
+        + f"This record supersedes `{res['supersedes']}`, which was made before the report could be opened; no number of rows 1 "
+          f"to 7 changed.")
+    out.append(
+        "**The drawn curve peaks above the highest symbol.** " + " ".join(res["source"]["figure_check"]["notes"][2].split())
+        + " The rule was fixed before the figure was seen and is kept; it is the lower of the two readings of the section "
+          "maximum. P9 decides which one r1 takes.")
     out.append(
         f"**No measured data for the tail section.** {res['sections']['tail_data']['reason']} The NACA 0012 rows of section 10 "
         f"are XFOIL only." if res["xfoil"]["status"] == "run" else
@@ -172,6 +186,8 @@ def report_text(out):
          f"from that file. Spec: `docs/specs/task12_preliminary_design.md`, package P2 (decisions PD-5, PD-6). Bands and "
          f"tolerances were fixed before the run; nothing was tuned. r0 (`{res['baseline']}`) was read and not changed.", "",
          f"Evidence class: **{res['evidence_class']}**.", "",
+         f"This record supersedes `{res['supersedes']}` (made before NACA Report 824 could be opened; kept, see its "
+         f"`SUPERSEDED.md`).", "",
          "## 1. Run", "",
          f"- Command: `{i['command']}`",
          f"- Commit `{i['commit']}`; working tree at the start: {'clean' if not i['git_dirty'] else 'DIRTY'} (the run's own "
@@ -196,35 +212,48 @@ def report_text(out):
         ["5", acc[5]["what"], acc[5]["reason"], "slope 5 %, lift at zero angle 0.05, maximum lift 0.10"],
         ["6", a6["what"], f"zero-lift angle {n(a6['alpha0_difference_deg'], 2)} deg from theory; slope {n(a6['slope_over_2pi'], 3)} "
          f"of 2 pi per radian", f"{n(a6['tolerance_deg'], 1)} deg; {n(a6['range'][0], 2)} to {n(a6['range'][1], 2)}"],
-        ["7", acc[7]["what"], "section 10" if acc[7]["verdict"] != "not run" else acc[7]["reason"], "-"]]
+        ["7", acc[7]["what"], "section 10" if acc[7]["verdict"] != "not run" else acc[7]["reason"], "-"],
+        ["8", acc[8]["what"], f"{acc[8]['n_agree']} of {acc[8]['n_rows']} values agree (section 4)", "a third of a symbol"]]
     T += ["## 2. Acceptance rows", "",
           "Rows 1 to 5 are the spec's. Rows 6 and 7 were added in `tests/task12_pd/test_p2_section.py` and "
-          "`prelim/p2_section.py` before the run.", ""]
+          "`prelim/p2_section.py` before the first run; row 8 was added with the figure check. A verdict marked provisional "
+          "rests on a digitized value that the figure check does not confirm.", ""]
     T += table(["#", "Row", "Result", "Band or tolerance", "Verdict"],
-               [r + [f"**{acc[int(r[0])]['verdict']}**"] for r in rows])
+               [r + [f"**{acc[int(r[0])]['verdict']}{', provisional' if acc[int(r[0])].get('provisional') else ''}**"] for r in rows])
 
     T += ["## 3. Findings", ""] + [f"{k}. {text}" for k, text in enumerate(findings(res), 1)] + [""]
 
     # 4. source
-    T += ["## 4. Source of the section data", "",
-          f"- Report: {src['report']['number']}. Opened in this session: **{n(src['report']['opened_in_this_session'])}**. "
-          + " ".join(src["report"]["why_not"].split()),
-          "- What was tried and refused: " + "; ".join(f"`{b['host']}` ({b['tool']}: {b['error']})" for b in src["report"]["blocked"]) + ".",
-          "- What was used: " + " ".join(dig["what"].split()),
+    rp, fc, fcs = src["report"], res["figure_check"], src["figure_check"]
+    T += ["## 4. Source of the section data and the figure check", "",
+          f"- Report: {rp['number']}, \"{rp['title']}\", {rp['authors']}, {rp['year']}. NTRS id {rp['ntrs_id']}, {rp['url']} ; "
+          f"{n(rp['pdf_bytes'], 0)} bytes, {rp['pdf_pages']} pages, sha256 `{rp['pdf_sha256']}`. The PDF is not committed. "
+          f"Opened in this session: **{n(rp['opened_in_this_session'])}**. " + " ".join(rp["opened"].split()),
+          "- Refused in the first pass: " + "; ".join(f"`{b['host']}` ({b['tool']}: {b['error']})" for b in rp["blocked"]) + ".",
+          f"- NACA 4415: printed page **{sec['page']}** (page {sec['pdf_page']} of the PDF). Figure number: none; the figures of "
+          f"the report's part V are not numbered. Caption: \"{sec['figure_caption']}\" Legend: " + " ".join(sec["figure_legend"].split()),
+          f"- Reynolds numbers of the sets checked against the legend: {n(sec['reynolds_checked_against_the_figure'])}. "
+          + "; ".join(f"set {s['set']}: {mil(s['reynolds'])} million, {s['surface']}" for s in res["measured"]) + ".",
+          "- The points used: " + " ".join(dig["what"].split()),
           f"- Repository {dig['repository']} at commit `{dig['commit']}`, folder `{dig['folder']}` ({dig['repository_licence']}); "
           f"fetched {dig['fetched']}."]
     for name, fl in dig["files"].items():
         T.append(f"- `{name}`: {fl['url']} ; sha256 `{fl['sha256'][:16]}`; "
                  + (f"committed as `{fl['committed_as']}`" if fl["committed_as"] else "not committed (it carries a private e-mail address)")
                  + (f"; {fl['note']}" if fl.get("note") else "") + ".")
-    T += [f"- NACA 4415: file `{sec['file']}`. The archive's index says the file name is the report's page number: page "
-          f"**{sec['page']}**. Checked against the report: {n(sec['page_checked_against_the_report'])}. Figure number: "
-          f"{'not known (the archive gives none)' if sec['figure'] is None else sec['figure']}.",
-          "- Sets used and their Reynolds numbers (the archive's Readme gives them as approximate): "
-          + "; ".join(f"set {s['set']}: {mil(s['reynolds'])} million, {s['surface']}" for s in res["measured"]) + ".",
-          f"- Read twice: **{n(src['reading']['read_twice'])}**. " + " ".join(src["reading"]["how_read"].split()),
-          "- Reading uncertainty: " + " ".join(src["reading"]["uncertainty_method"].split()),
-          "- To close: " + " ".join(src["reading"]["to_close"].split()), ""]
+    T += [f"- Read twice: **{n(src['reading']['read_twice'])}**. " + " ".join(src["reading"]["how_read"].split()),
+          "- Reading A: " + " ".join(fcs["reading_a"].split()),
+          "- Reading B: " + " ".join(fcs["reading_b"].split()) + f" Tool: {fcs['tool']}.",
+          "- Reading uncertainty: " + " ".join(fcs["uncertainty_rule"].split()),
+          "- Overlay: " + " ".join(fcs["overlay"].split()), ""]
+    nd = {"cl_max": 3, "cd_min": 5, "alpha_zero_lift_deg": 2, "slope_per_deg": 4, "cm_c4_linear_range": 4}
+    names = {"cl_max": "maximum lift", "cd_min": "lowest drag", "alpha_zero_lift_deg": "zero-lift angle (deg)",
+             "slope_per_deg": "lift-curve slope (1/deg)", "cm_c4_linear_range": "moment about the quarter chord"}
+    T += table(["Quantity", "Set", "Digitized", "Reading A", "Reading B", "Digitized minus mean reading", "Uncertainty", "Agrees"],
+               [[names[r["quantity"]], str(r["set"]), n(r["digitized"], nd[r["quantity"]]), n(r["reading_a"], nd[r["quantity"]]),
+                 n(r["reading_b"], nd[r["quantity"]]), n(r["difference"], nd[r["quantity"]]), n(r["uncertainty"], nd[r["quantity"]]),
+                 n(r["agrees"])] for r in fc["rows"]])
+    T += [f"- {' '.join(note.split())}" for note in fcs["notes"]] + [""]
 
     # 5. Reynolds
     T += ["## 5. Reynolds and Mach numbers (step 1)", "",
@@ -309,8 +338,8 @@ def report_text(out):
           f"{n(ro['rough']['cd_min'], 4)} against {n(ro['smooth']['cd_min'], 4)}. "
           f"The rough maximum is {'below' if ro['rough']['cl_max'] < p2.CL_MAX_BAND[0] else 'inside'} the ledger band "
           f"({n(p2.CL_MAX_BAND[0], 1)} to {n(p2.CL_MAX_BAND[1], 1)}); by (12.15) it would give a clean wing value of "
-          f"{n(ro['wing_clean_12_15_rough'], 3)}. There is no rough set at the stall Reynolds number in the archive. No verdict: "
-          "the archive calls it standard roughness and the report was not opened to see what that is.", ""]
+          f"{n(ro['wing_clean_12_15_rough'], 3)}. The figure has no rough set at the stall Reynolds number. No verdict: "
+          "the figure's legend says standard roughness; the report's definition of it was not transcribed.", ""]
 
     # 10. xfoil
     T += ["## 10. XFOIL, third source (row 7, PD-6)", ""]
@@ -347,7 +376,8 @@ def report_text(out):
 
     T += ["## 12. Tail section (NACA 0012)", "",
           f"Status: **{res['sections']['tail_data']['status']}**. {res['sections']['tail_data']['reason']} PD-5 keeps the NACA 0012 "
-          "for the tails; its shape is analytic, so P3 can loft it. Its measured lift curve and maximum lift stay open for P4.", ""]
+          "for the tails; its shape is analytic, so P3 can loft it. Its measured lift curve and maximum lift stay open for P4. "
+          "Report 824 does have the NACA 0009 (printed page 132), which is not the tail section and was not transcribed.", ""]
 
     T += ["## 13. Assumptions made where the spec left a choice", "",
           "1. The section value for rows 1 and 2 is the smooth set at the tabulated Reynolds number nearest (by ratio) to the "
@@ -355,12 +385,12 @@ def report_text(out):
           "2. Maximum lift is the highest digitized point; no curve is faired through the points.",
           f"3. The section moment is the mean of the quarter-chord moment points between {n(p2.LINEAR_RANGE_DEG[0], 0)} and "
           f"{n(p2.LINEAR_RANGE_DEG[1], 0)} deg, taken as the ledger's zero-lift moment `airfoil_cm0`.",
-          "4. A public third-party digitization of the report's figure was used because the report could not be opened. The "
-          "package brief said to stop the data steps if no open source could be reached; one could, so the data steps were "
-          "done and the difference is stated in sections 3, 4 and 14.",
+          "4. A public third-party digitization of the report's figure is used for the points, and the values P2 uses are "
+          "checked against two readings of the figure. The digitized values stay the numbers of record where they agree, "
+          "because they cover every point and the readings cover eleven values.",
           "5. The digitizer's file is committed unchanged and parsed, instead of being typed into a table.",
-          "6. The Reynolds numbers of the sets are the archive's approximate values. The order of the sets agrees with them: "
-          "maximum lift rises and lowest drag falls from set 1 to set 3.",
+          "6. The reading uncertainty is a third of a symbol on the 300 dpi scan. It was set when the figure was read, after "
+          "the first record; it is a judgement of how well a symbol's centre can be placed.",
           "7. The split-flap set of the archive is not used: the aircraft has slotted flaps, taken from Table 12.2 as in Stage 1.",
           "8. XFOIL is run with its defaults (free transition, Ncrit 9). The Debian build stops with a floating-point exception "
           "when plotting is off, so it is run with plotting on under a virtual display (`xvfb-run`).",
@@ -368,8 +398,8 @@ def report_text(out):
           "10. No design choice was made here, so there is no new PD entry in `docs/specs/00_decisions.md`.", ""]
 
     T += ["## 14. What this does not show", "",
-          "- It does not show that the digitized points are the report's points. Nobody here saw the figure.",
-          "- It does not give the figure number, and the page number is the archive's statement.",
+          "- The figure check covers eleven values and an overlay of every point; it is not a second digitization of every point.",
+          "- Both readings were made by the same reader in one session; reading B is by code where a symbol stands alone.",
           "- It does not give the maximum lift at the tip's Reynolds number, which is below the lowest set.",
           "- It does not give measured data for the NACA 0012.",
           "- It does not validate SU2, and XFOIL's numbers validate nothing.",
