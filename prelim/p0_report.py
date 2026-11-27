@@ -298,8 +298,8 @@ def report_text(out):
           "(section 5). Reason: they were added to the code after the Gate B record was written; calling them differences would stop "
           "the package on a field the ruling asked for.",
           "5. **Row 3 is judged on the stored flag, and the two bisection probes above 35,000 ft are left in place** and shown not to "
-          "affect the result (section 6). Reason: lowering the bisection's 60,000 ft starting bracket would change the last digits "
-          "of the ceiling of every design ever recorded.",
+          "affect the result (section 6). Reason: lowering the bisection's 60,000 ft starting bracket would move its midpoints, "
+          "and with them the last digits of every ceiling the code computes, for a read that cannot change the answer.",
           "6. **Row 4 needs both ends of the engine-cycle band inside ±1,000 ft**, and the band is read from the Gate B engine record, "
           "not recomputed. The same bisection with the table's own member was run as well (section 6).",
           "7. **The integrated climb is the energy method in steps, ending at Stage 1's top-of-climb speed**, so that it covers the same "
