@@ -297,7 +297,7 @@ def compliance(d, L, lay, per, need, avail, eng_raw):
     rows = [
         ("R1/R2 single turboprop, one engine", "-", d["engine"].get("fixed", "rubber"), "", "by construction"),
         ("R4 payload", "lb", L["payload_lb"], L["payload_lb"], "by construction"),
-        ("R5 mission 200 nm + 8 h + 200 nm", "fuel lb", d["fuel"], d["fuel"], "sized to it"),
+        (f"R5 mission 200 nm + {L['loiter_h']:g} h + 200 nm", "fuel lb", d["fuel"], d["fuel"], "sized to it"),
         r6_start, r6_ceiling,
         ("R7 take-off over 50 ft", "ft", per["takeoff_ft"], L["field_length_ft"], "<="),
         ("R7 landing over 50 ft", "ft", per["landing_ft"], L["field_length_ft"], "<="),

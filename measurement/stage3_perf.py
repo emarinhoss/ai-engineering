@@ -24,6 +24,7 @@ import hashlib
 import json
 import math
 import platform
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -410,6 +411,58 @@ def cd0_anderson(d, L, b):
             "Cfe_for_Stage1_CD0": target * g["S"] / s_wet}
 
 
+def loiter_hours(design_path):
+    """Sized loiter time of a design record (its mission's loiter leg), for report labels (review W-6)."""
+    path = Path(design_path)
+    path = path if path.is_absolute() else REPO / path
+    return next(m["leg_time_h"] for m in json.loads(path.read_text())["mission"] if m["segment"] == "loiter")
+
+
+def relabel_loiter(label, hours):
+    """The label with the loiter time of '200 nm + 8 h + 200 nm' read from the record. Records made before the
+    labels took the time from the ledger still carry the fixed '8 h' in their stored rows."""
+    return re.sub(r"\+ [0-9.]+ h \+", f"+ {hours:g} h +", label)
+
+
+CLAMP_SENTENCES = re.compile(r" The table's top altitude is [\d,]+ ft and the lookup holds .*?\(engine report\)\.")
+
+
+def _current_text(r, inputs):
+    """The row with the label and note text of today's code. Both are stored in the record's rows, and records made
+    earlier carry the fixed '8 h' label (mission fuel) and a clamp note that says both ceilings lean on the clamp
+    (ceiling row). The numbers are the record's."""
+    if r["id"] == "mission_fuel":
+        try:
+            hours = loiter_hours(inputs["design"])
+        except OSError:                      # the design record is not on disk: keep the stored label
+            return r
+        return dict(r, quantity=relabel_loiter(r["quantity"], hours))
+    if r["id"] == "ceiling" and "engine_table" in inputs:
+        table = Path(inputs["engine_table"])
+        top = float(max(json.loads((table if table.is_absolute() else REPO / table).read_text())["h_ft"]))
+        note = CLAMP_SENTENCES.sub(lambda _: ceiling_clamp_note(top, r["stage1"], r["stage3"]), r["note"])
+        return dict(r, note=note)
+    return r
+
+
+def ceiling_clamp_note(top, s1_ft, s3_ft, s1_above=None):
+    """Row note on the engine table's clamp (review W-4, ruling B-9c). The table holds its power constant above its
+    top altitude, so only a ceiling above the top leans on the clamp. s1_above is the flag Stage 1 stored with
+    its ceiling; when the record has none (older records), it is worked out from the ceiling and the top."""
+    if top is None:
+        return ""
+    s1_above = s1_ft > top if s1_above is None else s1_above
+    s3_above = s3_ft > top
+    if not (s1_above or s3_above):
+        return ""
+    who = ("Stage 1's ceiling and this one both lean on that clamp" if s1_above and s3_above else
+           f"Stage 1's ceiling ({s1_ft:,.0f} ft) is above it and leans on that clamp; this one ({s3_ft:,.0f} ft) "
+           "is below it and does not" if s1_above else
+           f"this one ({s3_ft:,.0f} ft) is above it and leans on that clamp; Stage 1's ({s1_ft:,.0f} ft) is below it")
+    return (f" The table's top altitude is {top:,.0f} ft and the lookup holds its power constant above it: {who}. "
+            "The cycle's own power keeps falling (engine report).")
+
+
 # ---- speeds, climb, ceiling: Anderson ch. 5 ------------------------------------------------------
 def ceiling_anderson(d, L, b, eta_speed="own"):
     """Highest altitude where Anderson's best climb rate (5.121) p. 277 is 100 ft/min, by bisection.
@@ -573,11 +626,8 @@ def speed_rows(d, L, b, bracket=None):
     else:
         ceil = ceiling_anderson(d, L, b)
     top = float(max(b["engine_model"].h)) if hasattr(b["engine_model"], "h") else None
-    clamp = ("" if top is None or max(ceil, d["performance"]["service_ceiling_ft"]) <= top else
-             f" The table's top altitude is {top:,.0f} ft and the lookup holds its power constant above it: "
-             f"Stage 1's ceiling ({d['performance']['service_ceiling_ft']:,.0f} ft) and this one ({ceil:,.0f} ft) "
-             "lean on that clamp, and this one more where it lies higher. The cycle's own power keeps falling "
-             "(engine report).")
+    s1_flag = d["performance"].get("service_ceiling_above_table_top")    # older records: not stored
+    clamp = ceiling_clamp_note(top, d["performance"]["service_ceiling_ft"], ceil, s1_flag)
     out.append(make_row("ceiling", "service ceiling (100 ft/min) at W0", "ft",
                         d["performance"]["service_ceiling_ft"], RECORD, ceil,
                         "Anderson (5.121) p. 277 with the App. K lapse", 1000.0, "absolute",
@@ -756,7 +806,7 @@ def compute(design_path):
     d, L, b, ledger_path, check = rebuild(design_path)
     rows = power_rows(d, L, b)
     fuel3, legs = mission_fuel_mattingly(d, L, b)
-    rows.append(make_row("mission_fuel", "mission fuel (200 nm out + 8 h + 200 nm back, headwind)",
+    rows.append(make_row("mission_fuel", f"mission fuel (200 nm out + {L['loiter_h']:g} h + 200 nm back, headwind)",
                          "lb", d["fuel_lb"], RECORD, fuel3,
                          "Mattingly (3.17), (3.23), (3.36)-(3.37) p. 61-67", 0.05, "relative",
                          "Same speeds, SFC and headwind air distance as Stage 1; the fraction "
@@ -1076,6 +1126,7 @@ def generated_sections(res):
 def report_text(res):
     """Markdown from the result dict; every number is read from it."""
     i, s = res["inputs"], res["summary"]
+    res = dict(res, rows=[_current_text(r, i) for r in res["rows"]])
     cc = class_counts(res["rows"])
     cls_line = "; ".join(
         f"{c}: " + ", ".join(f"{n} {v}" for v, n in sorted(cc[c].items())) for c in (*CLASSES, "unclassified") if c in cc)

@@ -57,9 +57,30 @@ def fmt(x):
     return str(x)
 
 
+def engine_table_top_ft(design_path):
+    """Top altitude of the engine table the record was made with. The table lookup clamps above it."""
+    path = Path(design_path)
+    path = path if path.is_absolute() else sp.REPO / path
+    return float(max(json.loads(Path(table_for_run(path.parent)).read_text())["h_ft"]))
+
+
+def ceiling_caveat(rows, top_ft):
+    """Sentence for a Stage 1 service ceiling above the engine table's top altitude (review W-4, ruling B-9c), else ''."""
+    for i, r in enumerate(rows, 1):
+        if r["requirement"].startswith("R12 service ceiling") and isinstance(r["value"], (int, float)) and r["value"] > top_ft:
+            return (f"Row {i}: the Stage 1 service ceiling ({fmt(r['value'])} ft) is above the engine table's top altitude "
+                    f"({fmt(top_ft)} ft), where the lookup clamps and holds the table's power constant, so it leans on that "
+                    "clamp. The cycle's own power keeps falling; the Stage 3 engine report gives the ceiling with it. "
+                    "Quote this row with that caveat. ")
+    return ""
+
+
 def report_text(res):
     inp = res["inputs"]
     rows = res["rows"]
+    hours = sp.loiter_hours(inp["design"])
+    rows = [dict(r, requirement=sp.relabel_loiter(r["requirement"], hours)) if r["requirement"].startswith("R5 mission") else r
+            for r in rows]
     n = {k: sum(1 for r in rows if r["verdict"] == k) for k in ("pass", "fail", "not tested")}
     L = ["# Task 12: Stage 1 compliance table of the design record (ruling B-7)", "",
          f"Design `{inp['design']}` (sha256 {inp['design_sha256'][:12]}), ledger copy `{inp['ledger']}`. "
@@ -81,8 +102,9 @@ def report_text(res):
           "The R9 positive row compares n_limit, which Stage 1 sets to the larger of 3.8 and the gust load factor; "
           "the gust value itself is in the V-n check of the same design. "
           + "".join(f"Row {i} passes the 5-20 % limits but its value {fmt(r['value'])} is above the 0.08-0.15 optimum named in its label. "
-                    for i, r in enumerate(rows, 1) if r["rule"] == "nose" and r["value"] > 0.15) +
-          "The Gate A items A1 to A12 are not re-checked here (a review task)."]
+                    for i, r in enumerate(rows, 1) if r["rule"] == "nose" and r["value"] > 0.15)
+          + ceiling_caveat(rows, engine_table_top_ft(inp["design"]))
+          + "The Gate A items A1 to A12 are not re-checked here (a review task)."]
     return "\n".join(L) + "\n"
 
 

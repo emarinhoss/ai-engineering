@@ -22,6 +22,7 @@ import numpy as np
 
 from drone import geometry, vlm
 from measurement.anderson import ground_effect_factor
+from measurement.stage3_perf import git_dirty_files
 
 REPO = Path(__file__).resolve().parents[1]
 SPAN, ASPECT, TAPER, LEVEL = 40.0, 10.0, 0.45, "medium"
@@ -83,7 +84,8 @@ def main(argv=None):
     ap.add_argument("--out", required=True)
     a = ap.parse_args(argv)
     res = compute()
-    res["inputs"] = {"commit": subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True,
+    dirty = git_dirty_files()
+    res["inputs"] = {"git_dirty": bool(dirty), "git_dirty_files": dirty, "commit": subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True,
                                               check=False, cwd=REPO).stdout.strip(),
                      "python": platform.python_version(), "numpy": np.__version__, "seed": None,
                      "command": "python -m measurement.ground_effect_validation " + " ".join(sys.argv[1:] if argv is None else argv)}

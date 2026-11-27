@@ -239,8 +239,9 @@ def run_case(geoms, config, level, machs, ref, out):
     return rows, {"nodes": int(header[0]), "panels": int(header[1]), "parts": int(header[2])}
 
 
-def raymer_values(d, ledger_text):
-    """Stage 1's numbers for the same quantities, from the design record and Raymer's equations."""
+def raymer_values(d, ledger_text, conditions):
+    """Stage 1's numbers for the same quantities, from the design record and Raymer's equations. conditions is the
+    run's {name: {"Mach": ...}}: the bare-planform lift slope is taken at Mach 0 and at each run condition (review W-6)."""
     A, S, lay, mac = d["wing"]["aspect_ratio"], d["wing"]["area"], d["layout"], d["wing"]["mac"]
     eta_h = ledger_value(ledger_text, "tail_eta_h")
     s_ratio = d["horizontal_tail"]["area"] / S
@@ -251,7 +252,7 @@ def raymer_values(d, ledger_text):
         return mac * stab.neutral_point(d["CL_alpha_wing"], lay["x_ac"] / mac, cma_fus, eta_h, s_ratio,
                                         lay["CLa_h"], lay["dah_da"], (lay["x_ac"] + d["tail_arm_ft"]) / mac)
     return {"CL_alpha_wing_installed_record": d["CL_alpha_wing"],
-            "CL_alpha_wing_bare_planform_eta1": {m: aero.lift_slope(A, m, 1.0) for m in (0.0, 0.158, 0.227)},
+            "CL_alpha_wing_bare_planform_eta1": {0.0: aero.lift_slope(A, 0.0, 1.0)} | {k: aero.lift_slope(A, c["Mach"], 1.0) for k, c in conditions.items()},
             "CL_alpha_aircraft": cla_total, "tail_term": tail, "eta_h": eta_h,
             "e": d["e"], "K": d["K"], "CD0_mission_altitude": d["CD0"]["mission_altitude"],
             "x_np_ft": lay["x_np"], "x_np_reproduced_ft": x_np(lay["Cma_fus"]),
@@ -328,7 +329,7 @@ def main(argv=None):
                              "fuselage_strips_per_section": v[3]} for k, v in LEVELS.items()},
               "in_lattice": {k: v for k, v in CONFIGS.items() if k != "full" or not a.no_fuselage}, "left_out": ["Propeller", "SensorTurret", "Sponson"],
               "cases": results, "mesh_sensitivity": sens,
-              "raymer_stage1": raymer_values(d, ledger_text),
+              "raymer_stage1": raymer_values(d, ledger_text, conditions),
               "note": "conceptual model (render3d layout, display sections NACA 4415 / 0012); inviscid lattice"}
     (out / "results.json").write_text(json.dumps(record, indent=2))
     print(json.dumps(sens, indent=1))

@@ -898,6 +898,17 @@ def ceiling(d, L, power_at=None):
     return lo
 
 
+def ceiling_above_table_top(d, ceiling_ft):
+    """(flag, table top in ft). The engine table clamps its inputs (conceptual/engine_model.py _locate), so a
+    ceiling above the table's top altitude rests on power held constant there (review W-4, ruling B-9c). The
+    flag is None when the design has no table engine (no top to compare with)."""
+    h = getattr(d.get("engine_model"), "h", None)
+    if h is None:
+        return None, None
+    top = float(max(h))
+    return ceiling_ft > top, top
+
+
 def performance(d, L):
     """As-sized performance at take-off weight: stall, take-off and landing distance, sea-level
     climb, service ceiling, maximum level speed at mission altitude (ch. 5, 17)."""
@@ -917,11 +928,14 @@ def performance(d, L):
     vmax = _vmax_consistent(W0, S, d["geom"], L, alt, L["mission_altitude_ft"], K, bhp, m,
                             L["climb_speed_over_stall"] * perf.stall_speed(d["W_S"], alt["rho"], clean))
     vmax_sl = _vmax_consistent(W0, S, d["geom"], L, sl, 0.0, K, bhp, m, v_lo)
+    ceil_ft = ceiling(d, L)
+    above_top, table_top = ceiling_above_table_top(d, ceil_ft)
     return {"V_stall_clean_kt": perf.stall_speed(d["W_S"], sl["rho"], clean) / KT,
             "V_stall_landing_kt": perf.stall_speed(d["W_S"], sl["rho"], d["clmax"]["landing"]) / KT,
             "takeoff_ft": to["total"], "takeoff": to, "landing_ft": ld["total"], "landing": ld,
             "roc_sl_fpm": vv * 60.0, "v_best_climb_kt": v_best / KT,
-            "service_ceiling_ft": ceiling(d, L), "vmax_alt_kt": (vmax or 0.0) / KT,
+            "service_ceiling_ft": ceil_ft, "service_ceiling_above_table_top": above_top,
+            "engine_table_top_ft": table_top, "vmax_alt_kt": (vmax or 0.0) / KT,
             "vmax_alt_kt_eas": (vmax or 0.0) * math.sqrt(alt["sigma"]) / KT,
             "vmax_sl_kt_eas": (vmax_sl or 0.0) / KT}
 

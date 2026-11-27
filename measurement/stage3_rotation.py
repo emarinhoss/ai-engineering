@@ -33,7 +33,7 @@ import numpy as np
 from conceptual import uav
 from drone import geometry, vlm
 from measurement import ground_effect_validation as gev
-from measurement.stage3_perf import rebuild, sha256
+from measurement.stage3_perf import git_dirty_files, rebuild, sha256
 
 REPO = Path(__file__).resolve().parents[1]
 LEVEL = "fine"
@@ -216,10 +216,12 @@ def main(argv=None):
     ap.add_argument("--report")
     a = ap.parse_args(argv)
     res = compute(a.design)
+    dirty = git_dirty_files()
     res["inputs"] = {"design": a.design, "design_sha256": sha256(a.design),
                      "ledger": res.pop("ledger_path"),
                      "ledger_sha256": sha256(Path(a.design).parent / "ledger.yaml"),
-                     "git_commit": git_commit(), "python": platform.python_version(),
+                     "git_commit": git_commit(), "git_dirty": bool(dirty), "git_dirty_files": dirty,
+                     "python": platform.python_version(),
                      "numpy": np.__version__, "out": a.out, "report": a.report, "seed": None,
                      "command": "python -m measurement.stage3_rotation " + " ".join(sys.argv[1:] if argv is None else argv)}
     Path(a.out).parent.mkdir(parents=True, exist_ok=True)
