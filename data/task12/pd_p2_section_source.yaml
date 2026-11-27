@@ -1,0 +1,90 @@
+# Task 12 preliminary design P2: where the section data comes from, and what was and was not checked.
+# Written by hand on 2026-11-27 from files opened in that session. No value here is from memory.
+# Read by prelim/p2_section.py; tests/task12_pd/test_p2_section.py checks the hashes.
+
+report:
+  number: "NACA Report 824 (TR-824)"
+  title_as_given_by_the_archive: "NACA TR 824"          # the archive's Readme.txt; the report itself was not opened
+  opened_in_this_session: false
+  why_not: >-
+    The report is a scan and its hosts were not reachable from the container on 2026-11-27. The points used
+    here were therefore not read from the report's figure by this project. They are a third party's
+    digitization of that figure (below).
+  blocked:                                              # host, what was tried, what came back
+    - {host: ntrs.nasa.gov, url: "https://ntrs.nasa.gov/api/citations/19930090976/downloads/19930090976.pdf",
+       tool: curl, error: "curl: (56) CONNECT tunnel failed, response 403 (egress proxy: connect_rejected)"}
+    - {host: ntrs.nasa.gov, url: "https://ntrs.nasa.gov/citations/19930090976",
+       tool: WebFetch, error: "getaddrinfo ENOTFOUND ntrs.nasa.gov (outside the session's allowed network domains)"}
+    - {host: archive.org, tool: curl, error: "no connection through the proxy (HTTP code 000)"}
+    - {host: web.archive.org, tool: curl, error: "no connection through the proxy (HTTP code 000)"}
+    - {host: digital.library.unt.edu, tool: curl, error: "no connection through the proxy (HTTP code 000)"}
+    - {host: naca.central.cranfield.ac.uk, tool: curl, error: "no connection through the proxy (HTTP code 000)"}
+    - {host: m-selig.ae.illinois.edu, tool: curl, error: "no connection through the proxy (HTTP code 000)"}
+    - {host: airfoiltools.com, tool: curl, error: "no connection through the proxy (HTTP code 000)"}
+  ntrs_document_id_from_web_search: "19930090976"       # a search result's link text, not a page that was opened
+
+digitization:
+  what: >-
+    Text files of the plotted points of NACA TR 824, one file per page of the report, made in 1994 by
+    Gregory P. D. Siemens at the University of Saskatchewan and declared public domain in the archive's
+    Readme.txt. Each file holds angle of attack against lift coefficient, angle of attack against moment
+    coefficient about the quarter chord, lift coefficient against drag coefficient, and lift coefficient
+    against moment coefficient about the aerodynamic centre.
+  repository: "https://github.com/enritoomey/Perfiles2D"
+  repository_licence: "MIT (file License of the repository)"
+  commit: "64511f3a404398b6637fae047e2747b99ab0bf53"
+  folder: "TR824-Digitized"
+  fetched: "2026-11-27, git clone --depth 1 through the session proxy"
+  files:
+    "142.ALL":
+      url: "https://github.com/enritoomey/Perfiles2D/blob/64511f3a404398b6637fae047e2747b99ab0bf53/TR824-Digitized/142.ALL"
+      committed_as: "data/task12/tr824_digitized/142.ALL"
+      sha256: "c6f95d8eb794a0277a8b9864a8b51a2e8fcf9608d86be39574fcf73bff89db70"
+      note: "byte for byte the same as TR824-Digitized/4415.txt of the same commit (cmp, 2026-11-27)"
+    "NACA.LST":
+      url: "https://github.com/enritoomey/Perfiles2D/blob/64511f3a404398b6637fae047e2747b99ab0bf53/TR824-Digitized/NACA.LST"
+      committed_as: "data/task12/tr824_digitized/NACA.LST"
+      sha256: "2d140795c8bf9c786d749ac24d84d09ddb4f12e9c52b522fe5ec66be85e7144d"
+    "Readme.txt":
+      url: "https://github.com/enritoomey/Perfiles2D/blob/64511f3a404398b6637fae047e2747b99ab0bf53/TR824-Digitized/Readme.txt"
+      committed_as: null                                # not committed: it carries a private e-mail address
+      sha256: "49e5118b9279d4aaa45e2c34c4c20da3f75ed51e78f7a582911754f7cb7eb2f5"
+
+sections:
+  naca4415:
+    file: "142.ALL"
+    page: 142            # NACA.LST: "NACA TR 824 lists these page numbers as being for the following airfoils ... 142.all NACA 4415"
+    page_checked_against_the_report: false
+    figure: null         # the archive gives no figure number and the report was not opened
+    # Readme.txt, note 2A: "There is potential for 6 Reynold's number ranges (approx. 3x10^6, 6x10^6, 9x10^6,
+    # 6x10^6 @ standard roughness and two ranges with a simple split flap)". Sets 7 to 12 are the moment
+    # curves of sets 1 to 6. The Reynolds numbers are the Readme's "approx." values, not read from the figure.
+    sets:
+      1: {reynolds: 3000000.0, surface: smooth}
+      2: {reynolds: 6000000.0, surface: smooth}
+      3: {reynolds: 9000000.0, surface: smooth}
+      4: {reynolds: 6000000.0, surface: standard roughness}
+      5: {reynolds: null, surface: "simple split flap (not used here: the aircraft has slotted flaps)"}
+  naca0012:
+    file: null
+    status: "not obtained"
+    reason: >-
+      NACA.LST of the archive lists the NACA 0006 and 0009 and no 0012, and the report could not be opened
+      to look for it. No measured 0012 data is used in P2.
+
+reading:
+  read_twice: false
+  how_read: >-
+    Not transcribed by hand at all. The committed file is the archive's file, byte for byte (sha256 above),
+    and the loader parses it. So there is no transcription step of this project that could be wrong, and
+    there is no second reading of the report's figure either: the digitizer's reading error is unknown.
+  uncertainty_method: >-
+    The scatter of the digitized lift points about a straight line fitted between -6 and +6 degrees is
+    computed in the run and reported as the reading scatter. It contains the tunnel's own scatter and any
+    curvature, so it over-states the digitizing error alone. The highest plotted point is taken as the
+    maximum lift; the test points are about 2 degrees apart, so a faired peak between two points could be
+    higher by an amount the points do not show.
+  to_close: >-
+    When ntrs.nasa.gov (or another host of the scan) is allowed: open page 142 of NACA Report 824, record
+    the figure number, and read the maximum lift, the minimum lift and five points of each lift curve twice
+    against this file.
