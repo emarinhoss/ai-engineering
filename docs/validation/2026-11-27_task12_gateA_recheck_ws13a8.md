@@ -12,7 +12,7 @@ Verdicts: `docs/reviews/2026-11-27_task12_gateB_ws13a8_review.md`, section 5, an
 | A5 | Structure sized for the larger of manoeuvre and gust at both altitudes | **pass** | `runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/design_pusher.json` |
 | A6 | Installed power at 20,000 ft meets climb and ceiling; production engine within the rubber engine's band; fixed-engine re-size recorded | **pass with caveat** | `runs/task12/stage3/2026-11-27/compliance_ws13a8/compliance.json` |
 | A7 | Every assumption has a source and a band; out-of-calibration uses listed | **pass with caveat** | `runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/ledger.yaml`, `runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/info_gap.json` |
-| A8 | Every Raymer equation used has a passing printed-value test | **pass on the reviewer's run; no record yet** | `runs/task12/stage3/2026-11-27/pytest_gate/summary.json` |
+| A8 | Every Raymer equation used has a passing printed-value test | **pass** | `runs/task12/stage3/2026-11-27/pytest_gate/summary.json` |
 | A9 | Concept choice justified by its scoring table; rejected concept kept | **inherited (B-9a)** | `runs/task12/stage1/2026-11-25/concept_scores.json`, `docs/validation/2026-11-25_task12_conceptual_m250_appl.md` |
 | A10 | Layout fits: tanks, payload bay, gear, CG range | **pass with caveat** | `runs/task12/stage3/2026-11-27/compliance_ws13a8/compliance.json` |
 | A11 | Every risk names how Stage 3 will measure it | **inherited (B-9a)** | `docs/validation/2026-11-25_task12_conceptual_m250_appl.md` |
@@ -121,9 +121,19 @@ Unbanded entries are as at earlier rounds, which passed A7.
 
 ## A8: Every Raymer equation used has a passing printed-value test
 
-Verdict: **pass on the reviewer's run; no record yet**. Review: pass on the reviewer's run (397 passed, 1 xfailed at 4ee2ae4), which was not a record; the recorded report is the pytest record below.
+Verdict: **pass**. Review: pass on the reviewer's run (397 passed, 1 xfailed at 4ee2ae4), which was not a record; the recorded report is the pytest record below.
 
-The reviewer's run is not a record and is not quoted as a value. The last earlier record is runs/task12/stage1/2026-11-25/test_report.txt. No pytest record existed when this file was generated.
+| Value | Quoted | Units | Read from |
+|---|---|---|---|
+| commit | bc8bf5ddd1023a3369258345c5801017ed873b07 |  | `runs/task12/stage3/2026-11-27/pytest_gate/summary.json` ['commit'] |
+| clean tree | True |  | `runs/task12/stage3/2026-11-27/pytest_gate/summary.json` ['clean_tree'] |
+| exit code | 0 |  | `runs/task12/stage3/2026-11-27/pytest_gate/summary.json` ['exit_code'] |
+| passed | 417 |  | `runs/task12/stage3/2026-11-27/pytest_gate/summary.json` ['passed'] |
+| failed | 0 |  | `runs/task12/stage3/2026-11-27/pytest_gate/summary.json` ['failed'] |
+| xfailed | 1 |  | `runs/task12/stage3/2026-11-27/pytest_gate/summary.json` ['xfailed'] |
+| duration | 385.231 | s | `runs/task12/stage3/2026-11-27/pytest_gate/summary.json` ['duration_s'] |
+
+The reviewer's run is not a record and is not quoted as a value. The last earlier record is runs/task12/stage1/2026-11-25/test_report.txt.
 
 ## A9: Concept choice justified by its scoring table; rejected concept kept
 

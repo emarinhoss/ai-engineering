@@ -1,7 +1,8 @@
 # Task 12 Stage 3 output: measured performance of the W/S 13, A 8 baseline (spec 7.3)
 
 Written by hand on 2026-11-27 from the records and generated reports listed in section 11. **No run was
-made for this report and no figure was made for it.** It replaces
+made for this report.** The figure, the Gate A record and the pytest record named in section 13 were made
+afterwards from existing records (ruling B-10). It replaces
 `docs/validation/2026-11-26_task12_performance.md`, which stays as the record of the superseded W/S 16,
 A 7 design.
 
@@ -251,7 +252,8 @@ entries. At h = 1 the search's worst case needs 1,065.6 lb of fuel for 3.5 h on 
 
 ### 3.2 Worst case against h
 
-Source: `info_gap.json`, `worst_case_curve`. **There is no figure of this curve** (GB-7, still open). The
+Source: `info_gap.json`, `worst_case_curve`. The figure of this curve is
+`runs/task12/stage3/2026-11-27/robustness_figure_ws13a8/robustness.png` (GB-7 closed, section 13). The
 table is the record.
 
 | h | Worst hours on station | Worst take-off over 50 ft (ft) | Worst landing over 50 ft (ft) |
@@ -885,7 +887,7 @@ only a package or a new row could show. A9 and A11 are inherited (B-9a).
 | # | Item | Review |
 |---|---|---|
 | 15 | The disk model is favourable in cruise (0.807 on this design against the old flat 0.80). It has no tip-Mach or off-design loss, uses the full disk area, and has no hub, spinner or pusher-fuselage blockage | APL-7, APL-9 |
-| 16 | One f is applied at every point, so the band cannot represent a propeller good in cruise and poor in climb. The ledger labels `prop_real_to_ideal` `confidence: published` although the band is a judgement | APL-6, S3A-8 |
+| 16 | One f is applied at every point, so the band cannot represent a propeller good in cruise and poor in climb. The ledger labelled `prop_real_to_ideal` `confidence: published` although the band is a judgement; relabelled `assumed` (B-10b, section 13) | APL-6, S3A-8 |
 | 17 | Static C_T/C_P is inert under App. L (`static_ct_over_cp` is in `inert_variables`), not "not varied" | APL-4 |
 | 18 | Climb speed at the worst endurance corner near the 20,000 ft stall: **not testable on this design**, because no decomposition was run on it (section 9, item 1) | S3A-1 |
 | 19 | Anderson's 0.62 route holds the disk efficiencies at the record weight (0.7936 and 0.7530) while W0 iterates. It is not self-consistent with the disk | S3A-5 |
@@ -898,10 +900,10 @@ only a package or a new row could show. A9 and A11 are inherited (B-9a).
 | 26 | Gust sensitivity: with the gust held at 30 ft/s the worst point (-2.841) is past 1.5 x -1.8 = -2.7 (arithmetic). No negative manoeuvre load is computed | W-5 |
 | 27 | A2: the build-up empty fraction 0.5455 is 0.030 above the Table 3.1 composite fit 0.5156 (arithmetic). No report explains the difference for this design | W review, section 5 |
 | 28 | A7: 58 of the 111 ledger entries have no band (19 requirements, 39 assumptions). The out-of-calibration list exists only in the 2026-11-25 package | W review, section 5 |
-| 29 | A8: there is no recorded test report at the gate commit. The last recorded count is 336 passed, 1 xfailed (`runs/task12/stage1/2026-11-25/test_report.txt`) | W review, section 5 |
+| 29 | A8: closed (B-10c). Recorded report at the gate commit: `runs/task12/stage3/2026-11-27/pytest_gate/` (section 13). The earlier last record was 336 passed, 1 xfailed (`runs/task12/stage1/2026-11-25/test_report.txt`) | W review, section 5 |
 | 30 | A10: no row has ever checked the payload-bay volume. There is no Stage 1 three-view of this design; the OpenVSP model is the only drawing | W review, section 5 |
 | 31 | Nose-wheel loads 0.1633 and 0.1515 are above the 0.08 to 0.15 optimum (inside the 5 to 20 % limits) | compliance report |
-| 32 | Figure of the worst-case curve: none (spec 7.3 asks for "the robustness curves") | GB-7 |
+| 32 | Figure of the worst-case curve: closed (B-10c), `runs/task12/stage3/2026-11-27/robustness_figure_ws13a8/` (section 13) | GB-7 |
 | 33 | Record hygiene. `aero.json`, `rotation.json` and `ground_effect_validation.json` carry a commit and no dirty-tree flag. The baseline's `info_gap.json` and `cell_result.json` have `git_dirty: true` with one untracked path, the run's own output folder. `runs/task12/openvsp/2026-11-27_m250_ws13a8/model.json` has `git_dirty: true` with no file list. The re-size record is as the baseline's | W-11 |
 | 34 | Info-gap exclusions as listed in section 3.6 | - |
 
@@ -910,8 +912,8 @@ only a package or a new row could show. A9 and A11 are inherited (B-9a).
 - **B-8** quotes the superseded design's nominal horizon, 0.198. The baseline's is 0.4135. B-9 restates
   B-4, G-2, B-5 and B-6 at the new values, and not B-8. The acknowledgement was made by reason ("what the
   restated R5 allows"), and the new value is larger. A one-line confirmation is for the owner.
-- **Ledger label.** `prop_real_to_ideal` is `confidence: published` while its band is a judgement
-  (item 16). Changing the label changes the ledger, so it is for the owner.
+- **Ledger label.** `prop_real_to_ideal` was `confidence: published` while its band is a judgement
+  (item 16). Closed by B-10b: relabelled `assumed` (section 13).
 
 ## 9. Not run on this design
 
@@ -923,7 +925,7 @@ said.
 1. **The App. L decomposition** (what the robust weight owes to the disk, climb leg by climb leg). The
    record `runs/task12/stage3/2026-11-26/appl_decomposition/` compares the flat and App. L baselines of
    the superseded cell. Section 5.4 of the 2026-11-26 report is therefore not carried over.
-2. **A figure of the worst-case curve.** The table in section 3.2 is the record.
+2. **A figure of the worst-case curve.** Now made (section 13). The table in section 3.2 is the record.
 3. **A Stage 1 package** for these sizes: three-view, weight statement, trade tables (including the
    composite-factor trade, which the code can now run), carpet plot, V-n diagram, out-of-calibration
    list, risk list (B-9a: entry item).
@@ -952,8 +954,8 @@ said.
     for the climb leg alone.
 20. FAR field-length factors on R7 (G-1: not applied by ruling).
 21. A payload-bay volume check.
-22. A recorded test report at the gate commit.
-23. A Gate A re-check as a generated record; it exists as a review section only.
+22. A recorded test report at the gate commit. Now made (section 13).
+23. A Gate A re-check as a generated record. Now made (section 13).
 
 ## 10. Numbers that differ between sources
 
@@ -995,6 +997,9 @@ listed so that nobody quotes the wrong one.
 | R6 sources | no run | `docs/validation/2026-11-24_task12_m250_r6_sources.md` |
 | Rulings | - | `docs/specs/00_decisions.md` section 9 |
 | Spec | - | `docs/specs/task12_drone_conceptual_design.md` sections 3, 7.1a to 7.4 |
+| Robustness figure | `runs/task12/stage3/2026-11-27/robustness_figure_ws13a8/` (`robustness.png`, `plotted_data.json`) | script `postprocess/task12_robustness_figure.py` |
+| Gate A re-check | `runs/task12/stage3/2026-11-27/gateA_recheck_ws13a8/gateA.json` | `docs/validation/2026-11-27_task12_gateA_recheck_ws13a8.md` |
+| Pytest at the gate commit | `runs/task12/stage3/2026-11-27/pytest_gate/` (`summary.json`, `junit.xml`, `pytest.log`) | - |
 | Reviews | - | `docs/reviews/2026-11-26_task12_gateB_performance_review.md` (GB-1 to GB-7); `docs/reviews/2026-11-27_task12_gateB_ws13a8_review.md` (W-1 to W-11, Gate A re-check) |
 
 ## 12. Earlier review items, and what was left out
@@ -1017,7 +1022,7 @@ listed so that nobody quotes the wrong one.
 | GB-4 (ruling list) | section 7 |
 | GB-5 (missing open items) | section 8.3 |
 | GB-6 (empty weight) | section 4.6, last paragraph; B-9g |
-| GB-7 (robustness curves) | still open: no figure (sections 3.2 and 9) |
+| GB-7 (robustness curves) | closed: figure of section 13 |
 
 ### 12.2 Items of the 2026-11-27 review (W)
 
@@ -1046,3 +1051,15 @@ No number in this report is untraced. The arithmetic done here is: the margins o
 (bracket width); 0.099 ft (fuselage term); 0.032 (rotation margin); 0.616 (0.5863 x 1.05); -2.7
 (1.5 x -1.8); 0.030 (0.5455 less 0.5156); 10.9, 20.2 and 75.2 kt (level top speed less V_C or V_D);
 0.039 (3.8 less 3.761); 0.461 (the superseded design's negative gust -1.239 against -1.7).
+
+## 13. Close-out of ruling B-10 (added 2026-11-27)
+
+No number above was changed. The three gaps of B-10c are closed from existing records, and the ledger
+label of B-10b is changed.
+
+| Gap or item | Closed by | What it shows |
+|---|---|---|
+| Robustness-curve figure (GB-7, spec 7.3) | `runs/task12/stage3/2026-11-27/robustness_figure_ws13a8/robustness.png`, data and source hashes in `plotted_data.json` | Plotted from `info_gap.json` `worst_case_curve` (8 stored horizons, h = 0 to 3) and `cell_result.json`. R5 worst endurance at the stored horizons up to 1.0501 against 3.5 h and h_T 1.05; R7 take-off and landing at the stored horizons. The transit-cliff ratio is stored at three horizons only (1, 1.05, 1.0924), so it is plotted as three points, not a curve. Horizons with no flyable mission or an unbounded field length are named on the axes, not plotted. Nothing is interpolated |
+| Gate A re-check as a record (B-10c) | `runs/task12/stage3/2026-11-27/gateA_recheck_ws13a8/gateA.json`; `docs/validation/2026-11-27_task12_gateA_recheck_ws13a8.md` | A1 to A12 with the verdicts of the review (section 5) and ruling B-9a; A9 and A11 inherited. Values are read from the records in code |
+| Recorded pytest report (A8) | `runs/task12/stage3/2026-11-27/pytest_gate/summary.json` | `tests/task12` at commit `bc8bf5d`, clean tree: 417 passed, 0 failed, 1 xfailed, exit code 0 |
+| Ledger label (B-10b, APL-6) | `data/task12/ledger.yaml`, `prop_real_to_ideal` | `confidence` changed from `published` to `assumed`, which is the ledger's label for a judgement (the ledger header defines it so; there is no label called judgement). Value 0.85 and band 0.80 to 0.90 unchanged. Older records keep their own ledger copies |

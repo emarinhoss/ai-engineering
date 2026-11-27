@@ -3,9 +3,8 @@
   "review": "docs/reviews/2026-11-27_task12_gateB_ws13a8_review.md",
   "rulings": "B-9a (A9 and A11 inherited), B-10c",
   "status_counts": {
-    "pass": 5,
+    "pass": 6,
     "pass with caveat": 4,
-    "pass on the reviewer's run; no record yet": 1,
     "inherited (B-9a)": 2
   },
   "items": [
@@ -542,14 +541,80 @@
     {
       "id": "A8",
       "item": "Every Raymer equation used has a passing printed-value test",
-      "status": "pass on the reviewer's run; no record yet",
+      "status": "pass",
       "review_verdict": "pass on the reviewer's run (397 passed, 1 xfailed at 4ee2ae4), which was not a record; the recorded report is the pytest record below",
       "records": [
         "runs/task12/stage3/2026-11-27/pytest_gate/summary.json"
       ],
-      "record_sha256": {},
-      "values": [],
-      "note": "The reviewer's run is not a record and is not quoted as a value. The last earlier record is runs/task12/stage1/2026-11-25/test_report.txt. No pytest record existed when this file was generated."
+      "record_sha256": {
+        "runs/task12/stage3/2026-11-27/pytest_gate/summary.json": "599826f35d322b08495a1ed1d34de5b14eac7492041413b17561aff045fa7495"
+      },
+      "values": [
+        {
+          "name": "commit",
+          "value": "bc8bf5ddd1023a3369258345c5801017ed873b07",
+          "units": "",
+          "source": "runs/task12/stage3/2026-11-27/pytest_gate/summary.json",
+          "key": [
+            "commit"
+          ]
+        },
+        {
+          "name": "clean tree",
+          "value": true,
+          "units": "",
+          "source": "runs/task12/stage3/2026-11-27/pytest_gate/summary.json",
+          "key": [
+            "clean_tree"
+          ]
+        },
+        {
+          "name": "exit code",
+          "value": 0,
+          "units": "",
+          "source": "runs/task12/stage3/2026-11-27/pytest_gate/summary.json",
+          "key": [
+            "exit_code"
+          ]
+        },
+        {
+          "name": "passed",
+          "value": 417,
+          "units": "",
+          "source": "runs/task12/stage3/2026-11-27/pytest_gate/summary.json",
+          "key": [
+            "passed"
+          ]
+        },
+        {
+          "name": "failed",
+          "value": 0,
+          "units": "",
+          "source": "runs/task12/stage3/2026-11-27/pytest_gate/summary.json",
+          "key": [
+            "failed"
+          ]
+        },
+        {
+          "name": "xfailed",
+          "value": 1,
+          "units": "",
+          "source": "runs/task12/stage3/2026-11-27/pytest_gate/summary.json",
+          "key": [
+            "xfailed"
+          ]
+        },
+        {
+          "name": "duration",
+          "value": 385.231,
+          "units": "s",
+          "source": "runs/task12/stage3/2026-11-27/pytest_gate/summary.json",
+          "key": [
+            "duration_s"
+          ]
+        }
+      ],
+      "note": "The reviewer's run is not a record and is not quoted as a value. The last earlier record is runs/task12/stage1/2026-11-25/test_report.txt."
     },
     {
       "id": "A9",
