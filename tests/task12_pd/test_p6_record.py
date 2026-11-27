@@ -41,7 +41,7 @@ def test_record_has_its_files_and_says_where_it_comes_from(p):
         assert p6.sha256(p6.REPO / path) == i["sha256"][key], path
     assert p["baseline"] == "runs/task12/pd/2026-11-27/p0/r0" and len(p["acceptance"]) == 9
     assert p["source"] == json.loads(json.dumps(yaml.safe_load(p6.SOURCE.read_text())))
-    assert p["blade_ledger"] == p6.blade_ledger() and p["targets"] == pytest.approx(p6.record_targets())
+    assert p["blade_ledger"] == p6.blade_ledger() and p["targets"] == json.loads(json.dumps(p6.record_targets()))
     for r in p["source"]["reports"].values():
         if isinstance(r, dict):
             assert r["opened_in_this_session"] is True and r["pdf_committed"] is False and len(r["pdf_sha256"]) == 64
