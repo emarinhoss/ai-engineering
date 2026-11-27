@@ -490,3 +490,21 @@ Stage 1 (S3M-8) and that an independent neutral point is needed.
   items A1 to A12 are re-checked before the pass.
 - **B-8 (8 h nominal).** The nominal's small robustness (horizon 0.198) is acknowledged as what the
   restated R5 of 2026-11-22 allows; no new target.
+
+### Preliminary design started (2026-11-27, after B-11)
+
+- **PD-start (2026-11-27).** Owner instruction after the Gate B pass (Éder, 2026-11-27): "Continue with the design.
+  Make common sense assumptions and document your choices. Only prompt for my input if absolutely necessary."
+  Preliminary design of the W/S 13, A 8 baseline starts under the assumptions PD-1 to PD-17 of
+  `docs/specs/task12_preliminary_design.md` section 2. They are the agent's assumptions, not owner rulings; they
+  stand in for rulings until the owner overrides them, and Gate C (section 4 of that spec, item C13) asks him to
+  confirm or change them. In short: no rented compute and no 3D CFD, with 2D SU2 polars queued for Colab without
+  blocking (PD-1); matplotlib only (PD-2); the configuration stays frozen and only sizes and details change (PD-3);
+  no full study of W/S 13, A 7, which is the named fallback (PD-4); wing section NACA 4415 unless its test rejects
+  it, measured open data before computed polars (PD-5, PD-6); one preliminary-design baseline record r0 and one
+  closing re-record r1 (PD-7); the ruled gust rule stays (PD-8); structures limited to the wing spar (PD-9); one
+  representative blade-element propeller (PD-10); envelope protection as a requirement, not a control law (PD-11);
+  payload bay at 30 lb/ft^3 (PD-12); lightest weight for loads is zero-fuel with the payload on (PD-13); numpy,
+  scipy and matplotlib only (PD-14); spec 7.1a tolerances carry over (PD-15); R1 to R19 and the standing rulings
+  unchanged (PD-16); same branch and model allocation (PD-17). Work packages P0 to P10 and Gate C are in that
+  spec. Owner items O-1 to O-3 there each have a default; none blocks the work. Nothing was run for this entry.
