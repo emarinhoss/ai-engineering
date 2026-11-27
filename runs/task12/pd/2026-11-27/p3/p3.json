@@ -1,0 +1,1787 @@
+{
+ "inputs": {
+  "commit": "cfae30868196484f18cf31d9cc7997887527ec37",
+  "git_dirty": false,
+  "git_dirty_files": [],
+  "excluded": "runs/task12/pd/2026-11-27/p3",
+  "command": "python -m prelim.p3_loft --out runs/task12/pd/2026-11-27/p3 --openvsp-python /tmp/claude-0/-home-user/d15a4c10-d7a3-5006-96e8-4d0a5f6097f0/scratchpad/vspenv/bin/python",
+  "seed": null,
+  "seed_note": "no random numbers are drawn in P3",
+  "python": "3.13.18",
+  "numpy": "2.5.3",
+  "scipy": "1.18.1",
+  "pyyaml": "6.0.3",
+  "matplotlib": "3.11.2",
+  "files": {
+   "r0_design": "runs/task12/pd/2026-11-27/p0/r0/design_pusher.json",
+   "r0_ledger": "runs/task12/pd/2026-11-27/p0/r0/ledger.yaml",
+   "arrangement": "data/task12/pd_p3_arrangement.yaml",
+   "tail_section_source": "data/task12/pd_p3_tail_section_source.yaml"
+  },
+  "sha256": {
+   "r0_design": "2af85aca9acd46a527342765735f3cb2dd7f4e9846ef81f7b9973022ed8261a0",
+   "r0_ledger": "a3b88c45e6cb182dce8b2c57b1f6e0c1825272ab69d661251f82e70f7c952cbe",
+   "arrangement": "2e57c5a7629036e56410fe70926ee5be99c3b3a372e61959337c73f901f24cb7",
+   "tail_section_source": "622001997e1075772786b44feb686ff1e15d6e280130b93e12555732bad82362"
+  },
+  "tree_unchanged_during_run": true
+ },
+ "evidence_class": "layout construction for the geometry; the area and volume rows integrate a surface instead of using a factor, so they are independent of Stage 1's formulas (spec P3). The tail section data are measured values of NACA Report 586, independent of Stage 1 and of the library",
+ "baseline": "runs/task12/pd/2026-11-27/p0/r0",
+ "arrangement": {
+  "loft": {
+   "wing_z_over_diameter": -0.1,
+   "tail_z_over_diameter": 0.3,
+   "fin_root_z_over_stage1_radius": 0.6,
+   "fin_le_slope": 0.35,
+   "leading_edges_unswept": true,
+   "sponson_semi_axes_over_size": [
+    0.5,
+    0.45,
+    0.5
+   ],
+   "sponson_centre_ahead_of_main_wheel_over_length": 0.3,
+   "sponson_centre_below_wing_over_depth": 0.45,
+   "turret_radius_ft": 0.45,
+   "propeller_plane_behind_fuselage_ft": 0.15,
+   "spinner_diameter_over_propeller": {
+    "value": 0.2,
+    "band": [
+     0.15,
+     0.25
+    ],
+    "source": "End section of the fuselage and base of the spinner as a share of the propeller diameter; a judgement (Stage 1's body ends at 15 % of the fuselage diameter, which no hub fits)"
+   },
+   "spinner_length_over_diameter": 0.75,
+   "nose_length_over_length": 0.2,
+   "fuselage_stations": [
+    [
+     0.0,
+     1.0,
+     1.0,
+     1.0,
+     0.4142135623730951
+    ],
+    [
+     0.06,
+     1.0,
+     1.0,
+     1.0,
+     0.7
+    ],
+    [
+     0.27,
+     1.0,
+     1.0,
+     1.0,
+     0.7
+    ],
+    [
+     0.36,
+     1.0,
+     1.0,
+     1.0,
+     0.4142135623730951
+    ],
+    [
+     0.6,
+     1.0,
+     1.0,
+     1.0,
+     0.4142135623730951
+    ],
+    [
+     0.81,
+     0.616,
+     0.717,
+     0.717,
+     0.65
+    ],
+    [
+     0.95,
+     0.616,
+     0.717,
+     0.717,
+     0.65
+    ],
+    [
+     1.0,
+     null,
+     null,
+     null,
+     0.4142135623730951
+    ]
+   ]
+  },
+  "arrangement": {
+   "box_clearance_in": {
+    "value": 1.0,
+    "band": [
+     0.5,
+     2.0
+    ],
+    "source": "Least distance from any box to the outer skin, for skin and frame depth. The spec's gate 4 names 'the ledger's clearance'; the ledger has no such entry, so it is set here; a judgement"
+   },
+   "payload_density_lb_ft3": {
+    "value": 30.0,
+    "band": [
+     30.0,
+     45.0
+    ],
+    "source": "PD-12; Raymer p. 256 as cited there"
+   },
+   "avionics_density_lb_ft3": {
+    "value": 30.0,
+    "band": [
+     30.0,
+     45.0
+    ],
+    "source": "Installed flight avionics at the same density as PD-12, as the P1 first check did"
+   },
+   "front_spar_chord_fraction": {
+    "value": 0.15,
+    "band": [
+     0.12,
+     0.25
+    ],
+    "source": "Front spar; the rear spar is this plus the ledger's wing_tank_chord_fraction (0.45). A judgement; P7 uses the same"
+   },
+   "engine_envelope_in": [
+    44.924,
+    18.784,
+    22.596
+   ],
+   "engine_centre_z_ft": 0.0,
+   "nose_gear_pivot_z_ft": -0.6,
+   "gear_bay_gap_in": 0.6,
+   "payload_bay_forward": [
+    1.8,
+    3.3,
+    1.0,
+    -0.38,
+    0.97
+   ],
+   "payload_bay_aft": [
+    3.3,
+    6.42,
+    1.35,
+    -0.38,
+    1.17
+   ],
+   "avionics_bay": [
+    6.5,
+    7.85,
+    1.3,
+    0.16,
+    1.25
+   ]
+  }
+ },
+ "tail_source": {
+  "why": "PD-5 fixes the tails as NACA 0012. NACA Report 824 has no characteristics page for the 0012 (its list of section pages, data/task12/tr824_digitized/NACA.LST, runs 0006, 0009, 1408, ...), so P2 transcribed none. P4 (tail lift slope, trim and rotation limits) and P5 (negative manoeuvre) need them.",
+  "reports": {
+   "tr586": {
+    "number": "NACA Report 586 (NACA-TR-586)",
+    "title": "Airfoil Section Characteristics as Affected by Variations of the Reynolds Number",
+    "authors": "Eastman N. Jacobs, Albert Sherman",
+    "year": 1937,
+    "ntrs_id": "19930091662",
+    "url": "https://ntrs.nasa.gov/api/citations/19930091662/downloads/19930091662.pdf",
+    "pdf_sha256": "a48dbddbad04b23525d91feb62b65f8977f91c97d6ac17f0f49d9e57aefa2f70",
+    "pdf_bytes": 38455528,
+    "pdf_pages": 46,
+    "pdf_committed": false,
+    "opened": "2026-11-27, curl through the session proxy"
+   },
+   "tr460": {
+    "number": "NACA Report 460 (NACA-TR-460)",
+    "title": "The characteristics of 78 related airfoil sections from tests in the variable-density wind tunnel",
+    "authors": "Eastman N. Jacobs, Kenneth E. Ward, Robert M. Pinkerton",
+    "year": 1933,
+    "ntrs_id": "19930091108",
+    "found_by": "https://ntrs.nasa.gov/api/citations/search?q=%22characteristics of 78 related airfoil sections%22",
+    "url": "https://ntrs.nasa.gov/api/citations/19930091108/downloads/19930091108.pdf",
+    "pdf_sha256": "ed7f7a0c24f95bf62c3a66868765f6f6a2b6430c4bd79299724fb001201c7d41",
+    "pdf_bytes": 6126770,
+    "pdf_pages": 61,
+    "pdf_committed": false,
+    "opened": "2026-11-27, curl through the session proxy"
+   },
+   "tr824": {
+    "number": "NACA Report 824 (NACA-TR-824)",
+    "ntrs_id": "19930090976",
+    "url": "https://ntrs.nasa.gov/api/citations/19930090976/downloads/19930090976.pdf",
+    "pdf_sha256": "9f27283b704821192fc9dba4ed625f62002903b5127bc869cd04ac0a5cc54efd",
+    "opened": "2026-11-27, downloaded again for P3"
+   }
+  },
+  "section_equations": {
+   "thickness": {
+    "source": "Report 460, printed p. 4 (PDF page 6), and Fig. 1 on the same page",
+    "form": "+-y_t = (t/0.20) (a0 sqrt(x) + a1 x + a2 x^2 + a3 x^3 + a4 x^4)",
+    "coefficients": [
+     0.2969,
+     -0.126,
+     -0.3516,
+     0.2843,
+     -0.1015
+    ],
+    "note": "The trailing edge of this equation is not closed (ordinate 0.210 per cent of the chord at x = 1 for the 20 per cent section). The loft keeps it and closes the section with a flat base."
+   },
+   "mean_line": {
+    "source": "Report 460, printed p. 5 (PDF page 7)",
+    "form": "ahead of p: y_c = m/p^2 (2 p x - x^2); behind p: y_c = m/(1-p)^2 ((1 - 2p) + 2 p x - x^2)"
+   },
+   "combination": {
+    "source": "Report 460, printed p. 5, Fig. 2; the same in Report 824, printed p. 4 (PDF page 9), equations (1) to (4)",
+    "form": "x_u = x - y_t sin(theta), y_u = y_c + y_t cos(theta), x_l = x + y_t sin(theta), y_l = y_c - y_t cos(theta)"
+   },
+   "report_824_does_not_print_the_polynomial": "Report 824, printed p. 4-5, gives the combination rule, the numbering system and tables of ordinates in its supplementary figures, and names Report 460 as its reference 1 for the four-digit series. The thickness polynomial itself is printed in Report 460, which is therefore the source cited in geometry3d/sections.py.",
+   "basic_ordinates_20_percent": {
+    "station_percent": [
+     0,
+     1.25,
+     2.5,
+     5.0,
+     7.5,
+     10,
+     15,
+     20,
+     25,
+     30,
+     40,
+     50,
+     60,
+     70,
+     80,
+     90,
+     95,
+     100
+    ],
+    "ordinate_percent": [
+     0,
+     3.157,
+     4.358,
+     5.925,
+     7.0,
+     7.805,
+     8.909,
+     9.563,
+     9.902,
+     10.003,
+     9.672,
+     8.823,
+     7.606,
+     6.107,
+     4.372,
+     2.413,
+     1.344,
+     0.21
+    ],
+    "reading_uncertainty": 0.0005,
+    "le_radius_percent": 4.4
+   },
+   "naca0012_ordinates": {
+    "station_percent": [
+     0,
+     1.25,
+     2.5,
+     5.0,
+     7.5,
+     10,
+     15,
+     20,
+     25,
+     30,
+     40,
+     50,
+     60,
+     70,
+     80,
+     90,
+     95,
+     100
+    ],
+    "ordinate_percent": [
+     0,
+     1.894,
+     2.615,
+     3.555,
+     4.2,
+     4.683,
+     5.345,
+     5.738,
+     5.941,
+     6.002,
+     5.803,
+     5.294,
+     4.563,
+     3.664,
+     2.623,
+     1.448,
+     0.807,
+     0.126
+    ],
+    "reading_uncertainty": 0.001,
+    "le_radius_percent": 1.58
+   }
+  },
+  "naca0012": {
+   "source": "Report 586, Table I, 'Important airfoil section characteristics', printed p. 39 (PDF page 44); rows of the N.A.C.A. 0012",
+   "cross_check": "Report 586, Table II, printed p. 41 (PDF page 46), row 0012 at R_e 8.37 million: c_l max 1.66, a_0 0.099, c_d0 min 0.0069, c_m a.c. 0, a.c. 0.6 ahead and 3 above; equal to the first row below",
+   "figure": "Report 586, Fig. 3, printed p. 5 (PDF page 10): the test curves the table summarises (test Reynolds numbers 3,180,000 to 170,000)",
+   "tunnel": "N.A.C.A. variable-density tunnel, 5 in by 30 in rectangular model, tests V.D.T. 1237-8, March 1935",
+   "reynolds_number_is": "the effective Reynolds number R_e of the report: the test Reynolds number times the tunnel's turbulence factor 2.64 (Table II, footnote 4). The report's method is to use R_e as the flight Reynolds number.",
+   "read": "twice: the whole page at 130 dpi, then the rows alone at 400 dpi. The two readings agree in every digit.",
+   "reading_uncertainty": "a printed table: half of the last printed digit (0.0005 in a_0, 0.005 in c_l max, 0.00005 in c_d0 min)",
+   "columns": [
+    "reynolds_millions",
+    "alpha_l0_deg",
+    "a0_per_deg",
+    "cl_max",
+    "peak_type",
+    "cl_opt",
+    "cd0_min",
+    "cm_ac",
+    "ac_x_percent",
+    "ac_y_percent"
+   ],
+   "rows": [
+    [
+     8.37,
+     0,
+     0.099,
+     1.66,
+     "A",
+     0,
+     0.0069,
+     0,
+     0.6,
+     3
+    ],
+    [
+     8.45,
+     0,
+     0.1,
+     1.65,
+     "A",
+     0,
+     0.0069,
+     0,
+     0.6,
+     3
+    ],
+    [
+     6.28,
+     0,
+     0.097,
+     1.62,
+     "A",
+     0,
+     0.0073,
+     0,
+     0.8,
+     3
+    ],
+    [
+     3.54,
+     0,
+     0.097,
+     1.49,
+     "A",
+     0,
+     0.0077,
+     0,
+     1.0,
+     4
+    ],
+    [
+     1.74,
+     0,
+     0.096,
+     1.18,
+     "A",
+     0,
+     0.0075,
+     0,
+     1.1,
+     3
+    ],
+    [
+     0.871,
+     0,
+     0.094,
+     0.91,
+     "D",
+     0,
+     0.0065,
+     null,
+     null,
+     null
+    ],
+    [
+     0.449,
+     0,
+     0.098,
+     0.89,
+     "D",
+     0,
+     0.0105,
+     null,
+     null,
+     null
+    ]
+   ],
+   "peak_type": "A: lift falls abruptly after the peak; D: rounded peak (sketches under Table I)",
+   "negative_cl_max": "Not measured: the report's tests are at positive angles. The section is symmetrical, so the negative maximum lift is taken as minus the positive one. This is a property of the shape, not a reading.",
+   "caveats": [
+    "Old tunnel: the variable-density tunnel's stream was turbulent. Its minimum drag is higher than a low-turbulence tunnel gives, and Report 824 exists because of that. Use c_d0 min as an upper reading.",
+    "Smooth model. No roughness data for the 0012 in this report.",
+    "The table gives no curve points; angles of stall and the shape after the peak are in Fig. 3 only and were not digitized."
+   ]
+  }
+ },
+ "r0": {
+  "W0_lb": 3517.2502473171944,
+  "fuel_lb": 1098.6876236696955,
+  "wing": {
+   "area": 270.55771133209186,
+   "aspect_ratio": 8.0,
+   "taper": 0.45,
+   "span": 46.5237755417242,
+   "root_chord": 8.021340610642103,
+   "tip_chord": 3.609603274788946,
+   "mac": 6.094374877740723,
+   "mac_y": 10.160364773479998
+  },
+  "fuselage": {
+   "length": 28.583024976604843,
+   "diameter": 3.5728781220756054,
+   "s_wet": 277.77636771649355
+  },
+  "stations": {
+   "fuselage": {
+    "weight": 224.57583800081332,
+    "x": 12.862361239472179
+   },
+   "nose_gear": {
+    "weight": 95.03651255434646,
+    "x": 1.1433209990641937
+   },
+   "installed_engine": {
+    "weight": 296.79999999999995,
+    "x": 25.15306197941226
+   },
+   "flight_controls": {
+    "weight": 66.25641819404993,
+    "x": 15.720663737132664
+   },
+   "hydraulics": {
+    "weight": 3.5172502473171945,
+    "x": 12.862361239472179
+   },
+   "avionics": {
+    "weight": 96.54637556475544,
+    "x": 6.002435245087017
+   },
+   "electrical": {
+    "weight": 182.29685030713478,
+    "x": 12.862361239472179
+   },
+   "payload": {
+    "weight": 500.0,
+    "x": 2.8583024976604845
+   },
+   "wing": {
+    "weight": 429.40330251299406,
+    "x": 11.60109659861494
+   },
+   "horizontal_tail": {
+    "weight": 97.21189261813394,
+    "x": 25.169187715834287
+   },
+   "vertical_tail": {
+    "weight": 30.82676155926583,
+    "x": 25.037334681450343
+   },
+   "fuel_system": {
+    "weight": 92.83660862140515,
+    "x": 11.60109659861494
+   },
+   "sponsons": {
+    "weight": 80.21153184594998,
+    "x": 11.60109659861494
+   },
+   "main_gear": {
+    "weight": 223.04165333620932,
+    "x": 14.045396297898336
+   }
+  },
+  "layout_x": {
+   "x_le": 9.163346647518651,
+   "x_main": 14.045396297898336,
+   "cg_full": 11.938104206344661,
+   "cg_empty": 12.091197755940955,
+   "x_np": 12.624088468916879
+  }
+ },
+ "loft": {
+  "fuselage_stations_ft": [
+   [
+    0.0,
+    1.7864390610378027,
+    1.7864390610378027,
+    1.7864390610378027,
+    0.4142135623730951
+   ],
+   [
+    1.7149814985962906,
+    1.7864390610378027,
+    1.7864390610378027,
+    1.7864390610378027,
+    0.7
+   ],
+   [
+    7.717416743683308,
+    1.7864390610378027,
+    1.7864390610378027,
+    1.7864390610378027,
+    0.7
+   ],
+   [
+    10.289888991577744,
+    1.7864390610378027,
+    1.7864390610378027,
+    1.7864390610378027,
+    0.4142135623730951
+   ],
+   [
+    17.149814985962905,
+    1.7864390610378027,
+    1.7864390610378027,
+    1.7864390610378027,
+    0.4142135623730951
+   ],
+   [
+    23.152250231049923,
+    1.1004464615992864,
+    1.2808768067641045,
+    1.2808768067641045,
+    0.65
+   ],
+   [
+    27.1538737277746,
+    1.1004464615992864,
+    1.2808768067641045,
+    1.2808768067641045,
+    0.65
+   ],
+   [
+    28.583024976604843,
+    0.6908669027395362,
+    0.6908669027395362,
+    0.6908669027395362,
+    0.4142135623730951
+   ]
+  ],
+  "spinner_radius_ft": 0.6908669027395362,
+  "ground_z_ft": -7.293168246661962,
+  "propeller": {
+   "x": 28.733024976604842,
+   "z": 0.0,
+   "radius": 3.4543345136976806
+  },
+  "tyre_main_ft": {
+   "diameter": 1.645855902745632,
+   "width": 0.5933931381425043
+  },
+  "tyre_nose_ft": {
+   "diameter": 1.3166847221965057,
+   "width": 0.47471451051400343
+  },
+  "sections": {
+   "wing": "4415",
+   "tails": "0012"
+  },
+  "surfaces": {
+   "wing": {
+    "x_le": 9.163346647518651,
+    "z0": -0.35728781220756056,
+    "half_span": 23.2618877708621,
+    "c_root": 8.021340610642103,
+    "c_tip": 3.609603274788946,
+    "le_slope": 0.0,
+    "vertical": false
+   },
+   "horizontal_tail": {
+    "x_le": 22.755026422519208,
+    "z0": 1.0718634366226816,
+    "half_span": 11.639706235626269,
+    "c_root": 7.7598041570841785,
+    "c_tip": 3.8799020785420892,
+    "le_slope": 0.0,
+    "vertical": false
+   },
+   "vertical_tail": {
+    "x_le": 22.97478147982578,
+    "z0": 0.6076864191429839,
+    "half_span": 7.45833970230312,
+    "c_root": 6.629635290936107,
+    "c_tip": 3.3148176454680534,
+    "le_slope": 0.35,
+    "vertical": true
+   }
+  },
+  "ellipsoids": {
+   "sponson_left": {
+    "centre": [
+     12.267871922933052,
+     -4.730617281775245,
+     -1.246049999690202
+    ],
+    "a": 2.9625406249421378,
+    "b": 0.8887621874826414,
+    "c": 0.9875135416473793
+   },
+   "sponson_right": {
+    "centre": [
+     12.267871922933052,
+     4.730617281775245,
+     -1.246049999690202
+    ],
+    "a": 2.9625406249421378,
+    "b": 0.8887621874826414,
+    "c": 0.9875135416473793
+   },
+   "turret": {
+    "centre": [
+     2.8583024976604845,
+     0.0,
+     -1.7864390610378027
+    ],
+    "a": 0.45,
+    "b": 0.45,
+    "c": 0.45
+   },
+   "spinner": {
+    "centre": [
+     28.583024976604843,
+     0.0,
+     0.0
+    ],
+    "a": 1.0363003541093043,
+    "b": 0.6908669027395362,
+    "c": 0.6908669027395362
+   }
+  }
+ },
+ "stl": {
+  "file": "loft.stl",
+  "sha256": "8aa350f08ad90b2fc3c3212856fd95dc6d511f349c606bc4e8e6e21422caa0e5",
+  "bytes": 5170815
+ },
+ "openvsp_python": "/tmp/claude-0/-home-user/d15a4c10-d7a3-5006-96e8-4d0a5f6097f0/scratchpad/vspenv/bin/python",
+ "gates": {
+  "1": {
+   "parts": {
+    "fuselage": {
+     "triangles": 6400,
+     "edges": 9600,
+     "edges_repeated": 0,
+     "edges_unmatched": 0,
+     "zero_area_triangles": 0,
+     "volume_ft3": 234.92808122851133,
+     "ok": true
+    },
+    "wing": {
+     "triangles": 4266,
+     "edges": 6399,
+     "edges_repeated": 0,
+     "edges_unmatched": 0,
+     "zero_area_triangles": 0,
+     "volume_ft3": 169.7217540027937,
+     "ok": true
+    },
+    "horizontal_tail": {
+     "triangles": 3046,
+     "edges": 4569,
+     "edges_repeated": 0,
+     "edges_unmatched": 0,
+     "zero_area_triangles": 0,
+     "volume_ft3": 67.10164912726854,
+     "ok": true
+    },
+    "vertical_tail": {
+     "triangles": 1582,
+     "edges": 2373,
+     "edges_repeated": 0,
+     "edges_unmatched": 0,
+     "zero_area_triangles": 0,
+     "volume_ft3": 15.692100925619698,
+     "ok": true
+    },
+    "sponson_left": {
+     "triangles": 480,
+     "edges": 720,
+     "edges_repeated": 0,
+     "edges_unmatched": 0,
+     "zero_area_triangles": 0,
+     "volume_ft3": 10.511597719054825,
+     "ok": true
+    },
+    "sponson_right": {
+     "triangles": 480,
+     "edges": 720,
+     "edges_repeated": 0,
+     "edges_unmatched": 0,
+     "zero_area_triangles": 0,
+     "volume_ft3": 10.511597719054771,
+     "ok": true
+    },
+    "turret": {
+     "triangles": 480,
+     "edges": 720,
+     "edges_repeated": 0,
+     "edges_unmatched": 0,
+     "zero_area_triangles": 0,
+     "volume_ft3": 0.36839466300311613,
+     "ok": true
+    },
+    "spinner": {
+     "triangles": 480,
+     "edges": 720,
+     "edges_repeated": 0,
+     "edges_unmatched": 0,
+     "zero_area_triangles": 0,
+     "volume_ft3": 1.9996326076464495,
+     "ok": true
+    }
+   },
+   "failing": [],
+   "verdict": "pass"
+  },
+  "2": {
+   "circle_radius_error_exact_rho": 2.220446049250313e-16,
+   "circle_radius_error_printed_rho": 9.590045984331219e-06,
+   "parabola_error": 2.220446049250313e-16,
+   "mac_ft": 6.094374877740725,
+   "mac_y_ft": 10.16036477348,
+   "area_ft2": 270.5577113320918,
+   "mac_rel": 2.220446049250313e-16,
+   "mac_y_rel": 2.220446049250313e-16,
+   "area_rel": -2.220446049250313e-16,
+   "verdict": "pass"
+  },
+  "3": {
+   "components": {
+    "wing": {
+     "loft_wetted_ft2": 496.2217510847697,
+     "loft_whole_ft2": 562.2455040371256,
+     "stage1_ft2": 497.10129205172797,
+     "loft_over_stage1": -0.0017693395310400817,
+     "raymer_form_on_loft_ft2": 499.6655439642204,
+     "loft_over_raymer_form": -0.006892196032026732,
+     "verdict": "pass"
+    },
+    "fuselage": {
+     "loft_wetted_ft2": 266.1191754050858,
+     "loft_whole_ft2": 294.39745990828226,
+     "stage1_ft2": 277.77636771649355,
+     "loft_over_stage1": -0.04196610535027734,
+     "raymer_form_on_loft_ft2": 296.2401997720629,
+     "loft_over_raymer_form": -0.10167770744872984,
+     "verdict": "pass"
+    },
+    "horizontal_tail": {
+     "loft_wetted_ft2": 265.5596624329437,
+     "loft_whole_ft2": 279.1638221979389,
+     "stage1_ft2": 276.30354329667017,
+     "loft_over_stage1": -0.03888433979361117,
+     "raymer_form_on_loft_ft2": 258.0649133370477,
+     "loft_over_raymer_form": 0.02904210804553431,
+     "verdict": "pass"
+    },
+    "vertical_tail": {
+     "loft_wetted_ft2": 66.9879483807371,
+     "loft_whole_ft2": 80.34890079868227,
+     "stage1_ft2": 75.63023958388737,
+     "loft_over_stage1": -0.11427031370916707,
+     "raymer_form_on_loft_ft2": 68.78249491888323,
+     "loft_over_raymer_form": -0.02609016349672233,
+     "verdict": "fail"
+    },
+    "sponsons": {
+     "loft_wetted_ft2": 47.03290253869907,
+     "loft_whole_ft2": 56.29140761990365,
+     "stage1_ft2": 63.65994590948411,
+     "loft_over_stage1": -0.2611853204278003,
+     "raymer_form_on_loft_ft2": null,
+     "loft_over_raymer_form": null,
+     "verdict": "fail"
+    }
+   },
+   "parts": {
+    "fuselage": {
+     "whole_ft2": 294.39745990828226,
+     "wetted_ft2": 266.1191754050858
+    },
+    "wing": {
+     "whole_ft2": 562.2455040371256,
+     "wetted_ft2": 496.2217510847697
+    },
+    "horizontal_tail": {
+     "whole_ft2": 279.1638221979389,
+     "wetted_ft2": 265.5596624329437
+    },
+    "vertical_tail": {
+     "whole_ft2": 80.34890079868227,
+     "wetted_ft2": 66.9879483807371
+    },
+    "sponson_left": {
+     "whole_ft2": 28.145703809951826,
+     "wetted_ft2": 23.60584174916454
+    },
+    "sponson_right": {
+     "whole_ft2": 28.145703809951826,
+     "wetted_ft2": 23.42706078953453
+    },
+    "turret": {
+     "whole_ft2": 2.5000898404644856,
+     "wetted_ft2": 1.9417257670983414
+    },
+    "spinner": {
+     "whole_ft2": 7.949707541013048,
+     "wetted_ft2": 3.869889410735016
+    }
+   },
+   "exposed_planform_ft2": {
+    "wing": 243.14625010424348,
+    "horizontal_tail": 126.53962603562209,
+    "vertical_tail": 33.72682892952987
+   },
+   "tolerance": 0.05,
+   "fuselage_projected_ft2": {
+    "top": 85.70987061999382,
+    "side": 88.54907042239611,
+    "fill_top": 0.8392753134576343,
+    "fill_side": 0.8670768990497396
+   },
+   "total_loft_ft2": 1141.9214398422355,
+   "total_stage1_ft2": 1190.4713885582632,
+   "failing": [
+    "vertical_tail",
+    "sponsons"
+   ],
+   "verdict": "fail"
+  },
+  "4": {
+   "tank": {
+    "gross_ft3": 80.28416471776774,
+    "usable_ft3": 68.24154001010257,
+    "needed_ft3": 21.921368942414635,
+    "stage1_claim_ft3": 73.1687706763378,
+    "usable_over_claim": -0.0673406238848927,
+    "margin_ft3": 46.32017106768794,
+    "span_stations_ft": [
+     1.7864390610378027,
+     18.60951021668968
+    ],
+    "verdict": "pass"
+   },
+   "fuselage_volume": {
+    "by_sections_ft3": 236.27942164670597,
+    "by_surface_ft3": 234.92808122851133,
+    "raymer_7_13_ft3": 225.69689419824746,
+    "sections_over_surface": 0.005752145129386266
+   },
+   "boxes": {
+    "engine": {
+     "lo": [
+      23.281228646078926,
+      -0.7826666666666666,
+      -0.9415
+     ],
+     "hi": [
+      27.024895312745596,
+      0.7826666666666666,
+      0.9415
+     ],
+     "volume_ft3": 11.034542356444453,
+     "inside": "fuselage",
+     "clearance_in": 1.44140625,
+     "verdict": "pass"
+    },
+    "payload_bay_forward": {
+     "lo": [
+      1.8,
+      -1.0,
+      -0.38
+     ],
+     "hi": [
+      3.3,
+      1.0,
+      0.97
+     ],
+     "volume_ft3": 4.05,
+     "inside": "fuselage",
+     "clearance_in": 1.1484375,
+     "verdict": "pass"
+    },
+    "payload_bay_aft": {
+     "lo": [
+      3.3,
+      -1.35,
+      -0.38
+     ],
+     "hi": [
+      6.42,
+      1.35,
+      1.17
+     ],
+     "volume_ft3": 13.0572,
+     "inside": "fuselage",
+     "clearance_in": 1.1015625,
+     "verdict": "pass"
+    },
+    "avionics_bay": {
+     "lo": [
+      6.5,
+      -1.3,
+      0.16
+     ],
+     "hi": [
+      7.85,
+      1.3,
+      1.25
+     ],
+     "volume_ft3": 3.8258999999999994,
+     "inside": "fuselage",
+     "clearance_in": 2.7421875,
+     "verdict": "pass"
+    },
+    "nose_gear_leg_1": {
+     "lo": [
+      0.9683209990641937,
+      -0.175,
+      -0.7749999999999999
+     ],
+     "hi": [
+      3.831562761296922,
+      0.175,
+      -0.425
+     ],
+     "volume_ft3": 0.35074711587350904,
+     "inside": "fuselage",
+     "clearance_in": 1.62890625,
+     "verdict": "pass"
+    },
+    "nose_gear_leg_2": {
+     "lo": [
+      3.831562761296922,
+      -0.175,
+      -0.7749999999999999
+     ],
+     "hi": [
+      6.469804523529651,
+      0.175,
+      -0.425
+     ],
+     "volume_ft3": 0.32318461587350916,
+     "inside": "fuselage",
+     "clearance_in": 9.05859375,
+     "verdict": "pass"
+    },
+    "nose_gear_wheel": {
+     "lo": [
+      6.469804523529651,
+      -0.28735725525700173,
+      -1.308342361098253
+     ],
+     "hi": [
+      7.886489245726156,
+      0.28735725525700173,
+      0.10834236109825285
+     ],
+     "volume_ft3": 1.153449495067527,
+     "inside": "fuselage",
+     "clearance_in": 5.35546875,
+     "verdict": "pass"
+    },
+    "main_gear_left_leg_1": {
+     "lo": [
+      11.844765125785273,
+      -4.905617281775245,
+      -1.421049999690202
+     ],
+     "hi": [
+      14.220396297898336,
+      -4.555617281775246,
+      -1.0710499996902019
+     ],
+     "volume_ft3": 0.2910148185838501,
+     "inside": "sponson_left",
+     "clearance_in": 6.2109375,
+     "verdict": "pass"
+    },
+    "main_gear_left_leg_2": {
+     "lo": [
+      9.694133953672207,
+      -4.905617281775245,
+      -1.421049999690202
+     ],
+     "hi": [
+      11.844765125785273,
+      -4.555617281775246,
+      -1.0710499996902019
+     ],
+     "volume_ft3": 0.2634523185838503,
+     "inside": "sponson_left",
+     "clearance_in": 2.625,
+     "verdict": "pass"
+    },
+    "main_gear_left_wheel": {
+     "lo": [
+      7.948278050926575,
+      -5.0773138508464974,
+      -2.118977951063018
+     ],
+     "hi": [
+      9.694133953672207,
+      -4.383920712703993,
+      -0.3731220483173859
+     ],
+     "volume_ft3": 2.113471183477727,
+     "inside": "sponson_left",
+     "clearance_in": -12.0,
+     "verdict": "fail"
+    },
+    "main_gear_right_leg_1": {
+     "lo": [
+      11.844765125785273,
+      4.555617281775246,
+      -1.421049999690202
+     ],
+     "hi": [
+      14.220396297898336,
+      4.905617281775245,
+      -1.0710499996902019
+     ],
+     "volume_ft3": 0.2910148185838501,
+     "inside": "sponson_right",
+     "clearance_in": 6.2109375,
+     "verdict": "pass"
+    },
+    "main_gear_right_leg_2": {
+     "lo": [
+      9.694133953672207,
+      4.555617281775246,
+      -1.421049999690202
+     ],
+     "hi": [
+      11.844765125785273,
+      4.905617281775245,
+      -1.0710499996902019
+     ],
+     "volume_ft3": 0.2634523185838503,
+     "inside": "sponson_right",
+     "clearance_in": 2.625,
+     "verdict": "pass"
+    },
+    "main_gear_right_wheel": {
+     "lo": [
+      7.948278050926575,
+      4.383920712703993,
+      -2.118977951063018
+     ],
+     "hi": [
+      9.694133953672207,
+      5.0773138508464974,
+      -0.3731220483173859
+     ],
+     "volume_ft3": 2.113471183477727,
+     "inside": "sponson_right",
+     "clearance_in": -12.0,
+     "verdict": "fail"
+    },
+    "wing_carry_through": {
+     "lo": [
+      10.366547739114967,
+      -1.7864390610378027,
+      -0.6936780025550706
+     ],
+     "hi": [
+      13.976151013903912,
+      1.7864390610378027,
+      0.5547611333775646
+     ],
+     "volume_ft3": 16.10071075952948,
+     "inside": null
+    },
+    "turret": {
+     "lo": [
+      2.4083024976604843,
+      -0.45,
+      -2.2364390610378027
+     ],
+     "hi": [
+      3.3083024976604847,
+      0.45,
+      -1.3364390610378027
+     ],
+     "volume_ft3": 0.7290000000000003,
+     "inside": null
+    }
+   },
+   "overlaps": [],
+   "payload_bay": {
+    "bay_ft3": 17.1072,
+    "needed_ft3": 16.666666666666668,
+    "centroid_x_ft": 4.313124999999999,
+    "verdict": "pass"
+   },
+   "avionics_bay": {
+    "bay_ft3": 3.8258999999999994,
+    "needed_ft3": 3.2182125188251813,
+    "centroid_x_ft": 7.175,
+    "verdict": "pass"
+   },
+   "clearance_required_in": 1.0,
+   "legs": {
+    "nose": {
+     "leg_ft": 6.034825885563709,
+     "pivot_x": 1.1433209990641937,
+     "stowed_axle_x": 7.178146884627903
+    },
+    "main_left": {
+     "leg_ft": 5.224190295598944,
+     "pivot_x": 14.045396297898336,
+     "stowed_axle_x": 8.821206002299391
+    },
+    "main_right": {
+     "leg_ft": 5.224190295598944,
+     "pivot_x": 14.045396297898336,
+     "stowed_axle_x": 8.821206002299391
+    }
+   },
+   "spar_fractions": [
+    0.15,
+    0.6
+   ],
+   "failing": [
+    "box main_gear_left_wheel: clearance -12.00 in",
+    "box main_gear_right_wheel: clearance -12.00 in"
+   ],
+   "verdict": "fail"
+  },
+  "5": {
+   "perimeter": {
+    "largest_slope_change_per_ft": 0.0040843034367143176,
+    "at_x_ft": 27.16101948401875
+   },
+   "area": {
+    "largest_slope_change_per_ft": 0.004932368065848585,
+    "at_x_ft": 27.16101948401875
+   },
+   "bound": 0.01,
+   "steps": 4000,
+   "judged_from_x_over_length": 0.05,
+   "aft_body_angle_deg": {
+    "side": 21.36008465337638,
+    "top": 29.39597585287459,
+    "bottom": 29.39597585287459
+   },
+   "aft_body_guides_deg": [
+    12.0,
+    30.0
+   ],
+   "aft_body_over_pusher_guide": false,
+   "verdict": "pass"
+  },
+  "6": {
+   "rotation_deg": 10.0,
+   "propeller_clearance_in": 14.760399221305102,
+   "propeller_clearance_stage1_expression_in": 14.443216703778981,
+   "propeller_clearance_record_in": 14.443216703778981,
+   "propeller_clearance_required_in": 9.0,
+   "lowest_point_at_rotation_in": 43.54229142506958,
+   "lowest_part_at_rotation": "fuselage",
+   "first_to_touch": "propeller",
+   "angle_at_first_touch_deg": 14.647454480806605,
+   "touch_angles_deg": {
+    "propeller": 14.647454480806605,
+    "fuselage": 24.210811409932894,
+    "wing": 65.62027134994584,
+    "horizontal_tail": 26.899539151294796,
+    "vertical_tail": 26.9214135963294,
+    "sponson_left": 78.91260204322063,
+    "sponson_right": 78.91260204322063,
+    "spinner": 23.967812631610926
+   },
+   "cg_angle_at_main_wheel_deg": 15.000000000000005,
+   "tipback_needed_deg": 15.0,
+   "overturn_deg": {
+    "cg_full": 63.0,
+    "cg_empty": 62.67226645235662
+   },
+   "overturn_max_deg": 63.0,
+   "verdict": "pass"
+  },
+  "7": {
+   "parts": {
+    "fuselage": {
+     "area_rel": 0.0,
+     "volume_rel": 0.0
+    },
+    "wing": {
+     "area_rel": 0.0,
+     "volume_rel": 0.0
+    },
+    "horizontal_tail": {
+     "area_rel": 0.0,
+     "volume_rel": 0.0
+    },
+    "vertical_tail": {
+     "area_rel": 0.0,
+     "volume_rel": 0.0
+    },
+    "sponson_left": {
+     "area_rel": 0.0,
+     "volume_rel": 0.0
+    },
+    "sponson_right": {
+     "area_rel": 0.0,
+     "volume_rel": 0.0
+    },
+    "turret": {
+     "area_rel": 0.0,
+     "volume_rel": 0.0
+    },
+    "spinner": {
+     "area_rel": 0.0,
+     "volume_rel": 0.0
+    }
+   },
+   "largest_relative_difference": 0.0,
+   "triangles": 17214,
+   "verdict": "pass"
+  },
+  "8": {
+   "components": {
+    "wing": {
+     "loft_wetted_ft2": 496.2217510847697,
+     "loft_whole_ft2": 562.2455040371256,
+     "openvsp_default_mesh_wetted_ft2": 512.2730418652637,
+     "openvsp_default_mesh_whole_ft2": 561.1988794800583,
+     "openvsp_fine_mesh_wetted_ft2": 516.6693521864047,
+     "openvsp_fine_mesh_whole_ft2": 561.5834476403384,
+     "wetted_rel_default": -0.03133346764071132,
+     "wetted_rel_fine": -0.03957579642590814,
+     "whole_rel_fine": 0.0011789100970995836,
+     "verdict": "fail"
+    },
+    "fuselage": {
+     "loft_wetted_ft2": 266.1191754050858,
+     "loft_whole_ft2": 294.39745990828226,
+     "openvsp_default_mesh_wetted_ft2": 264.5747351591721,
+     "openvsp_default_mesh_whole_ft2": 291.2229609395508,
+     "openvsp_fine_mesh_wetted_ft2": 266.6940413939324,
+     "openvsp_fine_mesh_whole_ft2": 293.71887459245966,
+     "wetted_rel_default": 0.0058374441723791914,
+     "wetted_rel_fine": -0.0021555261821447624,
+     "whole_rel_fine": 0.0023103224699609903,
+     "verdict": "pass"
+    },
+    "horizontal_tail": {
+     "loft_wetted_ft2": 265.5596624329437,
+     "loft_whole_ft2": 279.1638221979389,
+     "openvsp_default_mesh_wetted_ft2": 263.64451516697864,
+     "openvsp_default_mesh_whole_ft2": 278.65708253385014,
+     "openvsp_fine_mesh_wetted_ft2": 263.5299247007293,
+     "openvsp_fine_mesh_whole_ft2": 278.87096450887157,
+     "wetted_rel_default": 0.007264127094592121,
+     "wetted_rel_fine": 0.007702114795955062,
+     "whole_rel_fine": 0.001050154825487315,
+     "verdict": "pass"
+    },
+    "vertical_tail": {
+     "loft_wetted_ft2": 66.9879483807371,
+     "loft_whole_ft2": 80.34890079868227,
+     "openvsp_default_mesh_wetted_ft2": 69.7325951270324,
+     "openvsp_default_mesh_whole_ft2": 80.16075326930553,
+     "openvsp_fine_mesh_wetted_ft2": 69.91456775651493,
+     "openvsp_fine_mesh_whole_ft2": 80.24236429011644,
+     "wetted_rel_default": -0.03935959562806113,
+     "wetted_rel_fine": -0.0418599366296607,
+     "whole_rel_fine": 0.0013276840669929069,
+     "verdict": "fail"
+    },
+    "sponsons": {
+     "loft_wetted_ft2": 47.03290253869907,
+     "loft_whole_ft2": 56.29140761990365,
+     "openvsp_default_mesh_wetted_ft2": 51.13651782446101,
+     "openvsp_default_mesh_whole_ft2": 54.01612346728653,
+     "openvsp_fine_mesh_wetted_ft2": 52.09109434026611,
+     "openvsp_fine_mesh_whole_ft2": 57.0497606920026,
+     "wetted_rel_default": -0.08024823473214648,
+     "wetted_rel_fine": -0.097102813170448,
+     "whole_rel_fine": -0.013292835288005955,
+     "verdict": "fail"
+    }
+   },
+   "tolerance": 0.02,
+   "openvsp": "OpenVSP 3.57.1",
+   "failing": [
+    "wing",
+    "vertical_tail",
+    "sponsons"
+   ],
+   "judged_on": "OpenVSP's default surface mesh, as conceptual/openvsp_model.py uses it",
+   "verdict": "fail"
+  },
+  "9": {
+   "propeller_plane_x_ft": 28.733024976604842,
+   "disc_radius_ft": 3.4543345136976806,
+   "behind_plane_ft": {
+    "fuselage": -0.14999999999998792,
+    "wing": -11.54666801335512,
+    "horizontal_tail": 1.7818056029985456,
+    "vertical_tail": 0.871391794157045,
+    "sponson_left": null,
+    "sponson_right": null,
+    "turret": -25.424722478944357
+   },
+   "failing": {
+    "horizontal_tail": 1.7818056029985456,
+    "vertical_tail": 0.871391794157045
+   },
+   "verdict": "fail"
+  },
+  "10": {
+   "wetted_ft2_by_mesh_factor": {
+    "1": {
+     "wing": 496.2217510847697,
+     "fuselage": 266.1191754050858,
+     "horizontal_tail": 265.5596624329437,
+     "vertical_tail": 66.9879483807371,
+     "sponsons": 47.03290253869907
+    },
+    "2": {
+     "wing": 496.5952614768885,
+     "fuselage": 266.13386290942736,
+     "horizontal_tail": 264.5427753313726,
+     "vertical_tail": 66.49205938363338,
+     "sponsons": 47.26696721877531
+    },
+    "4": {
+     "wing": 495.9328125571497,
+     "fuselage": 266.37616590558025,
+     "horizontal_tail": 263.9582025642155,
+     "vertical_tail": 66.4745343984253,
+     "sponsons": 47.12531931686475
+    }
+   },
+   "verdict": "reported",
+   "largest_change_1_to_4": 0.007664273868990823,
+   "gate3_verdicts_on_finest": {
+    "wing": "pass",
+    "fuselage": "pass",
+    "horizontal_tail": "pass",
+    "vertical_tail": "fail",
+    "sponsons": "fail"
+   }
+  }
+ },
+ "buildup": {
+  "as_recorded": {
+   "CD0_mission_altitude": 0.022082133651861104,
+   "CD0_sea_level": 0.020634252922175442,
+   "hours_on_station": 11.000000008584472
+  },
+  "with_loft_areas": {
+   "CD0_mission_altitude": 0.02061248704380712,
+   "CD0_sea_level": 0.019225619224288268,
+   "hours_on_station": 11.429062324580624
+  },
+  "areas_stage1_ft2": {
+   "wing": 497.10129205172797,
+   "fuselage": 277.77636771649355,
+   "horizontal_tail": 276.30354329667017,
+   "vertical_tail": 75.63023958388737,
+   "sponsons": 63.65994590948411
+  },
+  "areas_loft_ft2": {
+   "wing": 496.2217510847697,
+   "fuselage": 266.1191754050858,
+   "horizontal_tail": 265.5596624329437,
+   "vertical_tail": 66.9879483807371,
+   "sponsons": 47.03290253869907
+  },
+  "areas_stage1_rebuilt_ft2": {
+   "wing": 497.10129205172797,
+   "fuselage": 277.77636771649355,
+   "horizontal_tail": 276.30354329667017,
+   "vertical_tail": 75.63023958388737,
+   "sponsons": 63.65994590948411
+  },
+  "record_CD0_mission_altitude": 0.022082133651861104,
+  "delta_CD0_mission_altitude": -0.0014696466080539837,
+  "delta_CD0_relative": -0.06655365062198693,
+  "delta_hours": 0.42906231599615197
+ },
+ "moved_masses": {
+  "moved": [
+   {
+    "item": "payload",
+    "weight_lb": 500.0,
+    "station_r0_ft": 2.8583024976604845,
+    "station_p3_ft": 4.313124999999999,
+    "note": "volume centre of the two payload-bay boxes; the turret's share of the 500 lb is not known and is not split off",
+    "shift_ft": 1.454822502339515,
+    "moment_change_lb_ft": 727.4112511697575
+   },
+   {
+    "item": "avionics",
+    "weight_lb": 96.54637556475544,
+    "station_r0_ft": 6.002435245087017,
+    "station_p3_ft": 7.175,
+    "note": "centre of the avionics box",
+    "shift_ft": 1.1725647549129832,
+    "moment_change_lb_ft": 113.20687720182428
+   }
+  ],
+  "moment_change_lb_ft": 840.6181283715819,
+  "cg_shift_takeoff_weight_ft": 0.2389986692055161,
+  "cg_shift_zero_fuel_weight_ft": 0.3475693042439493,
+  "cg_shift_takeoff_weight_mac": 0.039216273038674074,
+  "cg_shift_zero_fuel_weight_mac": 0.05703116582365515,
+  "static_margin_r0": {
+   "full": 0.11256023404102151,
+   "empty": 0.08743976595897796
+  },
+  "static_margin_with_shift_stage1_neutral_point": {
+   "full": 0.07334396100234744,
+   "empty": 0.030408600135322802
+  },
+  "gear_up_and_down": [
+   {
+    "item": "nose gear",
+    "weight_lb": 95.03651255434646,
+    "station_gear_down_ft": 1.1433209990641937,
+    "leg_mid_point_gear_up_ft": 4.160733941846049,
+    "stowed_axle_ft": 7.178146884627903,
+    "retracts": "aft"
+   },
+   {
+    "item": "main gear",
+    "weight_lb": 223.04165333620932,
+    "station_gear_down_ft": 14.045396297898336,
+    "leg_mid_point_gear_up_ft": 11.433301150098863,
+    "stowed_axle_ft": 8.821206002299391,
+    "retracts": "forward"
+   }
+  ],
+  "not_moved": "every other station of r0 (engine, nose gear down, main gear down, systems, wing, tails, fuel)"
+ },
+ "sponson_need": {
+  "length_needed_ft": 6.438784913638428,
+  "length_r0_ft": 5.9250812498842755,
+  "depth_needed_ft": 1.9125225694122987,
+  "depth_r0_ft": 1.9750270832947585,
+  "length_needed_per_tyre": 3.9121194649526654,
+  "depth_needed_per_tyre": 1.1620230946231749,
+  "note": "a box-shaped least size; a body with curved ends needs more"
+ },
+ "tail_section": {
+  "rows": [
+   {
+    "reynolds_millions": 0.449,
+    "alpha_l0_deg": 0,
+    "a0_per_deg": 0.098,
+    "cl_max": 0.89,
+    "peak_type": "D",
+    "cl_opt": 0,
+    "cd0_min": 0.0105,
+    "cm_ac": null,
+    "ac_x_percent": null,
+    "ac_y_percent": null
+   },
+   {
+    "reynolds_millions": 0.871,
+    "alpha_l0_deg": 0,
+    "a0_per_deg": 0.094,
+    "cl_max": 0.91,
+    "peak_type": "D",
+    "cl_opt": 0,
+    "cd0_min": 0.0065,
+    "cm_ac": null,
+    "ac_x_percent": null,
+    "ac_y_percent": null
+   },
+   {
+    "reynolds_millions": 1.74,
+    "alpha_l0_deg": 0,
+    "a0_per_deg": 0.096,
+    "cl_max": 1.18,
+    "peak_type": "A",
+    "cl_opt": 0,
+    "cd0_min": 0.0075,
+    "cm_ac": 0,
+    "ac_x_percent": 1.1,
+    "ac_y_percent": 3
+   },
+   {
+    "reynolds_millions": 3.54,
+    "alpha_l0_deg": 0,
+    "a0_per_deg": 0.097,
+    "cl_max": 1.49,
+    "peak_type": "A",
+    "cl_opt": 0,
+    "cd0_min": 0.0077,
+    "cm_ac": 0,
+    "ac_x_percent": 1.0,
+    "ac_y_percent": 4
+   },
+   {
+    "reynolds_millions": 6.28,
+    "alpha_l0_deg": 0,
+    "a0_per_deg": 0.097,
+    "cl_max": 1.62,
+    "peak_type": "A",
+    "cl_opt": 0,
+    "cd0_min": 0.0073,
+    "cm_ac": 0,
+    "ac_x_percent": 0.8,
+    "ac_y_percent": 3
+   },
+   {
+    "reynolds_millions": 8.37,
+    "alpha_l0_deg": 0,
+    "a0_per_deg": 0.099,
+    "cl_max": 1.66,
+    "peak_type": "A",
+    "cl_opt": 0,
+    "cd0_min": 0.0069,
+    "cm_ac": 0,
+    "ac_x_percent": 0.6,
+    "ac_y_percent": 3
+   },
+   {
+    "reynolds_millions": 8.45,
+    "alpha_l0_deg": 0,
+    "a0_per_deg": 0.1,
+    "cl_max": 1.65,
+    "peak_type": "A",
+    "cl_opt": 0,
+    "cd0_min": 0.0069,
+    "cm_ac": 0,
+    "ac_x_percent": 0.6,
+    "ac_y_percent": 3
+   }
+  ],
+  "conditions": {
+   "stall, clean, sea level": {
+    "V_fps": 90.01306481304358,
+    "horizontal_tail": {
+     "reynolds": 3455366.332304699,
+     "inside_table": true,
+     "a0_per_deg": 0.09696592955768582,
+     "cl_max": 1.4794381628826023,
+     "cd0_min": 0.007693185911537163,
+     "cl_max_negative": -1.4794381628826023
+    },
+    "vertical_tail": {
+     "reynolds": 2952112.9806924835,
+     "inside_table": true,
+     "a0_per_deg": 0.09674430455074944,
+     "cl_max": 1.4107344107323243,
+     "cd0_min": 0.007648860910149886,
+     "cl_max_negative": -1.4107344107323243
+    }
+   },
+   "rotation, sea level": {
+    "V_fps": 68.26009912323056,
+    "horizontal_tail": {
+     "reynolds": 2620326.825223419,
+     "inside_table": true,
+     "a0_per_deg": 0.09657644318664932,
+     "cl_max": 1.3586973878612878,
+     "cd0_min": 0.007615288637329863,
+     "cl_max_negative": -1.3586973878612878
+    },
+    "vertical_tail": {
+     "reynolds": 2238691.9621455213,
+     "inside_table": true,
+     "a0_per_deg": 0.09635481817971293,
+     "cl_max": 1.2899936357110091,
+     "cd0_min": 0.007570963635942587,
+     "cl_max_negative": -1.2899936357110091
+    }
+   },
+   "loiter, mission altitude": {
+    "V_fps": 147.27366145865196,
+    "horizontal_tail": {
+     "reynolds": 3388397.9991478333,
+     "inside_table": true,
+     "a0_per_deg": 0.09693837381080835,
+     "cl_max": 1.470895881350585,
+     "cd0_min": 0.007687674762161668,
+     "cl_max_negative": -1.470895881350585
+    },
+    "vertical_tail": {
+     "reynolds": 2894898.1830140394,
+     "inside_table": true,
+     "a0_per_deg": 0.09671674880387196,
+     "cl_max": 1.4021921292003063,
+     "cd0_min": 0.007643349760774391,
+     "cl_max_negative": -1.4021921292003063
+    }
+   },
+   "cruise out, mission altitude": {
+    "V_fps": 218.1886195387482,
+    "horizontal_tail": {
+     "reynolds": 5019973.527917539,
+     "inside_table": true,
+     "a0_per_deg": 0.097,
+     "cl_max": 1.5692137213208852,
+     "cd0_min": 0.007456265472858816,
+     "cl_max_negative": -1.5692137213208852
+    },
+    "vertical_tail": {
+     "reynolds": 4288844.5360910585,
+     "inside_table": true,
+     "a0_per_deg": 0.097,
+     "cl_max": 1.5335169220642897,
+     "cd0_min": 0.007566101778263724,
+     "cl_max_negative": -1.5335169220642897
+    }
+   },
+   "V_C, sea level": {
+    "V_fps": 185.659084281,
+    "horizontal_tail": {
+     "reynolds": 7126967.073541159,
+     "inside_table": true,
+     "a0_per_deg": 0.0978807718517988,
+     "cl_max": 1.637615437035976,
+     "cd0_min": 0.00712384562964024,
+     "cl_max_negative": -1.637615437035976
+    },
+    "vertical_tail": {
+     "reynolds": 6088967.127469677,
+     "inside_table": true,
+     "a0_per_deg": 0.097,
+     "cl_max": 1.6129944279898196,
+     "cd0_min": 0.007321555606185171,
+     "cl_max_negative": -1.6129944279898196
+    }
+   }
+  },
+  "source": "Report 586, Table I, 'Important airfoil section characteristics', printed p. 39 (PDF page 44); rows of the N.A.C.A. 0012",
+  "reynolds_number_is": "the effective Reynolds number R_e of the report: the test Reynolds number times the tunnel's turbulence factor 2.64 (Table II, footnote 4). The report's method is to use R_e as the flight Reynolds number."
+ },
+ "acceptance": [
+  {
+   "row": 1,
+   "what": "every component watertight, normals outward",
+   "verdict": "pass",
+   "failing": [],
+   "reason": null
+  },
+  {
+   "row": 2,
+   "what": "printed targets: conic cases of Raymer (7.4); mean chord and its station against r0",
+   "verdict": "pass",
+   "failing": null,
+   "reason": null
+  },
+  {
+   "row": 3,
+   "what": "wetted area per component against the area Stage 1's build-up uses, within 5 %",
+   "verdict": "fail",
+   "failing": [
+    "vertical_tail",
+    "sponsons"
+   ],
+   "reason": null
+  },
+  {
+   "row": 4,
+   "what": "volumes: tanks, boxes inside the skin with clearance, no two boxes overlapping, payload bay",
+   "verdict": "fail",
+   "failing": [
+    "box main_gear_left_wheel: clearance -12.00 in",
+    "box main_gear_right_wheel: clearance -12.00 in"
+   ],
+   "reason": null
+  },
+  {
+   "row": 5,
+   "what": "smoothness of section perimeter and area along the fuselage; aft-body angle reported",
+   "verdict": "pass",
+   "failing": null,
+   "reason": null
+  },
+  {
+   "row": 6,
+   "what": "ground angles on the loft: propeller clearance at rotation, tipback, overturn",
+   "verdict": "pass",
+   "failing": null,
+   "reason": null
+  },
+  {
+   "row": 7,
+   "what": "export round trip: area and volume of the re-read STL",
+   "verdict": "pass",
+   "failing": null,
+   "reason": null
+  },
+  {
+   "row": 8,
+   "what": "OpenVSP CompGeom wetted areas, within 2 %",
+   "verdict": "fail",
+   "failing": [
+    "wing",
+    "vertical_tail",
+    "sponsons"
+   ],
+   "reason": null
+  },
+  {
+   "row": 9,
+   "what": "added: no part of the airframe behind the propeller plane inside the disc",
+   "verdict": "fail",
+   "failing": {
+    "horizontal_tail": 1.7818056029985456,
+    "vertical_tail": 0.871391794157045
+   },
+   "reason": null
+  },
+  {
+   "row": 10,
+   "what": "added: wetted areas with the surface mesh doubled and doubled again (reported)",
+   "verdict": "reported",
+   "failing": null,
+   "reason": null
+  }
+ ],
+ "findings_for_r1": [
+  "Wetted area, vertical tail: loft 66.99 ft^2 against Stage 1's 75.63 ft^2 (-11.4 %), outside 5 %.",
+  "Wetted area, sponsons: loft 47.03 ft^2 against Stage 1's 63.66 ft^2 (-26.1 %), outside 5 %.",
+  "Build-up with the loft's five areas: CD0 at the mission altitude 0.02208 to 0.02061 (-6.66 %); hours on station 11.00 to 11.43 h (+0.43 h) at r0's weight and fuel. The loft's areas go into r1.",
+  "Nose packaging (PD-19): payload 500.00 lb from 2.858 ft to 4.313 ft (+1.455 ft, +727 lb ft).",
+  "Nose packaging (PD-19): avionics 96.55 lb from 6.002 ft to 7.175 ft (+1.173 ft, +113 lb ft).",
+  "Together +841 lb ft: centre of gravity +0.239 ft (+0.0392 MAC) at take-off weight and +0.348 ft (+0.0570 MAC) at zero-fuel weight; with Stage 1's neutral point the static margin would be 0.0733 full and 0.0304 empty (R13: 0.05 to 0.15). P4 recomputes and moves the wing if needed.",
+  "The retracted main gear does not fit the sponson (box main_gear_left_wheel: clearance -12.00 in; box main_gear_right_wheel: clearance -12.00 in): the leg from pivot to axle is 5.22 ft and its boxes need 6.44 ft by 1.91 ft deep against the sponson's 5.93 ft by 1.98 ft (3.91 and 1.16 tyre diameters; ledger 3.6 and 1.2).",
+  "The horizontal tail reaches 1.78 ft behind the propeller plane inside the disc (plane at 28.73 ft, disc radius 3.45 ft): the tail and the pusher propeller of r0's layout occupy the same space.",
+  "The vertical tail reaches 0.87 ft behind the propeller plane inside the disc (plane at 28.73 ft, disc radius 3.45 ft): the tail and the pusher propeller of r0's layout occupy the same space.",
+  "Aft-body angle of the loft: 29.4 deg (top and bottom), 21.4 deg (side), against Raymer's 10 to 12 deg and about 30 deg ahead of a pusher propeller; the engine envelope at r0's engine station sets it.",
+  "Wing tanks on the loft: 68.24 ft^3 usable against Stage 1's claim of 73.17 ft^3 (-6.7 %) and 21.92 ft^3 needed.",
+  "OpenVSP cross-check outside 2 % for: wing, vertical_tail, sponsons (no size changes; see the report)."
+ ],
+ "tree_at_end": {
+  "commit": "cfae30868196484f18cf31d9cc7997887527ec37",
+  "git_dirty": false,
+  "git_dirty_files": [],
+  "excluded": "runs/task12/pd/2026-11-27/p3"
+ },
+ "runtime_s": 80.77748417854309
+}
