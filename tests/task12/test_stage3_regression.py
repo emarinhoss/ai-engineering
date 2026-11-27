@@ -88,7 +88,13 @@ def test_app_l_record_reproduces_its_own_perf_json():
                              "prop_eta_loiter", "v_best_range", "v_best_endurance", "roc_sl", "roc_sl_excess_power",
                              "v_best_climb", "ceiling", "takeoff_distance", "landing_distance", "v_corner", "gust_n"}
     for r, o in zip(new["rows"], rec["rows"]):
-        assert r["verdict"] == o["verdict"] and r["class"] == o["class"], r["id"]
+        assert r["verdict"] == o["verdict"], r["id"]
+        if r["id"] in ("roc_sl", "v_best_climb"):
+            # Gate B report item 20, closed in preliminary design P0: the two closed-form climb rows of an App. L record
+            # carry their own class in new computations; the committed record keeps the class it was written with
+            assert (o["class"], r["class"]) == (sp.CODING, sp.CLOSED_FORM_NA), r["id"]
+        else:
+            assert r["class"] == o["class"], r["id"]
         for k in ("stage1", "stage3"):
             assert close(o[k], r[k]), (r["id"], k)
     assert close(new["climb_bracket"], rec["climb_bracket"])

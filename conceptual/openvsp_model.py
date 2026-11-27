@@ -24,11 +24,12 @@ version (3.57.1 Ubuntu 24.04: Python 3.12).
 import argparse
 import json
 import math
-import subprocess
 import sys
 from pathlib import Path
 
 import openvsp as vsp
+
+from prelim.record import repo_path, tree_state
 
 
 def set_parm(geom, name, group, value):
@@ -160,8 +161,9 @@ def main(argv=None):
     build(d)                       # fresh model: the mesh export leaves a MeshGeom that would hide everything
     wet = wetted_areas(stem)
     stage1 = {"fuselage": d["fuselage"]["s_wet"]}
-    git = lambda *c: subprocess.run(["git", *c], capture_output=True, text=True).stdout.strip()
-    record = {"design": a.design, "commit": git("rev-parse", "HEAD"), "git_dirty": bool(git("status", "--porcelain")),
+    tree = tree_state(repo_path(a.out))            # commit, dirty flag and its file list; the output folder is not counted
+    record = {"design": a.design, "commit": tree["commit"], "git_dirty": tree["git_dirty"],
+              "git_dirty_files": tree["git_dirty_files"], "git_dirty_excluded": tree["excluded"],
               "command": "python -m conceptual.openvsp_model " + " ".join(argv if argv is not None else sys.argv[1:]),
               "python": sys.version.split()[0], "openvsp": vsp.GetVSPVersion(), "units": "ft",
               "wetted_area_openvsp_ft2": wet, "wetted_area_stage1_ft2": stage1,

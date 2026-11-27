@@ -200,10 +200,16 @@ def study(column):
 
 
 # ---- table for the Stage 1 sizing loop ---------------------------------------------------------------
+# Altitude grid of the M250 table: the TP100 grid (0 to 30,000 ft in 2,500 ft steps), every row kept, plus two rows
+# to 35,000 ft (owner ruling B-9c; docs/specs/task12_preliminary_design.md P0). The service ceiling of the
+# W/S 13, A 8 baseline is above 30,000 ft, where the 30,000 ft table held its power constant (the lookup clamps).
+TABLE_H = [*tp.TABLE_H, 32500.0, 35000.0]
+
+
 def table(member):
-    """Same table as tp100_engine.table: rated 450 shp, calibration SFC 0.613, engine name; the control
-    law text says pi_c is a ceiling (review M-5; the numbers are those of tp100_engine.table)."""
-    return tp.table(member, rated_shp=RATED_SHP, calibration_bsfc=BSFC_TAKEOFF,
+    """Same table as tp100_engine.table on TABLE_H (to 35,000 ft): rated 450 shp, calibration SFC 0.613, engine
+    name; the control law text says pi_c is a ceiling (review M-5; the numbers are those of tp100_engine.table)."""
+    return tp.table(member, rated_shp=RATED_SHP, calibration_bsfc=BSFC_TAKEOFF, altitudes=TABLE_H,
                     extra={"engine": ENGINE_NAME, "calibration_mgt_c": MGT_TAKEOFF_C,
                            "control_law": "Tt4 <= rated, pi_c not above its sea-level rated value (a ceiling: pi_c falls "
                                           "with Tt4 at part power)"})

@@ -51,6 +51,7 @@ except ImportError:          # the test suite's Python has no OpenVSP; the pure 
 from conceptual import raymer_aero as aero
 from conceptual import raymer_stability as stab
 from conceptual.units import KT, isa
+from prelim.record import repo_path, tree_state
 
 USER_SET = 3                                   # OpenVSP set index for the lattice geometry (0 = all)
 CONFIGS = {"wing": ["Wing"], "tails": ["Wing", "HorizontalTail", "VerticalTail"],
@@ -317,8 +318,11 @@ def main(argv=None):
             sens[key]["CL0_abs_change"] = p2["CL0"] - p1["CL0"]
             sens[key]["static_margin_full_abs_change"] = p2["static_margin_full"] - p1["static_margin_full"]
     git = lambda *c: subprocess.run(["git", *c], capture_output=True, text=True).stdout.strip()
-    record = {"design": a.design, "model": a.model, "commit": git("rev-parse", "HEAD"),
+    tree = tree_state(repo_path(a.out))            # the whole tree with its file list; the output folder is not counted
+    record = {"design": a.design, "model": a.model, "commit": tree["commit"],
               "git_dirty_in_conceptual": bool(git("status", "--porcelain", "conceptual")),
+              "git_dirty": tree["git_dirty"], "git_dirty_files": tree["git_dirty_files"],
+              "git_dirty_excluded": tree["excluded"],
               "command": "python -m conceptual.vspaero_check " + " ".join(argv if argv is not None else sys.argv[1:]),
               "python": sys.version.split()[0], "openvsp": vsp.GetVSPVersion(),
               "vspaero_path": vsp.GetVSPAEROPath(),

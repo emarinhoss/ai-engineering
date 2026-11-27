@@ -115,7 +115,8 @@ def test_control_law_text_says_ceiling_not_held():
 def test_unchoked_cells_summary_follows_the_table():
     t = json.loads(TABLE.read_text())
     u = m.unchoked_cells(t)
-    assert 0.0 < u["share"] < 1.0 and u["n_cells"] == 13 * 11 * 19
+    # 15 altitudes since the table went to 35,000 ft (ruling B-9c, preliminary design P0); it was 13
+    assert 0.0 < u["share"] < 1.0 and u["n_cells"] == 15 * 11 * 19
     assert u["lowest_choked_fraction_min"] <= u["lowest_choked_fraction_max"]
     # a cell below the smaller fraction is unchoked
     e = TableEngine(TABLE)

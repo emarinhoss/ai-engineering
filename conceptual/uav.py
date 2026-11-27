@@ -866,28 +866,42 @@ def layout(d, L):
     return s
 
 
+def climb_power_default(d, L):
+    """power_at(h_ft) that `ceiling` uses by default: the rated bhp times the lapse (the engine table when the
+    design has one, else the piston lapse (13.9)) at the climb-speed floor, climb_speed_over_stall times the
+    clean stall speed at that altitude."""
+    def power_at(h):
+        a = isa(h)
+        V = L["climb_speed_over_stall"] * perf.stall_speed(d["W_S"], a["rho"], d["clmax"]["clean"])
+        return d["bhp"] * _lapse(d.get("engine_model"), h, a, V)
+    return power_at
+
+
+def climb_rate_at(d, L, h, power_at):
+    """(best rate of climb in ft/s, its speed in ft/s) at altitude h (ft) and weight d["W0"], from (17.37)
+    by a search over speed from the climb-speed floor upward, with CD0 evaluated at the best-climb speed
+    (three passes; Gate A round 4, R4-2). power_at(h) is the shaft hp available. This is the rate `ceiling`
+    bisects on; the preliminary-design climb profile (prelim/p0_baseline.py) reads the same function."""
+    a = isa(h)
+    lo = L["climb_speed_over_stall"] * perf.stall_speed(d["W_S"], a["rho"], d["clmax"]["clean"])
+    V = lo
+    for _ in range(3):
+        CD0, _ = _polar(d["geom"], L, V, a, d["bhp"])
+        r, V = perf.best_rate_of_climb(d["W0"], d["geom"]["S"], a["rho"], CD0, d["K"], power_at(h),
+                                       _propeller(L, a, d["D_prop"]), lo, lo + 400.0)
+    return r, V
+
+
 def ceiling(d, L, power_at=None):
     """Service ceiling: the highest altitude with best rate of climb at least 100 ft/min, by
     bisection, with CD0 evaluated at each altitude (reviewer finding F5). power_at(h_ft) gives the
     shaft hp available; by default the rated bhp times the piston lapse (13.9). Stage 3 passes
     the Mattingly App. K engine instead."""
-    W0, S, K, bhp = d["W0"], d["geom"]["S"], d["K"], d["bhp"]
     if power_at is None:
-        def power_at(h):
-            a = isa(h)
-            V = L["climb_speed_over_stall"] * perf.stall_speed(d["W_S"], a["rho"], d["clmax"]["clean"])
-            return bhp * _lapse(d.get("engine_model"), h, a, V)
-    clean = d["clmax"]["clean"]
+        power_at = climb_power_default(d, L)
 
     def roc(h):
-        a = isa(h)
-        lo = L["climb_speed_over_stall"] * perf.stall_speed(d["W_S"], a["rho"], clean)
-        V = lo
-        for _ in range(3):        # CD0 at the best-climb speed (Gate A round 4, R4-2)
-            CD0, _ = _polar(d["geom"], L, V, a, bhp)
-            r, V = perf.best_rate_of_climb(W0, S, a["rho"], CD0, K, power_at(h),
-                                           _propeller(L, a, d["D_prop"]), lo, lo + 400.0)
-        return r
+        return climb_rate_at(d, L, h, power_at)[0]
     target = L["ceiling_rate_fpm"] / 60.0
     lo, hi = 0.0, 60000.0
     if roc(lo) < target:

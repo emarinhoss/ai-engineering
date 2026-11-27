@@ -103,7 +103,10 @@ def rebuild_record(d, L, table_path):
 INDEPENDENT = "independent"            # another source, method and input for the quantity
 PARTLY = "partly independent"          # another relation, but inputs or sub-models shared with Stage 1
 CODING = "coding check"                # same inputs and an algebraically equal formula: only the coding is tested
-CLASSES = (INDEPENDENT, PARTLY, CODING)
+# App. L records only: (5.118)/(5.121) assume power available independent of speed, the disk does not give that, so
+# the row is neither a coding check nor a verification (review S3A-4; Gate B report item 20; preliminary design P0)
+CLOSED_FORM_NA = "not judged (closed form assumes constant power available)"
+CLASSES = (INDEPENDENT, PARTLY, CODING, CLOSED_FORM_NA)
 NOT_INDEPENDENT_7_1B = "not judged (7.1b: same engine table)"
 
 
@@ -553,7 +556,8 @@ def bracket_ft(x):
 def _climb_rows_app_l(d, L, b, br):
     """roc_sl, its coding check and v_best_climb for an App. L record (review S3A-2 to S3A-4). The closed
     forms (5.118)/(5.121) assume power available independent of speed; the disk's efficiency rises with speed, so
-    they do not apply and the two rows are not judged. The excess-power row is the coding check."""
+    they do not apply and the two rows are not judged; their class says so (CLOSED_FORM_NA). The excess-power row is
+    the coding check."""
     sl_note = (f"With the App. L disk it is not independent of speed (disk efficiency "
                f"{br['eta_at_closed_form_speed']:.4g} at the closed form's own best-climb speed {br['v_closed_form_kt']:.1f} kt, "
                f"{br['eta_at_stage1_speed']:.4g} at Stage 1's {br['v_stage1_kt']:.1f} kt), so the closed form does not apply. "
@@ -573,7 +577,7 @@ def _climb_rows_app_l(d, L, b, br):
                      "Anderson (5.121) p. 277 (5.122 misprinted, per the notes), eta at the closed form's own speed",
                      None, "relative",
                      "Not judged: closed form (5.121) assumes power available independent of speed. " + sl_note,
-                     judged=False, klass=CODING),
+                     judged=False, klass=CLOSED_FORM_NA),
             make_row("roc_sl_excess_power", "sea-level rate of climb at W0, excess power at Stage 1's best-climb speed",
                      "ft/min", br["roc_stage1_fpm"], RECORD, br["roc_excess_power_at_stage1_speed_fpm"],
                      "(eta(V) P - D(V) V)/W with eta of the App. L disk at full power at Stage 1's speed", 0.03, "relative",
@@ -581,7 +585,7 @@ def _climb_rows_app_l(d, L, b, br):
                      f"{br['v_stage1_kt']:.1f} kt, disk efficiency {br['eta_at_stage1_speed']:.4g} there): a coding check of "
                      "the climb arithmetic, which the closed-form row cannot give with this propeller.", klass=CODING),
             make_row("v_best_climb", "best-climb speed, sea level", "kt", br["v_stage1_kt"], RECORD, br["v_closed_form_kt"],
-                     "Anderson (5.118)/(5.41) p. 221, 277", None, "relative", v_note, judged=False, klass=CODING)]
+                     "Anderson (5.118)/(5.41) p. 221, 277", None, "relative", v_note, judged=False, klass=CLOSED_FORM_NA)]
 
 
 def speed_rows(d, L, b, bracket=None):
@@ -1152,7 +1156,12 @@ def report_text(res):
         ("Each row has a class, which says what a \"within\" means: **independent** (another source, method and "
          "input), **partly independent** (another relation, with inputs or sub-models shared with Stage 1), "
          "**coding check** (same inputs and an algebraically equal formula: it can only show that the code is "
-         "consistent). By class: " + cls_line + "."), "",
+         "consistent)."
+         # the fourth class exists only in records made after the preliminary-design P0 change (item 20); a report
+         # regenerated from an earlier record keeps its text
+         + (f" **{CLOSED_FORM_NA}**: the relation does not apply to this propeller model, so the row is neither a "
+            "coding check nor a verification." if CLOSED_FORM_NA in cc else "")
+         + " By class: " + cls_line + "."), "",
         ("Not in this report: the engine rows (spec 7.1b), the vortex-lattice aero rows and the Anderson static "
          "margin (stage3_aero), and the section CL_max row (SU2); range and endurance have no row of their own in "
          "7.1a and are covered by mission fuel."), "",
