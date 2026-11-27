@@ -329,3 +329,8 @@ def test_aircraft_verdicts_follow_from_the_numbers():
     assert p6.verdict_f(0.79) == "finding: below the band" and p6.verdict_f(0.93) == "finding: above the band"
     assert p6.verdict_takeoff(1247.1, 1247.0) == "pass" and p6.verdict_takeoff(1200.0, 1247.0) == "fail"
     assert p6.used_in_r1("pass") is True and p6.used_in_r1("fail") is False
+    pts = [{"point": "loiter", "verdict": "inside the band"}, {"point": "takeoff_0707_VTO", "verdict": "not computed"}]
+    assert p6.row2_verdict(pts) == "inside the band at every computed point; not computed at takeoff_0707_VTO"
+    pts[0]["verdict"] = "finding: below the band"
+    assert p6.row2_verdict(pts) == "finding: outside the band at loiter; not computed at takeoff_0707_VTO"
+    assert p6.row2_verdict(pts[:1]) == "finding: outside the band at loiter"

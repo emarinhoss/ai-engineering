@@ -50,6 +50,18 @@ def peak(points):
     return m, c
 
 
+def advance_ratio_where(curve, eta, rising):
+    """V/nD at which the computed curve (list of {"J", "eta"}) passes through this efficiency, on its rising or its
+    falling side, by linear interpolation between neighbouring points. None if it does not."""
+    pts = [(c["J"], c["eta"]) for c in curve if c.get("eta") is not None]
+    top = max(range(len(pts)), key=lambda k: pts[k][1])
+    side = pts[:top + 1] if rising else pts[top:]
+    for (j0, e0), (j1, e1) in zip(side[:-1], side[1:]):
+        if min(e0, e1) <= eta <= max(e0, e1) and e0 != e1:
+            return j0 + (eta - e0) / (e1 - e0) * (j1 - j0)
+    return None
+
+
 def write_figures(out, folder):
     """row5.png (measured and computed efficiency of propeller 5868-9), blade.png (the aircraft blade) and
     aircraft.png (efficiency and f at r0's points), with a sidecar figures.json."""
@@ -164,14 +176,18 @@ def findings(res):
         for angle, p in res["row5_points"].items():
             m, c = peak(p)
             lo, hi = p[0], [q for q in p if q["judged"]][-1]
+            j_lo = advance_ratio_where(res["row5_curves"][angle], lo["eta"], True)
+            j_hi = advance_ratio_where(res["row5_curves"][angle], hi["eta"], False)
             shape.append(f"at {angle} deg the highest measured point is {n(m['eta'])} at V/nD {m['J']:g} and the highest computed one "
                          f"{n(c['computed'])} at {c['J']:g}; the computed value is {n(lo['difference'], 3)} from the measured one at "
-                         f"V/nD {lo['J']:g} and {n(hi['difference'], 3)} at {hi['J']:g}")
+                         f"V/nD {lo['J']:g} and {n(hi['difference'], 3)} at {hi['J']:g}; the computed curve has the measured value of "
+                         f"the first of these points at V/nD {n(j_lo)} and that of the last at {n(j_hi)}")
         out.append(f"**Validation row 5 fails. Every aircraft number of this package is a failed-validation number and is not used "
                    f"in r1 (spec P6).** {v5['n_inside']} of {v5['n_judged']} judged points are within +-{v5['tolerance']:g}; the largest "
                    f"difference is {n(v5['largest_difference'])}. Nothing was tuned. The pattern: " + "; ".join(shape) + ". The computed "
                    "curve is too high on the low-speed side, where the blade is heavily loaded, and falls too early on the high-speed "
-                   "side, near zero thrust. The peaks agree; the flanks do not.")
+                   "side, near zero thrust. The peaks agree in height; the computed curves lie at a lower advance ratio than the "
+                   "measured ones (figure in section 6).")
         out.append("**Likely causes of the row 5 failure, none of them tested here.** (a) The section data are not the blade's: "
                    "flat-bottomed U.S.N.P.S. sections stand in for Clark Y, measured on a wing of aspect ratio 6 in the variable "
                    "density tunnel, and their drag is high (section 6); the report itself says the drag at low and negative angles "
@@ -191,9 +207,9 @@ def findings(res):
                    f"own flight conditions, D = 14 ft and N = 663.4 rpm, the computed J is {n(min(j))} to {n(max(j))} of the printed "
                    f"one and the computed C_P is {n(min(c))} to {n(max(c))} of the printed one: the printed C_P is about twice (L.18). "
                    "The definitions themselves are not in doubt: (L.18) is P/(rho n^3 D^5) in engineering units and reproduces r0's "
-                   "own J and C_P (tests/task12_pd/test_p6_bem.py). The table belongs to the map of Fig. L.6, which the book says is "
-                   "for a counterrotating tandem propeller; the library notes already flag its row D. Reported, not tuned; the table "
-                   "is not used anywhere else.")
+                   "own J and C_P (tests/task12_pd/test_p6_bem.py). The table belongs to the map of Fig. L.6, which by the library's "
+                   "chapter notes is for a counterrotating tandem propeller; the notes already flag its row D. Why the printed "
+                   "C_P is twice (L.18) was not established. Reported, not tuned; the table is not used anywhere else.")
     a2 = air[2]
     f_text = "; ".join(f"{POINT_NAMES[p['point']]} {n(p['f'])}" for p in a2["points"] if p["f"] is not None)
     prefix = "" if used else "Failed-validation numbers: "
@@ -201,8 +217,10 @@ def findings(res):
         out.append(f"**{prefix}f is outside the ledger band at one or more points** ({f_text}; band {a2['band'][0]:g} to {a2['band'][1]:g}). "
                    "The band is re-proposed per flight condition in section 9 for P9. r0 is not changed.")
     else:
+        missing = [POINT_NAMES[p["point"]] for p in a2["points"] if p["f"] is None]
         out.append(f"**{prefix}f is inside the ledger band at every point that could be computed** ({f_text}; band {a2['band'][0]:g} to "
-                   f"{a2['band'][1]:g}, ledger value {a2['ledger_value']:g}). The range over the blade choices is in section 9.")
+                   f"{a2['band'][1]:g}, ledger value {a2['ledger_value']:g})."
+                   + (f" Not computed at: {', '.join(missing)}." if missing else "") + " The range over the blade choices is in section 9.")
     a3 = air[3]
     if a3["verdict"] == "not computed":
         best, inside = a3["sweep_best"]["most_thrust"], a3["sweep_best"]["most_thrust_inside_data"]

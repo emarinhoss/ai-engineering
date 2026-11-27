@@ -318,6 +318,15 @@ def verdict_takeoff(thrust, minimum):
     return "pass" if thrust >= minimum else "fail"
 
 
+def row2_verdict(points):
+    """Aircraft row 2 from its points: a finding if f is outside the band anywhere; points that could not be computed
+    are named and are not counted as inside or outside."""
+    outside = [p["point"] for p in points if p["verdict"].startswith("finding")]
+    missing = [p["point"] for p in points if p["verdict"] == "not computed"]
+    text = "finding: outside the band at " + ", ".join(outside) if outside else "inside the band at every computed point"
+    return text + ("; not computed at " + ", ".join(missing) if missing else "")
+
+
 def aircraft(L, sections, prandtl_glauert=False, points=None):
     """The representative propeller at r0's points: twist from the design lift coefficient at the loiter point, then at
     each point the pitch that absorbs the record's shaft power (constant speed). Returns the blade and one entry per
@@ -409,8 +418,7 @@ def acceptance_rows(res):
          "verdict": "pass" if all(e["verdict"] == "pass" for e in eta) else "outside at " + ", ".join(e["point"] for e in eta if e["verdict"] != "pass")},
         {"group": "aircraft", "row": 2, "what": "implied factor f (blade-element efficiency over the ideal efficiency of the same disk) "
          "against the ledger band", "points": fs, "band": list(F_BAND), "ledger_value": T["f_ledger"], "note": note,
-         "verdict": "inside the band at every point" if all(f["verdict"] == "inside the band" for f in fs)
-         else "finding: outside the band at " + ", ".join(f["point"] for f in fs if f["verdict"] != "inside the band")},
+         "verdict": row2_verdict(fs)},
         {"group": "aircraft", "row": 3, "what": "take-off: thrust at 0.707 V_TO at or above the f = 0.60 row of the recorded sweep",
          "thrust_lb": to.get("thrust_lb"), "minimum_lb": T["takeoff_thrust_min_lb"], "speed_fps": T["takeoff_speed_fps"],
          "static_thrust_lb": st.get("thrust_lb"), "static_error": st.get("error"), "error": to.get("error"), "note": note,
@@ -487,7 +495,7 @@ def run(out, log):
     res["used_in_r1"] = used_in_r1(row5["verdict"])
     log("validation: " + ", ".join(f"row {r['row']} {r['verdict']}" for r in res["validation"])
         + f"; row 5 largest difference {row5['largest_difference']}")
-    res["row5_curves"] = {a: [dict(J=float(J), **{k: v for k, v in run_5868_9(a, float(J), sections).items() if not isinstance(v, list)})
+    res["row5_curves"] = {a: [dict({k: v for k, v in run_5868_9(a, float(J), sections).items() if not isinstance(v, list)}, J=float(J))
                               for J in SENSITIVITY_J] for a in ROW5_ANGLES}
     res["row5_sensitivity"] = []
     for name, sec, kw in (("span factor 0.90", load_sections(0.90), {}), ("span factor 1.00", load_sections(1.0), {}),

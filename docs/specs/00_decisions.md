@@ -508,3 +508,12 @@ Stage 1 (S3M-8) and that an independent neutral point is needed.
   scipy and matplotlib only (PD-14); spec 7.1a tolerances carry over (PD-15); R1 to R19 and the standing rulings
   unchanged (PD-16); same branch and model allocation (PD-17). Work packages P0 to P10 and Gate C are in that
   spec. Owner items O-1 to O-3 there each have a default; none blocks the work. Nothing was run for this entry.
+- **PD-18 (2026-11-27, package P6: the blade of the representative propeller).** An agent's assumption under PD-10, not an
+  owner ruling. The representative propeller is three blades at the record's diameter and 2,030 rpm, constant speed, with:
+  the planform and thickness distribution of the Navy propeller 5868-9 of NACA Report 640 (the propeller the strip theory
+  was checked on), scaled to an activity factor of 100 per blade (band 90 to 140; Raymer p. 327); every station at a section
+  lift coefficient of 0.5 at the loiter point (band 0.4 to 0.6); the flat-bottomed propeller sections of NACA Report 259 as
+  section data. The entries and their bands are in `data/task12/pd_p6_blade_ledger.yaml`; the Gate B ledger and r0 are not
+  edited. No product is selected. The numbers computed with this blade are in
+  `docs/validation/2026-11-27_task12_pd_p6.md`; that report says whether they may be used in r1 (they may not while its
+  validation row 5 fails). Override: a maker's propeller map replaces the whole check (O-3).

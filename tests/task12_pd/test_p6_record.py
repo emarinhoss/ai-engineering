@@ -96,6 +96,7 @@ def test_aircraft_rows_follow_from_the_points(p, air):
             if o:                                                 # the ideal efficiency is (L.8) at the computed thrust
                 assert pt["eta_ideal"] == pytest.approx(bem.ideal_efficiency_of_disk(pt["thrust_lb"], o["rho"], o["V_fps"], o["D_ft"]))
                 assert pt["power_hp"] == pytest.approx(o["shaft_hp"], rel=1e-6)
+    assert air[2]["verdict"] == p6.row2_verdict(air[2]["points"])
     to = pts["takeoff_0707_VTO"]
     assert air[3]["minimum_lb"] == T["takeoff_thrust_min_lb"]
     if to.get("thrust_lb") is None:
