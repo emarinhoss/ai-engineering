@@ -1,0 +1,700 @@
+/tmp/claude-0/-home-user/d15a4c10-d7a3-5006-96e8-4d0a5f6097f0/scratchpad/vspenv/lib/python3.12/site-packages/openvsp/vspaero -omp 4 runs/task12/openvsp/2026-11-27_m250_ws13a8_vspaero/wing_L1
+Setting Sref to: 270.557711 
+Setting Cref to: 6.094375 
+Setting Bref to: 46.523776 
+Setting X_cg to: 11.938104 
+Setting Y_cg to: 0.000000 
+Setting Z_cg to: 0.000000 
+Number of Machs: 2 
+Mach: 0.142032 
+Mach: 0.210422 
+Number of AoAs: 6 
+AoA: -2.000000 
+AoA: 0.000000 
+AoA: 2.000000 
+AoA: 4.000000 
+AoA: 6.000000 
+AoA: 8.000000 
+Number of Betas: 1 
+Beta: 0.000000 
+Number of ReCs: 1 
+ReC: 3421506.168182 
+Setting Vinf to: 100.000000 
+Setting Rho to: 0.002377 
+Setting StallModel to: 0 
+Setting Clo2D to: 0.000000 
+Setting CLMax2D to: 1.000000 
+Setting Symmetry to: 0 
+Setting FreezeMultiPoleAtIteration to: 10000 
+Setting FreezeWakeAtIteration to: 10000 
+Setting FreezeWakeRootVortices to: 0 
+Setting ImplicitWake to: 0 
+Setting ImplicitWakeStartIteration_ to: 0 
+Setting FarDist to: -1.000000 
+Setting NumWakeNodes to: 8 
+Setting WakeIters to: 5 
+Setting WakeRelax to: 1.000000 
+Setting ForwardGMRESConvergenceFactor to: 1.000000e+00 
+Setting AdjointGMRESConvergenceFactor_ to: 1.000000e+00 
+Setting NonLinearConvergenceFactor to: 1.000000e+00 
+Setting CoreSizeFactor to: 1.000000 
+Setting multipole FarAway factor to: 5.000000 
+Setting UpdateMatrixPreconditioner flag to: 0 
+Setting UseWakeNodeMatrixPreconditioner flag to: 0 
+Setting QuadTreeBufferLevels_ flag to: 0 
+Number of NumberOfAdjointForceAndMomentCases_: 0 
+Number of NumberOfAdjointComponentListSettings_: 0 
+Setting Write2DFEMFile to: 0 
+Setting WriteTecplotFile to: 0 
+Sref            = 270.557711 
+Cref            = 6.094375 
+Bref            = 46.523776 
+X_cg            = 11.938104 
+Y_cg            = 0.000000 
+Z_cg            = 0.000000 
+Mach            = 0.142032, 0.210422 
+AoA             = -2.000000, 0.000000, 2.000000, 4.000000, 6.000000, 8.000000 
+Beta            = 0.000000 
+Vinf            = 100.000000 
+Vref            = 100.000000 
+Rho             = 0.002377 
+ReCref          = 3421506.168182 
+StallModel      = 0  
+Clo2D           = 0.000000 
+CLMax2D_        = 1.000000 
+Symmetry        = 0  
+FarDist         = -1.000000 
+NumWakeNodes    = 8  
+WakeIters       = 5  
+NumberOfControlGroups = 0 
+NumberofSurveyPoints: 0 
+NumberOfQuadTrees: 1 
+QuadTree(1):          2:    0.00000 
+NumberOfInlets: 0 
+NumberOfNozzles: 0 
+NumberOfInlets: 0 
+NumberOfNozzles: 0 
+VSPAERO v.7.2.2 --- Compiled on: Nov 24 2026 at 02:56:42 PST 
+
+
+
+
+Initializing OPENMP for 4 threads 
+NumberOfThreads_: 4 
+_OPENMP Version string: 201511
+NumNodes: 391 
+MaxNumberOfGridLevels_: 16 
+NumLoops: 352 
+NumNodesInList: 23 
+KuttaNodeList_[1]: 375 
+KuttaNodeList_[2]: 358 
+KuttaNodeList_[3]: 341 
+KuttaNodeList_[4]: 324 
+KuttaNodeList_[5]: 307 
+KuttaNodeList_[6]: 291 
+KuttaNodeList_[7]: 274 
+KuttaNodeList_[8]: 257 
+KuttaNodeList_[9]: 240 
+KuttaNodeList_[10]: 223 
+KuttaNodeList_[11]: 206 
+KuttaNodeList_[12]: 1 
+KuttaNodeList_[13]: 2 
+KuttaNodeList_[14]: 35 
+KuttaNodeList_[15]: 52 
+KuttaNodeList_[16]: 69 
+KuttaNodeList_[17]: 86 
+KuttaNodeList_[18]: 103 
+KuttaNodeList_[19]: 120 
+KuttaNodeList_[20]: 137 
+KuttaNodeList_[21]: 154 
+KuttaNodeList_[22]: 171 
+KuttaNodeList_[23]: 188 
+VSPGEOM defined NumKuttaNodes: 23 
+Found 2 VSPGEOM Surfaces 
+Found 2 VSPGEOM Surfaces 
+DumChar: # VSPGEOM v3 Tag Key File
+ 
+DumChar: runs/task12/openvsp/2026-11-27_m250_ws13a8_vspaero/wing_L1.vspgeom
+ 
+DumChar: 2
+ 
+NumberOfVSPSurfaces: 2 
+DumChar: 
+ 
+DumChar: # part#,geom#,surf#,gname,gid,thick,plate,copy#,geomcopy#
+ 
+Thick/thin data exists... DumChar: # part#,geom#,surf#,gname,gid,thick,plate,copy#,geomcopy#
+ 
+Part: 1 ... CompID: 0 ... SurfID: 0 
+Surface: 1 exists in triangulation and has OpenVSP Name: Wing_C 
+CompID: 0 
+Setting OpenVSP_ComponentIDForSurface_ to : 0 
+Surface: 1 is thin 
+Setting ComponentIDForSurface_ to : 1 
+Part: 2 ... CompID: 0 ... SurfID: 1 
+Surface: 2 exists in triangulation and has OpenVSP Name: Wing_C 
+CompID: 0 
+Setting OpenVSP_ComponentIDForSurface_ to : 0 
+Surface: 2 is thin 
+Setting ComponentIDForSurface_ to : 1 
+Found 2 used surfaces based on parsing VSPGEOM file 
+Found 2 used surfaces based on parsing VKEY file ... 
+Marking tris on thick and thin surfaces 
+Determining the number of thin and thick surfaces 
+NumberOfThinSurfaces_: 2 
+NumberOfThickSurfaces_: 0 
+Renumbering surfaces 
+Renumbering surface lists 
+Determining number of unique components 
+Found 1 unique components 
+ComponentIDForComponent_[1]: 1 
+ComponentIDForSurface_[1]: 1 
+ComponentIDForSurface_[2]: 1 
+ComponentIDForComponent_[1]: 1 
+Surface: 1 --> Component: 1 --> SurfaceName: Wing_C 
+Surface: 2 --> Component: 1 --> SurfaceName: Wing_C 
+SurfaceIsThick_[1]: 0 
+SurfaceIsThick_[2]: 0 
+Component: 1 with ID: 1 is thin 
+Pure tri mesh has 704 tris 
+After building ...pure tri mesh has 704 tris 
+Looking for runs/task12/openvsp/2026-11-27_m250_ws13a8_vspaero/wing_L1.ControlSurfaces.taglist control surface definition file ... 
+Did not find any control surface definitions... 
+Did not find a groups file... so setting up a single group for steady analysis 
+NumberOfComponentGroups_: 1 
+AllComponentsAreFixed_: 0 
+ThereIsRelativeComponentMotion_: 0 
+There are thin 1 components 
+Number of thin  tris:        704 
+Number of thick tris:        0 
+Number of thin + thick tris: 704 
+Number actual total tris:    704 
+There are thin components... renumbering for edge data structures 
+NumberOfThickTris: 0 
+ComponentIDForComponent(1): 1 
+ComponentIsThick(1): 0 
+Surface 1 has 704 tris and is being stored in temp mesh: 1 
+Created 1 thin surface mesh structures 
+Created 1 total mesh structures 
+Searching for thin/thick or thin/thin intersections... 
+Number of kutta nodes before trimming: 23 
+NumberOfKuttaNodes after trimming: 23 
+NumberOfKuttaNodes: 23 
+NumberOfKuttaEdges: 22 
+Working on VortexSheet: 1 
+KuttaNodeList[k].IsKuttaNode: 1 
+IncidentKuttaEdgesOnNode_[k]: 1 
+Found a starting wake sheet node... 188 
+Working on CurrentComponentID: 1 
+VortexSheet: 1 finished... which has 23 kutta nodes ... and 23 out of 23 kutta nodes are now allocated 
+Creating wake grids... 
+WakeAngle: 1.000000 0.000000 0.000000 
+Xmax_ - Xmin_: 8.021341 
+Ymax_ - Ymin_: 46.523776 
+Zmax_ - Zmin_: 0.316346 
+
+Wake FarFieldDist_ set to: 46.523776 
+
+There are:          1 Vortex Sheets 
+NumberOfWakeTrailingNodes_: 8 
+NumberOfWakeNodes: 184 
+NumberOfWakeLoops: 154 
+Merging fine wake grids... 
+Merging coarse wake grids... 
+Model is a VSPGEOM VLM geometry 
+NumberOfComponents_: 1
+Total NumberOfNodes:      575 
+Total NumberOfLoops:      1012 
+Total NumberOfEdges:      1585 
+Total NumberOfKuttaNodes: 23 
+NumberOfSurfaces_:        2 
+Total surface area: 272.269080 
+Minimum loop area constraint set to: 272.269080 
+Agglomerating mesh... 
+Grid:0 --> # loops:       1012 ...# Edges:       1585 ...# Nodes:        575  
+There are: 575 coarse grid nodes 
+There are: 1079 coarse grid edges 
+There are: 506 coarse grid loops 
+Number of Kutta Nodes: 23 
+Grid:1 --> # loops:        506 ...# Edges:       1079 ...# Nodes:        575  
+There are: 462 coarse grid nodes 
+There are: 611 coarse grid edges 
+There are: 151 coarse grid loops 
+Number of Kutta Nodes: 23 
+Merged: 196 edges that were colinear 
+Grid:2 --> # loops:        151 ...# Edges:        415 ...# Nodes:        266 
+There are: 228 coarse grid nodes 
+There are: 284 coarse grid edges 
+There are: 58 coarse grid loops 
+Number of Kutta Nodes: 23 
+Merged: 47 edges that were colinear 
+NumberOfGridLevels_: 2 
+NumberOfSurfaces_: 2 
+WakeAngle: 1.000000 0.000000 0.000000 
+Xmax_ - Xmin_: 8.021341 
+Ymax_ - Ymin_: 46.523776 
+Zmax_ - Zmin_: 0.316346 
+
+Wake FarFieldDist_ set to: 46.523776 
+
+There are:          1 Vortex Sheets 
+Creating vortex sheet data... 
+There are: 23 kutta nodes for sheet: 1 
+CoreWidth_: 0.538103 
+There are:         23 kutta nodes for vortex sheet:          1  
+Done creating vortex sheet data... 
+j: 1 --> U1,2: 0.636364 0.666667 
+j: 2 --> U1,2: 0.606061 0.636364 
+j: 3 --> U1,2: 0.575758 0.606061 
+j: 4 --> U1,2: 0.545455 0.575758 
+j: 5 --> U1,2: 0.515152 0.545455 
+j: 6 --> U1,2: 0.484848 0.515152 
+j: 7 --> U1,2: 0.454545 0.484848 
+j: 8 --> U1,2: 0.424242 0.454545 
+j: 9 --> U1,2: 0.393939 0.424242 
+j: 10 --> U1,2: 0.363636 0.393939 
+j: 11 --> U1,2: 0.333333 0.363636 
+j: 12 --> U1,2: 0.333333 0.363636 
+j: 13 --> U1,2: 0.363636 0.393939 
+j: 14 --> U1,2: 0.393939 0.424242 
+j: 15 --> U1,2: 0.424242 0.454545 
+j: 16 --> U1,2: 0.454545 0.484848 
+j: 17 --> U1,2: 0.484848 0.515152 
+j: 18 --> U1,2: 0.515152 0.545455 
+j: 19 --> U1,2: 0.545455 0.575758 
+j: 20 --> U1,2: 0.575758 0.606061 
+j: 21 --> U1,2: 0.606061 0.636364 
+j: 22 --> U1,2: 0.636364 0.666667 
+Found 1 wake surfaces for component group: 1 
+Found vortex sheet: 1 for component group: 1 
+Xmax_ - Xmin_: 8.021341 
+Ymax_ - Ymin_: 46.523776 
+Zmax_ - Zmin_: 0.316346 
+
+Minimum loop area: 5.879802e-02 
+Character Minimum loop length: 3.429228e-01 
+Setting surface edge cutoff to: 1.000000e-05 
+Number Of Trailing Vortices: 23 
+Model type: VLM 
+Number Of Vortex Loop Equations: 352 
+Number Of Wake Node Equations:   552 
+Number Of Stall Equations:       22 
+Total Number Of Equations:       926 
+No high lift data file found... 
+Creating vortex loop matrix preconditioners data structure... 
+Starting at level: 2 with a target of 352 loops 
+Level: 2 has MaxLoops of: 4 
+Using level: 2 to create matrix preconditioners. 
+Created: 1 Matrix preconditioners 
+Min matrix: 352 Loops 
+Max matrix: 352 Loops 
+Avg matrix: 352 Loops 
+
+Using 352 out of 352 surface loops 
+Creating wake nodes matrix preconditioners data structure... 
+Starting... Creating vorticity gradient data structure .. 
+Finished... Creating vorticity gradient data structure .. 
+VSPGeom().Grid(MGLevel_).NumberOfLoops(): 506 
+NumberOfEngineFaces_: 0 
+VSPGeom().NumberOfSurfaces(): 2 
+Done with setup... 
+WakeAngle_: 0.999391 -0.000000 -0.034899 
+Xmax_ - Xmin_: 8.021341 
+Ymax_ - Ymin_: 46.523776 
+Zmax_ - Zmin_: 0.316346 
+
+The wake FarDist set to: 46.523776 
+Updating wake grids... 
+SigmaAvg_: 2.152413 
+Creating interaction lists... 
+
+Forward sweep... 
+Working on level 2 of 2 Forward Mode: total multipole speed up ratio: 1.392294 
+Surface: 1 ... ComponentID: 1 ... Name: Wing_C ... SurfaceGIDList: EKGZTXAHXE 
+Surface: 2 ... ComponentID: 1 ... Name: Wing_C ... SurfaceGIDList: EKGZTXAHXE 
+Solving... Mach: 0.142032 ... Alpha: -2.000000 ... Beta: 0.000000 
+
+                                                                    Surface Integration Forces and Moments -->                                                  Wake Induced Forces -->  
+                                                                    Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-  Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake 
+    Iter    Mach       AoA      Beta       CLo       CLi      CLtot     CDo        CDi      CDtot      L/D        E       CMxtot    CMytot    Cmztot    CLiw       CDiw    LoDwake    Ewake      T/QS      L2Res    MaxRes  Wall_Time 
+Wake Iter:     1 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    2.71099 / 1.00000    ... KTRes: 0.00000    Wake Iter:     1 / 5     ... GMRES Iter:     1 ... Red:   -3.50627 / -1.00000   ...  Max:   -0.79528 / 1.00000            1   0.14203  -2.00000   0.00000   0.00041   0.00000   0.00041   0.01188   0.00000   0.01188   0.00000   0.00000   0.00000  -0.00070   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   1.04680   1.63974   0.01613 
+Working on level 2 of 2 Wake Iter:     2 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:   -0.79528 / 1.00000    ... KTRes: 0.00000    Wake Iter:     2 / 5     ... GMRES Iter:     1 ... Red:   -1.67483 / -1.00000   ...  Max:   -2.47011 / 1.00000            2   0.14203  -2.00000   0.00000   0.00042   0.13121   0.13163   0.01199   0.00072   0.01271  10.32447   0.94788   0.00000  -0.04858  -0.00000   0.13126   0.00070  10.35055   0.98581   0.00000  -1.20526  -0.54025   0.04136 
+Working on level 2 of 2 Wake Iter:     3 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:   -1.60951 / 1.00000    ... KTRes: 0.00000    Wake Iter:     3 / 5     ... GMRES Iter:     1 ... Red:   -3.12444 / -1.00000   ...  Max:   -4.73395 / 1.00000            3   0.14203  -2.00000   0.00000   0.00042   0.13120   0.13162   0.01199   0.00072   0.01271  10.32395   0.94782   0.00000  -0.04858  -0.00000   0.13125   0.00070  10.34972   0.98559   0.00000  -1.59181  -0.84270   0.06553 
+Working on level 2 of 2 Wake Iter:     4 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:   -2.37507 / 1.00000    ... KTRes: 0.00000    Wake Iter:     4 / 5     ... GMRES Iter:     1 ... Red:   -3.40153 / -1.00000   ...  Max:   -5.77660 / 1.00000            4   0.14203  -2.00000   0.00000   0.00042   0.13119   0.13161   0.01199   0.00072   0.01271  10.32341   0.94783   0.00000  -0.04858  -0.00000   0.13124   0.00070  10.34912   0.98557   0.00000  -2.04011  -1.24766   0.08986 
+Working on level 2 of 2 Wake Iter:     5 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:   -3.01641 / 1.00000    ... KTRes: 0.00000    Wake Iter:     5 / 5     ... GMRES Iter:     1 ... Red:   -3.23620 / -1.00000   ...  Max:   -6.25261 / 1.00000            5   0.14203  -2.00000   0.00000   0.00042   0.13119   0.13161   0.01199   0.00072   0.01271  10.32333   0.94790   0.00000  -0.04858  -0.00000   0.13124   0.00070  10.34899   0.98557   0.00000  -2.53859  -1.72126   0.12304 
+Creating quad tree velocity survey data structures... 
+Xmin_: 9.163347 
+Xmax_: 17.184687 
+Ymin_: -23.261888 
+Ymax_: 23.261888 
+Zmin_: -0.357288 
+Zmax_: -0.040942 
+Working on quad tree: 1 
+Direction, Value: 2 0.000000 
+Inserted: 3 points 
+
+WakeAngle_: 1.000000 -0.000000 0.000000 
+Xmax_ - Xmin_: 8.021341 
+Ymax_ - Ymin_: 46.523776 
+Zmax_ - Zmin_: 0.316346 
+
+The wake FarDist set to: 46.523776 
+Updating wake grids... 
+SigmaAvg_: 2.152413 
+Creating interaction lists... 
+
+Forward sweep... 
+Working on level 2 of 2 Forward Mode: total multipole speed up ratio: 1.392258 
+Solving... Mach: 0.142032 ... Alpha: 0.000000 ... Beta: 0.000000 
+
+                                                                    Surface Integration Forces and Moments -->                                                  Wake Induced Forces -->  
+                                                                    Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-  Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake 
+    Iter    Mach       AoA      Beta       CLo       CLi      CLtot     CDo        CDi      CDtot      L/D        E       CMxtot    CMytot    Cmztot    CLiw       CDiw    LoDwake    Ewake      T/QS      L2Res    MaxRes  Wall_Time 
+Wake Iter:     1 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    3.04532 / 1.00000    ... KTRes: 0.00000    Wake Iter:     1 / 5     ... GMRES Iter:     1 ... Red:   -3.21819 / -1.00000   ...  Max:   -0.17287 / 1.00000            1   0.14203   0.00000   0.00000   0.00000   0.00000   0.00000   0.01189   0.00000   0.01189   0.00000   0.00000   0.00000  -0.00070   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   1.02025   1.60701   0.01574 
+Working on level 2 of 2 Wake Iter:     2 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:   -0.17287 / 1.00000    ... KTRes: 0.00000    Wake Iter:     2 / 5     ... GMRES Iter:     1 ... Red:   -1.97328 / -1.00000   ...  Max:   -2.14614 / 1.00000            2   0.14203   0.00000   0.00000   0.00000   0.30213   0.30213   0.01245   0.00377   0.01623  18.62062   0.96312   0.00000  -0.00917  -0.00000   0.30120   0.00363  18.72745   0.99477   0.00000  -0.88183  -0.23667   0.03975 
+Working on level 2 of 2 Wake Iter:     3 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:   -0.83200 / 1.00000    ... KTRes: 0.00000    Wake Iter:     3 / 5     ... GMRES Iter:     1 ... Red:   -3.10015 / -1.00000   ...  Max:   -3.93216 / 1.00000            3   0.14203   0.00000   0.00000   0.00000   0.30213   0.30213   0.01245   0.00377   0.01622  18.62175   0.96344   0.00000  -0.00921  -0.00000   0.30117   0.00363  18.72457   0.99431   0.00000  -1.27479  -0.54589   0.06357 
+Working on level 2 of 2 Wake Iter:     4 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:   -1.72879 / 1.00000    ... KTRes: 0.00000    Wake Iter:     4 / 5     ... GMRES Iter:     1 ... Red:   -2.60057 / -1.00000   ...  Max:   -4.32936 / 1.00000            4   0.14203   0.00000   0.00000   0.00000   0.30208   0.30208   0.01245   0.00377   0.01622  18.62076   0.96354   0.00000  -0.00921  -0.00000   0.30112   0.00363  18.72326   0.99439   0.00000  -1.72267  -0.95593   0.08721 
+Working on level 2 of 2 Wake Iter:     5 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:   -2.28259 / 1.00000    ... KTRes: 0.00000    Wake Iter:     5 / 5     ... GMRES Iter:     1 ... Red:   -3.00597 / -1.00000   ...  Max:   -5.28856 / 1.00000            5   0.14203   0.00000   0.00000   0.00000   0.30207   0.30207   0.01245   0.00377   0.01622  18.62078   0.96359   0.00000  -0.00920  -0.00000   0.30111   0.00363  18.72336   0.99447   0.00000  -2.21229  -1.43348   0.11874 
+Creating quad tree velocity survey data structures... 
+Xmin_: 9.163347 
+Xmax_: 17.184687 
+Ymin_: -23.261888 
+Ymax_: 23.261888 
+Zmin_: -0.357288 
+Zmax_: -0.040942 
+Working on quad tree: 1 
+Direction, Value: 2 0.000000 
+Inserted: 3 points 
+
+WakeAngle_: 0.999391 -0.000000 0.034899 
+Xmax_ - Xmin_: 8.021341 
+Ymax_ - Ymin_: 46.523776 
+Zmax_ - Zmin_: 0.316346 
+
+The wake FarDist set to: 46.523776 
+Updating wake grids... 
+SigmaAvg_: 2.152413 
+Creating interaction lists... 
+
+Forward sweep... 
+Working on level 2 of 2 Forward Mode: total multipole speed up ratio: 1.392201 
+Solving... Mach: 0.142032 ... Alpha: 2.000000 ... Beta: 0.000000 
+
+                                                                    Surface Integration Forces and Moments -->                                                  Wake Induced Forces -->  
+                                                                    Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-  Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake 
+    Iter    Mach       AoA      Beta       CLo       CLi      CLtot     CDo        CDi      CDtot      L/D        E       CMxtot    CMytot    Cmztot    CLiw       CDiw    LoDwake    Ewake      T/QS      L2Res    MaxRes  Wall_Time 
+Wake Iter:     1 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    3.25903 / 1.00000    ... KTRes: 0.00000    Wake Iter:     1 / 5     ... GMRES Iter:     1 ... Red:   -3.21277 / -1.00000   ...  Max:    0.04626 / 1.00000            1   0.14203   2.00000   0.00000  -0.00041   0.00000  -0.00041   0.01188   0.00000   0.01188   0.00000   0.00000   0.00000  -0.00070   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   1.00899   1.57103   0.01566 
+Working on level 2 of 2 Wake Iter:     2 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    0.04626 / 1.00000    ... KTRes: 0.00000    Wake Iter:     2 / 5     ... GMRES Iter:     1 ... Red:   -1.98510 / -1.00000   ...  Max:   -1.93884 / 1.00000            2   0.14203   2.00000   0.00000  -0.00046   0.47295   0.47248   0.01327   0.00920   0.02247  21.04532   0.96707   0.00000   0.03045  -0.00000   0.47107   0.00885  21.29291   0.99728   0.00000  -0.69896  -0.05999   0.03959 
+Working on level 2 of 2 Wake Iter:     3 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:   -0.30087 / 1.00000    ... KTRes: 0.00000    Wake Iter:     3 / 5     ... GMRES Iter:     1 ... Red:   -3.09564 / -1.00000   ...  Max:   -3.39651 / 1.00000            3   0.14203   2.00000   0.00000  -0.00046   0.47244   0.47198   0.01327   0.00914   0.02241  21.07908   0.97138   0.00000   0.03052  -0.00000   0.47093   0.00886  21.28162   0.99616   0.00000  -1.09326  -0.37161   0.06336 
+Working on level 2 of 2 Wake Iter:     4 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:   -1.24172 / 1.00000    ... KTRes: 0.00000    Wake Iter:     4 / 5     ... GMRES Iter:     1 ... Red:   -2.63275 / -1.00000   ...  Max:   -3.87447 / 1.00000            4   0.14203   2.00000   0.00000  -0.00046   0.47228   0.47181   0.01327   0.00913   0.02240  21.08029   0.97159   0.00000   0.03052  -0.00000   0.47075   0.00885  21.28272   0.99638   0.00000  -1.53366  -0.78423   0.08693 
+Working on level 2 of 2 Wake Iter:     5 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:   -1.71500 / 1.00000    ... KTRes: 0.00000    Wake Iter:     5 / 5     ... GMRES Iter:     1 ... Red:   -2.66025 / -1.00000   ...  Max:   -4.37525 / 1.00000            5   0.14203   2.00000   0.00000  -0.00046   0.47226   0.47180   0.01327   0.00913   0.02240  21.08120   0.97170   0.00000   0.03053  -0.00000   0.47073   0.00885  21.28431   0.99659   0.00000  -2.00049  -1.09194   0.11894 
+Creating quad tree velocity survey data structures... 
+Xmin_: 9.163347 
+Xmax_: 17.184687 
+Ymin_: -23.261888 
+Ymax_: 23.261888 
+Zmin_: -0.357288 
+Zmax_: -0.040942 
+Working on quad tree: 1 
+Direction, Value: 2 0.000000 
+Inserted: 3 points 
+
+WakeAngle_: 0.997564 -0.000000 0.069756 
+Xmax_ - Xmin_: 8.021341 
+Ymax_ - Ymin_: 46.523776 
+Zmax_ - Zmin_: 0.316346 
+
+The wake FarDist set to: 46.523776 
+Updating wake grids... 
+SigmaAvg_: 2.152413 
+Creating interaction lists... 
+
+Forward sweep... 
+Working on level 2 of 2 Forward Mode: total multipole speed up ratio: 1.391988 
+Solving... Mach: 0.142032 ... Alpha: 4.000000 ... Beta: 0.000000 
+
+                                                                    Surface Integration Forces and Moments -->                                                  Wake Induced Forces -->  
+                                                                    Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-  Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake 
+    Iter    Mach       AoA      Beta       CLo       CLi      CLtot     CDo        CDi      CDtot      L/D        E       CMxtot    CMytot    Cmztot    CLiw       CDiw    LoDwake    Ewake      T/QS      L2Res    MaxRes  Wall_Time 
+Wake Iter:     1 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    3.40488 / 1.00000    ... KTRes: 0.00000    Wake Iter:     1 / 5     ... GMRES Iter:     1 ... Red:   -3.21279 / -1.00000   ...  Max:    0.19209 / 1.00000            1   0.14203   4.00000   0.00000  -0.00083   0.00000  -0.00083   0.01186   0.00000   0.01186   0.00000   0.00000   0.00000  -0.00070   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   1.01556   1.53123   0.01560 
+Working on level 2 of 2 Wake Iter:     2 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    0.19209 / 1.00000    ... KTRes: 0.00000    Wake Iter:     2 / 5     ... GMRES Iter:     1 ... Red:   -1.99652 / -1.00000   ...  Max:   -1.80443 / 1.00000            2   0.14203   4.00000   0.00000  -0.00101   0.64716   0.64615   0.01443   0.01763   0.03206  20.18703   0.94512   0.00000   0.06979  -0.00000   0.64087   0.01636  20.81751   0.99896   0.00000  -0.57088   0.06456   0.03969 
+Working on level 2 of 2 Wake Iter:     3 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    0.08419 / 1.00000    ... KTRes: 0.00000    Wake Iter:     3 / 5     ... GMRES Iter:     1 ... Red:   -3.12588 / -1.00000   ...  Max:   -3.04169 / 1.00000            3   0.14203   4.00000   0.00000  -0.00101   0.64549   0.64448   0.01443   0.01738   0.03180  20.29655   0.95410   0.00000   0.07009  -0.00000   0.64046   0.01637  20.79365   0.99678   0.00000  -0.96543  -0.24817   0.06338 
+Working on level 2 of 2 Wake Iter:     4 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:   -0.85121 / 1.00000    ... KTRes: 0.00000    Wake Iter:     4 / 5     ... GMRES Iter:     1 ... Red:   -2.48429 / -1.00000   ...  Max:   -3.33550 / 1.00000            4   0.14203   4.00000   0.00000  -0.00101   0.64509   0.64408   0.01442   0.01735   0.03178  20.30026   0.95418   0.00000   0.07010  -0.00000   0.64003   0.01635  20.80082   0.99720   0.00000  -1.39568  -0.60149   0.08688 
+Working on level 2 of 2 Wake Iter:     5 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:   -1.37289 / 1.00000    ... KTRes: 0.00000    Wake Iter:     5 / 5     ... GMRES Iter:     1 ... Red:   -2.38484 / -1.00000   ...  Max:   -3.75773 / 1.00000            5   0.14203   4.00000   0.00000  -0.00101   0.64505   0.64404   0.01442   0.01735   0.03177  20.30260   0.95437   0.00000   0.07011  -0.00000   0.63999   0.01634  20.80504   0.99756   0.00000  -1.82896  -0.81402   0.11809 
+Creating quad tree velocity survey data structures... 
+Xmin_: 9.163347 
+Xmax_: 17.184687 
+Ymin_: -23.261888 
+Ymax_: 23.261888 
+Zmin_: -0.357288 
+Zmax_: -0.040942 
+Working on quad tree: 1 
+Direction, Value: 2 0.000000 
+Inserted: 3 points 
+
+WakeAngle_: 0.994522 -0.000000 0.104528 
+Xmax_ - Xmin_: 8.021341 
+Ymax_ - Ymin_: 46.523776 
+Zmax_ - Zmin_: 0.316346 
+
+The wake FarDist set to: 46.523776 
+Updating wake grids... 
+SigmaAvg_: 2.152413 
+Creating interaction lists... 
+
+Forward sweep... 
+Working on level 2 of 2 Forward Mode: total multipole speed up ratio: 1.391882 
+Solving... Mach: 0.142032 ... Alpha: 6.000000 ... Beta: 0.000000 
+
+                                                                    Surface Integration Forces and Moments -->                                                  Wake Induced Forces -->  
+                                                                    Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-  Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake 
+    Iter    Mach       AoA      Beta       CLo       CLi      CLtot     CDo        CDi      CDtot      L/D        E       CMxtot    CMytot    Cmztot    CLiw       CDiw    LoDwake    Ewake      T/QS      L2Res    MaxRes  Wall_Time 
+Wake Iter:     1 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    3.51459 / 1.00000    ... KTRes: 0.00000    Wake Iter:     1 / 5     ... GMRES Iter:     1 ... Red:   -3.21237 / -1.00000   ...  Max:    0.30222 / 1.00000            1   0.14203   6.00000   0.00000  -0.00124   0.00000  -0.00124   0.01182   0.00000   0.01182   0.00000   0.00000   0.00000  -0.00070   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   1.03844   1.48682   0.01553 
+Working on level 2 of 2 Wake Iter:     2 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    0.30222 / 1.00000    ... KTRes: 0.00000    Wake Iter:     2 / 5     ... GMRES Iter:     1 ... Red:   -2.00427 / -1.00000   ...  Max:   -1.70205 / 1.00000            2   0.14203   6.00000   0.00000  -0.00167   0.81829   0.81662   0.01592   0.02818   0.04409  18.55853   0.94554   0.00000   0.10939  -0.00000   0.81060   0.02613  19.27956   1.00057   0.00000  -0.47236   0.15986   0.03946 
+Working on level 2 of 2 Wake Iter:     3 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    0.38593 / 1.00000    ... KTRes: 0.00000    Wake Iter:     3 / 5     ... GMRES Iter:     1 ... Red:   -3.13133 / -1.00000   ...  Max:   -2.74540 / 1.00000            3   0.14203   6.00000   0.00000  -0.00167   0.81670   0.81502   0.01592   0.02790   0.04381  18.64073   0.95136   0.00000   0.10971  -0.00000   0.80970   0.02617  19.24084   0.99696   0.00000  -0.86654  -0.15260   0.06308 
+Working on level 2 of 2 Wake Iter:     4 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:   -0.52929 / 1.00000    ... KTRes: 0.00000    Wake Iter:     4 / 5     ... GMRES Iter:     1 ... Red:   -2.39708 / -1.00000   ...  Max:   -2.92637 / 1.00000            4   0.14203   6.00000   0.00000  -0.00167   0.81565   0.81398   0.01591   0.02778   0.04369  18.66925   0.95290   0.00000   0.10986  -0.00000   0.80886   0.02610  19.25512   0.99750   0.00000  -1.28552  -0.42959   0.08656 
+Working on level 2 of 2 Wake Iter:     5 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:   -0.96617 / 1.00000    ... KTRes: 0.00000    Wake Iter:     5 / 5     ... GMRES Iter:     1 ... Red:   -2.31604 / -1.00000   ...  Max:   -3.28221 / 1.00000            5   0.14203   6.00000   0.00000  -0.00167   0.81476   0.81309   0.01591   0.02763   0.04354  18.71175   0.95587   0.00000   0.10995  -0.00000   0.80879   0.02608  19.26327   0.99814   0.00000  -1.68032  -0.61266   0.11761 
+Creating quad tree velocity survey data structures... 
+Xmin_: 9.163347 
+Xmax_: 17.184687 
+Ymin_: -23.261888 
+Ymax_: 23.261888 
+Zmin_: -0.357288 
+Zmax_: -0.040942 
+Working on quad tree: 1 
+Direction, Value: 2 0.000000 
+Inserted: 3 points 
+
+WakeAngle_: 0.990268 -0.000000 0.139173 
+Xmax_ - Xmin_: 8.021341 
+Ymax_ - Ymin_: 46.523776 
+Zmax_ - Zmin_: 0.316346 
+
+The wake FarDist set to: 46.523776 
+Updating wake grids... 
+SigmaAvg_: 2.152413 
+Creating interaction lists... 
+
+Forward sweep... 
+Working on level 2 of 2 Forward Mode: total multipole speed up ratio: 1.391768 
+Solving... Mach: 0.142032 ... Alpha: 8.000000 ... Beta: 0.000000 
+
+                                                                    Surface Integration Forces and Moments -->                                                  Wake Induced Forces -->  
+                                                                    Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-  Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake 
+    Iter    Mach       AoA      Beta       CLo       CLi      CLtot     CDo        CDi      CDtot      L/D        E       CMxtot    CMytot    Cmztot    CLiw       CDiw    LoDwake    Ewake      T/QS      L2Res    MaxRes  Wall_Time 
+Wake Iter:     1 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    3.60223 / 1.00000    ... KTRes: 0.00000    Wake Iter:     1 / 5     ... GMRES Iter:     1 ... Red:   -3.21170 / -1.00000   ...  Max:    0.39053 / 1.00000            1   0.14203   8.00000   0.00000  -0.00165   0.00000  -0.00165   0.01177   0.00000   0.01177   0.00000   0.00000   0.00000  -0.00070   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   1.07303   1.43675   0.01567 
+Working on level 2 of 2 Wake Iter:     2 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    0.39053 / 1.00000    ... KTRes: 0.00000    Wake Iter:     2 / 5     ... GMRES Iter:     1 ... Red:   -2.01125 / -1.00000   ...  Max:   -1.62072 / 1.00000            2   0.14203   8.00000   0.00000  -0.00249   0.98862   0.98613   0.01773   0.04112   0.05884  16.80038   0.94573   0.00000   0.14889   0.00000   0.98023   0.03814  17.54562   1.00232   0.00000  -0.39228   0.23779   0.03998 
+Working on level 2 of 2 Wake Iter:     3 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    0.63082 / 1.00000    ... KTRes: 0.00000    Wake Iter:     3 / 5     ... GMRES Iter:     1 ... Red:   -3.13811 / -1.00000   ...  Max:   -2.50729 / 1.00000            3   0.14203   8.00000   0.00000  -0.00249   0.98677   0.98428   0.01773   0.04076   0.05849  16.87032   0.95040   0.00000   0.14922   0.00000   0.97860   0.03822  17.49081   0.99690   0.00000  -0.78595  -0.07556   0.06395 
+Working on level 2 of 2 Wake Iter:     4 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:   -0.26676 / 1.00000    ... KTRes: 0.00000    Wake Iter:     4 / 5     ... GMRES Iter:     1 ... Red:   -2.39002 / -1.00000   ...  Max:   -2.65677 / 1.00000            4   0.14203   8.00000   0.00000  -0.00249   0.98508   0.98259   0.01771   0.04059   0.05830  16.89696   0.95133   0.00000   0.14932   0.00000   0.97715   0.03809  17.51204   0.99753   0.00000  -1.19455  -0.30128   0.08783 
+Working on level 2 of 2 Wake Iter:     5 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:   -0.78586 / 1.00000    ... KTRes: 0.00000    Wake Iter:     5 / 5     ... GMRES Iter:     1 ... Red:   -2.04070 / -1.00000   ...  Max:   -2.82656 / 1.00000            5   0.14203   8.00000   0.00000  -0.00249   0.98478   0.98229   0.01771   0.04053   0.05824  16.90911   0.95213   0.00000   0.14941   0.00000   0.97700   0.03804  17.52245   0.99830   0.00000  -1.55332  -0.46924   0.11918 
+Creating quad tree velocity survey data structures... 
+Xmin_: 9.163347 
+Xmax_: 17.184687 
+Ymin_: -23.261888 
+Ymax_: 23.261888 
+Zmin_: -0.357288 
+Zmax_: -0.040942 
+Working on quad tree: 1 
+Direction, Value: 2 0.000000 
+Inserted: 3 points 
+
+WakeAngle_: 0.999391 -0.000000 -0.034899 
+Xmax_ - Xmin_: 8.021341 
+Ymax_ - Ymin_: 46.523776 
+Zmax_ - Zmin_: 0.316346 
+
+The wake FarDist set to: 46.523776 
+Updating wake grids... 
+SigmaAvg_: 2.152413 
+Creating interaction lists... 
+
+Forward sweep... 
+Working on level 2 of 2 Forward Mode: total multipole speed up ratio: 1.392294 
+Solving... Mach: 0.210422 ... Alpha: -2.000000 ... Beta: 0.000000 
+
+                                                                    Surface Integration Forces and Moments -->                                                  Wake Induced Forces -->  
+                                                                    Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-  Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake 
+    Iter    Mach       AoA      Beta       CLo       CLi      CLtot     CDo        CDi      CDtot      L/D        E       CMxtot    CMytot    Cmztot    CLiw       CDiw    LoDwake    Ewake      T/QS      L2Res    MaxRes  Wall_Time 
+Wake Iter:     1 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    2.71553 / 1.00000    ... KTRes: 0.00000    Wake Iter:     1 / 5     ... GMRES Iter:     1 ... Red:   -3.50439 / -1.00000   ...  Max:   -0.78885 / 1.00000            1   0.21042  -2.00000   0.00000   0.00041   0.00000   0.00041   0.01188   0.00000   0.01188   0.00000   0.00000   0.00000  -0.00070   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   1.04680   1.63974   0.01541 
+Working on level 2 of 2 Wake Iter:     2 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:   -0.78885 / 1.00000    ... KTRes: 0.00000    Wake Iter:     2 / 5     ... GMRES Iter:     1 ... Red:   -1.67369 / -1.00000   ...  Max:   -2.46254 / 1.00000            2   0.21042  -2.00000   0.00000   0.00042   0.13253   0.13295   0.01199   0.00074   0.01272  10.41492   0.94854   0.00000  -0.04916  -0.00000   0.13258   0.00071  10.44090   0.98529   0.00000  -1.20332  -0.53722   0.03949 
+Working on level 2 of 2 Wake Iter:     3 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:   -1.59084 / 1.00000    ... KTRes: 0.00000    Wake Iter:     3 / 5     ... GMRES Iter:     1 ... Red:   -3.09739 / -1.00000   ...  Max:   -4.68823 / 1.00000            3   0.21042  -2.00000   0.00000   0.00042   0.13252   0.13294   0.01199   0.00074   0.01272  10.41438   0.94848   0.00000  -0.04917  -0.00000   0.13257   0.00071  10.44004   0.98507   0.00000  -1.59007  -0.84011   0.06302 
+Working on level 2 of 2 Wake Iter:     4 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:   -2.35315 / 1.00000    ... KTRes: 0.00000    Wake Iter:     4 / 5     ... GMRES Iter:     1 ... Red:   -3.40638 / -1.00000   ...  Max:   -5.75952 / 1.00000            4   0.21042  -2.00000   0.00000   0.00042   0.13251   0.13293   0.01199   0.00074   0.01272  10.41386   0.94855   0.00000  -0.04917  -0.00000   0.13256   0.00071  10.43941   0.98505   0.00000  -2.03849  -1.24534   0.08675 
+Working on level 2 of 2 Wake Iter:     5 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:   -3.00425 / 1.00000    ... KTRes: 0.00000    Wake Iter:     5 / 5     ... GMRES Iter:     1 ... Red:   -3.38578 / -1.00000   ...  Max:   -6.39003 / 1.00000            5   0.21042  -2.00000   0.00000   0.00042   0.13251   0.13293   0.01199   0.00074   0.01272  10.41373   0.94856   0.00000  -0.04916  -0.00000   0.13256   0.00071  10.43928   0.98505   0.00000  -2.53702  -1.71912   0.11772 
+Creating quad tree velocity survey data structures... 
+Xmin_: 9.163347 
+Xmax_: 17.184687 
+Ymin_: -23.261888 
+Ymax_: 23.261888 
+Zmin_: -0.357288 
+Zmax_: -0.040942 
+Working on quad tree: 1 
+Direction, Value: 2 0.000000 
+Inserted: 3 points 
+
+WakeAngle_: 1.000000 -0.000000 0.000000 
+Xmax_ - Xmin_: 8.021341 
+Ymax_ - Ymin_: 46.523776 
+Zmax_ - Zmin_: 0.316346 
+
+The wake FarDist set to: 46.523776 
+Updating wake grids... 
+SigmaAvg_: 2.152413 
+Creating interaction lists... 
+
+Forward sweep... 
+Working on level 2 of 2 Forward Mode: total multipole speed up ratio: 1.392258 
+Solving... Mach: 0.210422 ... Alpha: 0.000000 ... Beta: 0.000000 
+
+                                                                    Surface Integration Forces and Moments -->                                                  Wake Induced Forces -->  
+                                                                    Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-  Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake 
+    Iter    Mach       AoA      Beta       CLo       CLi      CLtot     CDo        CDi      CDtot      L/D        E       CMxtot    CMytot    Cmztot    CLiw       CDiw    LoDwake    Ewake      T/QS      L2Res    MaxRes  Wall_Time 
+Wake Iter:     1 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    3.04940 / 1.00000    ... KTRes: 0.00000    Wake Iter:     1 / 5     ... GMRES Iter:     1 ... Red:   -3.21196 / -1.00000   ...  Max:   -0.16255 / 1.00000            1   0.21042   0.00000   0.00000   0.00000   0.00000   0.00000   0.01189   0.00000   0.01189   0.00000   0.00000   0.00000  -0.00070   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   1.02025   1.60701   0.01569 
+Working on level 2 of 2 Wake Iter:     2 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:   -0.16255 / 1.00000    ... KTRes: 0.00000    Wake Iter:     2 / 5     ... GMRES Iter:     1 ... Red:   -1.97562 / -1.00000   ...  Max:   -2.13818 / 1.00000            2   0.21042   0.00000   0.00000   0.00000   0.30501   0.30501   0.01247   0.00384   0.01631  18.70366   0.96346   0.00000  -0.00940  -0.00000   0.30406   0.00370  18.80964   0.99434   0.00000  -0.87979  -0.23401   0.04044 
+Working on level 2 of 2 Wake Iter:     3 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:   -0.81947 / 1.00000    ... KTRes: 0.00000    Wake Iter:     3 / 5     ... GMRES Iter:     1 ... Red:   -3.08707 / -1.00000   ...  Max:   -3.90654 / 1.00000            3   0.21042   0.00000   0.00000   0.00000   0.30500   0.30500   0.01247   0.00384   0.01631  18.70487   0.96381   0.00000  -0.00943  -0.00000   0.30403   0.00370  18.80671   0.99388   0.00000  -1.27295  -0.54361   0.06479 
+Working on level 2 of 2 Wake Iter:     4 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:   -1.71531 / 1.00000    ... KTRes: 0.00000    Wake Iter:     4 / 5     ... GMRES Iter:     1 ... Red:   -2.59265 / -1.00000   ...  Max:   -4.30796 / 1.00000            4   0.21042   0.00000   0.00000   0.00000   0.30495   0.30495   0.01247   0.00384   0.01630  18.70389   0.96392   0.00000  -0.00943  -0.00000   0.30398   0.00370  18.80540   0.99396   0.00000  -1.72080  -0.95388   0.08862 
+Working on level 2 of 2 Wake Iter:     5 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:   -2.27375 / 1.00000    ... KTRes: 0.00000    Wake Iter:     5 / 5     ... GMRES Iter:     1 ... Red:   -2.98211 / -1.00000   ...  Max:   -5.25586 / 1.00000            5   0.21042   0.00000   0.00000   0.00000   0.30494   0.30494   0.01247   0.00384   0.01630  18.70392   0.96397   0.00000  -0.00943  -0.00000   0.30397   0.00370  18.80551   0.99404   0.00000  -2.21011  -1.43158   0.12033 
+Creating quad tree velocity survey data structures... 
+Xmin_: 9.163347 
+Xmax_: 17.184687 
+Ymin_: -23.261888 
+Ymax_: 23.261888 
+Zmin_: -0.357288 
+Zmax_: -0.040942 
+Working on quad tree: 1 
+Direction, Value: 2 0.000000 
+Inserted: 3 points 
+
+WakeAngle_: 0.999391 -0.000000 0.034899 
+Xmax_ - Xmin_: 8.021341 
+Ymax_ - Ymin_: 46.523776 
+Zmax_ - Zmin_: 0.316346 
+
+The wake FarDist set to: 46.523776 
+Updating wake grids... 
+SigmaAvg_: 2.152413 
+Creating interaction lists... 
+
+Forward sweep... 
+Working on level 2 of 2 Forward Mode: total multipole speed up ratio: 1.392201 
+Solving... Mach: 0.210422 ... Alpha: 2.000000 ... Beta: 0.000000 
+
+                                                                    Surface Integration Forces and Moments -->                                                  Wake Induced Forces -->  
+                                                                    Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-  Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake 
+    Iter    Mach       AoA      Beta       CLo       CLi      CLtot     CDo        CDi      CDtot      L/D        E       CMxtot    CMytot    Cmztot    CLiw       CDiw    LoDwake    Ewake      T/QS      L2Res    MaxRes  Wall_Time 
+Wake Iter:     1 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    3.26304 / 1.00000    ... KTRes: 0.00000    Wake Iter:     1 / 5     ... GMRES Iter:     1 ... Red:   -3.20689 / -1.00000   ...  Max:    0.05615 / 1.00000            1   0.21042   2.00000   0.00000  -0.00041   0.00000  -0.00041   0.01188   0.00000   0.01188   0.00000   0.00000   0.00000  -0.00070   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   1.00899   1.57103   0.01731 
+Working on level 2 of 2 Wake Iter:     2 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    0.05615 / 1.00000    ... KTRes: 0.00000    Wake Iter:     2 / 5     ... GMRES Iter:     1 ... Red:   -1.98671 / -1.00000   ...  Max:   -1.93056 / 1.00000            2   0.21042   2.00000   0.00000  -0.00046   0.47731   0.47684   0.01330   0.00936   0.02266  21.06336   0.96799   0.00000   0.03061  -0.00000   0.47547   0.00902  21.30278   0.99684   0.00000  -0.69689  -0.05746   0.04348 
+Working on level 2 of 2 Wake Iter:     3 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:   -0.29307 / 1.00000    ... KTRes: 0.00000    Wake Iter:     3 / 5     ... GMRES Iter:     1 ... Red:   -3.08513 / -1.00000   ...  Max:   -3.37820 / 1.00000            3   0.21042   2.00000   0.00000  -0.00046   0.47686   0.47639   0.01330   0.00931   0.02261  21.09273   0.97170   0.00000   0.03066  -0.00000   0.47533   0.00903  21.29155   0.99574   0.00000  -1.09135  -0.36943   0.06962 
+Working on level 2 of 2 Wake Iter:     4 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:   -1.23486 / 1.00000    ... KTRes: 0.00000    Wake Iter:     4 / 5     ... GMRES Iter:     1 ... Red:   -2.61883 / -1.00000   ...  Max:   -3.85369 / 1.00000            4   0.21042   2.00000   0.00000  -0.00046   0.47669   0.47622   0.01330   0.00930   0.02260  21.09404   0.97191   0.00000   0.03067  -0.00000   0.47515   0.00902  21.29278   0.99597   0.00000  -1.53152  -0.78229   0.09610 
+Working on level 2 of 2 Wake Iter:     5 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:   -1.68911 / 1.00000    ... KTRes: 0.00000    Wake Iter:     5 / 5     ... GMRES Iter:     1 ... Red:   -2.67119 / -1.00000   ...  Max:   -4.36030 / 1.00000            5   0.21042   2.00000   0.00000  -0.00046   0.47667   0.47621   0.01330   0.00930   0.02260  21.09500   0.97203   0.00000   0.03067  -0.00000   0.47513   0.00902  21.29441   0.99617   0.00000  -1.99717  -1.08461   0.13124 
+Creating quad tree velocity survey data structures... 
+Xmin_: 9.163347 
+Xmax_: 17.184687 
+Ymin_: -23.261888 
+Ymax_: 23.261888 
+Zmin_: -0.357288 
+Zmax_: -0.040942 
+Working on quad tree: 1 
+Direction, Value: 2 0.000000 
+Inserted: 3 points 
+
+WakeAngle_: 0.997564 -0.000000 0.069756 
+Xmax_ - Xmin_: 8.021341 
+Ymax_ - Ymin_: 46.523776 
+Zmax_ - Zmin_: 0.316346 
+
+The wake FarDist set to: 46.523776 
+Updating wake grids... 
+SigmaAvg_: 2.152413 
+Creating interaction lists... 
+
+Forward sweep... 
+Working on level 2 of 2 Forward Mode: total multipole speed up ratio: 1.391988 
+Solving... Mach: 0.210422 ... Alpha: 4.000000 ... Beta: 0.000000 
+
+                                                                    Surface Integration Forces and Moments -->                                                  Wake Induced Forces -->  
+                                                                    Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-  Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake 
+    Iter    Mach       AoA      Beta       CLo       CLi      CLtot     CDo        CDi      CDtot      L/D        E       CMxtot    CMytot    Cmztot    CLiw       CDiw    LoDwake    Ewake      T/QS      L2Res    MaxRes  Wall_Time 
+Wake Iter:     1 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    3.40887 / 1.00000    ... KTRes: 0.00000    Wake Iter:     1 / 5     ... GMRES Iter:     1 ... Red:   -3.20703 / -1.00000   ...  Max:    0.20184 / 1.00000            1   0.21042   4.00000   0.00000  -0.00083   0.00000  -0.00083   0.01186   0.00000   0.01186   0.00000   0.00000   0.00000  -0.00070   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   1.01556   1.53123   0.01864 
+Working on level 2 of 2 Wake Iter:     2 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    0.20184 / 1.00000    ... KTRes: 0.00000    Wake Iter:     2 / 5     ... GMRES Iter:     1 ... Red:   -1.99791 / -1.00000   ...  Max:   -1.79606 / 1.00000            2   0.21042   4.00000   0.00000  -0.00101   0.65320   0.65219   0.01447   0.01796   0.03243  20.14226   0.94551   0.00000   0.07029  -0.00000   0.64682   0.01667  20.76707   0.99848   0.00000  -0.56880   0.06705   0.04387 
+Working on level 2 of 2 Wake Iter:     3 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    0.08941 / 1.00000    ... KTRes: 0.00000    Wake Iter:     3 / 5     ... GMRES Iter:     1 ... Red:   -3.11678 / -1.00000   ...  Max:   -3.02737 / 1.00000            3   0.21042   4.00000   0.00000  -0.00101   0.65148   0.65047   0.01448   0.01769   0.03217  20.25349   0.95457   0.00000   0.07059  -0.00000   0.64639   0.01669  20.74370   0.99634   0.00000  -0.96348  -0.24605   0.06924 
+Working on level 2 of 2 Wake Iter:     4 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:   -0.84416 / 1.00000    ... KTRes: 0.00000    Wake Iter:     4 / 5     ... GMRES Iter:     1 ... Red:   -2.45246 / -1.00000   ...  Max:   -3.29662 / 1.00000            4   0.21042   4.00000   0.00000  -0.00101   0.65107   0.65006   0.01447   0.01767   0.03214  20.25796   0.95470   0.00000   0.07060  -0.00000   0.64596   0.01666  20.75116   0.99677   0.00000  -1.39324  -0.59554   0.09381 
+Working on level 2 of 2 Wake Iter:     5 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:   -1.37301 / 1.00000    ... KTRes: 0.00000    Wake Iter:     5 / 5     ... GMRES Iter:     1 ... Red:   -2.45596 / -1.00000   ...  Max:   -3.82897 / 1.00000            5   0.21042   4.00000   0.00000  -0.00101   0.65104   0.65003   0.01447   0.01766   0.03213  20.25981   0.95485   0.00000   0.07062  -0.00000   0.64592   0.01665  20.75545   0.99714   0.00000  -1.82485  -0.80662   0.12621 
+Creating quad tree velocity survey data structures... 
+Xmin_: 9.163347 
+Xmax_: 17.184687 
+Ymin_: -23.261888 
+Ymax_: 23.261888 
+Zmin_: -0.357288 
+Zmax_: -0.040942 
+Working on quad tree: 1 
+Direction, Value: 2 0.000000 
+Inserted: 3 points 
+
+WakeAngle_: 0.994522 -0.000000 0.104528 
+Xmax_ - Xmin_: 8.021341 
+Ymax_ - Ymin_: 46.523776 
+Zmax_ - Zmin_: 0.316346 
+
+The wake FarDist set to: 46.523776 
+Updating wake grids... 
+SigmaAvg_: 2.152413 
+Creating interaction lists... 
+
+Forward sweep... 
+Working on level 2 of 2 Forward Mode: total multipole speed up ratio: 1.391882 
+Solving... Mach: 0.210422 ... Alpha: 6.000000 ... Beta: 0.000000 
+
+                                                                    Surface Integration Forces and Moments -->                                                  Wake Induced Forces -->  
+                                                                    Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-  Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake 
+    Iter    Mach       AoA      Beta       CLo       CLi      CLtot     CDo        CDi      CDtot      L/D        E       CMxtot    CMytot    Cmztot    CLiw       CDiw    LoDwake    Ewake      T/QS      L2Res    MaxRes  Wall_Time 
+Wake Iter:     1 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    3.51857 / 1.00000    ... KTRes: 0.00000    Wake Iter:     1 / 5     ... GMRES Iter:     1 ... Red:   -3.20665 / -1.00000   ...  Max:    0.31191 / 1.00000            1   0.21042   6.00000   0.00000  -0.00124   0.00000  -0.00124   0.01182   0.00000   0.01182   0.00000   0.00000   0.00000  -0.00070   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   1.03844   1.48682   0.01742 
+Working on level 2 of 2 Wake Iter:     2 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    0.31191 / 1.00000    ... KTRes: 0.00000    Wake Iter:     2 / 5     ... GMRES Iter:     1 ... Red:   -2.00552 / -1.00000   ...  Max:   -1.69360 / 1.00000            2   0.21042   6.00000   0.00000  -0.00168   0.82576   0.82408   0.01599   0.02867   0.04466  18.49096   0.94646   0.00000   0.11028  -0.00000   0.81809   0.02663  19.19441   0.99999   0.00000  -0.47026   0.16235   0.04273 
+Working on level 2 of 2 Wake Iter:     3 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    0.38976 / 1.00000    ... KTRes: 0.00000    Wake Iter:     3 / 5     ... GMRES Iter:     1 ... Red:   -3.12220 / -1.00000   ...  Max:   -2.73245 / 1.00000            3   0.21042   6.00000   0.00000  -0.00168   0.82411   0.82243   0.01599   0.02837   0.04436  18.57570   0.95244   0.00000   0.11062  -0.00000   0.81717   0.02666  19.15688   0.99647   0.00000  -0.86454  -0.15051   0.06746 
+Working on level 2 of 2 Wake Iter:     4 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:   -0.53479 / 1.00000    ... KTRes: 0.00000    Wake Iter:     4 / 5     ... GMRES Iter:     1 ... Red:   -2.36778 / -1.00000   ...  Max:   -2.90257 / 1.00000            4   0.21042   6.00000   0.00000  -0.00168   0.82319   0.82151   0.01599   0.02828   0.04427  18.59547   0.95335   0.00000   0.11072  -0.00000   0.81632   0.02659  19.17181   0.99705   0.00000  -1.28283  -0.42397   0.09233 
+Working on level 2 of 2 Wake Iter:     5 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:   -0.97136 / 1.00000    ... KTRes: 0.00000    Wake Iter:     5 / 5     ... GMRES Iter:     1 ... Red:   -2.30862 / -1.00000   ...  Max:   -3.27998 / 1.00000            5   0.21042   6.00000   0.00000  -0.00168   0.82229   0.82061   0.01599   0.02813   0.04412  18.63804   0.95631   0.00000   0.11082  -0.00000   0.81625   0.02657  19.17982   0.99768   0.00000  -1.67552  -0.60591   0.12720 
+Creating quad tree velocity survey data structures... 
+Xmin_: 9.163347 
+Xmax_: 17.184687 
+Ymin_: -23.261888 
+Ymax_: 23.261888 
+Zmin_: -0.357288 
+Zmax_: -0.040942 
+Working on quad tree: 1 
+Direction, Value: 2 0.000000 
+Inserted: 3 points 
+
+WakeAngle_: 0.990268 -0.000000 0.139173 
+Xmax_ - Xmin_: 8.021341 
+Ymax_ - Ymin_: 46.523776 
+Zmax_ - Zmin_: 0.316346 
+
+The wake FarDist set to: 46.523776 
+Updating wake grids... 
+SigmaAvg_: 2.152413 
+Creating interaction lists... 
+
+Forward sweep... 
+Working on level 2 of 2 Forward Mode: total multipole speed up ratio: 1.391768 
+Solving... Mach: 0.210422 ... Alpha: 8.000000 ... Beta: 0.000000 
+
+                                                                    Surface Integration Forces and Moments -->                                                  Wake Induced Forces -->  
+                                                                    Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-  Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake 
+    Iter    Mach       AoA      Beta       CLo       CLi      CLtot     CDo        CDi      CDtot      L/D        E       CMxtot    CMytot    Cmztot    CLiw       CDiw    LoDwake    Ewake      T/QS      L2Res    MaxRes  Wall_Time 
+Wake Iter:     1 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    3.60620 / 1.00000    ... KTRes: 0.00000    Wake Iter:     1 / 5     ... GMRES Iter:     1 ... Red:   -3.20599 / -1.00000   ...  Max:    0.40021 / 1.00000            1   0.21042   8.00000   0.00000  -0.00165   0.00000  -0.00165   0.01177   0.00000   0.01177   0.00000   0.00000   0.00000  -0.00070   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   1.07303   1.43675   0.01642 
+Working on level 2 of 2 Wake Iter:     2 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    0.40021 / 1.00000    ... KTRes: 0.00000    Wake Iter:     2 / 5     ... GMRES Iter:     1 ... Red:   -2.01241 / -1.00000   ...  Max:   -1.61219 / 1.00000            2   0.21042   8.00000   0.00000  -0.00251   0.99776   0.99525   0.01784   0.04187   0.05971  16.71117   0.94602   0.00000   0.15010   0.00000   0.98927   0.03888  17.44362   1.00160   0.00000  -0.39014   0.24028   0.04219 
+Working on level 2 of 2 Wake Iter:     3 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    0.63359 / 1.00000    ... KTRes: 0.00000    Wake Iter:     3 / 5     ... GMRES Iter:     1 ... Red:   -3.13192 / -1.00000   ...  Max:   -2.49834 / 1.00000            3   0.21042   8.00000   0.00000  -0.00251   0.99586   0.99335   0.01784   0.04150   0.05934  16.78234   0.95078   0.00000   0.15044   0.00000   0.98760   0.03895  17.39086   0.99632   0.00000  -0.78392  -0.07350   0.06695 
+Working on level 2 of 2 Wake Iter:     4 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:   -0.26971 / 1.00000    ... KTRes: 0.00000    Wake Iter:     4 / 5     ... GMRES Iter:     1 ... Red:   -2.36168 / -1.00000   ...  Max:   -2.63138 / 1.00000            4   0.21042   8.00000   0.00000  -0.00250   0.99415   0.99164   0.01782   0.04132   0.05914  16.80873   0.95168   0.00000   0.15054   0.00000   0.98613   0.03881  17.41264   0.99699   0.00000  -1.19157  -0.29598   0.09306 
+Working on level 2 of 2 Wake Iter:     5 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:   -0.75788 / 1.00000    ... KTRes: 0.00000    Wake Iter:     5 / 5     ... GMRES Iter:     1 ... Red:   -2.06760 / -1.00000   ...  Max:   -2.82548 / 1.00000            5   0.21042   8.00000   0.00000  -0.00250   0.99385   0.99135   0.01782   0.04126   0.05908  16.82135   0.95252   0.00000   0.15063   0.00000   0.98599   0.03877  17.42316   0.99778   0.00000  -1.54811  -0.46334   0.12656 
+Creating quad tree velocity survey data structures... 
+Xmin_: 9.163347 
+Xmax_: 17.184687 
+Ymin_: -23.261888 
+Ymax_: 23.261888 
+Zmin_: -0.357288 
+Zmax_: -0.040942 
+Working on quad tree: 1 
+Direction, Value: 2 0.000000 
+Inserted: 3 points 
+
+Total setup and solve time: 1.942666 seconds 
+Done
