@@ -1,4 +1,4 @@
-"""V-n check of the frozen design (owner ruling B-4, 2026-11-26), with Stage 1's own loads code.
+"""V-n check of a Task 12 design record (owner ruling B-4, 2026-11-26), with Stage 1's own loads code.
 
 Gust load factors (conceptual/raymer_loads.py, Raymer (14.4)-(14.8)) and the manoeuvre load factor
 (aerodynamic limit q CL_max/(W/S), capped at the structural limit) at V_C, V_D and the level top speed, at
@@ -122,7 +122,7 @@ def report_text(res):
     """Markdown report from the record and nothing else."""
     lim, inp = res["limits"], res["inputs"]
     pts = res["points"]
-    L = ["# Task 12: V-n check of the frozen design (ruling B-4)", "",
+    L = ["# Task 12: V-n check of the design record (ruling B-4)", "",
          f"Record: `{inp['command'].split('--out ')[1].split(' ')[0]}`; design `{inp['design']}` (sha256 {inp['design_sha256'][:12]}); "
          f"commit {inp['git_commit'][:7]}, git_dirty {inp['git_dirty']}. Command: `{inp['command']}`.", "",
          "Stage 1's own loads code (`conceptual/raymer_loads.py`), the design rebuilt from its record, not re-sized. "
@@ -166,7 +166,7 @@ def report_text(res):
     L.append("")
     L.append("Points that would exceed a limit if U_de stayed at 30 ft/s at every speed (sensitivity, not the rule; positive / negative): " +
              ("; ".join(f"{a}, {s}, {w} ({p:.3f} / {n:.3f})" for a, s, w, p, n in sens) if sens else "none") + ".")
-    L += ["", "The structure is sized at V_C 115 kt EAS (the per-design rule, ruling B-4) and V_D 172.5 kt EAS. The sea-level level top speed "
+    L += ["", f"The structure is sized at V_C {res['V_C_eas_kt']:g} kt EAS (the per-design rule, ruling B-4) and V_D {res['V_D_eas_kt']:g} kt EAS. The sea-level level top speed "
           f"({res['level_top_speed_eas_kt']['sea_level']:.1f} kt EAS) is above V_D: the structure is not cleared to it. "
           "Envelope protection (the autopilot holding the aircraft at or below V_C, and below V_D at sea level) is a preliminary-design "
           "requirement per ruling B-4. No negative manoeuvre load factor is computed: the record has no negative CL_max."]

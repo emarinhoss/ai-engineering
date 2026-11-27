@@ -28,3 +28,13 @@ def test_gust_u_de_falls_to_half_at_vd_and_load_grows_with_speed_at_fixed_u(res)
     assert pts[("sea_level", "V_C")]["U_de_fps"] == pytest.approx(30.0)
     assert pts[("sea_level", "V_D")]["U_de_fps"] == pytest.approx(15.0)
     assert pts[("sea_level", "level_top_speed")]["U_de_fps"] == pytest.approx(15.0)
+
+
+def test_report_quotes_the_designs_own_speeds(res):
+    """The report text takes V_C and V_D from the result, not from a fixed design."""
+    res = dict(res, V_C_eas_kt=110.0, V_D_eas_kt=165.0, worst_relative_reproduction_error=0.0)
+    res["inputs"] = {"command": "python -m measurement.vn_check --out x.json", "design": "d", "design_sha256": "0" * 64,
+                     "git_commit": "0" * 40, "git_dirty": False}
+    text = vn_check.report_text(res)
+    assert "V_C 110 kt EAS" in text and "V_D 165 kt EAS" in text
+    assert "sized at V_C 110 kt EAS" in text and "sized at V_C 115" not in text

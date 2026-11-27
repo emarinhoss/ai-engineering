@@ -1,4 +1,4 @@
-"""Stage 1 compliance table of a frozen design, without re-sizing (owner ruling B-7, 2026-11-26).
+"""Stage 1 compliance table of a design record, without re-sizing (owner ruling B-7, 2026-11-26).
 
 The design is rebuilt through Stage 1's own path (stage1.analyse: tail resize for rotation, layout,
 performance) from the record's W/S, A, built ledger copy (V_C fixed) and engine table, with the weight
@@ -61,7 +61,7 @@ def report_text(res):
     inp = res["inputs"]
     rows = res["rows"]
     n = {k: sum(1 for r in rows if r["verdict"] == k) for k in ("pass", "fail", "not tested")}
-    L = ["# Task 12: Stage 1 compliance table of the frozen design (ruling B-7)", "",
+    L = ["# Task 12: Stage 1 compliance table of the design record (ruling B-7)", "",
          f"Design `{inp['design']}` (sha256 {inp['design_sha256'][:12]}), ledger copy `{inp['ledger']}`. "
          f"Record `{inp['out']}`; commit {inp['git_commit'][:7]}, git_dirty {inp['git_dirty']}. "
          f"Command: `{inp['command']}`.", "",
@@ -79,7 +79,7 @@ def report_text(res):
     L += ["", "Failed rows: " + ("; ".join(fails) if fails else "none") + ".", "",
           "Limits are the record's ledger values with their Gate A margins (negative gust -1.8 plus 0.1 g, ceiling +500 ft, power margin 0). "
           "The R9 positive row compares n_limit, which Stage 1 sets to the larger of 3.8 and the gust load factor; "
-          "the gust value itself is in the V-n report (`docs/validation/2026-11-26_task12_vn_check.md`). "
+          "the gust value itself is in the V-n check of the same design. "
           + "".join(f"Row {i} passes the 5-20 % limits but its value {fmt(r['value'])} is above the 0.08-0.15 optimum named in its label. "
                     for i, r in enumerate(rows, 1) if r["rule"] == "nose" and r["value"] > 0.15) +
           "The Gate A items A1 to A12 are not re-checked here (a review task)."]
