@@ -1,0 +1,386 @@
+{
+  "design_W0_lb": 3517.2502473171944,
+  "fuel_lb": 1098.6876236696955,
+  "W_S": 13.0,
+  "CL_max_clean": 1.35,
+  "V_C_eas_kt": 110.0,
+  "V_D_eas_kt": 165.0,
+  "V_corner_eas_kt": 103.9639034016122,
+  "level_top_speed_eas_kt": {
+    "sea_level": 185.2297954886766,
+    "mission_altitude": 120.88220732322925
+  },
+  "limits": {
+    "positive": 3.8,
+    "negative": -1.8,
+    "negative_margin_g": 0.1,
+    "negative_with_margin": -1.7
+  },
+  "points": [
+    {
+      "speed": "V_C",
+      "V_eas_kt": 110.0,
+      "altitude_ft": 0.0,
+      "U_de_fps": 30.0,
+      "mach": 0.1662942646672376,
+      "weights": {
+        "takeoff_weight": {
+          "W_lb": 3517.2502473171944,
+          "n_gust_vn_record": 2.57772489283079,
+          "n_gust_neg_vn_record": -0.5777248928307901,
+          "n_gust_sizing": 2.5773743478356637,
+          "n_gust_neg_sizing": -0.5773743478356637,
+          "n_gust_sizing_full_ude_sensitivity": 2.5773743478356637,
+          "n_gust_neg_full_ude_sensitivity": -0.5773743478356637,
+          "n_manoeuvre_aero": 4.254061977420996,
+          "n_manoeuvre": 3.8,
+          "exceeds_positive_limit": false,
+          "exceeds_negative_limit_with_margin": false,
+          "exceeds_negative_limit": false
+        },
+        "zero_fuel_weight": {
+          "W_lb": 2418.562623647499,
+          "n_gust_vn_record": 2.99176752866488,
+          "n_gust_neg_vn_record": -0.9917675286648802,
+          "n_gust_sizing": 2.9913727751745207,
+          "n_gust_neg_sizing": -0.9913727751745207,
+          "n_gust_sizing_full_ude_sensitivity": 2.9913727751745207,
+          "n_gust_neg_full_ude_sensitivity": -0.9913727751745207,
+          "n_manoeuvre_aero": 6.18656734206087,
+          "n_manoeuvre": 3.8,
+          "exceeds_positive_limit": false,
+          "exceeds_negative_limit_with_margin": false,
+          "exceeds_negative_limit": false
+        }
+      },
+      "altitude": "sea_level"
+    },
+    {
+      "speed": "V_D",
+      "V_eas_kt": 165.0,
+      "altitude_ft": 0.0,
+      "U_de_fps": 15.0,
+      "mach": 0.24944139700085644,
+      "weights": {
+        "takeoff_weight": {
+          "W_lb": 3517.2502473171944,
+          "n_gust_vn_record": 2.1832936696230925,
+          "n_gust_neg_vn_record": -0.18329366962309246,
+          "n_gust_sizing": 2.1939402866947173,
+          "n_gust_neg_sizing": -0.1939402866947173,
+          "n_gust_sizing_full_ude_sensitivity": 3.3878805733894346,
+          "n_gust_neg_full_ude_sensitivity": -1.3878805733894346,
+          "n_manoeuvre_aero": 9.571639449197242,
+          "n_manoeuvre": 3.8,
+          "exceeds_positive_limit": false,
+          "exceeds_negative_limit_with_margin": false,
+          "exceeds_negative_limit": false
+        },
+        "zero_fuel_weight": {
+          "W_lb": 2418.562623647499,
+          "n_gust_vn_record": 2.49382564649866,
+          "n_gust_neg_vn_record": -0.4938256464986601,
+          "n_gust_sizing": 2.5054713214636872,
+          "n_gust_neg_sizing": -0.5054713214636872,
+          "n_gust_sizing_full_ude_sensitivity": 4.0109426429273745,
+          "n_gust_neg_full_ude_sensitivity": -2.0109426429273745,
+          "n_manoeuvre_aero": 13.919776519636958,
+          "n_manoeuvre": 3.8,
+          "exceeds_positive_limit": false,
+          "exceeds_negative_limit_with_margin": false,
+          "exceeds_negative_limit": false
+        }
+      },
+      "altitude": "sea_level"
+    },
+    {
+      "speed": "level_top_speed",
+      "V_eas_kt": 185.2297954886766,
+      "altitude_ft": 0.0,
+      "U_de_fps": 15.0,
+      "mach": 0.2800241148659298,
+      "weights": {
+        "takeoff_weight": {
+          "W_lb": 3517.2502473171944,
+          "n_gust_vn_record": 2.328371178347461,
+          "n_gust_neg_vn_record": -0.328371178347461,
+          "n_gust_sizing": 2.3462126257769533,
+          "n_gust_neg_sizing": -0.34621262577695333,
+          "n_gust_sizing_full_ude_sensitivity": 3.6924252515539067,
+          "n_gust_neg_full_ude_sensitivity": -1.6924252515539067,
+          "n_manoeuvre_aero": 12.06257806528465,
+          "n_manoeuvre": 3.8,
+          "exceeds_positive_limit": false,
+          "exceeds_negative_limit_with_margin": false,
+          "exceeds_negative_limit": false
+        },
+        "zero_fuel_weight": {
+          "W_lb": 2418.562623647499,
+          "n_gust_vn_record": 2.6769758727071933,
+          "n_gust_neg_vn_record": -0.6769758727071933,
+          "n_gust_sizing": 2.696484516818086,
+          "n_gust_neg_sizing": -0.696484516818086,
+          "n_gust_sizing_full_ude_sensitivity": 4.392969033636172,
+          "n_gust_neg_full_ude_sensitivity": -2.392969033636172,
+          "n_manoeuvre_aero": 17.54228121636146,
+          "n_manoeuvre": 3.8,
+          "exceeds_positive_limit": false,
+          "exceeds_negative_limit_with_margin": false,
+          "exceeds_negative_limit": false
+        }
+      },
+      "altitude": "sea_level"
+    },
+    {
+      "speed": "V_C",
+      "V_eas_kt": 110.0,
+      "altitude_ft": 20000.0,
+      "U_de_fps": 30.0,
+      "mach": 0.24521468419472964,
+      "weights": {
+        "takeoff_weight": {
+          "W_lb": 3517.2502473171944,
+          "n_gust_vn_record": 2.869710426681506,
+          "n_gust_neg_vn_record": -0.8697104266815061,
+          "n_gust_sizing": 2.888449652935453,
+          "n_gust_neg_sizing": -0.8884496529354529,
+          "n_gust_sizing_full_ude_sensitivity": 2.888449652935453,
+          "n_gust_neg_full_ude_sensitivity": -0.8884496529354529,
+          "n_manoeuvre_aero": 4.254061977420996,
+          "n_manoeuvre": 3.8,
+          "exceeds_positive_limit": false,
+          "exceeds_negative_limit_with_margin": false,
+          "exceeds_negative_limit": false
+        },
+        "zero_fuel_weight": {
+          "W_lb": 2418.562623647499,
+          "n_gust_vn_record": 3.4808679038138894,
+          "n_gust_neg_vn_record": -1.4808679038138894,
+          "n_gust_sizing": 3.503534335449505,
+          "n_gust_neg_sizing": -1.5035343354495052,
+          "n_gust_sizing_full_ude_sensitivity": 3.503534335449505,
+          "n_gust_neg_full_ude_sensitivity": -1.5035343354495052,
+          "n_manoeuvre_aero": 6.18656734206087,
+          "n_manoeuvre": 3.8,
+          "exceeds_positive_limit": false,
+          "exceeds_negative_limit_with_margin": false,
+          "exceeds_negative_limit": false
+        }
+      },
+      "altitude": "mission_altitude"
+    },
+    {
+      "speed": "V_D",
+      "V_eas_kt": 165.0,
+      "altitude_ft": 20000.0,
+      "U_de_fps": 15.0,
+      "mach": 0.3678220262920945,
+      "weights": {
+        "takeoff_weight": {
+          "W_lb": 3517.2502473171944,
+          "n_gust_vn_record": 2.4022828200111297,
+          "n_gust_neg_vn_record": -0.4022828200111297,
+          "n_gust_sizing": 2.451814256874242,
+          "n_gust_neg_sizing": -0.45181425687424204,
+          "n_gust_sizing_full_ude_sensitivity": 3.903628513748484,
+          "n_gust_neg_full_ude_sensitivity": -1.903628513748484,
+          "n_manoeuvre_aero": 9.571639449197242,
+          "n_manoeuvre": 3.8,
+          "exceeds_positive_limit": false,
+          "exceeds_negative_limit_with_margin": false,
+          "exceeds_negative_limit": false
+        },
+        "zero_fuel_weight": {
+          "W_lb": 2418.562623647499,
+          "n_gust_vn_record": 2.8606509278604166,
+          "n_gust_neg_vn_record": -0.8606509278604166,
+          "n_gust_sizing": 2.9204303608993163,
+          "n_gust_neg_sizing": -0.9204303608993163,
+          "n_gust_sizing_full_ude_sensitivity": 4.840860721798633,
+          "n_gust_neg_full_ude_sensitivity": -2.8408607217986326,
+          "n_manoeuvre_aero": 13.919776519636958,
+          "n_manoeuvre": 3.8,
+          "exceeds_positive_limit": false,
+          "exceeds_negative_limit_with_margin": false,
+          "exceeds_negative_limit": false
+        }
+      },
+      "altitude": "mission_altitude"
+    },
+    {
+      "speed": "level_top_speed",
+      "V_eas_kt": 120.88220732322925,
+      "altitude_ft": 20000.0,
+      "U_de_fps": 27.03212527548293,
+      "mach": 0.26947356630479546,
+      "weights": {
+        "takeoff_weight": {
+          "W_lb": 3517.2502473171944,
+          "n_gust_vn_record": 2.851411611494374,
+          "n_gust_neg_vn_record": -0.8514116114943739,
+          "n_gust_sizing": 2.8774655864514758,
+          "n_gust_neg_sizing": -0.8774655864514758,
+          "n_gust_sizing_full_ude_sensitivity": 3.083593761850012,
+          "n_gust_neg_full_ude_sensitivity": -1.083593761850012,
+          "n_manoeuvre_aero": 5.137397923878609,
+          "n_manoeuvre": 3.8,
+          "exceeds_positive_limit": false,
+          "exceeds_negative_limit_with_margin": false,
+          "exceeds_negative_limit": false
+        },
+        "zero_fuel_weight": {
+          "W_lb": 2418.562623647499,
+          "n_gust_vn_record": 3.4565877037210053,
+          "n_gust_neg_vn_record": -1.4565877037210053,
+          "n_gust_sizing": 3.4880906787579185,
+          "n_gust_neg_sizing": -1.4880906787579185,
+          "n_gust_sizing_full_ude_sensitivity": 3.7612597826496295,
+          "n_gust_neg_full_ude_sensitivity": -1.7612597826496295,
+          "n_manoeuvre_aero": 7.471178931508403,
+          "n_manoeuvre": 3.8,
+          "exceeds_positive_limit": false,
+          "exceeds_negative_limit_with_margin": false,
+          "exceeds_negative_limit": false
+        }
+      },
+      "altitude": "mission_altitude"
+    }
+  ],
+  "reproduction_of_record": {
+    "gust_sea_level_takeoff_weight": {
+      "n_cruise": [
+        2.57772489283079,
+        2.57772489283079
+      ],
+      "n_dive": [
+        2.1832936696230925,
+        2.1832936696230925
+      ],
+      "n_cruise_neg": [
+        -0.5777248928307901,
+        -0.5777248928307901
+      ],
+      "n_dive_neg": [
+        -0.18329366962309246,
+        -0.18329366962309246
+      ]
+    },
+    "gust_sea_level_zero_fuel_weight": {
+      "n_cruise": [
+        2.99176752866488,
+        2.99176752866488
+      ],
+      "n_dive": [
+        2.49382564649866,
+        2.49382564649866
+      ],
+      "n_cruise_neg": [
+        -0.9917675286648802,
+        -0.9917675286648802
+      ],
+      "n_dive_neg": [
+        -0.4938256464986601,
+        -0.4938256464986601
+      ]
+    },
+    "gust_mission_altitude_takeoff_weight": {
+      "n_cruise": [
+        2.869710426681506,
+        2.869710426681506
+      ],
+      "n_dive": [
+        2.4022828200111297,
+        2.4022828200111297
+      ],
+      "n_cruise_neg": [
+        -0.8697104266815061,
+        -0.8697104266815061
+      ],
+      "n_dive_neg": [
+        -0.4022828200111297,
+        -0.4022828200111297
+      ]
+    },
+    "gust_mission_altitude_zero_fuel_weight": {
+      "n_cruise": [
+        3.4808679038138894,
+        3.4808679038138894
+      ],
+      "n_dive": [
+        2.8606509278604166,
+        2.8606509278604166
+      ],
+      "n_cruise_neg": [
+        -1.4808679038138894,
+        -1.4808679038138894
+      ],
+      "n_dive_neg": [
+        -0.8606509278604166,
+        -0.8606509278604166
+      ]
+    },
+    "gusts/sea_level/takeoff_weight": {
+      "n_gust": [
+        2.5773743478356637,
+        2.5773743478356637
+      ]
+    },
+    "gusts/sea_level/zero_fuel_weight": {
+      "n_gust": [
+        2.991373046150941,
+        2.9913727751745207
+      ]
+    },
+    "gusts/mission_altitude/takeoff_weight": {
+      "n_gust": [
+        2.888449652935453,
+        2.888449652935453
+      ]
+    },
+    "gusts/mission_altitude/zero_fuel_weight": {
+      "n_gust": [
+        3.50353475821359,
+        3.503534335449505
+      ]
+    }
+  },
+  "rebuild_check": {
+    "fuel_lb": {
+      "record": 1098.6876236696955,
+      "rebuilt": 1098.6876236696955
+    },
+    "power_climb_sl_hp": {
+      "record": 222.97319961264614,
+      "rebuilt": 222.97319961264614
+    },
+    "power_ceiling_hp": {
+      "record": 281.1308562943853,
+      "rebuilt": 281.1308562943853
+    },
+    "power_takeoff_hp": {
+      "record": 154.66703343540138,
+      "rebuilt": 154.66703343540138
+    },
+    "power_turn_at_loiter_hp": {
+      "record": 243.45502257625404,
+      "rebuilt": 243.45502257625404
+    },
+    "power_cruise_at_altitude_hp": {
+      "record": 211.4431880942996,
+      "rebuilt": 211.4431880942996
+    }
+  },
+  "worst_relative_reproduction_error": 1.2066787224984665e-07,
+  "inputs": {
+    "design": "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/design_pusher.json",
+    "design_sha256": "a82647354c6d08719221bc39a78839bc388d657463fca0cd6a6e4dba70b16547",
+    "ledger": "runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/ledger.yaml",
+    "ledger_sha256": "b11165a332bed30cddada413d98281fd4e4aceaf6be7a75c2f1dfaa357863342",
+    "git_commit": "897b5e9a04ac854f935d7b14f53036d2445f9418",
+    "git_dirty": false,
+    "git_dirty_files": [],
+    "python": "3.13.18",
+    "seed": null,
+    "command": "python -m measurement.vn_check --design runs/task12/stage3/2026-11-26/m250_bands_cells/ws13_a8/design_pusher.json --out runs/task12/stage3/2026-11-27/vn_check_ws13a8/vn.json --report docs/validation/2026-11-27_task12_vn_check_ws13a8.md"
+  }
+}
