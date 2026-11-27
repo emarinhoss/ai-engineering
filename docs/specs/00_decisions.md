@@ -466,6 +466,14 @@ Stage 1 (S3M-8) and that an independent neutral point is needed.
   closed from existing records: a recorded pytest report at the gate commit, a worst-case robustness-curve figure
   (spec 7.3), and the Gate A re-check generated as a record. (d) Gate B passes on the W/S 13, A 8 baseline once (a)-(c)
   are recorded, with the open items carried to preliminary design.
+- **B-11 (Gate B passed, 2026-11-27).** The B-10 conditions are recorded: the B-8 confirmation (B-10a), the ledger
+  relabel of `prop_real_to_ideal` to `assumed` (fe74282), the robustness figure
+  (runs/task12/stage3/2026-11-27/robustness_figure_ws13a8/), the Gate A re-check record
+  (runs/task12/stage3/2026-11-27/gateA_recheck_ws13a8/) and the pytest record at the gate commit bc8bf5d (417 passed,
+  1 xfailed, exit 0; runs/task12/stage3/2026-11-27/pytest_gate/). Gate B passes on the W/S 13, A 8 baseline
+  (docs/validation/2026-11-27_task12_performance.md: 13 pass, 0 fail, 12 not tested), with the open items and
+  waivers listed there carried to preliminary design. After the gate commit the figure gained the stored worst
+  points at the R7 horizons (plotting only; no record changed).
 - **B-3 (R9).** The negative limit is -1.8 with the 0.1 g margin (Gate A round 1 and round 4 rulings);
   spec section 3 is updated.
 - **B-4 (R18, V_C).** The per-design V_C rule of 2026-11-23 (10 % above the fastest cruise sub-step,
