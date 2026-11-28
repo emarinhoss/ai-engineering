@@ -1,0 +1,4377 @@
+{
+ "inputs": {
+  "commit": "878678589cbc6b11b883d3348f82c9ba3cb164e5",
+  "git_dirty": false,
+  "git_dirty_files": [],
+  "excluded": "runs/task12/pd/2026-11-28/p8",
+  "command": "python -m prelim.p8_envelope --out runs/task12/pd/2026-11-28/p8",
+  "seed": null,
+  "seed_note": "no random numbers are drawn in P8",
+  "python": "3.13.18",
+  "numpy": "2.5.3",
+  "scipy": "1.18.1",
+  "pyyaml": "6.0.3",
+  "matplotlib": "3.11.2",
+  "files": {
+   "r0_design": "runs/task12/pd/2026-11-27/p0/r0/design_pusher.json",
+   "r0_ledger": "runs/task12/pd/2026-11-27/p0/r0/ledger.yaml",
+   "p0": "runs/task12/pd/2026-11-27/p0/p0.json",
+   "p2b": "runs/task12/pd/2026-11-27/p2b/p2.json",
+   "p4b": "runs/task12/pd/2026-11-28/p4b/p4b.json",
+   "p5": "runs/task12/pd/2026-11-28/p5/p5.json",
+   "p6": "runs/task12/pd/2026-11-27/p6/p6.json",
+   "choices": "data/task12/pd_p8_choices.yaml",
+   "engine_table": "runs/task12/pd/2026-11-27/p0/r0/m250_table.json"
+  },
+  "sha256": {
+   "r0_design": "2af85aca9acd46a527342765735f3cb2dd7f4e9846ef81f7b9973022ed8261a0",
+   "r0_ledger": "a3b88c45e6cb182dce8b2c57b1f6e0c1825272ab69d661251f82e70f7c952cbe",
+   "p0": "e101940806c58d5455915a73fe11aa2ff8947885d86055f76f0c7712e93b4e77",
+   "p2b": "ee57a987e59e1d3d5bbe456a1a4d195af1500a8a05f2a3842222e3143cf20f03",
+   "p4b": "94f7e67113c26ad6537d24de1cafc83c745a0d49424907045b1787c45634142f",
+   "p5": "7bc04335353cfd0b57e86fc12596cb06bf9e41d56213b71b2ccd46190a36bbab",
+   "p6": "53d20ada72702017dbc5bbeb65802b46cbcbdb6f2ea98dbe881dc33f7ffb632d",
+   "choices": "4ec4873feb8089701afe7b6816ad8b6d362386b88ce53b0d8f38428552486519",
+   "engine_table": "48e24462bb6468bffc72974469f0ac92aefd047d80eecee0fc6c190aa05316a7"
+  },
+  "tree_unchanged_during_run": true
+ },
+ "review": "Not yet Fable-reviewed (ruling PD-22)",
+ "evidence_class": "A requirement, not a verification (spec P8).",
+ "choices": {
+  "why": "Spec P8 and rulings B-4 and B-9d: R18 holds only if the autopilot keeps the aircraft at or below V_C in level flight at every altitude, and a gust criterion above V_C is set. P8 writes that requirement with one table, EP-1 to EP-9, each row with a number and the record it comes from. It is a requirement on a system this repository does not design (PD-11): no control law, no simulation, no dynamic stability, no lateral-directional analysis.",
+  "records": {
+   "r0": "runs/task12/pd/2026-11-27/p0/r0",
+   "p0": "runs/task12/pd/2026-11-27/p0/p0.json",
+   "p2b": "runs/task12/pd/2026-11-27/p2b/p2.json",
+   "p4b": "runs/task12/pd/2026-11-28/p4b/p4b.json",
+   "p5": "runs/task12/pd/2026-11-28/p5/p5.json",
+   "p6": "runs/task12/pd/2026-11-27/p6/p6.json"
+  },
+  "weights": {
+   "flown": [
+    "takeoff",
+    "zero_fuel",
+    "payload_off_with_ballast",
+    "payload_off_full_fuel_with_ballast"
+   ]
+  },
+  "ep2_power_limit": {
+   "rule": "At each altitude and flown weight, the shaft power for level flight at V_C: drag of r0's polar (CD0 build-up at the speed, K of the record) times the true speed, over r0's App. L propeller efficiency (owner ruling G-4), as Stage 1's own level-speed code does it. The engine's full-throttle shaft power at that speed and altitude is P0's table (r0/m250_table.json) through r0's engine model. Excess = full-throttle power less the limit. Where the full-throttle power is below the limit, level flight does not reach V_C and no limit is needed there.",
+   "altitudes_source": "P5's operating-limit altitudes (p5.json sources.choices.operating_limit.altitudes_ft)",
+   "every_weight": "judgement: the limit that holds at every flown weight is the smallest of the per-weight limits (the lightest weight needs the least power at V_C)",
+   "coding_check": "the shaft power for level flight at r0's recorded level top speed (sea level and 20,000 ft, take-off weight) equals the full-throttle power within the tolerance",
+   "coding_check_tolerance_relative": 0.001,
+   "p6_second_reading": {
+    "altitudes_ft": [
+     0,
+     10000,
+     20000,
+     23000
+    ],
+    "weight": "payload_off_with_ballast",
+    "rule": "P6's representative blade (its blade ledger, twist and sections as prelim/p6_propeller.aircraft sets them), constant speed: the shaft power whose thrust equals the drag at V_C, by fixed-point iteration hp = D V/(550 eta_P6(hp)) from the App. L limit. P6 failed its validation (row 5) and its numbers are not used in r1: this is a labelled second reading with no weight in the requirement.",
+    "tolerance_hp": 0.05,
+    "max_iterations": 8
+   }
+  },
+  "ep3_overspeed": {
+   "limits_source": "P5 row 3 limits (p5.json row3.limits): +3.8 and the gust limit -1.7",
+   "altitude_limit_ft": 23000,
+   "readings": {
+    "ruled_rule": "The spec's reading: the gust speed of the ruled rule at the speed (30 ft/s at V_C falling linearly to 15 ft/s at V_D, Raymer p. 339, PD-8). The largest speed not above V_D at which the gust load factor stays inside the limits.",
+    "held_at_vc_gust": "judgement (PD-24 item 1): the gust held at the V_C value, 30 ft/s, at the excursion speed. A gust met while the aircraft overspeeds in level flight is the gust of level flight, not of a dive. This is P5 row 4's \"gust held at 30 ft/s above V_C\"."
+   },
+   "stated": "held_at_vc_gust",
+   "stated_why": "Under the ruled rule the product of gust speed and speed, U V, is stationary at V_C and falls above it; only the lift slope's rise with Mach number lifts the gust load factor, slightly, above its V_C value. So the spec's reading may bound nothing below V_D; the record shows whether it does. The requirement takes the held reading, and reports the spec's reading beside it."
+  },
+  "ep4_dive": {
+   "start_altitudes_ft": [
+    10000,
+    20000,
+    23000
+   ],
+   "weights": [
+    "takeoff",
+    "zero_fuel"
+   ],
+   "descent_angles_deg": [
+    5,
+    10,
+    20,
+    30,
+    45
+   ],
+   "power": [
+    "idle",
+    "full"
+   ],
+   "idle_rule": "judgement: idle is zero propeller thrust (no windmilling drag and no residual thrust are credited)",
+   "full_rule": "full-throttle shaft power of P0's table through r0's engine model, thrust by r0's App. L propeller at the speed",
+   "path": "Point mass on a straight path at a constant descent angle gamma, entered at V_C at the start altitude (no pushover): (W/g) dV/dt = T - D + W sin(gamma), dh/dt = -V sin(gamma), lift W cos(gamma), drag of r0's polar at the speed and altitude. Stops at V_D (EAS), at sea level, or at the time limit.",
+   "time_limit_s": 600.0,
+   "solver": "scipy.integrate.solve_ivp, method DOP853, rtol 1e-9, atol 1e-9, max_step 1 s; the stops are events"
+  },
+  "ep5_load_factor": {
+   "command_margin_source": "judgement (PD-24 item 2): the ledger's margin_gust_g (0.1 g) on both sides of the R9 limits",
+   "r16": "ledger turn_bank_deg: n = 1/cos(bank); available if inside the positive command limit and below the stall-limited load factor at the loiter speed, 20,000 ft and the loiter start weight"
+  },
+  "ep6_low_speed": {
+   "rule": "1.3 V_stall clean (ledger speed_over_stall, R17) at the current weight, V_stall = sqrt(2 W/(rho_0 S CL_max)) in EAS",
+   "cl_max": "r0's 1.35 (design_pusher.json CL_max.clean) and P2's measured 1.276 (p2.json wing.measured.clean), the r1 value"
+  },
+  "ep8_altitude": {
+   "protection_altitude_limit": "judgement (PD-24 item 3): the protection holds the aircraft at or below R12's 23,000 ft (ledger ceiling_ft). It is the highest altitude any requirement needs, so the highest at which R-f's declared engine assumptions are used. The service ceiling of r0 is above it."
+  }
+ },
+ "rebuild_check": {
+  "fuel_lb": {
+   "record": 1098.6876236696955,
+   "rebuilt": 1098.6876236696955
+  },
+  "power_climb_sl_hp": {
+   "record": 222.97319961264614,
+   "rebuilt": 222.97319961264614
+  },
+  "power_ceiling_hp": {
+   "record": 281.1308562943853,
+   "rebuilt": 281.1308562943853
+  },
+  "power_takeoff_hp": {
+   "record": 154.66703343540138,
+   "rebuilt": 154.66703343540138
+  },
+  "power_turn_at_loiter_hp": {
+   "record": 243.45502257625404,
+   "rebuilt": 243.45502257625404
+  },
+  "power_cruise_at_altitude_hp": {
+   "record": 211.4431880942996,
+   "rebuilt": 211.4431880942996
+  }
+ },
+ "r0": {
+  "V_C_kt": 110.0,
+  "V_D_kt": 165.0,
+  "S_ft2": 270.55771133209186,
+  "weights": {
+   "takeoff": 3517.2502473171944,
+   "zero_fuel": 2418.562623647499,
+   "payload_off_with_ballast": 2392.562623647499,
+   "payload_off_full_fuel_with_ballast": 3491.2502473171944
+  }
+ },
+ "ep2": {
+  "V_C_kt": 110.0,
+  "points": [
+   {
+    "V_tas_kt": 109.99778413855566,
+    "CD0": 0.020600640189561766,
+    "drag_lb": 283.1139810802313,
+    "shaft_hp": 117.39420683009658,
+    "full_hp": 450.0,
+    "altitude_ft": 0.0,
+    "weight": "takeoff",
+    "W_lb": 3517.2502473171944,
+    "reaches_V_C": true,
+    "excess_hp": 332.60579316990345,
+    "throttle": 0.2608760151779924
+   },
+   {
+    "V_tas_kt": 109.99778413855566,
+    "CD0": 0.020600640189561766,
+    "drag_lb": 254.2312158174033,
+    "shaft_hp": 104.97990723127556,
+    "full_hp": 450.0,
+    "altitude_ft": 0.0,
+    "weight": "zero_fuel",
+    "W_lb": 2418.562623647499,
+    "reaches_V_C": true,
+    "excess_hp": 345.02009276872445,
+    "throttle": 0.2332886827361679
+   },
+   {
+    "V_tas_kt": 109.99778413855566,
+    "CD0": 0.020600640189561766,
+    "drag_lb": 253.67722272704572,
+    "shaft_hp": 104.74272998663218,
+    "full_hp": 450.0,
+    "altitude_ft": 0.0,
+    "weight": "payload_off_with_ballast",
+    "W_lb": 2392.562623647499,
+    "reaches_V_C": true,
+    "excess_hp": 345.2572700133678,
+    "throttle": 0.23276162219251598
+   },
+   {
+    "V_tas_kt": 109.99778413855566,
+    "CD0": 0.020600640189561766,
+    "drag_lb": 282.30696387568486,
+    "shaft_hp": 117.04603849849234,
+    "full_hp": 450.0,
+    "altitude_ft": 0.0,
+    "weight": "payload_off_full_fuel_with_ballast",
+    "W_lb": 3491.2502473171944,
+    "reaches_V_C": true,
+    "excess_hp": 332.95396150150765,
+    "throttle": 0.2601023077744274
+   },
+   {
+    "V_tas_kt": 114.13165983028314,
+    "CD0": 0.020767347142139823,
+    "drag_lb": 284.9616622202541,
+    "shaft_hp": 122.63343688190427,
+    "full_hp": 420.1667822864726,
+    "altitude_ft": 2500.0,
+    "weight": "takeoff",
+    "W_lb": 3517.2502473171944,
+    "reaches_V_C": true,
+    "excess_hp": 297.5333454045683,
+    "throttle": 0.29186847235889285
+   },
+   {
+    "V_tas_kt": 114.13165983028314,
+    "CD0": 0.020767347142139823,
+    "drag_lb": 256.078896957426,
+    "shaft_hp": 109.7462329759045,
+    "full_hp": 420.1667822864726,
+    "altitude_ft": 2500.0,
+    "weight": "zero_fuel",
+    "W_lb": 2418.562623647499,
+    "reaches_V_C": true,
+    "excess_hp": 310.4205493105681,
+    "throttle": 0.26119683326388893
+   },
+   {
+    "V_tas_kt": 114.13165983028314,
+    "CD0": 0.020767347142139823,
+    "drag_lb": 255.52490386706845,
+    "shaft_hp": 109.5000196152573,
+    "full_hp": 420.1667822864726,
+    "altitude_ft": 2500.0,
+    "weight": "payload_off_with_ballast",
+    "W_lb": 2392.562623647499,
+    "reaches_V_C": true,
+    "excess_hp": 310.6667626712153,
+    "throttle": 0.26061084367349974
+   },
+   {
+    "V_tas_kt": 114.13165983028314,
+    "CD0": 0.020767347142139823,
+    "drag_lb": 284.15464501570756,
+    "shaft_hp": 122.27200725066577,
+    "full_hp": 420.1667822864726,
+    "altitude_ft": 2500.0,
+    "weight": "payload_off_full_fuel_with_ballast",
+    "W_lb": 3491.2502473171944,
+    "reaches_V_C": true,
+    "excess_hp": 297.89477503580684,
+    "throttle": 0.2910082672059018
+   },
+   {
+    "V_tas_kt": 118.49691963335394,
+    "CD0": 0.0209382930933981,
+    "drag_lb": 286.85632591135163,
+    "shaft_hp": 128.20517981533413,
+    "full_hp": 381.41730459552366,
+    "altitude_ft": 5000.0,
+    "weight": "takeoff",
+    "W_lb": 3517.2502473171944,
+    "reaches_V_C": true,
+    "excess_hp": 253.21212478018953,
+    "throttle": 0.336128377686718
+   },
+   {
+    "V_tas_kt": 118.49691963335394,
+    "CD0": 0.0209382930933981,
+    "drag_lb": 257.97356064852363,
+    "shaft_hp": 114.81830864377778,
+    "full_hp": 381.41730459552366,
+    "altitude_ft": 5000.0,
+    "weight": "zero_fuel",
+    "W_lb": 2418.562623647499,
+    "reaches_V_C": true,
+    "excess_hp": 266.5989959517459,
+    "throttle": 0.301030674959904
+   },
+   {
+    "V_tas_kt": 118.49691963335394,
+    "CD0": 0.0209382930933981,
+    "drag_lb": 257.419567558166,
+    "shaft_hp": 114.56254773474141,
+    "full_hp": 381.41730459552366,
+    "altitude_ft": 5000.0,
+    "weight": "payload_off_with_ballast",
+    "W_lb": 2392.562623647499,
+    "reaches_V_C": true,
+    "excess_hp": 266.85475686078223,
+    "throttle": 0.3003601209342874
+   },
+   {
+    "V_tas_kt": 118.49691963335394,
+    "CD0": 0.0209382930933981,
+    "drag_lb": 286.04930870680516,
+    "shaft_hp": 127.8297384649692,
+    "full_hp": 381.41730459552366,
+    "altitude_ft": 5000.0,
+    "weight": "payload_off_full_fuel_with_ballast",
+    "W_lb": 3491.2502473171944,
+    "reaches_V_C": true,
+    "excess_hp": 253.58756613055448,
+    "throttle": 0.3351440454452559
+   },
+   {
+    "V_tas_kt": 123.11094358791253,
+    "CD0": 0.02111361416743419,
+    "drag_lb": 288.7994808724103,
+    "shaft_hp": 134.13676042867684,
+    "full_hp": 345.7446643392748,
+    "altitude_ft": 7500.0,
+    "weight": "takeoff",
+    "W_lb": 3517.2502473171944,
+    "reaches_V_C": true,
+    "excess_hp": 211.60790391059794,
+    "throttle": 0.38796480253719884
+   },
+   {
+    "V_tas_kt": 123.11094358791253,
+    "CD0": 0.02111361416743419,
+    "drag_lb": 259.9167156095823,
+    "shaft_hp": 120.22143174348271,
+    "full_hp": 345.7446643392748,
+    "altitude_ft": 7500.0,
+    "weight": "zero_fuel",
+    "W_lb": 2418.562623647499,
+    "reaches_V_C": true,
+    "excess_hp": 225.52323259579208,
+    "throttle": 0.3477173884179192
+   },
+   {
+    "V_tas_kt": 123.11094358791253,
+    "CD0": 0.02111361416743419,
+    "drag_lb": 259.3627225192247,
+    "shaft_hp": 119.95557310972829,
+    "full_hp": 345.7446643392748,
+    "altitude_ft": 7500.0,
+    "weight": "payload_off_with_ballast",
+    "W_lb": 2392.562623647499,
+    "reaches_V_C": true,
+    "excess_hp": 225.7890912295465,
+    "throttle": 0.34694844340972225
+   },
+   {
+    "V_tas_kt": 123.11094358791253,
+    "CD0": 0.02111361416743419,
+    "drag_lb": 287.9924636678638,
+    "shaft_hp": 133.74650009971174,
+    "full_hp": 345.7446643392748,
+    "altitude_ft": 7500.0,
+    "weight": "payload_off_full_fuel_with_ballast",
+    "W_lb": 3491.2502473171944,
+    "reaches_V_C": true,
+    "excess_hp": 211.99816423956304,
+    "throttle": 0.3868360495318245
+   },
+   {
+    "V_tas_kt": 127.99276256674095,
+    "CD0": 0.021293446291789066,
+    "drag_lb": 290.79263364379904,
+    "shaft_hp": 140.45824171370037,
+    "full_hp": 312.9485618091949,
+    "altitude_ft": 10000.0,
+    "weight": "takeoff",
+    "W_lb": 3517.2502473171944,
+    "reaches_V_C": true,
+    "excess_hp": 172.49032009549455,
+    "throttle": 0.44882213518315484
+   },
+   {
+    "V_tas_kt": 127.99276256674095,
+    "CD0": 0.021293446291789066,
+    "drag_lb": 261.90986838097103,
+    "shaft_hp": 125.9834444274866,
+    "full_hp": 312.9485618091949,
+    "altitude_ft": 10000.0,
+    "weight": "zero_fuel",
+    "W_lb": 2418.562623647499,
+    "reaches_V_C": true,
+    "excess_hp": 186.96511738170832,
+    "throttle": 0.40256917526369346
+   },
+   {
+    "V_tas_kt": 127.99276256674095,
+    "CD0": 0.021293446291789066,
+    "drag_lb": 261.3558752906135,
+    "shaft_hp": 125.70689544960612,
+    "full_hp": 312.9485618091949,
+    "altitude_ft": 10000.0,
+    "weight": "payload_off_with_ballast",
+    "W_lb": 2392.562623647499,
+    "reaches_V_C": true,
+    "excess_hp": 187.2416663595888,
+    "throttle": 0.4016854869786868
+   },
+   {
+    "V_tas_kt": 127.99276256674095,
+    "CD0": 0.021293446291789066,
+    "drag_lb": 289.9856164392525,
+    "shaft_hp": 140.05229288028036,
+    "full_hp": 312.9485618091949,
+    "altitude_ft": 10000.0,
+    "weight": "payload_off_full_fuel_with_ballast",
+    "W_lb": 3491.2502473171944,
+    "reaches_V_C": true,
+    "excess_hp": 172.89626892891457,
+    "throttle": 0.44752496087734184
+   },
+   {
+    "V_tas_kt": 133.16324913324908,
+    "CD0": 0.021477923645991534,
+    "drag_lb": 292.83727139195537,
+    "shaft_hp": 147.20274380147052,
+    "full_hp": 282.9819502342829,
+    "altitude_ft": 12500.0,
+    "weight": "takeoff",
+    "W_lb": 3517.2502473171944,
+    "reaches_V_C": true,
+    "excess_hp": 135.7792064328124,
+    "throttle": 0.5201842155642797
+   },
+   {
+    "V_tas_kt": 133.16324913324908,
+    "CD0": 0.021477923645991534,
+    "drag_lb": 263.9545061291273,
+    "shaft_hp": 132.1350300530079,
+    "full_hp": 282.9819502342829,
+    "altitude_ft": 12500.0,
+    "weight": "zero_fuel",
+    "W_lb": 2418.562623647499,
+    "reaches_V_C": true,
+    "excess_hp": 150.846920181275,
+    "throttle": 0.46693801475186775
+   },
+   {
+    "V_tas_kt": 133.16324913324908,
+    "CD0": 0.021477923645991534,
+    "drag_lb": 263.40051303876976,
+    "shaft_hp": 131.84715154155919,
+    "full_hp": 282.9819502342829,
+    "altitude_ft": 12500.0,
+    "weight": "payload_off_with_ballast",
+    "W_lb": 2392.562623647499,
+    "reaches_V_C": true,
+    "excess_hp": 151.13479869272373,
+    "throttle": 0.465920711311806
+   },
+   {
+    "V_tas_kt": 133.16324913324908,
+    "CD0": 0.021477923645991534,
+    "drag_lb": 292.0302541874089,
+    "shaft_hp": 146.78016861737171,
+    "full_hp": 282.9819502342829,
+    "altitude_ft": 12500.0,
+    "weight": "payload_off_full_fuel_with_ballast",
+    "W_lb": 3491.2502473171944,
+    "reaches_V_C": true,
+    "excess_hp": 136.2017816169112,
+    "throttle": 0.5186909217914828
+   },
+   {
+    "V_tas_kt": 138.64533455433363,
+    "CD0": 0.021667176658047967,
+    "drag_lb": 294.93483970366356,
+    "shaft_hp": 154.40680399591764,
+    "full_hp": 255.59278177377638,
+    "altitude_ft": 15000.0,
+    "weight": "takeoff",
+    "W_lb": 3517.2502473171944,
+    "reaches_V_C": true,
+    "excess_hp": 101.18597777785874,
+    "throttle": 0.6041125376247212
+   },
+   {
+    "V_tas_kt": 138.64533455433363,
+    "CD0": 0.021667176658047967,
+    "drag_lb": 266.05207444083555,
+    "shaft_hp": 138.71004778349985,
+    "full_hp": 255.59278177377638,
+    "altitude_ft": 15000.0,
+    "weight": "zero_fuel",
+    "W_lb": 2418.562623647499,
+    "reaches_V_C": true,
+    "excess_hp": 116.88273399027653,
+    "throttle": 0.5426993940160301
+   },
+   {
+    "V_tas_kt": 138.64533455433363,
+    "CD0": 0.021667176658047967,
+    "drag_lb": 265.498081350478,
+    "shaft_hp": 138.41014936599112,
+    "full_hp": 255.59278177377638,
+    "altitude_ft": 15000.0,
+    "weight": "payload_off_with_ballast",
+    "W_lb": 2392.562623647499,
+    "reaches_V_C": true,
+    "excess_hp": 117.18263240778526,
+    "throttle": 0.5415260493877996
+   },
+   {
+    "V_tas_kt": 138.64533455433363,
+    "CD0": 0.021667176658047967,
+    "drag_lb": 294.1278224991171,
+    "shaft_hp": 153.96658952753495,
+    "full_hp": 255.59278177377638,
+    "altitude_ft": 15000.0,
+    "weight": "payload_off_full_fuel_with_ballast",
+    "W_lb": 3491.2502473171944,
+    "reaches_V_C": true,
+    "excess_hp": 101.62619224624143,
+    "throttle": 0.6023902101578512
+   },
+   {
+    "V_tas_kt": 144.46425613469688,
+    "CD0": 0.02186132943227644,
+    "drag_lb": 297.0867140776917,
+    "shaft_hp": 162.11078333276123,
+    "full_hp": 230.51200008082293,
+    "altitude_ft": 17500.0,
+    "weight": "takeoff",
+    "W_lb": 3517.2502473171944,
+    "reaches_V_C": true,
+    "excess_hp": 68.4012167480617,
+    "throttle": 0.7032639657628296
+   },
+   {
+    "V_tas_kt": 144.46425613469688,
+    "CD0": 0.02186132943227644,
+    "drag_lb": 268.2039488148637,
+    "shaft_hp": 145.74591019115286,
+    "full_hp": 230.51200008082293,
+    "altitude_ft": 17500.0,
+    "weight": "zero_fuel",
+    "W_lb": 2418.562623647499,
+    "reaches_V_C": true,
+    "excess_hp": 84.76608988967007,
+    "throttle": 0.6322703813252712
+   },
+   {
+    "V_tas_kt": 144.46425613469688,
+    "CD0": 0.02186132943227644,
+    "drag_lb": 267.64995572450607,
+    "shaft_hp": 145.43324514562065,
+    "full_hp": 230.51200008082293,
+    "altitude_ft": 17500.0,
+    "weight": "payload_off_with_ballast",
+    "W_lb": 2392.562623647499,
+    "reaches_V_C": true,
+    "excess_hp": 85.07875493520228,
+    "throttle": 0.6309139875348283
+   },
+   {
+    "V_tas_kt": 144.46425613469688,
+    "CD0": 0.02186132943227644,
+    "drag_lb": 296.27969687314516,
+    "shaft_hp": 161.6518339802532,
+    "full_hp": 230.51200008082293,
+    "altitude_ft": 17500.0,
+    "weight": "payload_off_full_fuel_with_ballast",
+    "W_lb": 3491.2502473171944,
+    "reaches_V_C": true,
+    "excess_hp": 68.86016610056973,
+    "throttle": 0.7012729659348506
+   },
+   {
+    "V_tas_kt": 150.6478397994526,
+    "CD0": 0.022060496461474916,
+    "drag_lb": 299.29416348441083,
+    "shaft_hp": 170.35932571488442,
+    "full_hp": 207.60187589866487,
+    "altitude_ft": 20000.0,
+    "weight": "takeoff",
+    "W_lb": 3517.2502473171944,
+    "reaches_V_C": true,
+    "excess_hp": 37.24255018378045,
+    "throttle": 0.8206059072319781
+   },
+   {
+    "V_tas_kt": 150.6478397994526,
+    "CD0": 0.022060496461474916,
+    "drag_lb": 270.41139822158283,
+    "shaft_hp": 153.28400935000005,
+    "full_hp": 207.60187589866487,
+    "altitude_ft": 20000.0,
+    "weight": "zero_fuel",
+    "W_lb": 2418.562623647499,
+    "reaches_V_C": true,
+    "excess_hp": 54.317866548664824,
+    "throttle": 0.7383556082355509
+   },
+   {
+    "V_tas_kt": 150.6478397994526,
+    "CD0": 0.022060496461474916,
+    "drag_lb": 269.8574051312252,
+    "shaft_hp": 152.95776880709911,
+    "full_hp": 207.60187589866487,
+    "altitude_ft": 20000.0,
+    "weight": "payload_off_with_ballast",
+    "W_lb": 2392.562623647499,
+    "reaches_V_C": true,
+    "excess_hp": 54.64410709156576,
+    "throttle": 0.7367841361980815
+   },
+   {
+    "V_tas_kt": 150.6478397994526,
+    "CD0": 0.022060496461474916,
+    "drag_lb": 298.4871462798643,
+    "shaft_hp": 169.8804547069163,
+    "full_hp": 207.60187589866487,
+    "altitude_ft": 20000.0,
+    "weight": "payload_off_full_fuel_with_ballast",
+    "W_lb": 3491.2502473171944,
+    "reaches_V_C": true,
+    "excess_hp": 37.72142119174856,
+    "throttle": 0.8182992276516748
+   },
+   {
+    "V_tas_kt": 157.22682376912377,
+    "CD0": 0.02226477843780193,
+    "drag_lb": 301.5583039360772,
+    "shaft_hp": 179.20187628931535,
+    "full_hp": 186.87692323638262,
+    "altitude_ft": 22500.0,
+    "weight": "takeoff",
+    "W_lb": 3517.2502473171944,
+    "reaches_V_C": true,
+    "excess_hp": 7.675046947067273,
+    "throttle": 0.9589299373397805
+   },
+   {
+    "V_tas_kt": 157.22682376912377,
+    "CD0": 0.02226477843780193,
+    "drag_lb": 272.67553867324915,
+    "shaft_hp": 161.37019742243834,
+    "full_hp": 186.87692323638262,
+    "altitude_ft": 22500.0,
+    "weight": "zero_fuel",
+    "W_lb": 2418.562623647499,
+    "reaches_V_C": true,
+    "excess_hp": 25.506725813944286,
+    "throttle": 0.8635105642140707
+   },
+   {
+    "V_tas_kt": 157.22682376912377,
+    "CD0": 0.02226477843780193,
+    "drag_lb": 272.1215455828916,
+    "shaft_hp": 161.02950384530686,
+    "full_hp": 186.87692323638262,
+    "altitude_ft": 22500.0,
+    "weight": "payload_off_with_ballast",
+    "W_lb": 2392.562623647499,
+    "reaches_V_C": true,
+    "excess_hp": 25.84741939107576,
+    "throttle": 0.8616874735336846
+   },
+   {
+    "V_tas_kt": 157.22682376912377,
+    "CD0": 0.02226477843780193,
+    "drag_lb": 300.7512867315307,
+    "shaft_hp": 178.70179611825668,
+    "full_hp": 186.87692323638262,
+    "altitude_ft": 22500.0,
+    "weight": "payload_off_full_fuel_with_ballast",
+    "W_lb": 3491.2502473171944,
+    "reaches_V_C": true,
+    "excess_hp": 8.175127118125943,
+    "throttle": 0.956253950586584
+   },
+   {
+    "V_tas_kt": 158.59300014535995,
+    "CD0": 0.022306256211762847,
+    "drag_lb": 302.01801901989666,
+    "shaft_hp": 181.04639058501573,
+    "full_hp": 183.11309255264547,
+    "altitude_ft": 23000.0,
+    "weight": "takeoff",
+    "W_lb": 3517.2502473171944,
+    "reaches_V_C": true,
+    "excess_hp": 2.06670196762974,
+    "throttle": 0.9887135215793729
+   },
+   {
+    "V_tas_kt": 158.59300014535995,
+    "CD0": 0.022306256211762847,
+    "drag_lb": 273.1352537570686,
+    "shaft_hp": 163.05758619123412,
+    "full_hp": 183.11309255264547,
+    "altitude_ft": 23000.0,
+    "weight": "zero_fuel",
+    "W_lb": 2418.562623647499,
+    "reaches_V_C": true,
+    "excess_hp": 20.055506361411346,
+    "throttle": 0.8904747547986207
+   },
+   {
+    "V_tas_kt": 158.59300014535995,
+    "CD0": 0.022306256211762847,
+    "drag_lb": 272.58126066671105,
+    "shaft_hp": 162.71389015304706,
+    "full_hp": 183.11309255264547,
+    "altitude_ft": 23000.0,
+    "weight": "payload_off_with_ballast",
+    "W_lb": 2392.562623647499,
+    "reaches_V_C": true,
+    "excess_hp": 20.39920239959841,
+    "throttle": 0.888597794318101
+   },
+   {
+    "V_tas_kt": 158.59300014535995,
+    "CD0": 0.022306256211762847,
+    "drag_lb": 301.2110018153502,
+    "shaft_hp": 180.54190447180727,
+    "full_hp": 183.11309255264547,
+    "altitude_ft": 23000.0,
+    "weight": "payload_off_full_fuel_with_ballast",
+    "W_lb": 3491.2502473171944,
+    "reaches_V_C": true,
+    "excess_hp": 2.5711880808381977,
+    "throttle": 0.985958469462805
+   },
+   {
+    "V_tas_kt": 164.23523028182484,
+    "CD0": 0.022474256927667222,
+    "drag_lb": 303.88003946647336,
+    "shaft_hp": 188.6932663030179,
+    "full_hp": 167.97698342680064,
+    "altitude_ft": 25000.0,
+    "weight": "takeoff",
+    "W_lb": 3517.2502473171944,
+    "reaches_V_C": false,
+    "excess_hp": -20.716282876217264,
+    "throttle": 1.1233281039675582
+   },
+   {
+    "V_tas_kt": 164.23523028182484,
+    "CD0": 0.022474256927667222,
+    "drag_lb": 274.99727420364536,
+    "shaft_hp": 170.05532819317156,
+    "full_hp": 167.97698342680064,
+    "altitude_ft": 25000.0,
+    "weight": "zero_fuel",
+    "W_lb": 2418.562623647499,
+    "reaches_V_C": false,
+    "excess_hp": -2.0783447663709183,
+    "throttle": 1.012372794914945
+   },
+   {
+    "V_tas_kt": 164.23523028182484,
+    "CD0": 0.022474256927667222,
+    "drag_lb": 274.44328111328775,
+    "shaft_hp": 169.69922802937617,
+    "full_hp": 167.97698342680064,
+    "altitude_ft": 25000.0,
+    "weight": "payload_off_with_ballast",
+    "W_lb": 2392.562623647499,
+    "reaches_V_C": false,
+    "excess_hp": -1.722244602575529,
+    "throttle": 1.0102528606446015
+   },
+   {
+    "V_tas_kt": 164.23523028182484,
+    "CD0": 0.022474256927667222,
+    "drag_lb": 303.07302226192684,
+    "shaft_hp": 188.17057794549189,
+    "full_hp": 167.97698342680064,
+    "altitude_ft": 25000.0,
+    "weight": "payload_off_full_fuel_with_ballast",
+    "W_lb": 3491.2502473171944,
+    "reaches_V_C": false,
+    "excess_hp": -20.193594518691242,
+    "throttle": 1.1202164374352575
+   },
+   {
+    "V_tas_kt": 171.7107936672884,
+    "CD0": 0.022688987613493642,
+    "drag_lb": 306.2599872265996,
+    "shaft_hp": 198.89437213668634,
+    "full_hp": 150.8159686723244,
+    "altitude_ft": 27500.0,
+    "weight": "takeoff",
+    "W_lb": 3517.2502473171944,
+    "reaches_V_C": false,
+    "excess_hp": -48.07840346436194,
+    "throttle": 1.318788546648009
+   },
+   {
+    "V_tas_kt": 171.7107936672884,
+    "CD0": 0.022688987613493642,
+    "drag_lb": 277.37722196377155,
+    "shaft_hp": 179.39586632135652,
+    "full_hp": 150.8159686723244,
+    "altitude_ft": 27500.0,
+    "weight": "zero_fuel",
+    "W_lb": 2418.562623647499,
+    "reaches_V_C": false,
+    "excess_hp": -28.57989764903212,
+    "throttle": 1.1895018007750044
+   },
+   {
+    "V_tas_kt": 171.7107936672884,
+    "CD0": 0.022688987613493642,
+    "drag_lb": 276.82322887341394,
+    "shaft_hp": 179.02332170348203,
+    "full_hp": 150.8159686723244,
+    "altitude_ft": 27500.0,
+    "weight": "payload_off_with_ballast",
+    "W_lb": 2392.562623647499,
+    "reaches_V_C": false,
+    "excess_hp": -28.207353031157623,
+    "throttle": 1.1870316073256362
+   },
+   {
+    "V_tas_kt": 171.7107936672884,
+    "CD0": 0.022688987613493642,
+    "drag_lb": 305.45297002205314,
+    "shaft_hp": 198.34755287832428,
+    "full_hp": 150.8159686723244,
+    "altitude_ft": 27500.0,
+    "weight": "payload_off_full_fuel_with_ballast",
+    "W_lb": 3491.2502473171944,
+    "reaches_V_C": false,
+    "excess_hp": -47.53158420599988,
+    "throttle": 1.315162808185591
+   },
+   {
+    "V_tas_kt": 179.69545472424204,
+    "CD0": 0.022908991725759446,
+    "drag_lb": 308.6983825225045,
+    "shaft_hp": 209.87285646149368,
+    "full_hp": 135.37068727808514,
+    "altitude_ft": 30000.0,
+    "weight": "takeoff",
+    "W_lb": 3517.2502473171944,
+    "reaches_V_C": false,
+    "excess_hp": -74.50216918340854,
+    "throttle": 1.55035673291931
+   },
+   {
+    "V_tas_kt": 179.69545472424204,
+    "CD0": 0.022908991725759446,
+    "drag_lb": 279.81561725967657,
+    "shaft_hp": 189.45457115261223,
+    "full_hp": 135.37068727808514,
+    "altitude_ft": 30000.0,
+    "weight": "zero_fuel",
+    "W_lb": 2418.562623647499,
+    "reaches_V_C": false,
+    "excess_hp": -54.08388387452709,
+    "throttle": 1.3995243354525142
+   },
+   {
+    "V_tas_kt": 179.69545472424204,
+    "CD0": 0.022908991725759446,
+    "drag_lb": 279.26162416931896,
+    "shaft_hp": 189.06445050298768,
+    "full_hp": 135.37068727808514,
+    "altitude_ft": 30000.0,
+    "weight": "payload_off_with_ballast",
+    "W_lb": 2392.562623647499,
+    "reaches_V_C": false,
+    "excess_hp": -53.69376322490254,
+    "throttle": 1.3966424659911947
+   },
+   {
+    "V_tas_kt": 179.69545472424204,
+    "CD0": 0.022908991725759446,
+    "drag_lb": 307.89136531795805,
+    "shaft_hp": 209.3002461138065,
+    "full_hp": 135.37068727808514,
+    "altitude_ft": 30000.0,
+    "weight": "payload_off_full_fuel_with_ballast",
+    "W_lb": 3491.2502473171944,
+    "reaches_V_C": false,
+    "excess_hp": -73.92955883572137,
+    "throttle": 1.546126789500977
+   }
+  ],
+  "schedule": [
+   {
+    "altitude_ft": 0.0,
+    "limit_needed": true,
+    "weight": "payload_off_with_ballast",
+    "limit_hp": 104.74272998663218,
+    "full_hp": 450.0,
+    "excess_hp": 345.2572700133678,
+    "throttle": 0.23276162219251598,
+    "per_weight_hp": {
+     "takeoff": 117.39420683009658,
+     "zero_fuel": 104.97990723127556,
+     "payload_off_with_ballast": 104.74272998663218,
+     "payload_off_full_fuel_with_ballast": 117.04603849849234
+    }
+   },
+   {
+    "altitude_ft": 2500.0,
+    "limit_needed": true,
+    "weight": "payload_off_with_ballast",
+    "limit_hp": 109.5000196152573,
+    "full_hp": 420.1667822864726,
+    "excess_hp": 310.6667626712153,
+    "throttle": 0.26061084367349974,
+    "per_weight_hp": {
+     "takeoff": 122.63343688190427,
+     "zero_fuel": 109.7462329759045,
+     "payload_off_with_ballast": 109.5000196152573,
+     "payload_off_full_fuel_with_ballast": 122.27200725066577
+    }
+   },
+   {
+    "altitude_ft": 5000.0,
+    "limit_needed": true,
+    "weight": "payload_off_with_ballast",
+    "limit_hp": 114.56254773474141,
+    "full_hp": 381.41730459552366,
+    "excess_hp": 266.85475686078223,
+    "throttle": 0.3003601209342874,
+    "per_weight_hp": {
+     "takeoff": 128.20517981533413,
+     "zero_fuel": 114.81830864377778,
+     "payload_off_with_ballast": 114.56254773474141,
+     "payload_off_full_fuel_with_ballast": 127.8297384649692
+    }
+   },
+   {
+    "altitude_ft": 7500.0,
+    "limit_needed": true,
+    "weight": "payload_off_with_ballast",
+    "limit_hp": 119.95557310972829,
+    "full_hp": 345.7446643392748,
+    "excess_hp": 225.7890912295465,
+    "throttle": 0.34694844340972225,
+    "per_weight_hp": {
+     "takeoff": 134.13676042867684,
+     "zero_fuel": 120.22143174348271,
+     "payload_off_with_ballast": 119.95557310972829,
+     "payload_off_full_fuel_with_ballast": 133.74650009971174
+    }
+   },
+   {
+    "altitude_ft": 10000.0,
+    "limit_needed": true,
+    "weight": "payload_off_with_ballast",
+    "limit_hp": 125.70689544960612,
+    "full_hp": 312.9485618091949,
+    "excess_hp": 187.2416663595888,
+    "throttle": 0.4016854869786868,
+    "per_weight_hp": {
+     "takeoff": 140.45824171370037,
+     "zero_fuel": 125.9834444274866,
+     "payload_off_with_ballast": 125.70689544960612,
+     "payload_off_full_fuel_with_ballast": 140.05229288028036
+    }
+   },
+   {
+    "altitude_ft": 12500.0,
+    "limit_needed": true,
+    "weight": "payload_off_with_ballast",
+    "limit_hp": 131.84715154155919,
+    "full_hp": 282.9819502342829,
+    "excess_hp": 151.13479869272373,
+    "throttle": 0.465920711311806,
+    "per_weight_hp": {
+     "takeoff": 147.20274380147052,
+     "zero_fuel": 132.1350300530079,
+     "payload_off_with_ballast": 131.84715154155919,
+     "payload_off_full_fuel_with_ballast": 146.78016861737171
+    }
+   },
+   {
+    "altitude_ft": 15000.0,
+    "limit_needed": true,
+    "weight": "payload_off_with_ballast",
+    "limit_hp": 138.41014936599112,
+    "full_hp": 255.59278177377638,
+    "excess_hp": 117.18263240778526,
+    "throttle": 0.5415260493877996,
+    "per_weight_hp": {
+     "takeoff": 154.40680399591764,
+     "zero_fuel": 138.71004778349985,
+     "payload_off_with_ballast": 138.41014936599112,
+     "payload_off_full_fuel_with_ballast": 153.96658952753495
+    }
+   },
+   {
+    "altitude_ft": 17500.0,
+    "limit_needed": true,
+    "weight": "payload_off_with_ballast",
+    "limit_hp": 145.43324514562065,
+    "full_hp": 230.51200008082293,
+    "excess_hp": 85.07875493520228,
+    "throttle": 0.6309139875348283,
+    "per_weight_hp": {
+     "takeoff": 162.11078333276123,
+     "zero_fuel": 145.74591019115286,
+     "payload_off_with_ballast": 145.43324514562065,
+     "payload_off_full_fuel_with_ballast": 161.6518339802532
+    }
+   },
+   {
+    "altitude_ft": 20000.0,
+    "limit_needed": true,
+    "weight": "payload_off_with_ballast",
+    "limit_hp": 152.95776880709911,
+    "full_hp": 207.60187589866487,
+    "excess_hp": 54.64410709156576,
+    "throttle": 0.7367841361980815,
+    "per_weight_hp": {
+     "takeoff": 170.35932571488442,
+     "zero_fuel": 153.28400935000005,
+     "payload_off_with_ballast": 152.95776880709911,
+     "payload_off_full_fuel_with_ballast": 169.8804547069163
+    }
+   },
+   {
+    "altitude_ft": 22500.0,
+    "limit_needed": true,
+    "weight": "payload_off_with_ballast",
+    "limit_hp": 161.02950384530686,
+    "full_hp": 186.87692323638262,
+    "excess_hp": 25.84741939107576,
+    "throttle": 0.8616874735336846,
+    "per_weight_hp": {
+     "takeoff": 179.20187628931535,
+     "zero_fuel": 161.37019742243834,
+     "payload_off_with_ballast": 161.02950384530686,
+     "payload_off_full_fuel_with_ballast": 178.70179611825668
+    }
+   },
+   {
+    "altitude_ft": 23000.0,
+    "limit_needed": true,
+    "weight": "payload_off_with_ballast",
+    "limit_hp": 162.71389015304706,
+    "full_hp": 183.11309255264547,
+    "excess_hp": 20.39920239959841,
+    "throttle": 0.888597794318101,
+    "per_weight_hp": {
+     "takeoff": 181.04639058501573,
+     "zero_fuel": 163.05758619123412,
+     "payload_off_with_ballast": 162.71389015304706,
+     "payload_off_full_fuel_with_ballast": 180.54190447180727
+    }
+   },
+   {
+    "altitude_ft": 25000.0,
+    "limit_needed": false,
+    "weight": "payload_off_with_ballast",
+    "limit_hp": null,
+    "full_hp": 167.97698342680064,
+    "excess_hp": null,
+    "throttle": null,
+    "per_weight_hp": {
+     "takeoff": 188.6932663030179,
+     "zero_fuel": 170.05532819317156,
+     "payload_off_with_ballast": 169.69922802937617,
+     "payload_off_full_fuel_with_ballast": 188.17057794549189
+    }
+   },
+   {
+    "altitude_ft": 27500.0,
+    "limit_needed": false,
+    "weight": "payload_off_with_ballast",
+    "limit_hp": null,
+    "full_hp": 150.8159686723244,
+    "excess_hp": null,
+    "throttle": null,
+    "per_weight_hp": {
+     "takeoff": 198.89437213668634,
+     "zero_fuel": 179.39586632135652,
+     "payload_off_with_ballast": 179.02332170348203,
+     "payload_off_full_fuel_with_ballast": 198.34755287832428
+    }
+   },
+   {
+    "altitude_ft": 30000.0,
+    "limit_needed": false,
+    "weight": "payload_off_with_ballast",
+    "limit_hp": null,
+    "full_hp": 135.37068727808514,
+    "excess_hp": null,
+    "throttle": null,
+    "per_weight_hp": {
+     "takeoff": 209.87285646149368,
+     "zero_fuel": 189.45457115261223,
+     "payload_off_with_ballast": 189.06445050298768,
+     "payload_off_full_fuel_with_ballast": 209.3002461138065
+    }
+   }
+  ],
+  "crossover_ft": {
+   "takeoff": 23183.48803052525,
+   "zero_fuel": 24814.263687126688,
+   "payload_off_with_ballast": 24846.030321403105,
+   "payload_off_full_fuel_with_ballast": 23228.39537652563
+  },
+  "crossover_lowest_ft": 23183.48803052525,
+  "crossover_highest_ft": 24846.030321403105,
+  "check": {
+   "points": [
+    {
+     "altitude_ft": 0.0,
+     "V_eas_kt": 185.2297954886766,
+     "shaft_hp": 449.97422624119577,
+     "full_hp": 450.0,
+     "deviation": -5.727501956498404e-05
+    },
+    {
+     "altitude_ft": 20000.0,
+     "V_eas_kt": 120.88220732322925,
+     "shaft_hp": 211.50542526208383,
+     "full_hp": 211.50681444327103,
+     "deviation": -6.56802094456399e-06
+    }
+   ],
+   "worst": 5.727501956498404e-05,
+   "tolerance": 0.001,
+   "verdict": "pass"
+  },
+  "p6_second_reading": {
+   "label": "second reading, no weight: P6 failed its validation (row 5) and its numbers are not used in r1",
+   "p6_used_in_r1": false,
+   "p6_row5_verdict": "fail",
+   "weight": "payload_off_with_ballast",
+   "points": [
+    {
+     "altitude_ft": 0.0,
+     "drag_lb": 253.67722272704572,
+     "app_l_hp": 104.74272998663218,
+     "p6_hp": 112.57104118772824,
+     "p6_eta": 0.7606757898943286,
+     "difference": 0.07473846826500652,
+     "iterations": [
+      {
+       "hp": 104.74272998663218,
+       "eta": 0.7437467292757793,
+       "thrust_lb": 230.7831810130056,
+       "next_hp": 115.13336772328955
+      },
+      {
+       "hp": 115.13336772328955,
+       "eta": 0.7653601337104335,
+       "thrust_lb": 261.04912527779373,
+       "next_hp": 111.88205643736792
+      },
+      {
+       "hp": 111.88205643736792,
+       "eta": 0.7593026805573301,
+       "thrust_lb": 251.66949090903898,
+       "next_hp": 112.77461263780803
+      },
+      {
+       "hp": 112.77461263780803,
+       "eta": 0.7610256136652939,
+       "thrust_lb": 254.25284151116762,
+       "next_hp": 112.51929519465962
+      },
+      {
+       "hp": 112.51929519465962,
+       "eta": 0.7605372492392571,
+       "thrust_lb": 253.51443328993446,
+       "next_hp": 112.59154730469204
+      },
+      {
+       "hp": 112.59154730469204,
+       "eta": 0.7606757898943286,
+       "thrust_lb": 253.72343296677596,
+       "next_hp": 112.57104118772824
+      }
+     ]
+    },
+    {
+     "altitude_ft": 10000.0,
+     "drag_lb": 261.3558752906135,
+     "app_l_hp": 125.70689544960612,
+     "p6_hp": 125.87956830436649,
+     "p6_eta": 0.8154987537934691,
+     "difference": 0.0013736148215479638,
+     "iterations": [
+      {
+       "hp": 125.70689544960612,
+       "eta": 0.815341595283386,
+       "thrust_lb": 260.9470674401145,
+       "next_hp": 125.90383181001745
+      },
+      {
+       "hp": 125.90383181001745,
+       "eta": 0.8154987537934691,
+       "thrust_lb": 261.4062520899818,
+       "next_hp": 125.87956830436649
+      }
+     ]
+    },
+    {
+     "altitude_ft": 20000.0,
+     "drag_lb": 269.8574051312252,
+     "app_l_hp": 152.95776880709911,
+     "p6_hp": 148.19595847356044,
+     "p6_eta": 0.8418248754758892,
+     "difference": -0.031131536310156194,
+     "iterations": [
+      {
+       "hp": 152.95776880709911,
+       "eta": 0.842135001325635,
+       "thrust_lb": 278.63103190668664,
+       "next_hp": 148.1413836162298
+      },
+      {
+       "hp": 148.1413836162298,
+       "eta": 0.8418200247144674,
+       "thrust_lb": 269.75647265433537,
+       "next_hp": 148.19681241290274
+      },
+      {
+       "hp": 148.19681241290274,
+       "eta": 0.8418248754758892,
+       "thrust_lb": 269.85896011108264,
+       "next_hp": 148.19595847356044
+      }
+     ]
+    },
+    {
+     "altitude_ft": 23000.0,
+     "drag_lb": 272.58126066671105,
+     "app_l_hp": 162.71389015304706,
+     "p6_hp": 156.836300346359,
+     "p6_eta": 0.8458518193236958,
+     "difference": -0.036122237635395904,
+     "iterations": [
+      {
+       "hp": 162.71389015304706,
+       "eta": 0.8457901499462351,
+       "thrust_lb": 282.77588502434645,
+       "next_hp": 156.8477358034948
+      },
+      {
+       "hp": 156.8477358034948,
+       "eta": 0.8458518193236958,
+       "thrust_lb": 272.6011354744915,
+       "next_hp": 156.836300346359
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "ep3": {
+  "limits": {
+   "positive": 3.8,
+   "negative_gust": -1.7,
+   "negative_manoeuvre": -1.8
+  },
+  "U_held_fps": 30.0,
+  "points": [
+   {
+    "altitude_ft": 0.0,
+    "weight": "takeoff",
+    "W_lb": 3517.2502473171944,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 0.0,
+    "weight": "takeoff",
+    "W_lb": 3517.2502473171944,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 0.0,
+    "weight": "zero_fuel",
+    "W_lb": 2418.562623647499,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 0.0,
+    "weight": "zero_fuel",
+    "W_lb": 2418.562623647499,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 148.37020967653083,
+    "excursion_kt": 38.370209676530834,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 0.0,
+    "weight": "payload_off_with_ballast",
+    "W_lb": 2392.562623647499,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 0.0,
+    "weight": "payload_off_with_ballast",
+    "W_lb": 2392.562623647499,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 147.47278273069497,
+    "excursion_kt": 37.47278273069497,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 0.0,
+    "weight": "payload_off_full_fuel_with_ballast",
+    "W_lb": 3491.2502473171944,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 0.0,
+    "weight": "payload_off_full_fuel_with_ballast",
+    "W_lb": 3491.2502473171944,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 2500.0,
+    "weight": "takeoff",
+    "W_lb": 3517.2502473171944,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 2500.0,
+    "weight": "takeoff",
+    "W_lb": 3517.2502473171944,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 2500.0,
+    "weight": "zero_fuel",
+    "W_lb": 2418.562623647499,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 2500.0,
+    "weight": "zero_fuel",
+    "W_lb": 2418.562623647499,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 143.83993363699472,
+    "excursion_kt": 33.83993363699471,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 2500.0,
+    "weight": "payload_off_with_ballast",
+    "W_lb": 2392.562623647499,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 2500.0,
+    "weight": "payload_off_with_ballast",
+    "W_lb": 2392.562623647499,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 142.9443011111072,
+    "excursion_kt": 32.9443011111072,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 2500.0,
+    "weight": "payload_off_full_fuel_with_ballast",
+    "W_lb": 3491.2502473171944,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 2500.0,
+    "weight": "payload_off_full_fuel_with_ballast",
+    "W_lb": 3491.2502473171944,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 5000.0,
+    "weight": "takeoff",
+    "W_lb": 3517.2502473171944,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 5000.0,
+    "weight": "takeoff",
+    "W_lb": 3517.2502473171944,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 5000.0,
+    "weight": "zero_fuel",
+    "W_lb": 2418.562623647499,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 5000.0,
+    "weight": "zero_fuel",
+    "W_lb": 2418.562623647499,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 139.5513869652137,
+    "excursion_kt": 29.551386965213727,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 5000.0,
+    "weight": "payload_off_with_ballast",
+    "W_lb": 2392.562623647499,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 5000.0,
+    "weight": "payload_off_with_ballast",
+    "W_lb": 2392.562623647499,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 138.65775239663682,
+    "excursion_kt": 28.657752396636837,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 5000.0,
+    "weight": "payload_off_full_fuel_with_ballast",
+    "W_lb": 3491.2502473171944,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 5000.0,
+    "weight": "payload_off_full_fuel_with_ballast",
+    "W_lb": 3491.2502473171944,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 7500.0,
+    "weight": "takeoff",
+    "W_lb": 3517.2502473171944,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 7500.0,
+    "weight": "takeoff",
+    "W_lb": 3517.2502473171944,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 7500.0,
+    "weight": "zero_fuel",
+    "W_lb": 2418.562623647499,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 7500.0,
+    "weight": "zero_fuel",
+    "W_lb": 2418.562623647499,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 135.4939251364483,
+    "excursion_kt": 25.493925136448308,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 7500.0,
+    "weight": "payload_off_with_ballast",
+    "W_lb": 2392.562623647499,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 7500.0,
+    "weight": "payload_off_with_ballast",
+    "W_lb": 2392.562623647499,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 134.60251637224337,
+    "excursion_kt": 24.602516372243365,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 7500.0,
+    "weight": "payload_off_full_fuel_with_ballast",
+    "W_lb": 3491.2502473171944,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 7500.0,
+    "weight": "payload_off_full_fuel_with_ballast",
+    "W_lb": 3491.2502473171944,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 10000.0,
+    "weight": "takeoff",
+    "W_lb": 3517.2502473171944,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 10000.0,
+    "weight": "takeoff",
+    "W_lb": 3517.2502473171944,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 10000.0,
+    "weight": "zero_fuel",
+    "W_lb": 2418.562623647499,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 10000.0,
+    "weight": "zero_fuel",
+    "W_lb": 2418.562623647499,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 131.6570107919541,
+    "excursion_kt": 21.657010791954097,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 10000.0,
+    "weight": "payload_off_with_ballast",
+    "W_lb": 2392.562623647499,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 10000.0,
+    "weight": "payload_off_with_ballast",
+    "W_lb": 2392.562623647499,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 130.7680834736121,
+    "excursion_kt": 20.76808347361212,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 10000.0,
+    "weight": "payload_off_full_fuel_with_ballast",
+    "W_lb": 3491.2502473171944,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 10000.0,
+    "weight": "payload_off_full_fuel_with_ballast",
+    "W_lb": 3491.2502473171944,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 12500.0,
+    "weight": "takeoff",
+    "W_lb": 3517.2502473171944,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 12500.0,
+    "weight": "takeoff",
+    "W_lb": 3517.2502473171944,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 164.6798726213881,
+    "excursion_kt": 54.67987262138811,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 12500.0,
+    "weight": "zero_fuel",
+    "W_lb": 2418.562623647499,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 12500.0,
+    "weight": "zero_fuel",
+    "W_lb": 2418.562623647499,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 128.03019248050518,
+    "excursion_kt": 18.03019248050517,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 12500.0,
+    "weight": "payload_off_with_ballast",
+    "W_lb": 2392.562623647499,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 12500.0,
+    "weight": "payload_off_with_ballast",
+    "W_lb": 2392.562623647499,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 127.14403406767153,
+    "excursion_kt": 17.144034067671537,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 12500.0,
+    "weight": "payload_off_full_fuel_with_ballast",
+    "W_lb": 3491.2502473171944,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 12500.0,
+    "weight": "payload_off_full_fuel_with_ballast",
+    "W_lb": 3491.2502473171944,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 163.83199453521834,
+    "excursion_kt": 53.83199453521834,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 15000.0,
+    "weight": "takeoff",
+    "W_lb": 3517.2502473171944,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 15000.0,
+    "weight": "takeoff",
+    "W_lb": 3517.2502473171944,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 161.06004604489968,
+    "excursion_kt": 51.060046044899686,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 15000.0,
+    "weight": "zero_fuel",
+    "W_lb": 2418.562623647499,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 15000.0,
+    "weight": "zero_fuel",
+    "W_lb": 2418.562623647499,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 124.60307987885842,
+    "excursion_kt": 14.603079878858432,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 15000.0,
+    "weight": "payload_off_with_ballast",
+    "W_lb": 2392.562623647499,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 15000.0,
+    "weight": "payload_off_with_ballast",
+    "W_lb": 2392.562623647499,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 123.72001429753169,
+    "excursion_kt": 13.72001429753169,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 15000.0,
+    "weight": "payload_off_full_fuel_with_ballast",
+    "W_lb": 3491.2502473171944,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 15000.0,
+    "weight": "payload_off_full_fuel_with_ballast",
+    "W_lb": 3491.2502473171944,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 160.21823540156885,
+    "excursion_kt": 50.21823540156885,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 17500.0,
+    "weight": "takeoff",
+    "W_lb": 3517.2502473171944,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 17500.0,
+    "weight": "takeoff",
+    "W_lb": 3517.2502473171944,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 157.6075954696845,
+    "excursion_kt": 47.60759546968449,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 17500.0,
+    "weight": "zero_fuel",
+    "W_lb": 2418.562623647499,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 17500.0,
+    "weight": "zero_fuel",
+    "W_lb": 2418.562623647499,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 121.36531484367121,
+    "excursion_kt": 11.365314843671216,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 17500.0,
+    "weight": "payload_off_with_ballast",
+    "W_lb": 2392.562623647499,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 17500.0,
+    "weight": "payload_off_with_ballast",
+    "W_lb": 2392.562623647499,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 120.48570785671953,
+    "excursion_kt": 10.48570785671954,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 17500.0,
+    "weight": "payload_off_full_fuel_with_ballast",
+    "W_lb": 3491.2502473171944,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 17500.0,
+    "weight": "payload_off_full_fuel_with_ballast",
+    "W_lb": 3491.2502473171944,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 156.77252428064645,
+    "excursion_kt": 46.77252428064645,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 20000.0,
+    "weight": "takeoff",
+    "W_lb": 3517.2502473171944,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 20000.0,
+    "weight": "takeoff",
+    "W_lb": 3517.2502473171944,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 154.30940108229865,
+    "excursion_kt": 44.309401082298656,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 20000.0,
+    "weight": "zero_fuel",
+    "W_lb": 2418.562623647499,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 20000.0,
+    "weight": "zero_fuel",
+    "W_lb": 2418.562623647499,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 118.30653753367666,
+    "excursion_kt": 8.306537533676671,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 20000.0,
+    "weight": "payload_off_with_ballast",
+    "W_lb": 2392.562623647499,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 20000.0,
+    "weight": "payload_off_with_ballast",
+    "W_lb": 2392.562623647499,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 117.43080294452801,
+    "excursion_kt": 7.43080294452801,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 20000.0,
+    "weight": "payload_off_full_fuel_with_ballast",
+    "W_lb": 3491.2502473171944,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 20000.0,
+    "weight": "payload_off_full_fuel_with_ballast",
+    "W_lb": 3491.2502473171944,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 153.4818220985152,
+    "excursion_kt": 43.4818220985152,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 22500.0,
+    "weight": "takeoff",
+    "W_lb": 3517.2502473171944,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 22500.0,
+    "weight": "takeoff",
+    "W_lb": 3517.2502473171944,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 151.1519299570741,
+    "excursion_kt": 41.15192995707409,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 22500.0,
+    "weight": "zero_fuel",
+    "W_lb": 2418.562623647499,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 22500.0,
+    "weight": "zero_fuel",
+    "W_lb": 2418.562623647499,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 115.41634671132344,
+    "excursion_kt": 5.416346711323453,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 22500.0,
+    "weight": "payload_off_with_ballast",
+    "W_lb": 2392.562623647499,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 22500.0,
+    "weight": "payload_off_with_ballast",
+    "W_lb": 2392.562623647499,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 114.54495352533154,
+    "excursion_kt": 4.544953525331541,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 22500.0,
+    "weight": "payload_off_full_fuel_with_ballast",
+    "W_lb": 3491.2502473171944,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 22500.0,
+    "weight": "payload_off_full_fuel_with_ballast",
+    "W_lb": 3491.2502473171944,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 150.33268646212198,
+    "excursion_kt": 40.332686462122,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 23000.0,
+    "weight": "takeoff",
+    "W_lb": 3517.2502473171944,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 23000.0,
+    "weight": "takeoff",
+    "W_lb": 3517.2502473171944,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 150.5360971849813,
+    "excursion_kt": 40.53609718498128,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 23000.0,
+    "weight": "zero_fuel",
+    "W_lb": 2418.562623647499,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 23000.0,
+    "weight": "zero_fuel",
+    "W_lb": 2418.562623647499,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 114.85761801008131,
+    "excursion_kt": 4.857618010081314,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 23000.0,
+    "weight": "payload_off_with_ballast",
+    "W_lb": 2392.562623647499,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 23000.0,
+    "weight": "payload_off_with_ballast",
+    "W_lb": 2392.562623647499,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 113.98715481091628,
+    "excursion_kt": 3.987154810916286,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 23000.0,
+    "weight": "payload_off_full_fuel_with_ballast",
+    "W_lb": 3491.2502473171944,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 23000.0,
+    "weight": "payload_off_full_fuel_with_ballast",
+    "W_lb": 3491.2502473171944,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 149.71863069013426,
+    "excursion_kt": 39.71863069013427,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 25000.0,
+    "weight": "takeoff",
+    "W_lb": 3517.2502473171944,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 25000.0,
+    "weight": "takeoff",
+    "W_lb": 3517.2502473171944,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 148.12114406094932,
+    "excursion_kt": 38.12114406094932,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 25000.0,
+    "weight": "zero_fuel",
+    "W_lb": 2418.562623647499,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 25000.0,
+    "weight": "zero_fuel",
+    "W_lb": 2418.562623647499,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 112.684253191532,
+    "excursion_kt": 2.6842531915320023,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 25000.0,
+    "weight": "payload_off_with_ballast",
+    "W_lb": 2392.562623647499,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 25000.0,
+    "weight": "payload_off_with_ballast",
+    "W_lb": 2392.562623647499,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 111.81773387270151,
+    "excursion_kt": 1.8177338727015107,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 25000.0,
+    "weight": "payload_off_full_fuel_with_ballast",
+    "W_lb": 3491.2502473171944,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 25000.0,
+    "weight": "payload_off_full_fuel_with_ballast",
+    "W_lb": 3491.2502473171944,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 147.31118053538742,
+    "excursion_kt": 37.311180535387436,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 27500.0,
+    "weight": "takeoff",
+    "W_lb": 3517.2502473171944,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 27500.0,
+    "weight": "takeoff",
+    "W_lb": 3517.2502473171944,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 145.20239781219888,
+    "excursion_kt": 35.20239781219889,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 27500.0,
+    "weight": "zero_fuel",
+    "W_lb": 2418.562623647499,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 27500.0,
+    "weight": "zero_fuel",
+    "W_lb": 2418.562623647499,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 110.09962525275577,
+    "excursion_kt": 0.09962525275578148,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 27500.0,
+    "weight": "payload_off_with_ballast",
+    "W_lb": 2392.562623647499,
+    "reading": "ruled_rule",
+    "V_eas_kt": 109.23858522443375,
+    "excursion_kt": -0.7614147755662423,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 27500.0,
+    "weight": "payload_off_with_ballast",
+    "W_lb": 2392.562623647499,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 109.23858522443375,
+    "excursion_kt": -0.7614147755662423,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 27500.0,
+    "weight": "payload_off_full_fuel_with_ballast",
+    "W_lb": 3491.2502473171944,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 27500.0,
+    "weight": "payload_off_full_fuel_with_ballast",
+    "W_lb": 3491.2502473171944,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 144.40277138860696,
+    "excursion_kt": 34.402771388606965,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 30000.0,
+    "weight": "takeoff",
+    "W_lb": 3517.2502473171944,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 30000.0,
+    "weight": "takeoff",
+    "W_lb": 3517.2502473171944,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 142.380325382258,
+    "excursion_kt": 32.38032538225801,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 30000.0,
+    "weight": "zero_fuel",
+    "W_lb": 2418.562623647499,
+    "reading": "ruled_rule",
+    "V_eas_kt": 107.65162467282092,
+    "excursion_kt": -2.348375327179082,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 30000.0,
+    "weight": "zero_fuel",
+    "W_lb": 2418.562623647499,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 107.65162467282092,
+    "excursion_kt": -2.348375327179082,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 30000.0,
+    "weight": "payload_off_with_ballast",
+    "W_lb": 2392.562623647499,
+    "reading": "ruled_rule",
+    "V_eas_kt": 106.79675321822748,
+    "excursion_kt": -3.203246781772522,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 30000.0,
+    "weight": "payload_off_with_ballast",
+    "W_lb": 2392.562623647499,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 106.79675321822748,
+    "excursion_kt": -3.203246781772522,
+    "limited_by": "negative"
+   },
+   {
+    "altitude_ft": 30000.0,
+    "weight": "payload_off_full_fuel_with_ballast",
+    "W_lb": 3491.2502473171944,
+    "reading": "ruled_rule",
+    "V_eas_kt": 165.0,
+    "excursion_kt": 55.00000000000001,
+    "limited_by": null
+   },
+   {
+    "altitude_ft": 30000.0,
+    "weight": "payload_off_full_fuel_with_ballast",
+    "W_lb": 3491.2502473171944,
+    "reading": "held_at_vc_gust",
+    "V_eas_kt": 141.5922179233142,
+    "excursion_kt": 31.592217923314198,
+    "limited_by": "negative"
+   }
+  ],
+  "schedule": {
+   "ruled_rule": [
+    {
+     "altitude_ft": 0.0,
+     "excursion_kt": 55.00000000000001,
+     "weight": "takeoff",
+     "limited_by": null
+    },
+    {
+     "altitude_ft": 2500.0,
+     "excursion_kt": 55.00000000000001,
+     "weight": "takeoff",
+     "limited_by": null
+    },
+    {
+     "altitude_ft": 5000.0,
+     "excursion_kt": 55.00000000000001,
+     "weight": "takeoff",
+     "limited_by": null
+    },
+    {
+     "altitude_ft": 7500.0,
+     "excursion_kt": 55.00000000000001,
+     "weight": "takeoff",
+     "limited_by": null
+    },
+    {
+     "altitude_ft": 10000.0,
+     "excursion_kt": 55.00000000000001,
+     "weight": "takeoff",
+     "limited_by": null
+    },
+    {
+     "altitude_ft": 12500.0,
+     "excursion_kt": 55.00000000000001,
+     "weight": "takeoff",
+     "limited_by": null
+    },
+    {
+     "altitude_ft": 15000.0,
+     "excursion_kt": 55.00000000000001,
+     "weight": "takeoff",
+     "limited_by": null
+    },
+    {
+     "altitude_ft": 17500.0,
+     "excursion_kt": 55.00000000000001,
+     "weight": "takeoff",
+     "limited_by": null
+    },
+    {
+     "altitude_ft": 20000.0,
+     "excursion_kt": 55.00000000000001,
+     "weight": "takeoff",
+     "limited_by": null
+    },
+    {
+     "altitude_ft": 22500.0,
+     "excursion_kt": 55.00000000000001,
+     "weight": "takeoff",
+     "limited_by": null
+    },
+    {
+     "altitude_ft": 23000.0,
+     "excursion_kt": 55.00000000000001,
+     "weight": "takeoff",
+     "limited_by": null
+    },
+    {
+     "altitude_ft": 25000.0,
+     "excursion_kt": 55.00000000000001,
+     "weight": "takeoff",
+     "limited_by": null
+    },
+    {
+     "altitude_ft": 27500.0,
+     "excursion_kt": -0.7614147755662423,
+     "weight": "payload_off_with_ballast",
+     "limited_by": "negative"
+    },
+    {
+     "altitude_ft": 30000.0,
+     "excursion_kt": -3.203246781772522,
+     "weight": "payload_off_with_ballast",
+     "limited_by": "negative"
+    }
+   ],
+   "held_at_vc_gust": [
+    {
+     "altitude_ft": 0.0,
+     "excursion_kt": 37.47278273069497,
+     "weight": "payload_off_with_ballast",
+     "limited_by": "negative"
+    },
+    {
+     "altitude_ft": 2500.0,
+     "excursion_kt": 32.9443011111072,
+     "weight": "payload_off_with_ballast",
+     "limited_by": "negative"
+    },
+    {
+     "altitude_ft": 5000.0,
+     "excursion_kt": 28.657752396636837,
+     "weight": "payload_off_with_ballast",
+     "limited_by": "negative"
+    },
+    {
+     "altitude_ft": 7500.0,
+     "excursion_kt": 24.602516372243365,
+     "weight": "payload_off_with_ballast",
+     "limited_by": "negative"
+    },
+    {
+     "altitude_ft": 10000.0,
+     "excursion_kt": 20.76808347361212,
+     "weight": "payload_off_with_ballast",
+     "limited_by": "negative"
+    },
+    {
+     "altitude_ft": 12500.0,
+     "excursion_kt": 17.144034067671537,
+     "weight": "payload_off_with_ballast",
+     "limited_by": "negative"
+    },
+    {
+     "altitude_ft": 15000.0,
+     "excursion_kt": 13.72001429753169,
+     "weight": "payload_off_with_ballast",
+     "limited_by": "negative"
+    },
+    {
+     "altitude_ft": 17500.0,
+     "excursion_kt": 10.48570785671954,
+     "weight": "payload_off_with_ballast",
+     "limited_by": "negative"
+    },
+    {
+     "altitude_ft": 20000.0,
+     "excursion_kt": 7.43080294452801,
+     "weight": "payload_off_with_ballast",
+     "limited_by": "negative"
+    },
+    {
+     "altitude_ft": 22500.0,
+     "excursion_kt": 4.544953525331541,
+     "weight": "payload_off_with_ballast",
+     "limited_by": "negative"
+    },
+    {
+     "altitude_ft": 23000.0,
+     "excursion_kt": 3.987154810916286,
+     "weight": "payload_off_with_ballast",
+     "limited_by": "negative"
+    },
+    {
+     "altitude_ft": 25000.0,
+     "excursion_kt": 1.8177338727015107,
+     "weight": "payload_off_with_ballast",
+     "limited_by": "negative"
+    },
+    {
+     "altitude_ft": 27500.0,
+     "excursion_kt": -0.7614147755662423,
+     "weight": "payload_off_with_ballast",
+     "limited_by": "negative"
+    },
+    {
+     "altitude_ft": 30000.0,
+     "excursion_kt": -3.203246781772522,
+     "weight": "payload_off_with_ballast",
+     "limited_by": "negative"
+    }
+   ]
+  },
+  "stated_reading": "held_at_vc_gust",
+  "altitude_limit_ft": 23000.0,
+  "stated_excursion_kt": 3.987154810916286,
+  "binding": {
+   "altitude_ft": 23000.0,
+   "excursion_kt": 3.987154810916286,
+   "weight": "payload_off_with_ballast",
+   "limited_by": "negative"
+  },
+  "stated_excursion_floor_kt": 3.9,
+  "stated_at_sea_level_kt": 37.47278273069497,
+  "ruled_rule_smallest_up_to_limit_kt": 55.00000000000001,
+  "V_D_minus_V_C_kt": 55.00000000000001,
+  "ruled_rule_largest_rise_above_V_C": 0.0011089807844930633,
+  "ruled_rule_n_up_at_V_C_binding_case": 3.6016125469773512
+ },
+ "ep4": {
+  "cases": [
+   {
+    "start_altitude_ft": 10000.0,
+    "W_lb": 3517.2502473171944,
+    "descent_deg": 5.0,
+    "power": "idle",
+    "reached_V_D": false,
+    "end": "ground",
+    "time_s": 539.6607200969569,
+    "height_lost_ft": 10000.0,
+    "V_end_eas_kt": 118.70677458922836,
+    "V_largest_eas_kt": 118.70677458922836,
+    "weight": "takeoff"
+   },
+   {
+    "start_altitude_ft": 10000.0,
+    "W_lb": 3517.2502473171944,
+    "descent_deg": 10.0,
+    "power": "idle",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 56.34892187655869,
+    "height_lost_ft": 2684.6681238639203,
+    "V_end_eas_kt": 165.0,
+    "V_largest_eas_kt": 165.0,
+    "weight": "takeoff"
+   },
+   {
+    "start_altitude_ft": 10000.0,
+    "W_lb": 3517.2502473171944,
+    "descent_deg": 20.0,
+    "power": "idle",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 13.925625987048667,
+    "height_lost_ft": 1283.8164791142808,
+    "V_end_eas_kt": 164.99999999999997,
+    "V_largest_eas_kt": 164.99999999999997,
+    "weight": "takeoff"
+   },
+   {
+    "start_altitude_ft": 10000.0,
+    "W_lb": 3517.2502473171944,
+    "descent_deg": 30.0,
+    "power": "idle",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 8.233783605092922,
+    "height_lost_ft": 1106.9915417131015,
+    "V_end_eas_kt": 165.0,
+    "V_largest_eas_kt": 165.0,
+    "weight": "takeoff"
+   },
+   {
+    "start_altitude_ft": 10000.0,
+    "W_lb": 3517.2502473171944,
+    "descent_deg": 45.0,
+    "power": "idle",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 5.3590641293693375,
+    "height_lost_ft": 1017.7245230268691,
+    "V_end_eas_kt": 165.0,
+    "V_largest_eas_kt": 165.0,
+    "weight": "takeoff"
+   },
+   {
+    "start_altitude_ft": 10000.0,
+    "W_lb": 3517.2502473171944,
+    "descent_deg": 5.0,
+    "power": "full",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 27.370519565451527,
+    "height_lost_ft": 659.1855848269897,
+    "V_end_eas_kt": 165.0,
+    "V_largest_eas_kt": 165.0,
+    "weight": "takeoff"
+   },
+   {
+    "start_altitude_ft": 10000.0,
+    "W_lb": 3517.2502473171944,
+    "descent_deg": 10.0,
+    "power": "full",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 15.468929725922447,
+    "height_lost_ft": 732.5157845231024,
+    "V_end_eas_kt": 165.0,
+    "V_largest_eas_kt": 165.0,
+    "weight": "takeoff"
+   },
+   {
+    "start_altitude_ft": 10000.0,
+    "W_lb": 3517.2502473171944,
+    "descent_deg": 20.0,
+    "power": "full",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 8.482850410983735,
+    "height_lost_ft": 784.9247766200351,
+    "V_end_eas_kt": 165.0,
+    "V_largest_eas_kt": 165.0,
+    "weight": "takeoff"
+   },
+   {
+    "start_altitude_ft": 10000.0,
+    "W_lb": 3517.2502473171944,
+    "descent_deg": 30.0,
+    "power": "full",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 5.967219194965944,
+    "height_lost_ft": 804.8886976955291,
+    "V_end_eas_kt": 165.0,
+    "V_largest_eas_kt": 165.0,
+    "weight": "takeoff"
+   },
+   {
+    "start_altitude_ft": 10000.0,
+    "W_lb": 3517.2502473171944,
+    "descent_deg": 45.0,
+    "power": "full",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 4.29554370229369,
+    "height_lost_ft": 817.8714339058315,
+    "V_end_eas_kt": 165.0,
+    "V_largest_eas_kt": 165.0,
+    "weight": "takeoff"
+   },
+   {
+    "start_altitude_ft": 10000.0,
+    "W_lb": 2418.562623647499,
+    "descent_deg": 5.0,
+    "power": "idle",
+    "reached_V_D": false,
+    "end": "time limit",
+    "time_s": 600.0,
+    "height_lost_ft": 9329.647005586761,
+    "V_end_eas_kt": 97.32093371308879,
+    "V_largest_eas_kt": 110.0,
+    "weight": "zero_fuel"
+   },
+   {
+    "start_altitude_ft": 10000.0,
+    "W_lb": 2418.562623647499,
+    "descent_deg": 10.0,
+    "power": "idle",
+    "reached_V_D": false,
+    "end": "ground",
+    "time_s": 220.31262885536503,
+    "height_lost_ft": 10000.0,
+    "V_end_eas_kt": 149.97541479251748,
+    "V_largest_eas_kt": 149.97541479251748,
+    "weight": "zero_fuel"
+   },
+   {
+    "start_altitude_ft": 10000.0,
+    "W_lb": 2418.562623647499,
+    "descent_deg": 20.0,
+    "power": "idle",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 17.37570151538632,
+    "height_lost_ft": 1611.918227706221,
+    "V_end_eas_kt": 165.0,
+    "V_largest_eas_kt": 165.0,
+    "weight": "zero_fuel"
+   },
+   {
+    "start_altitude_ft": 10000.0,
+    "W_lb": 2418.562623647499,
+    "descent_deg": 30.0,
+    "power": "idle",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 9.29757564230829,
+    "height_lost_ft": 1253.7833385587383,
+    "V_end_eas_kt": 165.0,
+    "V_largest_eas_kt": 165.0,
+    "weight": "zero_fuel"
+   },
+   {
+    "start_altitude_ft": 10000.0,
+    "W_lb": 2418.562623647499,
+    "descent_deg": 45.0,
+    "power": "idle",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 5.7918022493277626,
+    "height_lost_ft": 1101.8208214539154,
+    "V_end_eas_kt": 165.0,
+    "V_largest_eas_kt": 165.0,
+    "weight": "zero_fuel"
+   },
+   {
+    "start_altitude_ft": 10000.0,
+    "W_lb": 2418.562623647499,
+    "descent_deg": 5.0,
+    "power": "full",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 23.971535373861272,
+    "height_lost_ft": 582.9701627988306,
+    "V_end_eas_kt": 165.0,
+    "V_largest_eas_kt": 165.0,
+    "weight": "zero_fuel"
+   },
+   {
+    "start_altitude_ft": 10000.0,
+    "W_lb": 2418.562623647499,
+    "descent_deg": 10.0,
+    "power": "full",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 14.119396938766878,
+    "height_lost_ft": 673.1622646278556,
+    "V_end_eas_kt": 165.0,
+    "V_largest_eas_kt": 165.0,
+    "weight": "zero_fuel"
+   },
+   {
+    "start_altitude_ft": 10000.0,
+    "W_lb": 2418.562623647499,
+    "descent_deg": 20.0,
+    "power": "full",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 8.019799436407085,
+    "height_lost_ft": 745.250887675471,
+    "V_end_eas_kt": 165.0,
+    "V_largest_eas_kt": 165.0,
+    "weight": "zero_fuel"
+   },
+   {
+    "start_altitude_ft": 10000.0,
+    "W_lb": 2418.562623647499,
+    "descent_deg": 30.0,
+    "power": "full",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 5.7292090615554905,
+    "height_lost_ft": 775.2198855845254,
+    "V_end_eas_kt": 165.0,
+    "V_largest_eas_kt": 165.0,
+    "weight": "zero_fuel"
+   },
+   {
+    "start_altitude_ft": 10000.0,
+    "W_lb": 2418.562623647499,
+    "descent_deg": 45.0,
+    "power": "full",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 4.171575537060968,
+    "height_lost_ft": 796.1119317651355,
+    "V_end_eas_kt": 165.0,
+    "V_largest_eas_kt": 165.0,
+    "weight": "zero_fuel"
+   },
+   {
+    "start_altitude_ft": 20000.0,
+    "W_lb": 3517.2502473171944,
+    "descent_deg": 5.0,
+    "power": "idle",
+    "reached_V_D": false,
+    "end": "time limit",
+    "time_s": 600.0,
+    "height_lost_ft": 12585.459870781411,
+    "V_end_eas_kt": 117.32619055117694,
+    "V_largest_eas_kt": 117.32619055117694,
+    "weight": "takeoff"
+   },
+   {
+    "start_altitude_ft": 20000.0,
+    "W_lb": 3517.2502473171944,
+    "descent_deg": 10.0,
+    "power": "idle",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 66.7141025565661,
+    "height_lost_ft": 3704.0247115414477,
+    "V_end_eas_kt": 165.0,
+    "V_largest_eas_kt": 165.0,
+    "weight": "takeoff"
+   },
+   {
+    "start_altitude_ft": 20000.0,
+    "W_lb": 3517.2502473171944,
+    "descent_deg": 20.0,
+    "power": "idle",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 16.16533332670409,
+    "height_lost_ft": 1744.8432872086923,
+    "V_end_eas_kt": 164.99999999999997,
+    "V_largest_eas_kt": 164.99999999999997,
+    "weight": "takeoff"
+   },
+   {
+    "start_altitude_ft": 20000.0,
+    "W_lb": 3517.2502473171944,
+    "descent_deg": 30.0,
+    "power": "idle",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 9.537439522596731,
+    "height_lost_ft": 1502.2617785690345,
+    "V_end_eas_kt": 165.0,
+    "V_largest_eas_kt": 165.0,
+    "weight": "takeoff"
+   },
+   {
+    "start_altitude_ft": 20000.0,
+    "W_lb": 3517.2502473171944,
+    "descent_deg": 45.0,
+    "power": "idle",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 6.201003758942026,
+    "height_lost_ft": 1380.1266101511574,
+    "V_end_eas_kt": 165.0,
+    "V_largest_eas_kt": 165.0,
+    "weight": "takeoff"
+   },
+   {
+    "start_altitude_ft": 20000.0,
+    "W_lb": 3517.2502473171944,
+    "descent_deg": 5.0,
+    "power": "full",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 70.55460923673887,
+    "height_lost_ft": 2015.6424487640252,
+    "V_end_eas_kt": 165.0,
+    "V_largest_eas_kt": 165.0,
+    "weight": "takeoff"
+   },
+   {
+    "start_altitude_ft": 20000.0,
+    "W_lb": 3517.2502473171944,
+    "descent_deg": 10.0,
+    "power": "full",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 25.586916521364675,
+    "height_lost_ft": 1420.0838603330594,
+    "V_end_eas_kt": 165.00000000000003,
+    "V_largest_eas_kt": 165.00000000000003,
+    "weight": "takeoff"
+   },
+   {
+    "start_altitude_ft": 20000.0,
+    "W_lb": 3517.2502473171944,
+    "descent_deg": 20.0,
+    "power": "full",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 11.746584036651475,
+    "height_lost_ft": 1272.4385472456052,
+    "V_end_eas_kt": 164.99999999999997,
+    "V_largest_eas_kt": 164.99999999999997,
+    "weight": "takeoff"
+   },
+   {
+    "start_altitude_ft": 20000.0,
+    "W_lb": 3517.2502473171944,
+    "descent_deg": 30.0,
+    "power": "full",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 7.805964082089659,
+    "height_lost_ft": 1232.8921935465223,
+    "V_end_eas_kt": 165.0,
+    "V_largest_eas_kt": 165.0,
+    "weight": "takeoff"
+   },
+   {
+    "start_altitude_ft": 20000.0,
+    "W_lb": 3517.2502473171944,
+    "descent_deg": 45.0,
+    "power": "full",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 5.419134714539989,
+    "height_lost_ft": 1208.5400153587689,
+    "V_end_eas_kt": 165.0,
+    "V_largest_eas_kt": 165.0,
+    "weight": "takeoff"
+   },
+   {
+    "start_altitude_ft": 20000.0,
+    "W_lb": 2418.562623647499,
+    "descent_deg": 5.0,
+    "power": "idle",
+    "reached_V_D": false,
+    "end": "time limit",
+    "time_s": 600.0,
+    "height_lost_ft": 10662.037894272837,
+    "V_end_eas_kt": 95.82725536111468,
+    "V_largest_eas_kt": 110.0,
+    "weight": "zero_fuel"
+   },
+   {
+    "start_altitude_ft": 20000.0,
+    "W_lb": 2418.562623647499,
+    "descent_deg": 10.0,
+    "power": "idle",
+    "reached_V_D": false,
+    "end": "ground",
+    "time_s": 404.6573268470625,
+    "height_lost_ft": 20000.0,
+    "V_end_eas_kt": 149.98726696328166,
+    "V_largest_eas_kt": 149.98726696328166,
+    "weight": "zero_fuel"
+   },
+   {
+    "start_altitude_ft": 20000.0,
+    "W_lb": 2418.562623647499,
+    "descent_deg": 20.0,
+    "power": "idle",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 20.275585152647285,
+    "height_lost_ft": 2199.647506635425,
+    "V_end_eas_kt": 165.0,
+    "V_largest_eas_kt": 165.0,
+    "weight": "zero_fuel"
+   },
+   {
+    "start_altitude_ft": 20000.0,
+    "W_lb": 2418.562623647499,
+    "descent_deg": 30.0,
+    "power": "idle",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 10.795175877804654,
+    "height_lost_ft": 1704.568796562613,
+    "V_end_eas_kt": 165.0,
+    "V_largest_eas_kt": 165.0,
+    "weight": "zero_fuel"
+   },
+   {
+    "start_altitude_ft": 20000.0,
+    "W_lb": 2418.562623647499,
+    "descent_deg": 45.0,
+    "power": "idle",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 6.7108031706274325,
+    "height_lost_ft": 1495.7142209244375,
+    "V_end_eas_kt": 165.0,
+    "V_largest_eas_kt": 165.0,
+    "weight": "zero_fuel"
+   },
+   {
+    "start_altitude_ft": 20000.0,
+    "W_lb": 2418.562623647499,
+    "descent_deg": 5.0,
+    "power": "full",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 115.59526590155538,
+    "height_lost_ft": 3406.8439154755506,
+    "V_end_eas_kt": 165.0,
+    "V_largest_eas_kt": 165.0,
+    "weight": "zero_fuel"
+   },
+   {
+    "start_altitude_ft": 20000.0,
+    "W_lb": 2418.562623647499,
+    "descent_deg": 10.0,
+    "power": "full",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 27.40910857349975,
+    "height_lost_ft": 1537.6479624753774,
+    "V_end_eas_kt": 165.0,
+    "V_largest_eas_kt": 165.0,
+    "weight": "zero_fuel"
+   },
+   {
+    "start_altitude_ft": 20000.0,
+    "W_lb": 2418.562623647499,
+    "descent_deg": 20.0,
+    "power": "full",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 11.997584655521521,
+    "height_lost_ft": 1305.7401734470113,
+    "V_end_eas_kt": 164.99999999999997,
+    "V_largest_eas_kt": 164.99999999999997,
+    "weight": "zero_fuel"
+   },
+   {
+    "start_altitude_ft": 20000.0,
+    "W_lb": 2418.562623647499,
+    "descent_deg": 30.0,
+    "power": "full",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 7.907792943624768,
+    "height_lost_ft": 1252.8130267162887,
+    "V_end_eas_kt": 165.0,
+    "V_largest_eas_kt": 165.0,
+    "weight": "zero_fuel"
+   },
+   {
+    "start_altitude_ft": 20000.0,
+    "W_lb": 2418.562623647499,
+    "descent_deg": 45.0,
+    "power": "full",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 5.469873169400369,
+    "height_lost_ft": 1222.4016319630064,
+    "V_end_eas_kt": 165.0,
+    "V_largest_eas_kt": 165.0,
+    "weight": "zero_fuel"
+   },
+   {
+    "start_altitude_ft": 23000.0,
+    "W_lb": 3517.2502473171944,
+    "descent_deg": 5.0,
+    "power": "idle",
+    "reached_V_D": false,
+    "end": "time limit",
+    "time_s": 600.0,
+    "height_lost_ft": 13110.615188898646,
+    "V_end_eas_kt": 116.88115615996244,
+    "V_largest_eas_kt": 116.88115615996244,
+    "weight": "takeoff"
+   },
+   {
+    "start_altitude_ft": 23000.0,
+    "W_lb": 3517.2502473171944,
+    "descent_deg": 10.0,
+    "power": "idle",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 69.96791075378863,
+    "height_lost_ft": 4072.7408135925725,
+    "V_end_eas_kt": 164.99999999999997,
+    "V_largest_eas_kt": 164.99999999999997,
+    "weight": "takeoff"
+   },
+   {
+    "start_altitude_ft": 23000.0,
+    "W_lb": 3517.2502473171944,
+    "descent_deg": 20.0,
+    "power": "idle",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 16.902437480137678,
+    "height_lost_ft": 1916.574854667837,
+    "V_end_eas_kt": 165.0,
+    "V_largest_eas_kt": 165.0,
+    "weight": "takeoff"
+   },
+   {
+    "start_altitude_ft": 23000.0,
+    "W_lb": 3517.2502473171944,
+    "descent_deg": 30.0,
+    "power": "idle",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 9.9691058150578,
+    "height_lost_ft": 1650.033477917521,
+    "V_end_eas_kt": 164.99999999999997,
+    "V_largest_eas_kt": 164.99999999999997,
+    "weight": "takeoff"
+   },
+   {
+    "start_altitude_ft": 23000.0,
+    "W_lb": 3517.2502473171944,
+    "descent_deg": 45.0,
+    "power": "idle",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 6.4806558103331575,
+    "height_lost_ft": 1515.8591995010938,
+    "V_end_eas_kt": 165.0,
+    "V_largest_eas_kt": 165.0,
+    "weight": "takeoff"
+   },
+   {
+    "start_altitude_ft": 23000.0,
+    "W_lb": 3517.2502473171944,
+    "descent_deg": 5.0,
+    "power": "full",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 101.02618864932117,
+    "height_lost_ft": 3041.8345207391285,
+    "V_end_eas_kt": 164.99999999999997,
+    "V_largest_eas_kt": 164.99999999999997,
+    "weight": "takeoff"
+   },
+   {
+    "start_altitude_ft": 23000.0,
+    "W_lb": 3517.2502473171944,
+    "descent_deg": 10.0,
+    "power": "full",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 29.47112518308538,
+    "height_lost_ft": 1717.9151773582635,
+    "V_end_eas_kt": 165.0,
+    "V_largest_eas_kt": 165.0,
+    "weight": "takeoff"
+   },
+   {
+    "start_altitude_ft": 23000.0,
+    "W_lb": 3517.2502473171944,
+    "descent_deg": 20.0,
+    "power": "full",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 12.823292814480055,
+    "height_lost_ft": 1459.1247292608714,
+    "V_end_eas_kt": 165.0,
+    "V_largest_eas_kt": 165.0,
+    "weight": "takeoff"
+   },
+   {
+    "start_altitude_ft": 23000.0,
+    "W_lb": 3517.2502473171944,
+    "descent_deg": 30.0,
+    "power": "full",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 8.39618474936288,
+    "height_lost_ft": 1393.250953745588,
+    "V_end_eas_kt": 164.99999999999997,
+    "V_largest_eas_kt": 164.99999999999997,
+    "weight": "takeoff"
+   },
+   {
+    "start_altitude_ft": 23000.0,
+    "W_lb": 3517.2502473171944,
+    "descent_deg": 45.0,
+    "power": "full",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 5.777158369965281,
+    "height_lost_ft": 1353.8109297030605,
+    "V_end_eas_kt": 165.0,
+    "V_largest_eas_kt": 165.0,
+    "weight": "takeoff"
+   },
+   {
+    "start_altitude_ft": 23000.0,
+    "W_lb": 2418.562623647499,
+    "descent_deg": 5.0,
+    "power": "idle",
+    "reached_V_D": false,
+    "end": "time limit",
+    "time_s": 600.0,
+    "height_lost_ft": 11118.166499247458,
+    "V_end_eas_kt": 95.39205157133729,
+    "V_largest_eas_kt": 110.0,
+    "weight": "zero_fuel"
+   },
+   {
+    "start_altitude_ft": 23000.0,
+    "W_lb": 2418.562623647499,
+    "descent_deg": 10.0,
+    "power": "idle",
+    "reached_V_D": false,
+    "end": "ground",
+    "time_s": 454.56229677945555,
+    "height_lost_ft": 23000.0,
+    "V_end_eas_kt": 149.98729118260235,
+    "V_largest_eas_kt": 149.98729118260235,
+    "weight": "zero_fuel"
+   },
+   {
+    "start_altitude_ft": 23000.0,
+    "W_lb": 2418.562623647499,
+    "descent_deg": 20.0,
+    "power": "idle",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 21.21971825290304,
+    "height_lost_ft": 2417.178184021235,
+    "V_end_eas_kt": 165.0,
+    "V_largest_eas_kt": 165.0,
+    "weight": "zero_fuel"
+   },
+   {
+    "start_altitude_ft": 23000.0,
+    "W_lb": 2418.562623647499,
+    "descent_deg": 30.0,
+    "power": "idle",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 11.288694298797466,
+    "height_lost_ft": 1872.6292384693952,
+    "V_end_eas_kt": 165.0,
+    "V_largest_eas_kt": 165.0,
+    "weight": "zero_fuel"
+   },
+   {
+    "start_altitude_ft": 23000.0,
+    "W_lb": 2418.562623647499,
+    "descent_deg": 45.0,
+    "power": "idle",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 7.015213640554855,
+    "height_lost_ft": 1643.01010662915,
+    "V_end_eas_kt": 164.99999999999997,
+    "V_largest_eas_kt": 164.99999999999997,
+    "weight": "zero_fuel"
+   },
+   {
+    "start_altitude_ft": 23000.0,
+    "W_lb": 2418.562623647499,
+    "descent_deg": 5.0,
+    "power": "full",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 205.51784847335077,
+    "height_lost_ft": 6256.9475304953085,
+    "V_end_eas_kt": 165.0,
+    "V_largest_eas_kt": 165.0,
+    "weight": "zero_fuel"
+   },
+   {
+    "start_altitude_ft": 23000.0,
+    "W_lb": 2418.562623647499,
+    "descent_deg": 10.0,
+    "power": "full",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 33.574779363862504,
+    "height_lost_ft": 1980.301566632832,
+    "V_end_eas_kt": 165.0,
+    "V_largest_eas_kt": 165.0,
+    "weight": "zero_fuel"
+   },
+   {
+    "start_altitude_ft": 23000.0,
+    "W_lb": 2418.562623647499,
+    "descent_deg": 20.0,
+    "power": "full",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 13.387454834823057,
+    "height_lost_ft": 1530.3874216989643,
+    "V_end_eas_kt": 165.0,
+    "V_largest_eas_kt": 165.0,
+    "weight": "zero_fuel"
+   },
+   {
+    "start_altitude_ft": 23000.0,
+    "W_lb": 2418.562623647499,
+    "descent_deg": 30.0,
+    "power": "full",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 8.625481470167802,
+    "height_lost_ft": 1435.5082260490926,
+    "V_end_eas_kt": 165.0,
+    "V_largest_eas_kt": 165.0,
+    "weight": "zero_fuel"
+   },
+   {
+    "start_altitude_ft": 23000.0,
+    "W_lb": 2418.562623647499,
+    "descent_deg": 45.0,
+    "power": "full",
+    "reached_V_D": true,
+    "end": "V_D",
+    "time_s": 5.887123360966953,
+    "height_lost_ft": 1382.2798791685746,
+    "V_end_eas_kt": 165.00000000000003,
+    "V_largest_eas_kt": 165.00000000000003,
+    "weight": "zero_fuel"
+   }
+  ],
+  "by_angle": [
+   {
+    "power": "idle",
+    "descent_deg": 5.0,
+    "cases": 6,
+    "reached": 0,
+    "shortest_time_s": null,
+    "least_height_lost_ft": null,
+    "largest_height_lost_ft": null
+   },
+   {
+    "power": "idle",
+    "descent_deg": 10.0,
+    "cases": 6,
+    "reached": 3,
+    "shortest_time_s": 56.34892187655869,
+    "least_height_lost_ft": 2684.6681238639203,
+    "largest_height_lost_ft": 4072.7408135925725
+   },
+   {
+    "power": "idle",
+    "descent_deg": 20.0,
+    "cases": 6,
+    "reached": 6,
+    "shortest_time_s": 13.925625987048667,
+    "least_height_lost_ft": 1283.8164791142808,
+    "largest_height_lost_ft": 2417.178184021235
+   },
+   {
+    "power": "idle",
+    "descent_deg": 30.0,
+    "cases": 6,
+    "reached": 6,
+    "shortest_time_s": 8.233783605092922,
+    "least_height_lost_ft": 1106.9915417131015,
+    "largest_height_lost_ft": 1872.6292384693952
+   },
+   {
+    "power": "idle",
+    "descent_deg": 45.0,
+    "cases": 6,
+    "reached": 6,
+    "shortest_time_s": 5.3590641293693375,
+    "least_height_lost_ft": 1017.7245230268691,
+    "largest_height_lost_ft": 1643.01010662915
+   },
+   {
+    "power": "full",
+    "descent_deg": 5.0,
+    "cases": 6,
+    "reached": 6,
+    "shortest_time_s": 23.971535373861272,
+    "least_height_lost_ft": 582.9701627988306,
+    "largest_height_lost_ft": 6256.9475304953085
+   },
+   {
+    "power": "full",
+    "descent_deg": 10.0,
+    "cases": 6,
+    "reached": 6,
+    "shortest_time_s": 14.119396938766878,
+    "least_height_lost_ft": 673.1622646278556,
+    "largest_height_lost_ft": 1980.301566632832
+   },
+   {
+    "power": "full",
+    "descent_deg": 20.0,
+    "cases": 6,
+    "reached": 6,
+    "shortest_time_s": 8.019799436407085,
+    "least_height_lost_ft": 745.250887675471,
+    "largest_height_lost_ft": 1530.3874216989643
+   },
+   {
+    "power": "full",
+    "descent_deg": 30.0,
+    "cases": 6,
+    "reached": 6,
+    "shortest_time_s": 5.7292090615554905,
+    "least_height_lost_ft": 775.2198855845254,
+    "largest_height_lost_ft": 1435.5082260490926
+   },
+   {
+    "power": "full",
+    "descent_deg": 45.0,
+    "cases": 6,
+    "reached": 6,
+    "shortest_time_s": 4.171575537060968,
+    "least_height_lost_ft": 796.1119317651355,
+    "largest_height_lost_ft": 1382.2798791685746
+   }
+  ],
+  "shortest_time_s": 4.171575537060968,
+  "shortest_case": {
+   "start_altitude_ft": 10000.0,
+   "W_lb": 2418.562623647499,
+   "descent_deg": 45.0,
+   "power": "full",
+   "reached_V_D": true,
+   "end": "V_D",
+   "time_s": 4.171575537060968,
+   "height_lost_ft": 796.1119317651355,
+   "V_end_eas_kt": 165.0,
+   "V_largest_eas_kt": 165.0,
+   "weight": "zero_fuel"
+  },
+  "least_height_lost_ft": 582.9701627988306,
+  "least_height_case": {
+   "start_altitude_ft": 10000.0,
+   "W_lb": 2418.562623647499,
+   "descent_deg": 5.0,
+   "power": "full",
+   "reached_V_D": true,
+   "end": "V_D",
+   "time_s": 23.971535373861272,
+   "height_lost_ft": 582.9701627988306,
+   "V_end_eas_kt": 165.0,
+   "V_largest_eas_kt": 165.0,
+   "weight": "zero_fuel"
+  },
+  "not_reached": [
+   {
+    "start_altitude_ft": 10000.0,
+    "W_lb": 3517.2502473171944,
+    "descent_deg": 5.0,
+    "power": "idle",
+    "reached_V_D": false,
+    "end": "ground",
+    "time_s": 539.6607200969569,
+    "height_lost_ft": 10000.0,
+    "V_end_eas_kt": 118.70677458922836,
+    "V_largest_eas_kt": 118.70677458922836,
+    "weight": "takeoff"
+   },
+   {
+    "start_altitude_ft": 10000.0,
+    "W_lb": 2418.562623647499,
+    "descent_deg": 5.0,
+    "power": "idle",
+    "reached_V_D": false,
+    "end": "time limit",
+    "time_s": 600.0,
+    "height_lost_ft": 9329.647005586761,
+    "V_end_eas_kt": 97.32093371308879,
+    "V_largest_eas_kt": 110.0,
+    "weight": "zero_fuel"
+   },
+   {
+    "start_altitude_ft": 10000.0,
+    "W_lb": 2418.562623647499,
+    "descent_deg": 10.0,
+    "power": "idle",
+    "reached_V_D": false,
+    "end": "ground",
+    "time_s": 220.31262885536503,
+    "height_lost_ft": 10000.0,
+    "V_end_eas_kt": 149.97541479251748,
+    "V_largest_eas_kt": 149.97541479251748,
+    "weight": "zero_fuel"
+   },
+   {
+    "start_altitude_ft": 20000.0,
+    "W_lb": 3517.2502473171944,
+    "descent_deg": 5.0,
+    "power": "idle",
+    "reached_V_D": false,
+    "end": "time limit",
+    "time_s": 600.0,
+    "height_lost_ft": 12585.459870781411,
+    "V_end_eas_kt": 117.32619055117694,
+    "V_largest_eas_kt": 117.32619055117694,
+    "weight": "takeoff"
+   },
+   {
+    "start_altitude_ft": 20000.0,
+    "W_lb": 2418.562623647499,
+    "descent_deg": 5.0,
+    "power": "idle",
+    "reached_V_D": false,
+    "end": "time limit",
+    "time_s": 600.0,
+    "height_lost_ft": 10662.037894272837,
+    "V_end_eas_kt": 95.82725536111468,
+    "V_largest_eas_kt": 110.0,
+    "weight": "zero_fuel"
+   },
+   {
+    "start_altitude_ft": 20000.0,
+    "W_lb": 2418.562623647499,
+    "descent_deg": 10.0,
+    "power": "idle",
+    "reached_V_D": false,
+    "end": "ground",
+    "time_s": 404.6573268470625,
+    "height_lost_ft": 20000.0,
+    "V_end_eas_kt": 149.98726696328166,
+    "V_largest_eas_kt": 149.98726696328166,
+    "weight": "zero_fuel"
+   },
+   {
+    "start_altitude_ft": 23000.0,
+    "W_lb": 3517.2502473171944,
+    "descent_deg": 5.0,
+    "power": "idle",
+    "reached_V_D": false,
+    "end": "time limit",
+    "time_s": 600.0,
+    "height_lost_ft": 13110.615188898646,
+    "V_end_eas_kt": 116.88115615996244,
+    "V_largest_eas_kt": 116.88115615996244,
+    "weight": "takeoff"
+   },
+   {
+    "start_altitude_ft": 23000.0,
+    "W_lb": 2418.562623647499,
+    "descent_deg": 5.0,
+    "power": "idle",
+    "reached_V_D": false,
+    "end": "time limit",
+    "time_s": 600.0,
+    "height_lost_ft": 11118.166499247458,
+    "V_end_eas_kt": 95.39205157133729,
+    "V_largest_eas_kt": 110.0,
+    "weight": "zero_fuel"
+   },
+   {
+    "start_altitude_ft": 23000.0,
+    "W_lb": 2418.562623647499,
+    "descent_deg": 10.0,
+    "power": "idle",
+    "reached_V_D": false,
+    "end": "ground",
+    "time_s": 454.56229677945555,
+    "height_lost_ft": 23000.0,
+    "V_end_eas_kt": 149.98729118260235,
+    "V_largest_eas_kt": 149.98729118260235,
+    "weight": "zero_fuel"
+   }
+  ],
+  "closed_form_check": {
+   "time_s": 6.216199415677257,
+   "closed_form_time_s": 6.216199415677257,
+   "height_lost_ft": 777.0249269596607,
+   "closed_form_height_ft": 777.0249269596569,
+   "deviation": 4.884981308350689e-15,
+   "tolerance": 1e-06,
+   "verdict": "pass"
+  }
+ },
+ "ep5": {
+  "positive_limit": 3.8,
+  "negative_limit": -1.8,
+  "margin_g": 0.1,
+  "positive_command": 3.6999999999999997,
+  "negative_command": -1.7,
+  "n_r16": 1.1547005383792515,
+  "bank_deg": 30.0,
+  "loiter_V_tas_kt": 87.25725877184887,
+  "loiter_W_start_lb": 3286.1670932414627,
+  "stall_limited_n_at_loiter": {
+   "r0": 1.527547602113674,
+   "p2_measured_r1": 1.4438074425658023
+  },
+  "cl_max": {
+   "r0": 1.35,
+   "p2_measured_r1": 1.275993
+  },
+  "r16_available": true,
+  "negative_corner_below_V_C": {
+   "takeoff": true,
+   "zero_fuel": true
+  },
+  "negative_corner_kt": {
+   "takeoff": 93.43446274925269,
+   "zero_fuel": 77.47902141803448
+  },
+  "positive_corner_kt": {
+   "takeoff": 103.9639034016122,
+   "zero_fuel": 86.21039027080408
+  }
+ },
+ "ep6": {
+  "factor": 1.3,
+  "cl_max": {
+   "r0": 1.35,
+   "p2_measured_r1": 1.275993
+  },
+  "weights": {
+   "takeoff": 3517.2502473171944,
+   "zero_fuel": 2418.562623647499,
+   "payload_off_with_ballast": 2392.562623647499,
+   "payload_off_full_fuel_with_ballast": 3491.2502473171944
+  },
+  "points": {
+   "r0": {
+    "takeoff": {
+     "V_stall_kt": 53.33128280676374,
+     "floor_kt": 69.33066764879287
+    },
+    "zero_fuel": {
+     "V_stall_kt": 44.224106194366186,
+     "floor_kt": 57.49133805267605
+    },
+    "payload_off_with_ballast": {
+     "V_stall_kt": 43.985755182585194,
+     "floor_kt": 57.181481737360755
+    },
+    "payload_off_full_fuel_with_ballast": {
+     "V_stall_kt": 53.133801069627566,
+     "floor_kt": 69.07394139051584
+    }
+   },
+   "p2_measured_r1": {
+    "takeoff": {
+     "V_stall_kt": 54.85607982593095,
+     "floor_kt": 71.31290377371023
+    },
+    "zero_fuel": {
+     "V_stall_kt": 45.48851953212207,
+     "floor_kt": 59.1350753917587
+    },
+    "payload_off_with_ballast": {
+     "V_stall_kt": 45.24335381622838,
+     "floor_kt": 58.81635996109689
+    },
+    "payload_off_full_fuel_with_ballast": {
+     "V_stall_kt": 54.65295187988553,
+     "floor_kt": 71.04883744385118
+    }
+   }
+  },
+  "check": {
+   "V_stall_takeoff_kt": 53.33128280676374,
+   "record_kt": 53.33128280676374,
+   "deviation": 0.0,
+   "tolerance": 1e-09,
+   "verdict": "pass"
+  }
+ },
+ "rows": [
+  {
+   "id": "EP-1",
+   "title": "Speed hold",
+   "text": "The protection holds the speed at or below V_C = {V_C} kt EAS at every altitude and every weight, in climb, level flight and descent (R18). V_D = {V_D} kt EAS. The fastest mission sub-step is {fastest} kt EAS, below V_C.",
+   "numbers": [
+    {
+     "name": "V_C",
+     "value": 110.0,
+     "unit": "kt EAS",
+     "record": "r0_design",
+     "key": "V_c_eas_kt.sea_level",
+     "fmt": ".1f"
+    },
+    {
+     "name": "V_D",
+     "value": 165.0,
+     "unit": "kt EAS",
+     "record": "p5",
+     "key": "r0.V_D_kt",
+     "fmt": ".1f"
+    },
+    {
+     "name": "fastest",
+     "value": 94.96240874563303,
+     "unit": "kt EAS",
+     "record": "r0_design",
+     "key": "fastest_step_eas_kt",
+     "fmt": ".2f"
+    }
+   ],
+   "headline": "V_C",
+   "sources": [
+    "p5",
+    "r0_design"
+   ],
+   "statement": "The protection holds the speed at or below V_C = 110.0 kt EAS at every altitude and every weight, in climb, level flight and descent (R18). V_D = 165.0 kt EAS. The fastest mission sub-step is 94.96 kt EAS, below V_C."
+  },
+  {
+   "id": "EP-2",
+   "title": "Power limit schedule",
+   "text": "In level flight the shaft power is limited to the power that holds V_C: {lim_sl} hp at sea level, {lim_20} hp at 20,000 ft and {lim_23} hp at 23,000 ft (lightest flown weight; schedule S-2). The engine's excess above the limit is {exc_sl} hp at sea level and {exc_20} hp at 20,000 ft. Above {cross_lo} ft ({cross_lo_w}) to {cross_hi} ft ({cross_hi_w}) full throttle does not reach V_C and no limit is needed. Without the limit the level top speed is {vmax_sl} kt EAS at sea level and {vmax_20} kt EAS at 20,000 ft. Second reading, no weight (P6 failed its validation): P6's blade needs {p6_sl} hp at sea level.",
+   "numbers": [
+    {
+     "name": "lim_sl",
+     "value": 104.74272998663218,
+     "unit": "hp",
+     "record": "p8",
+     "key": "ep2.schedule.0.limit_hp",
+     "fmt": ".1f"
+    },
+    {
+     "name": "lim_20",
+     "value": 152.95776880709911,
+     "unit": "hp",
+     "record": "p8",
+     "key": "ep2.schedule.8.limit_hp",
+     "fmt": ".1f"
+    },
+    {
+     "name": "lim_23",
+     "value": 162.71389015304706,
+     "unit": "hp",
+     "record": "p8",
+     "key": "ep2.schedule.10.limit_hp",
+     "fmt": ".1f"
+    },
+    {
+     "name": "exc_sl",
+     "value": 345.2572700133678,
+     "unit": "hp",
+     "record": "p8",
+     "key": "ep2.schedule.0.excess_hp",
+     "fmt": ".1f"
+    },
+    {
+     "name": "exc_20",
+     "value": 54.64410709156576,
+     "unit": "hp",
+     "record": "p8",
+     "key": "ep2.schedule.8.excess_hp",
+     "fmt": ".1f"
+    },
+    {
+     "name": "cross_lo",
+     "value": 23183.48803052525,
+     "unit": "ft",
+     "record": "p8",
+     "key": "ep2.crossover_lowest_ft",
+     "fmt": ",.0f"
+    },
+    {
+     "name": "cross_hi",
+     "value": 24846.030321403105,
+     "unit": "ft",
+     "record": "p8",
+     "key": "ep2.crossover_highest_ft",
+     "fmt": ",.0f"
+    },
+    {
+     "name": "vmax_sl",
+     "value": 185.2297954886766,
+     "unit": "kt EAS",
+     "record": "r0_design",
+     "key": "performance.vmax_sl_kt_eas",
+     "fmt": ".1f"
+    },
+    {
+     "name": "vmax_20",
+     "value": 120.88220732322925,
+     "unit": "kt EAS",
+     "record": "r0_design",
+     "key": "performance.vmax_alt_kt_eas",
+     "fmt": ".1f"
+    },
+    {
+     "name": "p6_sl",
+     "value": 112.57104118772824,
+     "unit": "hp",
+     "record": "p8",
+     "key": "ep2.p6_second_reading.points.0.p6_hp",
+     "fmt": ".1f"
+    }
+   ],
+   "headline": "lim_sl",
+   "sources": [
+    "p8",
+    "r0_design"
+   ],
+   "statement": "In level flight the shaft power is limited to the power that holds V_C: 104.7 hp at sea level, 153.0 hp at 20,000 ft and 162.7 hp at 23,000 ft (lightest flown weight; schedule S-2). The engine's excess above the limit is 345.3 hp at sea level and 54.6 hp at 20,000 ft. Above 23,183 ft (take-off weight) to 24,846 ft (payload off with ballast) full throttle does not reach V_C and no limit is needed. Without the limit the level top speed is 185.2 kt EAS at sea level and 120.9 kt EAS at 20,000 ft. Second reading, no weight (P6 failed its validation): P6's blade needs 112.6 hp at sea level."
+  },
+  {
+   "id": "EP-3",
+   "title": "Overspeed margin",
+   "text": "The protection may let the speed exceed V_C by at most {exc} kt EAS at and below {alt} ft (computed {exc_full} kt, rounded down; {exc_20} kt at 20,000 ft, {exc_sl} kt at sea level; schedule S-3), so that a {U} ft/s gust met at that speed stays inside +{npos} and {nneg} (PD-24 item 1). With the ruled rule's own gust speed at the speed (the spec's reading) nothing binds up to V_D at and below {alt} ft: the smallest excursion is {ruled} kt, against V_D - V_C = {vdvc} kt.",
+   "numbers": [
+    {
+     "name": "exc",
+     "value": 3.9,
+     "unit": "kt",
+     "record": "p8",
+     "key": "ep3.stated_excursion_floor_kt",
+     "fmt": ".1f"
+    },
+    {
+     "name": "exc_full",
+     "value": 3.987154810916286,
+     "unit": "kt",
+     "record": "p8",
+     "key": "ep3.stated_excursion_kt",
+     "fmt": ".3f"
+    },
+    {
+     "name": "alt",
+     "value": 23000.0,
+     "unit": "ft",
+     "record": "p8",
+     "key": "ep3.altitude_limit_ft",
+     "fmt": ",.0f"
+    },
+    {
+     "name": "exc_20",
+     "value": 7.43080294452801,
+     "unit": "kt",
+     "record": "p8",
+     "key": "ep3.schedule.held_at_vc_gust.8.excursion_kt",
+     "fmt": ".1f"
+    },
+    {
+     "name": "exc_sl",
+     "value": 37.47278273069497,
+     "unit": "kt",
+     "record": "p8",
+     "key": "ep3.stated_at_sea_level_kt",
+     "fmt": ".1f"
+    },
+    {
+     "name": "U",
+     "value": 30.0,
+     "unit": "ft/s",
+     "record": "p8",
+     "key": "ep3.U_held_fps",
+     "fmt": ".0f"
+    },
+    {
+     "name": "npos",
+     "value": 3.8,
+     "unit": "-",
+     "record": "p5",
+     "key": "row3.limits.positive",
+     "fmt": ".1f"
+    },
+    {
+     "name": "nneg",
+     "value": -1.7,
+     "unit": "-",
+     "record": "p5",
+     "key": "row3.limits.negative_gust",
+     "fmt": ".1f"
+    },
+    {
+     "name": "ruled",
+     "value": 55.00000000000001,
+     "unit": "kt",
+     "record": "p8",
+     "key": "ep3.ruled_rule_smallest_up_to_limit_kt",
+     "fmt": ".1f"
+    },
+    {
+     "name": "vdvc",
+     "value": 55.00000000000001,
+     "unit": "kt",
+     "record": "p8",
+     "key": "ep3.V_D_minus_V_C_kt",
+     "fmt": ".1f"
+    }
+   ],
+   "headline": "exc",
+   "sources": [
+    "p5",
+    "p8"
+   ],
+   "statement": "The protection may let the speed exceed V_C by at most 3.9 kt EAS at and below 23,000 ft (computed 3.987 kt, rounded down; 7.4 kt at 20,000 ft, 37.5 kt at sea level; schedule S-3), so that a 30 ft/s gust met at that speed stays inside +3.8 and -1.7 (PD-24 item 1). With the ruled rule's own gust speed at the speed (the spec's reading) nothing binds up to V_D at and below 23,000 ft: the smallest excursion is 55.0 kt, against V_D - V_C = 55.0 kt."
+  },
+  {
+   "id": "EP-4",
+   "title": "Dive margin",
+   "text": "If the speed hold fails, a dive entered at V_C reaches V_D in as little as {t_min} s (45 deg path: {t_full45} s at full power, {t_idle45} s at idle; schedule S-4), and the least height lost on the way is {h_min} ft. At idle on a 5 deg path V_D is reached in {idle5} of {idle5_n} cases. The protection must stop the acceleration within that time.",
+   "numbers": [
+    {
+     "name": "t_min",
+     "value": 4.171575537060968,
+     "unit": "s",
+     "record": "p8",
+     "key": "ep4.shortest_time_s",
+     "fmt": ".1f"
+    },
+    {
+     "name": "t_full45",
+     "value": 4.171575537060968,
+     "unit": "s",
+     "record": "p8",
+     "key": "ep4.by_angle.9.shortest_time_s",
+     "fmt": ".1f"
+    },
+    {
+     "name": "t_idle45",
+     "value": 5.3590641293693375,
+     "unit": "s",
+     "record": "p8",
+     "key": "ep4.by_angle.4.shortest_time_s",
+     "fmt": ".1f"
+    },
+    {
+     "name": "h_min",
+     "value": 582.9701627988306,
+     "unit": "ft",
+     "record": "p8",
+     "key": "ep4.least_height_lost_ft",
+     "fmt": ",.0f"
+    },
+    {
+     "name": "idle5",
+     "value": 0,
+     "unit": "-",
+     "record": "p8",
+     "key": "ep4.by_angle.0.reached",
+     "fmt": "d"
+    },
+    {
+     "name": "idle5_n",
+     "value": 6,
+     "unit": "-",
+     "record": "p8",
+     "key": "ep4.by_angle.0.cases",
+     "fmt": "d"
+    }
+   ],
+   "headline": "t_min",
+   "sources": [
+    "p8"
+   ],
+   "statement": "If the speed hold fails, a dive entered at V_C reaches V_D in as little as 4.2 s (45 deg path: 4.2 s at full power, 5.4 s at idle; schedule S-4), and the least height lost on the way is 583 ft. At idle on a 5 deg path V_D is reached in 0 of 6 cases. The protection must stop the acceleration within that time."
+  },
+  {
+   "id": "EP-5",
+   "title": "Load-factor command limits",
+   "text": "Commanded load factor between {neg_cmd} and +{pos_cmd}: the R9 limits +{pos} and {neg} less the record's {m} g margin (PD-24 item 2). The R16 turn, n = {n16}, stays available: the stall allows {stall_r0} at the loiter speed and 20,000 ft ({stall_r1} with P2's C_L,max). The negative limit is reachable below V_C (negative corner {negc} kt EAS at take-off weight), so the protection must hold it.",
+   "numbers": [
+    {
+     "name": "neg_cmd",
+     "value": -1.7,
+     "unit": "-",
+     "record": "p8",
+     "key": "ep5.negative_command",
+     "fmt": ".1f"
+    },
+    {
+     "name": "pos_cmd",
+     "value": 3.6999999999999997,
+     "unit": "-",
+     "record": "p8",
+     "key": "ep5.positive_command",
+     "fmt": ".1f"
+    },
+    {
+     "name": "pos",
+     "value": 3.8,
+     "unit": "-",
+     "record": "r0_ledger",
+     "key": "requirements.limit_load_factor.value",
+     "fmt": ".1f"
+    },
+    {
+     "name": "neg",
+     "value": -1.8,
+     "unit": "-",
+     "record": "r0_ledger",
+     "key": "requirements.negative_load_factor.value",
+     "fmt": ".1f"
+    },
+    {
+     "name": "m",
+     "value": 0.1,
+     "unit": "g",
+     "record": "r0_ledger",
+     "key": "requirements.margin_gust_g.value",
+     "fmt": ".1f"
+    },
+    {
+     "name": "n16",
+     "value": 1.1547005383792515,
+     "unit": "-",
+     "record": "p8",
+     "key": "ep5.n_r16",
+     "fmt": ".3f"
+    },
+    {
+     "name": "stall_r0",
+     "value": 1.527547602113674,
+     "unit": "-",
+     "record": "p8",
+     "key": "ep5.stall_limited_n_at_loiter.r0",
+     "fmt": ".3f"
+    },
+    {
+     "name": "stall_r1",
+     "value": 1.4438074425658023,
+     "unit": "-",
+     "record": "p8",
+     "key": "ep5.stall_limited_n_at_loiter.p2_measured_r1",
+     "fmt": ".3f"
+    },
+    {
+     "name": "negc",
+     "value": 93.43446274925269,
+     "unit": "kt EAS",
+     "record": "p5",
+     "key": "row3.manoeuvre.takeoff.negative_corner_kt",
+     "fmt": ".1f"
+    }
+   ],
+   "headline": "pos_cmd",
+   "sources": [
+    "p5",
+    "p8",
+    "r0_ledger"
+   ],
+   "statement": "Commanded load factor between -1.7 and +3.7: the R9 limits +3.8 and -1.8 less the record's 0.1 g margin (PD-24 item 2). The R16 turn, n = 1.155, stays available: the stall allows 1.528 at the loiter speed and 20,000 ft (1.444 with P2's C_L,max). The negative limit is reachable below V_C (negative corner 93.4 kt EAS at take-off weight), so the protection must hold it."
+  },
+  {
+   "id": "EP-6",
+   "title": "Low-speed protection",
+   "text": "No commanded speed below {k} V_stall clean at the current weight (R17). With r0's C_L,max {cl0}: {to0} kt EAS at take-off weight, {zf0} kt at zero-fuel weight, {ob0} kt payload off with ballast. With P2's measured {cl1}, the r1 value: {to1}, {zf1} and {ob1} kt EAS (schedule S-6).",
+   "numbers": [
+    {
+     "name": "k",
+     "value": 1.3,
+     "unit": "-",
+     "record": "r0_ledger",
+     "key": "requirements.speed_over_stall.value",
+     "fmt": ".1f"
+    },
+    {
+     "name": "cl0",
+     "value": 1.35,
+     "unit": "-",
+     "record": "r0_design",
+     "key": "CL_max.clean",
+     "fmt": ".3f"
+    },
+    {
+     "name": "cl1",
+     "value": 1.275993,
+     "unit": "-",
+     "record": "p2b",
+     "key": "wing.measured.clean",
+     "fmt": ".3f"
+    },
+    {
+     "name": "to0",
+     "value": 69.33066764879287,
+     "unit": "kt EAS",
+     "record": "p8",
+     "key": "ep6.points.r0.takeoff.floor_kt",
+     "fmt": ".1f"
+    },
+    {
+     "name": "zf0",
+     "value": 57.49133805267605,
+     "unit": "kt EAS",
+     "record": "p8",
+     "key": "ep6.points.r0.zero_fuel.floor_kt",
+     "fmt": ".1f"
+    },
+    {
+     "name": "ob0",
+     "value": 57.181481737360755,
+     "unit": "kt EAS",
+     "record": "p8",
+     "key": "ep6.points.r0.payload_off_with_ballast.floor_kt",
+     "fmt": ".1f"
+    },
+    {
+     "name": "to1",
+     "value": 71.31290377371023,
+     "unit": "kt EAS",
+     "record": "p8",
+     "key": "ep6.points.p2_measured_r1.takeoff.floor_kt",
+     "fmt": ".1f"
+    },
+    {
+     "name": "zf1",
+     "value": 59.1350753917587,
+     "unit": "kt EAS",
+     "record": "p8",
+     "key": "ep6.points.p2_measured_r1.zero_fuel.floor_kt",
+     "fmt": ".1f"
+    },
+    {
+     "name": "ob1",
+     "value": 58.81635996109689,
+     "unit": "kt EAS",
+     "record": "p8",
+     "key": "ep6.points.p2_measured_r1.payload_off_with_ballast.floor_kt",
+     "fmt": ".1f"
+    }
+   ],
+   "headline": "to0",
+   "sources": [
+    "p2b",
+    "p8",
+    "r0_design",
+    "r0_ledger"
+   ],
+   "statement": "No commanded speed below 1.3 V_stall clean at the current weight (R17). With r0's C_L,max 1.350: 69.3 kt EAS at take-off weight, 57.5 kt at zero-fuel weight, 57.2 kt payload off with ballast. With P2's measured 1.276, the r1 value: 71.3, 59.1 and 58.8 kt EAS (schedule S-6)."
+  },
+  {
+   "id": "EP-7",
+   "title": "Gust criterion above V_C",
+   "text": "Between V_C and V_D the gust is {U_C} ft/s at V_C falling linearly to {U_D} ft/s at V_D (PD-8, the ruled rule). At V_D the structure is cleared to the manoeuvre limit +{man} and to the ruled gust, worst {gup} / {gdn} payload on ({obup} payload off with ballast). It is not cleared to a {U_C} ft/s gust at V_D: {hup} / {hdn}.",
+   "numbers": [
+    {
+     "name": "U_C",
+     "value": 30.0,
+     "unit": "ft/s",
+     "record": "p5",
+     "key": "row3.points.0.U_de_fps",
+     "fmt": ".0f"
+    },
+    {
+     "name": "U_D",
+     "value": 15.0,
+     "unit": "ft/s",
+     "record": "p5",
+     "key": "row3.points.1.U_de_fps",
+     "fmt": ".0f"
+    },
+    {
+     "name": "man",
+     "value": 3.8,
+     "unit": "-",
+     "record": "p5",
+     "key": "row3.manoeuvre.takeoff.positive_at_V_D",
+     "fmt": ".1f"
+    },
+    {
+     "name": "gup",
+     "value": 2.9204303608993163,
+     "unit": "-",
+     "record": "p5",
+     "key": "row3.points.10.n_up",
+     "fmt": ".3f"
+    },
+    {
+     "name": "gdn",
+     "value": -0.9204303608993163,
+     "unit": "-",
+     "record": "p5",
+     "key": "row3.points.10.n_down",
+     "fmt": ".3f"
+    },
+    {
+     "name": "obup",
+     "value": 2.9352123848816776,
+     "unit": "-",
+     "record": "p5",
+     "key": "row5.cases.payload_off_with_ballast.points.4.n_up",
+     "fmt": ".3f"
+    },
+    {
+     "name": "hup",
+     "value": 4.840860721798633,
+     "unit": "-",
+     "record": "p5",
+     "key": "row4.cases.ruled_held_30.points.10.n_up",
+     "fmt": ".3f"
+    },
+    {
+     "name": "hdn",
+     "value": -2.8408607217986326,
+     "unit": "-",
+     "record": "p5",
+     "key": "row4.cases.ruled_held_30.points.10.n_down",
+     "fmt": ".3f"
+    }
+   ],
+   "headline": "U_D",
+   "sources": [
+    "p5"
+   ],
+   "statement": "Between V_C and V_D the gust is 30 ft/s at V_C falling linearly to 15 ft/s at V_D (PD-8, the ruled rule). At V_D the structure is cleared to the manoeuvre limit +3.8 and to the ruled gust, worst 2.920 / -0.920 payload on (2.935 payload off with ballast). It is not cleared to a 30 ft/s gust at V_D: 4.841 / -2.841."
+  },
+  {
+   "id": "EP-8",
+   "title": "Altitude limits",
+   "text": "The protection holds the aircraft at or below {alt} ft, R12's ceiling requirement (PD-24 item 3; R12 asks for the service ceiling {marg} ft above it; r0's service ceiling is {ceil} ft, P0's engine-cycle value {cyc_lo} to {cyc_hi} ft). The engine's maximum operating altitude and its in-flight relight envelope are declared assumptions with no source value (R-f); the mission altitude is {mis} ft.",
+   "numbers": [
+    {
+     "name": "alt",
+     "value": 23000.0,
+     "unit": "ft",
+     "record": "r0_ledger",
+     "key": "requirements.ceiling_ft.value",
+     "fmt": ",.0f"
+    },
+    {
+     "name": "marg",
+     "value": 500.0,
+     "unit": "ft",
+     "record": "r0_ledger",
+     "key": "requirements.margin_ceiling_ft.value",
+     "fmt": ",.0f"
+    },
+    {
+     "name": "ceil",
+     "value": 30438.50893383933,
+     "unit": "ft",
+     "record": "r0_design",
+     "key": "performance.service_ceiling_ft",
+     "fmt": ",.0f"
+    },
+    {
+     "name": "cyc_lo",
+     "value": 30407.13719357882,
+     "unit": "ft",
+     "record": "p0",
+     "key": "acceptance.3.reference.min",
+     "fmt": ",.0f"
+    },
+    {
+     "name": "cyc_hi",
+     "value": 30432.458065824903,
+     "unit": "ft",
+     "record": "p0",
+     "key": "acceptance.3.reference.max",
+     "fmt": ",.0f"
+    },
+    {
+     "name": "mis",
+     "value": 20000.0,
+     "unit": "ft",
+     "record": "r0_ledger",
+     "key": "requirements.mission_altitude_ft.value",
+     "fmt": ",.0f"
+    }
+   ],
+   "headline": "alt",
+   "sources": [
+    "p0",
+    "r0_design",
+    "r0_ledger"
+   ],
+   "statement": "The protection holds the aircraft at or below 23,000 ft, R12's ceiling requirement (PD-24 item 3; R12 asks for the service ceiling 500 ft above it; r0's service ceiling is 30,439 ft, P0's engine-cycle value 30,407 to 30,432 ft). The engine's maximum operating altitude and its in-flight relight envelope are declared assumptions with no source value (R-f); the mission altitude is 20,000 ft."
+  },
+  {
+   "id": "EP-9",
+   "title": "Payload-off operating limit",
+   "text": "Payload off, the aircraft flies only with at least {bal} lb of ballast at the payload station (P4b; PD-13). At {W} lb the ruled gust at V_C and V_D stays inside: {up} / {dn}. The gust speed limit stays at V_D up to {clear} ft and falls below V_C from {below} ft ({vbelow} kt EAS), above EP-8's altitude limit. Payload off without ballast is not flown.",
+   "numbers": [
+    {
+     "name": "bal",
+     "value": 474.0,
+     "unit": "lb",
+     "record": "p4b",
+     "key": "candidates.scan_10.measures.payload_off.ballast_every_loading_lb",
+     "fmt": ".0f"
+    },
+    {
+     "name": "W",
+     "value": 2392.562623647499,
+     "unit": "lb",
+     "record": "p5",
+     "key": "weights.payload_off_with_ballast",
+     "fmt": ",.1f"
+    },
+    {
+     "name": "up",
+     "value": 3.5229808860069705,
+     "unit": "-",
+     "record": "p5",
+     "key": "row5.cases.payload_off_with_ballast.largest_up",
+     "fmt": ".3f"
+    },
+    {
+     "name": "dn",
+     "value": -1.5229808860069705,
+     "unit": "-",
+     "record": "p5",
+     "key": "row5.cases.payload_off_with_ballast.lowest_down",
+     "fmt": ".3f"
+    },
+    {
+     "name": "clear",
+     "value": 25000.0,
+     "unit": "ft",
+     "record": "p5",
+     "key": "row5.cases.payload_off_with_ballast.operating_limit.11.altitude_ft",
+     "fmt": ",.0f"
+    },
+    {
+     "name": "below",
+     "value": 27500.0,
+     "unit": "ft",
+     "record": "p5",
+     "key": "row5.cases.payload_off_with_ballast.lowest_altitude_limited_below_V_C_ft",
+     "fmt": ",.0f"
+    },
+    {
+     "name": "vbelow",
+     "value": 109.23858522443375,
+     "unit": "kt EAS",
+     "record": "p5",
+     "key": "row5.cases.payload_off_with_ballast.operating_limit.12.V_eas_kt",
+     "fmt": ".1f"
+    }
+   ],
+   "headline": "bal",
+   "sources": [
+    "p4b",
+    "p5"
+   ],
+   "statement": "Payload off, the aircraft flies only with at least 474 lb of ballast at the payload station (P4b; PD-13). At 2,392.6 lb the ruled gust at V_C and V_D stays inside: 3.523 / -1.523. The gust speed limit stays at V_D up to 25,000 ft and falls below V_C from 27,500 ft (109.2 kt EAS), above EP-8's altitude limit. Payload off without ballast is not flown."
+  }
+ ],
+ "acceptance": [
+  {
+   "row": 1,
+   "what": "no row is blank: EP-1 to EP-9 each have a statement, numbers and a record",
+   "blank_rows": [],
+   "verdict": "pass"
+  },
+  {
+   "row": 2,
+   "what": "every number equals the value at its record and key",
+   "n_numbers": 68,
+   "wrong": [],
+   "verdict": "pass"
+  },
+  {
+   "row": 3,
+   "what": "EP-3 consistent with P5: the load factor at V_C plus the allowed excursion, recomputed with P5's code",
+   "V_eas_kt": 113.98715481091628,
+   "binding": {
+    "altitude_ft": 23000.0,
+    "excursion_kt": 3.987154810916286,
+    "weight": "payload_off_with_ballast",
+    "limited_by": "negative"
+   },
+   "n_up": 3.6999999999999846,
+   "n_down": -1.6999999999999846,
+   "distance_to_limit": 1.532107773982716e-14,
+   "largest_excess_over_limits": -1.532107773982716e-14,
+   "p5_V_C_points_largest_deviation": 0.0,
+   "ruled_rule_clears_to_V_D_up_to_altitude_limit": true,
+   "verdict": "pass"
+  },
+  {
+   "row": 4,
+   "what": "EP-7 consistent with P5: the gust load factors at V_D recomputed with P5's code",
+   "largest_deviation": 0.0,
+   "tolerance": 1e-09,
+   "verdict": "pass"
+  },
+  {
+   "row": 5,
+   "what": "EP-5 keeps R16's turn, n = 1.155, inside the command limit and below the stall at loiter",
+   "n_r16": 1.1547005383792515,
+   "positive_command": 3.6999999999999997,
+   "stall_limited_n": {
+    "r0": 1.527547602113674,
+    "p2_measured_r1": 1.4438074425658023
+   },
+   "verdict": "pass"
+  },
+  {
+   "row": 6,
+   "what": "coding check: power for level flight at r0's level top speed equals full throttle",
+   "worst": 5.727501956498404e-05,
+   "tolerance": 0.001,
+   "verdict": "pass"
+  },
+  {
+   "row": 7,
+   "what": "coding check: the dive integration against its closed form with no force",
+   "worst": 4.884981308350689e-15,
+   "tolerance": 1e-06,
+   "verdict": "pass"
+  },
+  {
+   "row": 8,
+   "what": "coding check: V_stall at take-off weight and r0's C_L,max equals r0's recorded value",
+   "worst": 0.0,
+   "tolerance": 1e-09,
+   "verdict": "pass"
+  }
+ ],
+ "r1": {
+  "empty_weight_change_lb": 27.151948953874353,
+  "ep2_limit_hp": {
+   "sea_level": [
+    104.74272998663218,
+    104.9904756714979
+   ],
+   "20000_ft": [
+    152.95776880709911,
+    153.29854637179426
+   ]
+  },
+  "ep2_crossover_ft": [
+   [
+    23183.48803052525,
+    24846.030321403105
+   ],
+   [
+    23136.27508647674,
+    24812.84873900288
+   ]
+  ],
+  "ep3_excursion_kt": [
+   3.987154810916286,
+   4.89615887041065
+  ],
+  "ep6_floor_r1_kt": {
+   "takeoff": 71.58763000600975,
+   "zero_fuel": 59.466088376720045,
+   "payload_off_with_ballast": 59.149156581579554,
+   "payload_off_full_fuel_with_ballast": 71.32458080747256
+  },
+  "ep6_floor_r0_kt": {
+   "takeoff": 69.33066764879287,
+   "zero_fuel": 57.49133805267605,
+   "payload_off_with_ballast": 57.181481737360755,
+   "payload_off_full_fuel_with_ballast": 69.07394139051584
+  },
+  "not_changed": "r1's drag (longer aft body, PD-21) and wing are not in these numbers; r0's polar is used."
+ },
+ "tree_at_end": {
+  "commit": "878678589cbc6b11b883d3348f82c9ba3cb164e5",
+  "git_dirty": false,
+  "git_dirty_files": [],
+  "excluded": "runs/task12/pd/2026-11-28/p8"
+ },
+ "runtime_s": 81.29068946838379
+}
