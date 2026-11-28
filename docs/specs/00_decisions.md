@@ -599,3 +599,12 @@ Stage 1 (S3M-8) and that an independent neutral point is needed.
   roots on it; the form factor of the longer body; Stage 1 needs the extension, the tail arm and the tails' sweep as
   inputs. Override: a maker's or measured shaft weight outside the band, a different clearance, or an arm longer than
   r0's (not studied; hours were still rising at the scan's end) re-opens the trade with the same code.
+- **PD-22 (2026-11-28, owner ruling: packages P5, P7 and P8 run on Opus 5.5 while the Fable model's usage limit is spent).**
+  An owner ruling (Éder, 2026-11-28), not an agent's assumption. The Fable 5.1 model's usage limit is spent until
+  2026-11-30 17:00 UTC. The owner ruled that packages P5 (loads), P7 (wing spar) and P8 (envelope protection) run now on
+  Opus 5.5 in place of the allocation of `docs/specs/task12_preliminary_design.md` section 3 and `CLAUDE.md` (Fable 5.1 for
+  physics, tolerances, acceptance tests, verdicts and review of any diff that can change a number). The same rules apply
+  unchanged: the spec's acceptance rows and tolerances, tests written first, every number from a recorded run, failed
+  checks reported and not tuned. Every report from these packages is marked "not yet Fable-reviewed" near its top, and
+  Fable reviews their diffs after the limit resets and before P9's closing re-record r1. Nothing was run for this entry.
+  Override: a finding of that review re-opens the package concerned with the same code and records.
