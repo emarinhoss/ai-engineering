@@ -1,0 +1,52 @@
+# Task 12 preliminary design P4b: the choices of the tail and aft-body layout trade.
+# Written by hand on 2026-11-28, before the module existed and before any run of it. Read by prelim/p4b_trade.py.
+# Every entry is an agent's judgement under the owner's instruction of 2026-11-27 (PD-start), not an owner ruling,
+# and not from the library unless its line says so. r0, the Gate B ledger and the P4 record are not edited.
+# Lengths in ft, weights in lb. Everything not named here is P4's (data/task12/pd_p4_choices.yaml).
+
+extension:
+  # The aft fuselage is lengthened by moving the last control station of the P3 loft (the circle that meets the
+  # spinner) aft. The engine bay and the engine stay at r0's stations; a shaft carries the propeller aft.
+  what_moves: "the last fuselage control station, the spinner and the propeller plane; nothing ahead of the engine bay's end"
+  length_rule: "the least length that puts the rearmost point of either tail inside the disc's radius the P4 clearance (1.0 ft) ahead of the propeller plane; never negative"
+  fuselage_weight: "Raymer (15.49), p. 404, as a ratio on r0's fuselage weight: wetted area (Stage 1's plus the loft's added skin) to the 1.086, tail arm to the -0.051, length over diameter to the -0.072"
+  flight_controls_weight: "Raymer (15.54), p. 404, as a ratio on r0's weight: fuselage length to the 1.536. It is charged although the tail does not move aft with the propeller, because the equation is in fuselage length; this counts against the lengthened layouts"
+  added_weight_station: "the added fuselage weight and the shaft are put at the middle of the added length (aft of r0's fuselage end by half the extension); the flight controls stay at r0's station"
+  shaft_lb_per_ft:
+    value: 5.0
+    band: [2.0, 10.0]
+    source: >-
+      An assumption, not a number from a source. Raymer p. 221 says only that an offset of more than a few inches
+      needs a drive shaft with its own bearing support, and gives no weight; no open weight for such a shaft was
+      found. The low end is about a bare steel tube: the record's 450 shp at the ledger's 2,030 rpm is a torque of
+      about 1,164 lb ft, and a 3 in tube of 0.058 in wall in 4130 steel weighs about 1.8 lb/ft (computed in the
+      record with Raymer (14.45), p. 388, and Table 14.3, p. 366-367, taken from the library's chapter notes; the
+      page could not be opened in this session, so that tube is support and not a test target). The value and the
+      high end add couplings, a bearing and its support frame every few feet. The trade is repeated at both band ends.
+  shaft_tube_for_support: {outer_diameter_in: 3.0, wall_in: 0.058, density_lb_in3: 0.283, shear_ultimate_psi: 54000.0, safety_factor: 1.5,
+                           note: "4130 steel tubing as the chapter notes of Raymer Table 14.3 give it; support only"}
+
+candidates:
+  A: "PD-20 as P4 recorded it: no extension, tails forward with straight trailing edges, areas grown to keep the volume coefficients"
+  B: "r0's tail planforms (unswept tailplane leading edge), areas and arm; the aft fuselage lengthened by the length rule"
+  Bs: "as B with straight trailing edges on both tails (PD-20's item 1), which needs a shorter extension: the smallest extension that clears the disc at r0's tail arm and areas"
+  C: "straight trailing edges, the tail arm between PD-20's and r0's that gives the least empty-weight change among the arms whose payload-on rows all pass; volume coefficients kept"
+  arm_scan_points: 11              # tail arms from PD-20's to r0's, both ends included, equal steps; straight trailing edges
+  placement: "every candidate: wing by P4's rule (mean static margin 0.10, independent neutral point), main wheels by the 15 deg tipback rule, nose wheel at r0's station"
+
+drag_and_hours:
+  method: "P3's own route (prelim/p3_loft.buildup_with_loft_areas): Stage 1's build-up and mission on the built aircraft with wetted areas changed and nothing else. Tails: Stage 1's wetted-area rule on the new areas. Fuselage: Stage 1's area plus the loft's added skin. Form factors, interference factors and reference lengths stay Stage 1's (a longer body has a lower form factor, which is not credited)"
+  cases: "hours on station on r0's fuel (a) at r0's take-off weight with the layout's wetted areas, the number the task names, and (b) with the take-off weight also raised by the layout's empty-weight change. (b) is the number the selection rule uses"
+
+# The selection rule. Fixed here before the comparison was computed.
+selection_rule:
+  pool: "A, B and every row of the arm scan (Bs and C are rows of it)"
+  steps:
+    - "1. A layout stays only if every payload-on row passes: R13 at the full-fuel and empty-fuel centre of gravity (row 1); every payload-on loading inside the envelope (row 3); nose-wheel load of every payload-on loading inside 5 to 20 % (row 4); tail lift at rotation within the limit of 1.0; trim within its limit; overturn angle at most 63 deg; propeller ground clearance at rotation at least 9 in; both tails at least 1.0 ft ahead of the propeller plane inside the disc."
+    - "2. If any layout left also passes rows 3 and 4 with the payload off and no ballast, only those stay. If none does, payload-off ballast does not rank the layouts: it is reported for each and becomes an operating limit of the chosen one (PD-13)."
+    - "3. Of those left, the one with the most hours on station on r0's fuel, with its wetted areas and with the take-off weight raised by its empty-weight change (case b). Weight and drag both act on R5, so one number carries both."
+    - "4. Layouts within 0.01 h of the best count as tied; the tie goes to the least empty-weight change."
+    - "5. If no layout passes step 1, nothing is chosen and the trade goes to the owner."
+  hours_tie_h: 0.01
+  sensitivity: "the whole trade is repeated with the shaft at 2 and at 10 lb/ft; the report says whether the choice changes"
+  not_ranked_but_reported: ["tailplane area over wing area", "tailplane root leading edge behind the wing root trailing edge", "tail arm over fuselage length", "ballast for payload-off flight", "empty-weight change (it enters step 3 through the weight, and step 4)"]
