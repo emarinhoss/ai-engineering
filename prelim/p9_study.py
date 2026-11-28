@@ -291,7 +291,7 @@ def worst_point_hours(built, cell, overrides_theta):
     modes) with ledger values held: the shift of the guarantee's worst point, not a new search."""
     out = {}
     for tag, w in cell.items():
-        th = dict(rs.theta_of(w["moved"]), **overrides_theta)
+        th = dict(overrides_theta, **rs.theta_of(w["moved"]))       # the member's own values win over held ones
         out[tag] = {"hours": built.hours_detail(th)[0], "record_hours": w["hours"]}
     return out
 
@@ -410,10 +410,18 @@ def climb_at(built, theta):
             "mission_altitude_ft": L["mission_altitude_ft"]}
 
 
-def climb_limit_h(built, moved, overrides, h_hi=1.5, tol=1e-3):
-    """Largest h (to tol) along the directions of a corner (robust_sizing.scaled_corner) at which the member still has
-    a rate of climb at the mission altitude; h_hi if it climbs there."""
-    ok = lambda h: climb_at(built, dict(rs.theta_of(rs.scaled_corner(moved, h)), **overrides))["rate_at_mission_altitude_fpm"] > 0.0
+def member(moved, h, overrides, ledger):
+    """The member of U(h) of a ledger along the directions of a corner (robust_sizing.scaled_corner, every other
+    variable nominal in that ledger), with ledger values held; the member's own values win over the held ones."""
+    with p9.ledger_in_use(ledger):
+        th = rs.theta_of(rs.scaled_corner(moved, h))
+    return dict(overrides, **th)
+
+
+def climb_limit_h(built, moved, overrides, ledger, h_hi=1.5, tol=1e-3):
+    """Largest h (to tol) along the directions of a corner at which the member still has a rate of climb at the
+    mission altitude; h_hi if it climbs there."""
+    ok = lambda h: climb_at(built, member(moved, h, overrides, ledger))["rate_at_mission_altitude_fpm"] > 0.0
     if ok(h_hi):
         return h_hi
     lo, hi = 0.0, h_hi
@@ -423,22 +431,24 @@ def climb_limit_h(built, moved, overrides, h_hi=1.5, tol=1e-3):
     return lo
 
 
-def corner_table(built, corners, overrides):
+def corner_table(built, corners, overrides, ledger):
     rows = []
     for c in corners:
         for h in H_SCAN:
-            th = dict(rs.theta_of(rs.scaled_corner(c["moved"], h)), **overrides)
+            th = member(c["moved"], h, overrides, ledger)
             r, why = info_gap.transit_power_ratio(built, th)
             rows.append(dict(climb_at(built, th), corner=c["label"], h=h, transit_ratio=r, reason=why))
-        rows.append({"corner": c["label"], "climb_limit_h": climb_limit_h(built, c["moved"], overrides)})
+        rows.append({"corner": c["label"], "climb_limit_h": climb_limit_h(built, c["moved"], overrides, ledger)})
     return rows
 
 
 def cmd_diagnose(out, pass_path, log):
     """No r1: the lightest W/S 13, A 8 design with r1's ledger (L_sized 8 h, the bisection's lower end), its Stage 1
     compliance rows; the climb at the sizing's cliff corners on r0 as built (as recorded, with the integrated climb only,
-    with every finding) and on that design, with the largest h at which each still climbs; each finding group added to
-    the integrated climb at the corner that fails; and the full info-gap study of r0 as built with every finding."""
+    with every finding) and on that design, with the largest h at which each still climbs (members of U(h) of the Gate B
+    ledger for r0 as recorded, of r1's ledger with r1's entries); each finding group added to the integrated climb at
+    the corner that fails; and the full info-gap study of that lightest design (a record with r1's ledger, so that the
+    study's nominal values are r1's: held values cannot move the nominal of a banded variable)."""
     from conceptual import stage1
     t0 = time.time()
     own, inputs = p9.start(out, "diagnose")
@@ -465,33 +475,36 @@ def cmd_diagnose(out, pass_path, log):
         b8_nom = built_values(b8, {})
         res["lightest_8h"]["nominal"] = b8_nom
         b0 = info_gap.Built(p9.R0 / "design_pusher.json")
-        cases = {"r0_as_recorded": (b0, {}), "r0_integrated_climb_only": (b0, {"climb_model": "integrated"}),
-                 "r0_with_every_finding": (b0, ent), "lightest_8h": (b8, {})}
+        GB, R1 = p9.LEDGER_GATE_B, p9.LEDGER_R1
+        cases = {"r0_as_recorded": (b0, {}, GB), "r0_integrated_climb_only": (b0, {"climb_model": "integrated"}, GB),
+                 "r0_with_every_finding": (b0, ent, R1), "lightest_8h": (b8, {}, R1)}
         res["corners"] = {}
-        for name, (bb, ov) in cases.items():
-            res["corners"][name] = corner_table(bb, corners, ov)
+        for name, (bb, ov, led) in cases.items():
+            res["corners"][name] = corner_table(bb, corners, ov, led)
             lim = [r["climb_limit_h"] for r in res["corners"][name] if "climb_limit_h" in r]
             log(f"{name}: largest h at which the cliff corners still climb to 20,000 ft: {lim}")
-        worst = min(corners, key=lambda c: climb_limit_h(b0, c["moved"], ent))
-        th1 = rs.theta_of(rs.scaled_corner(worst["moved"], 1.0))
+        worst = min(corners, key=lambda c: climb_limit_h(b0, c["moved"], ent, R1))
         res["attribution_corner"] = worst["label"]
         res["attribution"] = {}
         for gname, keys in GROUPS.items():
             ov = dict({"climb_model": "integrated"}, **{k: ent[k] for k in keys})
-            res["attribution"][gname] = dict(climb_at(b0, dict(th1, **ov)), climb_limit_h=climb_limit_h(b0, worst["moved"], ov))
+            led = R1 if set(keys) & {"airfoil_cl_max", "airfoil_cm0"} else GB      # nominal of a banded entry moves with it
+            res["attribution"][gname] = dict(climb_at(b0, member(worst["moved"], 1.0, ov, led)),
+                                             climb_limit_h=climb_limit_h(b0, worst["moved"], ov, led), ledger=str(led.relative_to(REPO)))
             log(f"integrated climb + {gname}: rate at 20,000 ft at h = 1 {res['attribution'][gname]['rate_at_mission_altitude_fpm']:.1f} ft/min, "
                 f"climb limit h {res['attribution'][gname]['climb_limit_h']:.3f}")
         res["r0_built"] = built_values(b0, {})
         res["r0_built_with_findings"] = built_values(b0, ent)
-    log("full info-gap study of r0 as built with every finding (no re-size)")
+    log("full info-gap study of the lightest design")
     t1 = time.time()
-    ig = info_gap.study(str(p9.R0 / "design_pusher.json"), processes=p9.STUDY_PROCESSES, overrides=ent)
-    ig["inputs"] = dict(inputs, note="full info_gap.study of r0 as built with r1's ledger entries held (PD-26 item 8)")
-    (out / "info_gap_r0_with_findings.json").write_text(json.dumps(info_gap._json_safe(ig), indent=1, default=float))
-    res["info_gap_r0_with_findings"] = {"file": str((out / "info_gap_r0_with_findings.json").relative_to(REPO)),
-                                        "h_hat": {k: v["h_hat"] for k, v in ig["h_hat"].items()}, "nominal": ig["nominal"],
-                                        "runtime_s": time.time() - t1}
-    log("info-gap, r0 with findings: " + ", ".join(f"{k} {v:.4f}" for k, v in res["info_gap_r0_with_findings"]["h_hat"].items()))
+    with p9.ledger_in_use(p9.LEDGER_R1):
+        ig = info_gap.study(str(path), processes=p9.STUDY_PROCESSES)
+    ig["inputs"] = dict(inputs, note="full info_gap.study of the lightest W/S 13, A 8 design with r1's ledger (L_sized 8 h)")
+    (out / "lightest_8h" / "info_gap.json").write_text(json.dumps(info_gap._json_safe(ig), indent=1, default=float))
+    res["info_gap_lightest_8h"] = {"file": str((out / "lightest_8h" / "info_gap.json").relative_to(REPO)),
+                                   "h_hat": {k: v["h_hat"] for k, v in ig["h_hat"].items()}, "nominal": ig["nominal"],
+                                   "runtime_s": time.time() - t1}
+    log("info-gap, lightest design: " + ", ".join(f"{k} {v:.4f}" for k, v in res["info_gap_lightest_8h"]["h_hat"].items()))
     p9.finish(out, own, res, "diagnose.json", t0)
     log(f"done ({time.time() - t0:.0f} s)")
 

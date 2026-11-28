@@ -270,8 +270,17 @@ def test_climb_at_agrees_with_the_integrated_climb_on_whether_the_member_can_be_
     ent = st.r1_entries(L1)
     corner = json.loads(p9.RESIZE_CURVE.read_text())["per_P"]["450"]["1.05"]["corner_sets"]["cliff"][-1]
     for h in (0.5, 1.0):
-        th = dict(rs.theta_of(rs.scaled_corner(corner["moved"], h)), **ent)
+        th = st.member(corner["moved"], h, ent, p9.LEDGER_R1)
         climbs = st.climb_at(built, th)["rate_at_mission_altitude_fpm"] > 0.0
         flyable = info_gap.transit_power_ratio(built, th)[1] is None
         assert climbs == flyable, h
     assert set(st.r1_entries(L1)) == {n for g in st.GROUPS.values() for n in g}
+
+
+def test_a_member_keeps_its_own_values_over_held_ledger_values():
+    from prelim import p9_study as st
+    corner = json.loads(p9.RESIZE_CURVE.read_text())["per_P"]["450"]["1.05"]["corner_sets"]["cliff"][-1]
+    th = st.member(corner["moved"], 1.0, {"airfoil_cl_max": 1.41777, "climb_model": "integrated"}, p9.LEDGER_R1)
+    assert th["airfoil_cl_max"] == pytest.approx(1.3, abs=1e-12) and th["climb_model"] == "integrated"
+    th0 = st.member(corner["moved"], 0.0, {}, p9.LEDGER_R1)
+    assert th0["airfoil_cl_max"] == 1.41777
