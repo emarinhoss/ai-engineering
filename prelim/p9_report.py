@@ -344,7 +344,8 @@ def report_text(summary_path):
     w("")
     w("Columns: r0 as built (its record rebuilt), r0 as built with every finding (no re-size, PD-26 item 8), and the lightest "
       "W/S 13, A 8 design with r1's ledger (Stage 1 at 8 h). 'Caused by': every finding group that alone moves the field on "
-      "r0 as built (section 7 has each group's numbers); the last column adds Stage 1's re-size to 8 h.")
+      "r0 as built by more than a part in a million (section 7 has each group's numbers; a field that follows W0 moves with "
+      "every group that moves W0, however little); the last column adds Stage 1's re-size to 8 h.")
     w("")
     w("| Field | Unit | r0 | r0 with findings | change by the findings | lightest design | change by the re-size | caused by |")
     w("|---|---|---|---|---|---|---|---|")
@@ -355,19 +356,25 @@ def report_text(summary_path):
     w("Main numbers (no r1; r0 against the lightest design with the findings):")
     w("")
     l8, p4l = diag["lightest_8h"], s["p4_lightest_8h"]
+    r0row = p9.load(p9.R0 / "robust_candidate.json")
+    diag_L8 = p9.load((REPO / l8["record"]).parent / "robust_candidate.json")["L_sized_h"]
+    p4r0 = p9.load(REPO / "runs/task12/pd/2026-11-27/p4/p4.json")["as_arranged"]["row1"]["gear_up/empty_weight_x1"]
+    p4b = p9.load(p9.P4B_RECORD)
+    bal0 = p4b["candidates"][p4b["selection"]["chosen"]]["measures"]["payload_off"]["ballast_every_loading_lb"]
     w("| | r0 | lightest design with the findings (not r1) |")
     w("|---|---|---|")
     w(f"| W0 (lb) | {f(r0d['W0_lb'], ',.1f')} | {f(l8['W0_lb'], ',.1f')} |")
     w(f"| fuel (lb) | {f(r0d['fuel_lb'], ',.1f')} | {f(l8['fuel_lb'], ',.1f')} |")
-    w(f"| L_sized (h) | 11.000 | 8.000 (bisection's lower end; no L satisfies the corners) |")
+    w(f"| L_sized (h) | {f(r0row['L_sized_h'], '.3f')} | {f(diag_L8, '.3f')} (the bisection's lower end; no L satisfies the corners) |")
     w(f"| span (ft) | {f(r0d['wing']['span'], '.2f')} | {f(l8['span_ft'], '.2f')} |")
     w(f"| R5 guarantee / R7 horizon | {f(r0ig['h_hat']['R5_guarantee']['h_hat'])} / {f(r0ig['h_hat']['R7']['h_hat'])} | {f(ig8['R5_guarantee'])} / {f(ig8['R7'])} |")
     w(f"| power margin | {f(1 - max(r0d['power_required_hp'].values()) / r0d['bhp_sl'], '.4f')} | {f(l8['nominal']['power_margin'], '.4f')} |")
     w(f"| service ceiling (ft) | {f(r0d['performance']['service_ceiling_ft'], ',.0f')} | {f(l8['nominal']['service_ceiling_ft'], ',.0f')} |")
     w(f"| static margin full / empty, Stage 1's layout | {f(r0d['layout']['sm_full'], '.4f')} / {f(r0d['layout']['sm_empty'], '.4f')} | "
       f"{f(p4l['stage1_static_margin']['full'], '.4f')} / {f(p4l['stage1_static_margin']['empty'], '.4f')} |")
-    w(f"| static margin full / empty, P4's route | 0.0607 / 0.0374 (P4, r0 as arranged) | {f(p4l['static_margin']['full'], '.4f')} / {f(p4l['static_margin']['empty'], '.4f')} |")
-    w(f"| payload-off ballast (lb), P4b's rule | 474 (P4b, PD-21 layout at r0's sizes) | {f(p4l['ballast_lb'], '.0f')} |")
+    w(f"| static margin full / empty, P4's route | {f(p4r0['sm_full'], '.4f')} / {f(p4r0['sm_empty'], '.4f')} (P4, r0 as arranged) | "
+      f"{f(p4l['static_margin']['full'], '.4f')} / {f(p4l['static_margin']['empty'], '.4f')} |")
+    w(f"| payload-off ballast (lb), P4b's rule | {f(bal0, '.0f')} (P4b, PD-21 layout at r0's sizes) | {f(p4l['ballast_lb'], '.0f')} |")
     w("")
     w("The P4 row of the static margin for r0 is P4's recorded value on r0 as P3 arranged it (`runs/task12/pd/2026-11-27/p4/p4.json`); "
       "the 474 lb is P4b's (`runs/task12/pd/2026-11-28/p4b/p4b.json`).")
