@@ -1,0 +1,189 @@
+{
+ "inputs": {
+  "commit": "8165ee69623a2c8b56cbf22bc97438dc5b0e6f59",
+  "git_dirty": false,
+  "git_dirty_files": [],
+  "excluded": "runs/task12/pd/2026-11-28/p9/pass1",
+  "command": "python -m prelim.p9_r1 size --out runs/task12/pd/2026-11-28/p9/pass1",
+  "python": "3.13.18",
+  "numpy": "2.5.3",
+  "scipy": "1.18.1",
+  "pyyaml": "6.0.3",
+  "review": "Not yet Fable-reviewed (rulings PD-22 and PD-25)",
+  "ledger": "data/task12/ledger_r1.yaml",
+  "ledger_sha256": "af3a7ed95e6525df4f894ae9031625ba15e6a188ca22a602300d94d4f32f1385",
+  "seed": 20261122,
+  "n_samples": 200,
+  "tree_unchanged_during_run": true
+ },
+ "sizing": {
+  "need_h": 3.5,
+  "h_T": 1.05,
+  "cell": {
+   "P_hp": 450.0,
+   "W_S": 13.0,
+   "A": 8.0
+  },
+  "iterations": [
+   {
+    "iteration": 1,
+    "n_endurance_corners": 3,
+    "n_cliff_corners": 2,
+    "candidates": [
+     {
+      "P_hp": 450.0,
+      "W_S": 13.0,
+      "A": 8.0,
+      "ok": false,
+      "L_sized_h": null,
+      "failed": [],
+      "status": "too heavy already at 8 h (last heavy point: cliff corner not flyable: cannot climb to the mission altitude: no rate of climb at 20000 ft)",
+      "closure": [
+       {
+        "L_h": 8.0,
+        "guess_lb": 4254.0,
+        "retried": false,
+        "closed": true
+       }
+      ],
+      "trace": [
+       {
+        "L_h": 8.0,
+        "class": "heavy",
+        "why": "cliff corner not flyable: cannot climb to the mission altitude: no rate of climb at 20000 ft",
+        "ratio": "inf"
+       }
+      ],
+      "W0_at_8h_lb": 3473.7484447434463
+     }
+    ],
+    "winner": null
+   }
+  ],
+  "corner_sets": {
+   "endurance": [
+    {
+     "label": "E1@h1.05 (r1 ledger)",
+     "moved": {
+      "eta_p": 0.7475,
+      "airfoil_cl_max": 1.2941115,
+      "wing_t_c": 0.1185,
+      "laminar_fraction_wing": 0.0975,
+      "sensor_drag_area_ft2": 0.8200000000000001,
+      "fuselage_fineness": 5.9,
+      "fuselage_fill": 0.8525,
+      "avionics_uninstalled_lb": 102.0,
+      "gust_ude_fps": 51.0,
+      "main_gear_station_guess": 0.295,
+      "rotation_angle_deg_pusher": 15.25,
+      "sponson_length_per_tyre": 2.9699999999999998,
+      "sponson_depth_per_tyre": 1.41,
+      "sponson_weight_per_wetted": 1.82,
+      "engine_sfc_mult": 1.105,
+      "engine_power_mult": 1.105
+     }
+    },
+    {
+     "label": "E2(P450 h1.05 it1) (r1 ledger)",
+     "moved": {
+      "prop_real_to_ideal": 0.7975000000000001,
+      "airfoil_cl_max": 1.2941115,
+      "wing_t_c": 0.1185,
+      "laminar_fraction_wing": 0.0975,
+      "sensor_drag_area_ft2": 0.8200000000000001,
+      "fuselage_fineness": 5.9,
+      "fuselage_fill": 0.8525,
+      "composite_factor": 1.0,
+      "empty_weight_factor": 1.0525,
+      "avionics_uninstalled_lb": 102.0,
+      "gust_ude_fps": 51.0,
+      "main_gear_station_guess": 0.295,
+      "rotation_angle_deg_pusher": 15.25,
+      "sponson_length_per_tyre": 2.9699999999999998,
+      "sponson_depth_per_tyre": 1.41,
+      "sponson_weight_per_wetted": 1.82,
+      "engine_sfc_mult": 1.105,
+      "engine_power_mult": 0.895
+     }
+    },
+    {
+     "label": "E3(P450 h1.05 it2) (r1 ledger)",
+     "moved": {
+      "prop_real_to_ideal": 0.7975000000000001,
+      "airfoil_cl_max": 1.2941115,
+      "wing_t_c": 0.1185,
+      "laminar_fraction_wing": 0.0975,
+      "sensor_drag_area_ft2": 0.8200000000000001,
+      "fuselage_fineness": 5.9,
+      "fuselage_fill": 0.8525,
+      "composite_factor": 1.0,
+      "empty_weight_factor": 1.0525,
+      "avionics_uninstalled_lb": 102.0,
+      "gust_ude_fps": 51.0,
+      "main_gear_station_guess": 0.295,
+      "rotation_angle_deg_pusher": 15.25,
+      "sponson_length_per_tyre": 2.9699999999999998,
+      "sponson_depth_per_tyre": 1.41,
+      "sponson_weight_per_wetted": 1.82,
+      "engine_sfc_mult": 1.105,
+      "engine_power_mult": 0.895
+     }
+    }
+   ],
+   "cliff": [
+    {
+     "label": "C1@h1.05 (r1 ledger)",
+     "moved": {
+      "eta_p": 0.7475,
+      "airfoil_cl_max": 1.2941115,
+      "wing_t_c": 0.1185,
+      "laminar_fraction_wing": 0.0975,
+      "sensor_drag_area_ft2": 0.8200000000000001,
+      "fuselage_fineness": 5.9,
+      "fuselage_fill": 0.8525,
+      "avionics_uninstalled_lb": 102.0,
+      "gust_ude_fps": 51.0,
+      "main_gear_station_guess": 0.295,
+      "rotation_angle_deg_pusher": 15.25,
+      "sponson_length_per_tyre": 2.9699999999999998,
+      "sponson_depth_per_tyre": 1.41,
+      "sponson_weight_per_wetted": 1.82,
+      "engine_sfc_mult": 0.895,
+      "engine_power_mult": 0.895
+     }
+    },
+    {
+     "label": "C2(P450 h1.05 it1) (r1 ledger)",
+     "moved": {
+      "prop_real_to_ideal": 0.7975000000000001,
+      "airfoil_cl_max": 1.2941115,
+      "wing_t_c": 0.1185,
+      "laminar_fraction_wing": 0.0975,
+      "sensor_drag_area_ft2": 0.8200000000000001,
+      "fuselage_fineness": 5.9,
+      "fuselage_fill": 0.8525,
+      "composite_factor": 1.0,
+      "empty_weight_factor": 1.0525,
+      "avionics_uninstalled_lb": 102.0,
+      "gust_ude_fps": 51.0,
+      "main_gear_station_guess": 0.295,
+      "rotation_angle_deg_pusher": 15.25,
+      "sponson_length_per_tyre": 2.9699999999999998,
+      "sponson_depth_per_tyre": 1.41,
+      "sponson_weight_per_wetted": 1.82,
+      "engine_sfc_mult": 0.895,
+      "engine_power_mult": 0.895
+     }
+    }
+   ]
+  },
+  "design": null
+ },
+ "tree_at_end": {
+  "commit": "8165ee69623a2c8b56cbf22bc97438dc5b0e6f59",
+  "git_dirty": false,
+  "git_dirty_files": [],
+  "excluded": "runs/task12/pd/2026-11-28/p9/pass1"
+ },
+ "runtime_s": 13.913416385650635
+}
