@@ -390,7 +390,7 @@ def main(argv=None):
     out, design = (REPO / a.out).resolve(), (REPO / a.design).resolve()
     t0, lines = time.time(), []
 
-    def log(msg):
+    def log(msg, **_):
         lines.append(f"[{time.time() - t0:7.0f} s] {msg}")
         print(lines[-1], flush=True)
         if out.exists():

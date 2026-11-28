@@ -541,7 +541,7 @@ def main(argv=None):
     out = (REPO / a.out).resolve() if a.out else None
     t0, lines = time.time(), []
 
-    def log(msg):
+    def log(msg, **_):
         lines.append(f"[{time.time() - t0:7.0f} s] {msg}")
         print(lines[-1], flush=True)
         if out is not None and out.exists():
