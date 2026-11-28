@@ -188,7 +188,7 @@ def report_text(out):
     w(f"- Commit `{i['commit']}`; working tree at the start: {'clean' if not i['git_dirty'] else 'DIRTY'} (the run's own folder `{i['excluded']}` is not counted); "
       f"unchanged during the run: {'yes' if i['tree_unchanged_during_run'] else 'NO'}.")
     w(f"- Seed: none ({i['seed_note']}). python {i['python']}, numpy {i['numpy']}, scipy {i['scipy']}, pyyaml {i['pyyaml']}, matplotlib {i['matplotlib']}."
-      + (f" OpenVSP {r['vspaero']['result']['openvsp']}, {r['vspaero']['result']['vspaero_version']} for step 3 (interpreter `{r['openvsp_python']}`, a session scratchpad, PD-14)."
+      + (f" {r['vspaero']['result']['openvsp']}, {r['vspaero']['result']['vspaero_version']} for step 3 (interpreter `{r['openvsp_python']}`, a session scratchpad, PD-14)."
          if vv.get("run") else " Step 3 was not run."))
     w("- Inputs (sha256, first 12): " + "; ".join(f"`{i['files'][k]}` {i['sha256'][k][:12]}" for k in i["files"]) + ".")
     w(f"- Log: `{rel}/run.log`. Run time {r['runtime_s']:.0f} s.")
@@ -290,7 +290,9 @@ def report_text(out):
         w(f"**Not run:** {vv['reason']}.\n")
     else:
         res = r["vspaero"]["result"]
-        w(f"{res['vspaero_version']} in OpenVSP {res['openvsp']}: the loft's fuselage as a thick body, the wing, tailplane and fin as thin surfaces; no propeller, sponsons, turret or "
+        slopes = [lv["CL_alpha_per_rad"] for lv in res["levels"].values()]
+        falling = all(b < a for a, b in zip(slopes[:-1], slopes[1:]))
+        w(f"{res['vspaero_version']} in {res['openvsp']}: the loft's fuselage as a thick body, the wing, tailplane and fin as thin surfaces; no propeller, sponsons, turret or "
           f"spinner. Mach {f(res['mach'], 4)} (loiter), angles of attack {res['alpha_sweep_deg'][0]:g} to {res['alpha_sweep_deg'][1]:g} deg in {res['alpha_sweep_deg'][2]} points, moment "
           f"reference at r0's full-fuel centre of gravity. Geometry is r0's (the layout of section 8 was not run).\n")
         w("| Level | Strips per wing section, points round a wing section, strips per fuselage section, points round the fuselage | Panels | C_L_alpha (per rad) | C_m_alpha (per rad) | Neutral point (ft) | Largest residual of the C_L and C_m lines |")
@@ -300,8 +302,9 @@ def report_text(out):
               f"{lv['CL_fit_max_residual']:.1e}, {lv['Cm_fit_max_residual']:.1e} |")
         w("")
         w(f"- Between the two finest meshes the neutral point moves {f(vv['change_mac'], 4)} MAC; the spec allows {p4.TOL_VSPAERO_MAC:g}. **{vv['note'].capitalize()}.**"
-          + ("" if vv["converged"] else " The lift slope also keeps falling as the mesh is refined, so no level can be called the answer. As on 2026-11-24, VSPAERO with a fuselage "
-             "in it is not mesh-robust on this aircraft, now with the fuselage as a body (NR-6 and NR-15 stay open in this part)."))
+          + ("" if vv["converged"] else (" The lift slope falls at each refinement (" + ", ".join(f(lv["CL_alpha_per_rad"], 3) for lv in res["levels"].values())
+                                         + " per rad), so no level can be called the answer." if falling else "")
+             + " As on 2026-11-24, VSPAERO with a fuselage in it is not mesh-robust on this aircraft, now with the fuselage as a body (NR-6 and NR-15 stay open in this part)."))
         w("")
 
     w("## 6. Centre-of-gravity envelope, nose-wheel load and ground angles (rows 3 and 4)\n")
