@@ -379,15 +379,134 @@ def cmd_p8(out, design, reruns_path, log):
         p8.RECORDS.update(old)
 
 
+# ---- when r1 has no design: what fails, and by how much (spec P9 "if 1 or 2 fails") -------------------------------
+H_SCAN = (0.5, 0.75, 0.9, 1.0, 1.05)
+
+
+def climb_at(built, theta):
+    """The climb of a member of U(h) of a built aircraft: best rate of climb at the mission altitude and the altitude
+    where it falls to 0 (absolute ceiling) and to the ledger's 100 ft/min (service ceiling), each at the weight after
+    take-off (Stage 1's take-off allowance, as uav._mission starts the climb), with the member's engine table."""
+    from conceptual import sizing
+    W0 = built.w0_for(theta)
+    b, L = built.build(theta, mission=False, W0=W0)
+    model = b["engine_model"]
+    c_to = model.bsfc(0.0, 60.0, b["bhp"] * model.lapse(0.0, 60.0))
+    W = W0 * sizing.takeoff_fraction_power(c_to, b["bhp"], L["takeoff_minutes"], W0)
+    d = dict(b, W0=W, W_S=W / built.S_record)
+    power_at = uav.climb_power_default(d, L)
+    rate = lambda h: uav.climb_rate_at(d, L, h, power_at)[0]
+
+    def ceiling(target):
+        lo, hi = 0.0, 40000.0
+        if rate(lo) < target:
+            return 0.0
+        for _ in range(40):
+            mid = 0.5 * (lo + hi)
+            lo, hi = (mid, hi) if rate(mid) >= target else (lo, mid)
+        return lo
+    return {"W_start_of_climb_lb": W, "rate_at_mission_altitude_fpm": 60.0 * rate(L["mission_altitude_ft"]),
+            "absolute_ceiling_ft": ceiling(0.0), "service_ceiling_ft": ceiling(L["ceiling_rate_fpm"] / 60.0),
+            "mission_altitude_ft": L["mission_altitude_ft"]}
+
+
+def climb_limit_h(built, moved, overrides, h_hi=1.5, tol=1e-3):
+    """Largest h (to tol) along the directions of a corner (robust_sizing.scaled_corner) at which the member still has
+    a rate of climb at the mission altitude; h_hi if it climbs there."""
+    ok = lambda h: climb_at(built, dict(rs.theta_of(rs.scaled_corner(moved, h)), **overrides))["rate_at_mission_altitude_fpm"] > 0.0
+    if ok(h_hi):
+        return h_hi
+    lo, hi = 0.0, h_hi
+    while hi - lo > tol:
+        mid = 0.5 * (lo + hi)
+        lo, hi = (mid, hi) if ok(mid) else (lo, mid)
+    return lo
+
+
+def corner_table(built, corners, overrides):
+    rows = []
+    for c in corners:
+        for h in H_SCAN:
+            th = dict(rs.theta_of(rs.scaled_corner(c["moved"], h)), **overrides)
+            r, why = info_gap.transit_power_ratio(built, th)
+            rows.append(dict(climb_at(built, th), corner=c["label"], h=h, transit_ratio=r, reason=why))
+        rows.append({"corner": c["label"], "climb_limit_h": climb_limit_h(built, c["moved"], overrides)})
+    return rows
+
+
+def cmd_diagnose(out, pass_path, log):
+    """No r1: the lightest W/S 13, A 8 design with r1's ledger (L_sized 8 h, the bisection's lower end), its Stage 1
+    compliance rows; the climb at the sizing's cliff corners on r0 as built (as recorded, with the integrated climb only,
+    with every finding) and on that design, with the largest h at which each still climbs; each finding group added to
+    the integrated climb at the corner that fails; and the full info-gap study of r0 as built with every finding."""
+    from conceptual import stage1
+    t0 = time.time()
+    own, inputs = p9.start(out, "diagnose")
+    rs.use_engine_as_is(True)
+    pas = p9.load(pass_path)
+    corners = pas["sizing"]["corner_sets"]["cliff"]
+    res = {"inputs": dict(inputs, pass_record=str(Path(pass_path).relative_to(REPO)), seed=info_gap.SEED,
+                          n_samples=info_gap.N_SAMPLES, processes=p9.STUDY_PROCESSES), "cliff_corners": corners}
+    with p9.ledger_in_use(p9.LEDGER_R1):
+        L1 = uav.load_ledger()[0]
+        ent = r1_entries(L1)
+        a, Lb, rec = rs.sized_aircraft_guess(p9.POWER, p9.W_S, p9.ASPECT, rs.L_LO, rs.first_guess(p9.POWER, rs.L_LO), rs.VC_RULE)
+        row = dict(rs.candidate_row(p9.POWER, p9.W_S, p9.ASPECT), L_sized_h=rs.L_LO, W0_lb=rec["W0_lb"], fuel_lb=rec["fuel_lb"])
+        path = rs.write_record_rec(row, out / "lightest_8h", rec)
+        dd = a["design"]
+        comp = stage1.compliance(dd, dd["ledger_used"], a["layout"], a["performance"], *a["fuel_volume"], rs._raw())
+        for r in comp:
+            r["verdict"] = {True: "pass", False: "fail", None: "not tested"}[r["met"]]
+        res["lightest_8h"] = {"record": str(path.relative_to(REPO)), "W0_lb": rec["W0_lb"], "fuel_lb": rec["fuel_lb"],
+                              "We_lb": rec["We_lb"], "span_ft": rec["wing"]["span"], "compliance": comp,
+                              "failed": [r["requirement"] for r in comp if r["met"] is False]}
+        log(f"lightest design (8 h): W0 {rec['W0_lb']:.1f} lb; Stage 1 rows failed: {res['lightest_8h']['failed']}")
+        b8 = info_gap.Built(path)
+        b8_nom = built_values(b8, {})
+        res["lightest_8h"]["nominal"] = b8_nom
+        b0 = info_gap.Built(p9.R0 / "design_pusher.json")
+        cases = {"r0_as_recorded": (b0, {}), "r0_integrated_climb_only": (b0, {"climb_model": "integrated"}),
+                 "r0_with_every_finding": (b0, ent), "lightest_8h": (b8, {})}
+        res["corners"] = {}
+        for name, (bb, ov) in cases.items():
+            res["corners"][name] = corner_table(bb, corners, ov)
+            lim = [r["climb_limit_h"] for r in res["corners"][name] if "climb_limit_h" in r]
+            log(f"{name}: largest h at which the cliff corners still climb to 20,000 ft: {lim}")
+        worst = min(corners, key=lambda c: climb_limit_h(b0, c["moved"], ent))
+        th1 = rs.theta_of(rs.scaled_corner(worst["moved"], 1.0))
+        res["attribution_corner"] = worst["label"]
+        res["attribution"] = {}
+        for gname, keys in GROUPS.items():
+            ov = dict({"climb_model": "integrated"}, **{k: ent[k] for k in keys})
+            res["attribution"][gname] = dict(climb_at(b0, dict(th1, **ov)), climb_limit_h=climb_limit_h(b0, worst["moved"], ov))
+            log(f"integrated climb + {gname}: rate at 20,000 ft at h = 1 {res['attribution'][gname]['rate_at_mission_altitude_fpm']:.1f} ft/min, "
+                f"climb limit h {res['attribution'][gname]['climb_limit_h']:.3f}")
+        res["r0_built"] = built_values(b0, {})
+        res["r0_built_with_findings"] = built_values(b0, ent)
+    log("full info-gap study of r0 as built with every finding (no re-size)")
+    t1 = time.time()
+    ig = info_gap.study(str(p9.R0 / "design_pusher.json"), processes=p9.STUDY_PROCESSES, overrides=ent)
+    ig["inputs"] = dict(inputs, note="full info_gap.study of r0 as built with r1's ledger entries held (PD-26 item 8)")
+    (out / "info_gap_r0_with_findings.json").write_text(json.dumps(info_gap._json_safe(ig), indent=1, default=float))
+    res["info_gap_r0_with_findings"] = {"file": str((out / "info_gap_r0_with_findings.json").relative_to(REPO)),
+                                        "h_hat": {k: v["h_hat"] for k, v in ig["h_hat"].items()}, "nominal": ig["nominal"],
+                                        "runtime_s": time.time() - t1}
+    log("info-gap, r0 with findings: " + ", ".join(f"{k} {v:.4f}" for k, v in res["info_gap_r0_with_findings"]["h_hat"].items()))
+    p9.finish(out, own, res, "diagnose.json", t0)
+    log(f"done ({time.time() - t0:.0f} s)")
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
-    ap.add_argument("command", choices=("reruns", "robustness", "built", "cd0", "p8"))
-    ap.add_argument("--design", required=True)
+    ap.add_argument("command", choices=("reruns", "robustness", "built", "cd0", "p8", "diagnose"))
+    ap.add_argument("--design")
+    ap.add_argument("--pass-record")
     ap.add_argument("--out", required=True)
     ap.add_argument("--reruns")
     ap.add_argument("--robustness")
     a = ap.parse_args(argv)
-    out, design = (REPO / a.out).resolve(), (REPO / a.design).resolve()
+    out = (REPO / a.out).resolve()
+    design = (REPO / a.design).resolve() if a.design else None
     t0, lines = time.time(), []
 
     def log(msg, **_):
@@ -397,7 +516,8 @@ def main(argv=None):
             (out / f"{a.command}.log").write_text("\n".join(lines) + "\n")
     {"reruns": lambda: cmd_reruns(out, design, log), "robustness": lambda: cmd_robustness(out, design, log),
      "built": lambda: cmd_built(out, design, log), "cd0": lambda: cmd_cd0(out, design, log),
-     "p8": lambda: cmd_p8(out, design, REPO / a.reruns, log)}[a.command]()
+     "p8": lambda: cmd_p8(out, design, REPO / a.reruns, log),
+     "diagnose": lambda: cmd_diagnose(out, REPO / a.pass_record, log)}[a.command]()
 
 
 if __name__ == "__main__":

@@ -259,3 +259,19 @@ def test_compare_inputs_uses_the_stated_tolerances():
     assert not ok and not rows["fuselage_extension_ft"]["within"]
     rows, ok = p9.compare_inputs(used, dict(used, sponson_size_factor=1.0 + 0.5 * p9.TOL_RATIO))
     assert ok
+
+
+# ---- the diagnosis when r1 has no design ---------------------------------------------------------------------------
+def test_climb_at_agrees_with_the_integrated_climb_on_whether_the_member_can_be_flown(built):
+    from measurement import robust_sizing as rs
+    from prelim import p9_study as st
+    rs.use_engine_as_is(True)
+    L1 = uav.load_ledger(p9.LEDGER_R1)[0]
+    ent = st.r1_entries(L1)
+    corner = json.loads(p9.RESIZE_CURVE.read_text())["per_P"]["450"]["1.05"]["corner_sets"]["cliff"][-1]
+    for h in (0.5, 1.0):
+        th = dict(rs.theta_of(rs.scaled_corner(corner["moved"], h)), **ent)
+        climbs = st.climb_at(built, th)["rate_at_mission_altitude_fpm"] > 0.0
+        flyable = info_gap.transit_power_ratio(built, th)[1] is None
+        assert climbs == flyable, h
+    assert set(st.r1_entries(L1)) == {n for g in st.GROUPS.values() for n in g}
