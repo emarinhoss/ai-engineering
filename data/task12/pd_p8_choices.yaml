@@ -1,0 +1,94 @@
+# Task 12 preliminary design P8 (envelope protection as a stated requirement): the choices of the package.
+# Written by hand on 2026-11-28, before the module existed and before any run of it. Read by prelim/p8_envelope.py;
+# tests/task12_pd/test_p8_envelope.py checks this file. No value here is from memory.
+# Run on Opus 5.5 under owner ruling PD-22 (docs/specs/00_decisions.md section 9): not yet Fable-reviewed.
+# Entries marked "judgement" are an agent's assumption under the owner's instruction of PD-start (decision PD-24),
+# not an owner ruling and not from the library. r0, its ledger and the records of P2b, P4b, P5 and P6 are read, not edited.
+# Units: ft, lb, s; speeds in kt EAS unless a key says otherwise.
+
+why: >-
+  Spec P8 and rulings B-4 and B-9d: R18 holds only if the autopilot keeps the aircraft at or below V_C in level flight
+  at every altitude, and a gust criterion above V_C is set. P8 writes that requirement with one table, EP-1 to EP-9, each
+  row with a number and the record it comes from. It is a requirement on a system this repository does not design
+  (PD-11): no control law, no simulation, no dynamic stability, no lateral-directional analysis.
+
+records:
+  r0: runs/task12/pd/2026-11-27/p0/r0
+  p0: runs/task12/pd/2026-11-27/p0/p0.json
+  p2b: runs/task12/pd/2026-11-27/p2b/p2.json
+  p4b: runs/task12/pd/2026-11-28/p4b/p4b.json
+  p5: runs/task12/pd/2026-11-28/p5/p5.json
+  p6: runs/task12/pd/2026-11-27/p6/p6.json
+
+weights:
+  # The flown weights, from P5's record (r0's take-off and zero-fuel weight; payload off with P4b's ballast).
+  # Payload off without ballast is not flown (P4b: out of balance) and is not a case here.
+  flown: [takeoff, zero_fuel, payload_off_with_ballast, payload_off_full_fuel_with_ballast]
+
+ep2_power_limit:
+  rule: >-
+    At each altitude and flown weight, the shaft power for level flight at V_C: drag of r0's polar (CD0 build-up at the
+    speed, K of the record) times the true speed, over r0's App. L propeller efficiency (owner ruling G-4), as Stage 1's
+    own level-speed code does it. The engine's full-throttle shaft power at that speed and altitude is P0's table
+    (r0/m250_table.json) through r0's engine model. Excess = full-throttle power less the limit. Where the full-throttle
+    power is below the limit, level flight does not reach V_C and no limit is needed there.
+  altitudes_source: "P5's operating-limit altitudes (p5.json sources.choices.operating_limit.altitudes_ft)"
+  every_weight: "judgement: the limit that holds at every flown weight is the smallest of the per-weight limits (the lightest weight needs the least power at V_C)"
+  coding_check: "the shaft power for level flight at r0's recorded level top speed (sea level and 20,000 ft, take-off weight) equals the full-throttle power within the tolerance"
+  coding_check_tolerance_relative: 1.0e-3
+  p6_second_reading:
+    altitudes_ft: [0, 10000, 20000, 23000]
+    weight: payload_off_with_ballast
+    rule: >-
+      P6's representative blade (its blade ledger, twist and sections as prelim/p6_propeller.aircraft sets them), constant
+      speed: the shaft power whose thrust equals the drag at V_C, by fixed-point iteration hp = D V/(550 eta_P6(hp)) from
+      the App. L limit. P6 failed its validation (row 5) and its numbers are not used in r1: this is a labelled second
+      reading with no weight in the requirement.
+    tolerance_hp: 0.05
+    max_iterations: 8
+
+ep3_overspeed:
+  limits_source: "P5 row 3 limits (p5.json row3.limits): +3.8 and the gust limit -1.7"
+  altitude_limit_ft: 23000
+  readings:
+    ruled_rule: >-
+      The spec's reading: the gust speed of the ruled rule at the speed (30 ft/s at V_C falling linearly to 15 ft/s at V_D,
+      Raymer p. 339, PD-8). The largest speed not above V_D at which the gust load factor stays inside the limits.
+    held_at_vc_gust: >-
+      judgement (PD-24 item 1): the gust held at the V_C value, 30 ft/s, at the excursion speed. A gust met while the
+      aircraft overspeeds in level flight is the gust of level flight, not of a dive. This is P5 row 4's "gust held at
+      30 ft/s above V_C".
+  stated: held_at_vc_gust
+  stated_why: >-
+    Under the ruled rule the product of gust speed and speed, U V, is stationary at V_C and falls above it; only the lift
+    slope's rise with Mach number lifts the gust load factor, slightly, above its V_C value. So the spec's reading may
+    bound nothing below V_D; the record shows whether it does. The requirement takes the held reading, and reports the
+    spec's reading beside it.
+
+ep4_dive:
+  start_altitudes_ft: [10000, 20000, 23000]
+  weights: [takeoff, zero_fuel]
+  descent_angles_deg: [5, 10, 20, 30, 45]
+  power: [idle, full]
+  idle_rule: "judgement: idle is zero propeller thrust (no windmilling drag and no residual thrust are credited)"
+  full_rule: "full-throttle shaft power of P0's table through r0's engine model, thrust by r0's App. L propeller at the speed"
+  path: >-
+    Point mass on a straight path at a constant descent angle gamma, entered at V_C at the start altitude (no pushover):
+    (W/g) dV/dt = T - D + W sin(gamma), dh/dt = -V sin(gamma), lift W cos(gamma), drag of r0's polar at the speed and
+    altitude. Stops at V_D (EAS), at sea level, or at the time limit.
+  time_limit_s: 600.0
+  solver: "scipy.integrate.solve_ivp, method DOP853, rtol 1e-9, atol 1e-9, max_step 1 s; the stops are events"
+
+ep5_load_factor:
+  command_margin_source: "judgement (PD-24 item 2): the ledger's margin_gust_g (0.1 g) on both sides of the R9 limits"
+  r16: "ledger turn_bank_deg: n = 1/cos(bank); available if inside the positive command limit and below the stall-limited load factor at the loiter speed, 20,000 ft and the loiter start weight"
+
+ep6_low_speed:
+  rule: "1.3 V_stall clean (ledger speed_over_stall, R17) at the current weight, V_stall = sqrt(2 W/(rho_0 S CL_max)) in EAS"
+  cl_max: "r0's 1.35 (design_pusher.json CL_max.clean) and P2's measured 1.276 (p2.json wing.measured.clean), the r1 value"
+
+ep8_altitude:
+  protection_altitude_limit: >-
+    judgement (PD-24 item 3): the protection holds the aircraft at or below R12's 23,000 ft (ledger ceiling_ft). It is
+    the highest altitude any requirement needs, so the highest at which R-f's declared engine assumptions are used.
+    The service ceiling of r0 is above it.

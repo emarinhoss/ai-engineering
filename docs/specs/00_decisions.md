@@ -626,3 +626,19 @@ Stage 1 (S3M-8) and that an independent neutral point is needed.
   `docs/validation/2026-11-28_task12_pd_p7.md`, generated from `runs/task12/pd/2026-11-28/p7/p7.json`; none is typed
   here. Override: a laminate design with its own allowables, a two-spar box, or a different knock-down replaces (1) to
   (3) with the same code.
+- **PD-24 (2026-11-28, package P8: three choices in the envelope-protection requirement).** An agent's assumption under
+  PD-11 and the owner's instruction of PD-start, not an owner ruling; run on Opus 5.5 under PD-22, not yet Fable-reviewed.
+  Choice, all in `data/task12/pd_p8_choices.yaml`, written before any run: (1) EP-3's allowed speed excursion above V_C is
+  found with the gust held at its V_C value, 30 ft/s (ledger `gust_ude_fps`), at the excursion speed, inside P5 row 3's
+  limits, at every flown weight up to the altitude limit of (3). Reason: under the ruled rule (PD-8) the gust speed falls
+  from V_C to V_D about as fast as the speed rises, so the spec's reading (the rule's gust at the speed) may bound nothing
+  below V_D; a gust met while overspeeding in level flight is a level-flight gust, not a dive gust (P5 row 4's held case).
+  The spec's reading is computed and reported beside it. (2) EP-5's load-factor command limits are R9's +3.8 and -1.8
+  less the ledger's gust margin of 0.1 g (`margin_gust_g`, B-3) on each side. (3) EP-8: the protection holds the aircraft
+  at or below R12's 23,000 ft (ledger `ceiling_ft`), the highest altitude any requirement needs and so the highest at
+  which R-f's declared engine assumptions are used; r0's service ceiling is above it. Rejected: an excursion bounded by
+  the spec's reading alone (it allows V_D in level flight, which R18 and ruling B-4 exclude); command limits at the
+  structural limits themselves (no room for a gust on a commanded manoeuvre); no altitude limit (the engine's altitude is
+  an assumption with no source, R-f). r0 is not edited. The numbers are in `docs/specs/task12_envelope_protection.md` and
+  `docs/validation/2026-11-28_task12_pd_p8.md`, generated from `runs/task12/pd/2026-11-28/p8/p8.json`; none is typed here.
+  Override: an owner's overspeed allowance, command margin or altitude limit replaces (1), (2) or (3) with the same code.
