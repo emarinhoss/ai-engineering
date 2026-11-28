@@ -140,6 +140,8 @@ def test_pd20_solutions_say_what_closed_and_what_did_not(p):
 def test_findings_and_decision_are_recorded(p):
     assert len(p["findings_for_r1"]) >= 10
     text = (p4.REPO / "docs/specs/00_decisions.md").read_text()
-    assert "**PD-20 (2026-11-27, package P4" in text and "PD-21" not in text
-    entry = text.split("**PD-20 (2026-11-27, package P4", 1)[1]
+    assert "**PD-20 (2026-11-27, package P4" in text
+    # PD-21 (package P4b, 2026-11-28) follows PD-20 and supersedes part of it; PD-20's own text is kept and is what is checked here
+    entry = text.split("**PD-20 (2026-11-27, package P4", 1)[1].split("- **PD-21 (", 1)[0]
+    assert "PD-21" not in entry
     assert "straight" in entry and "not an owner ruling" in entry and "2026-11-27_task12_pd_p4.md" in entry
