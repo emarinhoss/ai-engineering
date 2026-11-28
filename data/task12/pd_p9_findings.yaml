@@ -1,0 +1,426 @@
+# Task 12 preliminary design P9: the findings list for the closing re-record r1.
+# Written on 2026-11-28 before any P9 code or run, under owner ruling PD-25 (P9 on Opus 5.5; not yet Fable-reviewed)
+# and decisions PD-26 (how the findings enter r1) and PD-27 (the sponson that holds the main gear).
+# Every finding of P0 to P8 that bears on an input of the design is listed with the record and the key it is read
+# from (a dotted path; a number indexes a list), the value at that key, and whether it is applied to r1, how, and why.
+# tests/task12_pd/test_p9_findings.py reads every value again from its record. "applied: true" means the finding
+# changes an input of r1; "applied: false" means it does not, with the reason. "entry" names the ledger entry of
+# data/task12/ledger_r1.yaml that carries an applied finding (PD-26 item 1); a value marked "measured by P9" is
+# measured again on the r1 layout by prelim/p9_r1.py and is in the P9 record, not here.
+
+findings:
+  - id: P0-1
+    package: P0
+    what: integrated climb at nominal values against Stage 1's two-point climb, as a share of the mission fuel
+    record: runs/task12/pd/2026-11-27/p0/p0.json
+    key: acceptance.4.value
+    value: 0.0010777087784519372
+    applied: false
+    reason: "Below P0's 1 % threshold at nominal values (no finding by P0's rule). The integrated climb enters r1 through P1-1, which found it above the threshold at the worst endurance point."
+
+  - id: P1-1
+    package: P1
+    what: integrated climb at the worst endurance point at the target h_T, as a share of the mission fuel (threshold 1 %)
+    record: runs/task12/pd/2026-11-27/p1/p1.json
+    key: climb_check.states.corner_target.mission_fuel_share
+    value: 0.014123125673047646
+    applied: true
+    entry: climb_model
+    how: "The mission's climb leg is flown in 1,000 ft steps at each altitude's own best-climb speed (the integration of prelim/p0_baseline.integrate_climb, coded in conceptual/uav.py), so the sizing and every info-gap rebuild fly it (the ledger copy of the record carries climb_model: integrated)."
+    reason: "P1 found 1.41 % at the worst point at h_T, above its 1 % threshold, and the estimate of hours there below 3.5 h."
+
+  - id: P1-2
+    package: P1
+    what: Stage 1's climb speed over the stall speed at the top of the climb, worst endurance point at h_T
+    record: runs/task12/pd/2026-11-27/p1/p1.json
+    key: climb_check.states.corner_target.against_stall_at_altitude.end_of_climb_weight.over_stall
+    value: 0.9709864792880507
+    applied: true
+    entry: climb_model
+    how: "The same change as P1-1: each altitude of the integrated climb flies its own best-climb speed, never below 1.2 V_stall at that altitude (uav.climb_rate_at)."
+    reason: "The two-point climb evaluates the drag at the mission altitude at a speed below the stall speed there."
+
+  - id: P1-3
+    package: P1
+    what: "CD0 has no band: +10 % on the parasite drag (leakage_fraction 0.155) at the worst endurance point at h = 1 (hours)"
+    record: runs/task12/pd/2026-11-27/p1/p1.json
+    key: ledger.audit.rows.30.points.2.hours_at_corner_h1
+    value: 3.344369955790978
+    applied: false
+    reason: "Not a band change: no CD0 band was accepted by the owner. Run only as a labelled sensitivity of +-10 % on the parasite drag on the info-gap horizons of r1 (PD-26 item 9). Listed for Gate C."
+
+  - id: P1-4
+    package: P1
+    what: "five band proposals of the band audit: tail_interference_q [1.04, 1.05], cl_ground [0, 0.1], tyre_drag_per_area [0.13, 0.25], gear_interference [1.2, 1.284], flap_cp_fraction [0.44, 0.45] (number of proposals)"
+    record: runs/task12/pd/2026-11-27/p1/p1.json
+    key: ledger.audit.n_proposed_bands
+    value: 5
+    applied: false
+    reason: "Not accepted by the owner. The ledger keeps these entries without a band; listed for Gate C."
+    proposals:
+      - {entry: tail_interference_q, key: ledger.audit.rows.31.proposed_band, value: [1.04, 1.05]}
+      - {entry: cl_ground, key: ledger.audit.rows.44.proposed_band, value: [0.0, 0.1]}
+      - {entry: tyre_drag_per_area, key: ledger.audit.rows.46.proposed_band, value: [0.13, 0.25]}
+      - {entry: gear_interference, key: ledger.audit.rows.48.proposed_band, value: [1.2, 1.284]}
+      - {entry: flap_cp_fraction, key: ledger.audit.rows.55.proposed_band, value: [0.44, 0.45]}
+
+  - id: P1-5
+    package: P1
+    what: empty weight, like-for-like gap between the group equations and the Table 3.1 fit left unexplained (lb)
+    record: runs/task12/pd/2026-11-27/p1/p1.json
+    key: empty_weight.table_3_1.like_for_like.remainder_lb
+    value: 15.043821428016827
+    applied: false
+    reason: "A named risk (ruling B-9g), not an input. The +-5 % empty-weight band stays as ruled."
+
+  - id: P2-1
+    package: P2
+    what: section maximum lift of the NACA 4415, smooth, Re 3 million (the highest plotted point)
+    record: runs/task12/pd/2026-11-27/p2b/p2.json
+    key: section_at_stall.cl_max
+    value: 1.41777
+    applied: true
+    entry: airfoil_cl_max
+    how: "airfoil_cl_max 1.5 -> 1.41777; Stage 1's (12.15) then gives the wing 1.276 clean, 1.744 take-off, 2.056 landing. The band 1.3 to 1.7 is unchanged and contains the value."
+    reason: "P2 row 2: the measured route is lower than r0's; the spec puts the lower value into r1."
+
+  - id: P2-2
+    package: P2
+    what: wing clean maximum lift by (12.15) from the measured section value
+    record: runs/task12/pd/2026-11-27/p2b/p2.json
+    key: wing.measured.clean
+    value: 1.275993
+    applied: true
+    entry: airfoil_cl_max
+    how: "A consequence of P2-1 (Stage 1 computes it); take-off wing.measured.takeoff 1.743993, landing wing.measured.landing 2.055993."
+    reason: "As P2-1."
+
+  - id: P2-3
+    package: P2
+    what: section moment about the quarter chord, mean between -6 and 6 deg
+    record: runs/task12/pd/2026-11-27/p2b/p2.json
+    key: section_at_stall.cm_c4_linear_range
+    value: -0.0911291
+    applied: true
+    entry: airfoil_cm0
+    how: "airfoil_cm0 -0.08 -> -0.0911291 (band -0.10 to -0.04 unchanged); it acts in Stage 1's trim and rotation (16.16) and with it in the tail loop."
+    reason: "Inside the band (no finding by the spec's rule), but the measured value replaces the judgement, as P4 used it."
+
+  - id: P2-4
+    package: P2
+    what: "the drawn curve of the 3.0 million set peaks at about 1.43 (one reading by eye; text in data/task12/pd_p2_section_source.yaml, figure_check notes)"
+    record: runs/task12/pd/2026-11-27/p2b/p2.json
+    key: section_at_stall.cl_max_is_a_turning_point
+    value: true
+    applied: false
+    reason: "The faired-peak alternative (section 1.43, wing about 1.29) is a reported sensitivity on r1 only (PD-26 item 10); P2's rule, fixed before the figure was seen, takes the highest symbol."
+
+  - id: P2-5
+    package: P2
+    what: stall Reynolds number at the mean chord at the mission altitude, below the lowest tabulated set (3.0 million)
+    record: runs/task12/pd/2026-11-27/p2b/p2.json
+    key: section_at_stall.stall_reynolds_mission_altitude
+    value: 2768343.3333667554
+    applied: false
+    reason: "Nothing was extrapolated; carried as a statement (P2 finding 4). The info-gap band on airfoil_cl_max (1.3 to 1.7) stays acting."
+
+  - id: P3-1
+    package: P3
+    what: wetted area of the wing on the loft (Stage 1 497.10 ft^2)
+    record: runs/task12/pd/2026-11-27/p3/p3.json
+    key: gates.3.components.wing.loft_wetted_ft2
+    value: 496.2217510847697
+    applied: true
+    entry: loft_wetted_factor_wing
+    how: "Drag build-up area = Stage 1's (7.11) area times loft wetted / Stage 1 area, measured by P9 on the r1 layout (PD-26 items 2 and 3)."
+    reason: "Gate 3 failed for two components, so the spec puts the loft's areas into r1; all five are applied so that the loft is the one source of the drag areas."
+
+  - id: P3-2
+    package: P3
+    what: wetted area of the fuselage on the loft (Stage 1 277.78 ft^2)
+    record: runs/task12/pd/2026-11-27/p3/p3.json
+    key: gates.3.components.fuselage.loft_wetted_ft2
+    value: 266.1191754050858
+    applied: true
+    entry: loft_wetted_factor_fuselage
+    how: "As P3-1, measured on the lengthened r1 fuselage (PD-21)."
+    reason: "As P3-1."
+
+  - id: P3-3
+    package: P3
+    what: wetted area of the horizontal tail on the loft (Stage 1 276.30 ft^2)
+    record: runs/task12/pd/2026-11-27/p3/p3.json
+    key: gates.3.components.horizontal_tail.loft_wetted_ft2
+    value: 265.5596624329437
+    applied: true
+    entry: loft_wetted_factor_horizontal_tail
+    how: "As P3-1, measured on r1's straight-trailing-edge tailplane."
+    reason: "As P3-1."
+
+  - id: P3-4
+    package: P3
+    what: wetted area of the vertical tail on the loft (Stage 1 75.63 ft^2; gate 3 fail)
+    record: runs/task12/pd/2026-11-27/p3/p3.json
+    key: gates.3.components.vertical_tail.loft_wetted_ft2
+    value: 66.9879483807371
+    applied: true
+    entry: loft_wetted_factor_vertical_tail
+    how: "As P3-1, measured on r1's straight-trailing-edge fin."
+    reason: "Gate 3 fail (-11.4 %)."
+
+  - id: P3-5
+    package: P3
+    what: wetted area of the two sponsons on the loft (Stage 1 63.66 ft^2; gate 3 fail)
+    record: runs/task12/pd/2026-11-27/p3/p3.json
+    key: gates.3.components.sponsons.loft_wetted_ft2
+    value: 47.03290253869907
+    applied: true
+    entry: loft_wetted_factor_sponsons
+    how: "As P3-1, measured on the resized sponson of PD-27."
+    reason: "Gate 3 fail (-26.1 %)."
+
+  - id: P3-6
+    package: P3
+    what: usable wing-tank volume on the loft (Stage 1 claims 73.17 ft^3)
+    record: runs/task12/pd/2026-11-27/p3/p3.json
+    key: gates.4.tank.usable_ft3
+    value: 68.24154001010257
+    applied: true
+    entry: tank_volume_factor
+    how: "Stage 1's tank volume (a box of the full thickness) times loft usable / Stage 1 claim, measured by P9 on r1 (the compliance row 'fuel fits integral wing tanks')."
+    reason: "Tank volume per P3."
+
+  - id: P3-7
+    package: P3
+    what: payload station on the P3 arrangement (volume centre of the two payload-bay boxes; r0 2.858 ft), decision PD-19
+    record: runs/task12/pd/2026-11-27/p3/p3.json
+    key: moved_masses.moved.0.station_p3_ft
+    value: 4.313124999999999
+    applied: true
+    entry: station_payload_ft
+    how: "Stage 1's layout puts the payload mass at this station (ft from the nose) in place of station_payload_pusher x the fuselage length; the turret stays drawn at r0's station on the loft (PD-19)."
+    reason: "P3's and P4's payload station (PD-19)."
+
+  - id: P3-8
+    package: P3
+    what: avionics station on the P3 arrangement (centre of the avionics box; r0 6.002 ft), decision PD-19
+    record: runs/task12/pd/2026-11-27/p3/p3.json
+    key: moved_masses.moved.1.station_p3_ft
+    value: 7.175
+    applied: true
+    entry: station_avionics_ft
+    how: "As P3-7, for the avionics mass."
+    reason: "P3's and P4's avionics station (PD-19)."
+
+  - id: P3-9
+    package: P3
+    what: "P3 finding 7: the retracted main gear does not fit the sponson (clearance of the main-wheel box, in; -12.00 means outside by a foot or more)"
+    record: runs/task12/pd/2026-11-27/p3/p3.json
+    key: gates.4.boxes.main_gear_left_wheel.clearance_in
+    value: -12.0
+    applied: true
+    entry: sponson_size_factor
+    how: "PD-27: the smallest sponson of the same ellipsoid form that holds P3's three main-gear boxes per side with P3's 1.0 in clearance, measured by P9; Stage 1 takes the scale on its sponson length and depth, the drag on the loft's area of that sponson, the weight by Stage 1's own route (lb per ft^2 of its (7.12) area)."
+    reason: "The brief asks that it is resolved in P9 (PD-20 and PD-21 left it open)."
+
+  - id: P3-10
+    package: P3
+    what: "P3 rows 9: the horizontal tail reaches behind the propeller plane inside the disc (ft)"
+    record: runs/task12/pd/2026-11-27/p3/p3.json
+    key: gates.9.behind_plane_ft.horizontal_tail
+    value: 1.7818056029985456
+    applied: true
+    entry: tail_te_straight
+    how: "Through the PD-21 layout (P4b-1 to P4b-4)."
+    reason: "Answered by PD-21."
+
+  - id: P3-11
+    package: P3
+    what: aft-body angle of the loft, top and bottom (deg), against Raymer's 10 to 12 deg and about 30 deg ahead of a pusher
+    record: runs/task12/pd/2026-11-27/p3/p3.json
+    key: gates.5.aft_body_angle_deg.top
+    value: 29.39597585287459
+    applied: false
+    reason: "Reported, no input change (the engine envelope at r0's engine station sets it; PD-21 keeps the engine station). The longer aft body of PD-21 makes it shallower; P9's re-run of P3 on r1 reports it."
+
+  - id: P3-12
+    package: P3
+    what: "gate 8, OpenVSP CompGeom wetted areas outside 2 % for the wing, fin and sponsons (verdict)"
+    record: runs/task12/pd/2026-11-27/p3/p3.json
+    key: gates.8.verdict
+    value: fail
+    applied: false
+    reason: "No size change follows; which tool is nearer the true covered area was not established (P3). The loft's own areas are applied (P3-1 to P3-5)."
+
+  - id: P4-1
+    package: P4
+    what: "fuselage moment slope by Multhopp's strip integral on the loft (NACA TM 1036), r0 as arranged, per rad (Raymer (16.22) gives 0.1014)"
+    record: runs/task12/pd/2026-11-27/p4/p4.json
+    key: as_arranged.neutral_point.Cma_fus_multhopp_per_rad
+    value: 0.18310158869100682
+    applied: true
+    entry: fuselage_cm_alpha_factor
+    how: "Stage 1's neutral point takes its (16.22) fuselage term times Multhopp's over (16.22)'s, the ratio measured by P9 on the r1 layout (P4b's value on that layout is P4b-5); P4's route is run again on r1 for the R13 verdict (PD-26 item 6)."
+    reason: "P4 finding 2: r1 should carry the fuselage term of P4."
+
+  - id: P4-2
+    package: P4
+    what: static margin of r0 as P3 arranged it, empty fuel, gear up, nominal empty weight (R13 0.05 to 0.15)
+    record: runs/task12/pd/2026-11-27/p4/p4.json
+    key: as_arranged.row1.gear_up/empty_weight_x1.sm_empty
+    value: 0.03735917222047722
+    applied: true
+    entry: fuselage_cm_alpha_factor
+    how: "Answered by the wing position: Stage 1's layout rule (mean static margin 0.10) with P3-7, P3-8 and P4-1 in place, and P4's own placement re-run on r1."
+    reason: "P4 row 5: the wing moves for r1."
+
+  - id: P4b-1
+    package: P4b
+    what: "PD-21 layout Bs: tails at r0's arm (ft), r0's areas, straight trailing edges"
+    record: runs/task12/pd/2026-11-28/p4b/p4b.json
+    key: candidates.scan_10.measures.arm_ft
+    value: 13.5769368638873
+    applied: true
+    entry: tail_te_straight
+    how: "Stage 1 keeps its own tail rule (arm 0.475 of the Table 6.3 length, Table 6.4 volume coefficients, enlarged for rotation by its loop) and the tails get straight trailing edges: the tailplane's weight (15.47) carries its quarter-chord sweep, the fin is weighed unswept, the tailplane lift slope carries the sweep of its maximum-thickness line (as P4)."
+    reason: "PD-21."
+
+  - id: P4b-2
+    package: P4b
+    what: "PD-21: aft fuselage lengthened behind the engine bay, with a shaft (ft)"
+    record: runs/task12/pd/2026-11-28/p4b/p4b.json
+    key: candidates.scan_10.measures.extension_ft
+    value: 1.975876210782321
+    applied: true
+    entry: fuselage_extension_ft
+    how: "Stage 1 adds the extension behind its Table 6.3 fuselage: the propeller is at the end of the longer body (gear-length rule, propeller clearance), the fuselage weight (15.49) takes the added skin, the tail arm and the longer fineness, flight controls (15.54) the longer length, and a shaft of the extension's length is added to the fuselage weight at the middle of the added length (P4b's route). Measured again by P9 on r1 (the least extension with 1.0 ft between the tails and the propeller plane)."
+    reason: "PD-21."
+
+  - id: P4b-3
+    package: P4b
+    what: "PD-21: loft skin added by the extension (ft^2)"
+    record: runs/task12/pd/2026-11-28/p4b/p4b.json
+    key: candidates.scan_10.measures.added_wetted_ft2.fuselage
+    value: 12.891727972261151
+    applied: true
+    entry: fuselage_added_skin_ft2
+    how: "Added to Stage 1's fuselage area in (15.49) (P4b's route); the drag takes the loft's wetted area of the longer body (P3-2). Measured again by P9 on r1."
+    reason: "PD-21."
+
+  - id: P4b-4
+    package: P4b
+    what: "PD-21: shaft weight per foot, an assumption (band 2 to 10 lb/ft in PD-21)"
+    record: runs/task12/pd/2026-11-28/p4b/p4b.json
+    key: shaft_lb_per_ft.value
+    value: 5.0
+    applied: true
+    entry: shaft_lb_per_ft
+    how: "Ledger entry with confidence 'judgement' and no band, so it is not an info-gap variable (PD-26 item 1: no band is added without the owner)."
+    reason: "PD-21."
+
+  - id: P4b-5
+    package: P4b
+    what: "Multhopp's fuselage moment slope on the Bs layout, per rad ((16.22) on the longer body 0.1084)"
+    record: runs/task12/pd/2026-11-28/p4b/p4b.json
+    key: candidates.scan_10.evaluation.neutral_point.Cma_fus_multhopp_per_rad
+    value: 0.1965465703250533
+    applied: true
+    entry: fuselage_cm_alpha_factor
+    how: "The first value of the factor of P4-1 is this over Stage 1's (16.22) on its Table 6.3 length; measured again by P9 on r1."
+    reason: "P4-1 on the layout r1 has."
+
+  - id: P4b-6
+    package: P4b
+    what: "PD-21: wing leading edge from r0's (ft) by P4's rule (mean static margin 0.10, Multhopp's term)"
+    record: runs/task12/pd/2026-11-28/p4b/p4b.json
+    key: candidates.scan_10.measures.wing_shift_ft
+    value: 0.9184715315802627
+    applied: true
+    entry: fuselage_cm_alpha_factor
+    how: "Not a ledger value: Stage 1 places r1's wing by its own rule with P4-1's term, and P9 re-runs P4's placement on r1; both positions are reported against r0's (PD-26 item 6)."
+    reason: "PD-21."
+
+  - id: P4b-7
+    package: P4b
+    what: "PD-21: main wheels (ft from the nose) by the tipback rule"
+    record: runs/task12/pd/2026-11-28/p4b/p4b.json
+    key: candidates.scan_10.measures.x_main_ft
+    value: 14.894503551708222
+    applied: true
+    entry: fuselage_cm_alpha_factor
+    how: "Not a ledger value: Stage 1's tipback rule on r1, and P4's on r1."
+    reason: "PD-21."
+
+  - id: P4b-8
+    package: P4b
+    what: "PD-21: empty-weight change of the layout on r0's sizes (lb), by P4b's route"
+    record: runs/task12/pd/2026-11-28/p4b/p4b.json
+    key: candidates.scan_10.measures.empty_weight_change_lb
+    value: 27.151948953874353
+    applied: true
+    entry: fuselage_extension_ft
+    how: "Not added as a number: Stage 1 computes the same equations at r1's sizes (P4b-1 to P4b-4). The built r0 with the findings applied shows the change at r0's sizes."
+    reason: "PD-21."
+
+  - id: P4b-9
+    package: P4b
+    what: "operating limit: payload off only with ballast at the payload station (lb), on the Bs layout at r0's sizes"
+    record: runs/task12/pd/2026-11-28/p4b/p4b.json
+    key: candidates.scan_10.measures.payload_off.ballast_every_loading_lb
+    value: 474.0
+    applied: false
+    reason: "An operating limit, not an input (PD-13). Recomputed on r1 with P4b's code."
+
+  - id: P5-1
+    package: P5
+    what: "ruled gust rule (PD-8), row 3 on r1's weights (P4b's change): verdict"
+    record: runs/task12/pd/2026-11-28/p5/p5.json
+    key: r1.row3.verdict_r1
+    value: pass
+    applied: false
+    reason: "No input change under the ruled rule (PD-8). The V-n check (measurement/vn_check.py) and P5's rows 1, 2, 3 and 5 are re-run on r1."
+
+  - id: P5-2
+    package: P5
+    what: "P5 row 4: largest gust load factor under the second text's speeds (O-2)"
+    record: runs/task12/pd/2026-11-28/p5/p5.json
+    key: row4.cases.cs23_speeds.largest_up_V_C_V_D
+    value: 5.227308073526218
+    applied: false
+    reason: "O-2 default: the ruled rule stands (PD-8); the weight cost is reported at Gate C."
+
+  - id: P5-3
+    package: P5
+    what: "CS 23.335(a)(1)(i) least design cruising speed at r0's wing loading (kt EAS) against V_C 110 kt"
+    record: runs/task12/pd/2026-11-28/p5/p5.json
+    key: cs23_design_cruise_speed.V_C_min_kt
+    value: 118.98319209031166
+    applied: false
+    reason: "A finding only: R18 and ruling B-4 set V_C; CS-23 is not a requirement of this aircraft."
+
+  - id: P6-1
+    package: P6
+    what: "validation row 5 (measured propeller, NACA Report 640) verdict"
+    record: runs/task12/pd/2026-11-27/p6/p6.json
+    key: acceptance.4.verdict
+    value: fail
+    applied: false
+    reason: "Failed validation: by the spec no number of P6 is used in r1 (record key used_in_r1 is false). The App. L disk with f 0.85 stays."
+
+  - id: P7-1
+    package: P7
+    what: "spar weight with P4b's layout, r1 weights and P2's C_L,max (lb), against r0's wing 429.4 lb"
+    record: runs/task12/pd/2026-11-28/p7/p7.json
+    key: r1.spar_lb
+    value: 56.78970449506099
+    applied: false
+    reason: "Informational: the statistical wing weight stays. P7 is re-run on r1 (r1 changes the wing, its weight, the tanks and the gear station)."
+
+  - id: P8-1
+    package: P8
+    what: "EP-6 speed floor at take-off weight with P2's C_L,max and r1's weights (kt EAS)"
+    record: runs/task12/pd/2026-11-28/p8/p8.json
+    key: r1.ep6_floor_r1_kt.takeoff
+    value: 71.58763000600975
+    applied: false
+    reason: "The requirement is regenerated on r1 with prelim/p8_envelope.py after r1 exists (same code, new record)."

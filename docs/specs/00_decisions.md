@@ -642,3 +642,68 @@ Stage 1 (S3M-8) and that an independent neutral point is needed.
   an assumption with no source, R-f). r0 is not edited. The numbers are in `docs/specs/task12_envelope_protection.md` and
   `docs/validation/2026-11-28_task12_pd_p8.md`, generated from `runs/task12/pd/2026-11-28/p8/p8.json`; none is typed here.
   Override: an owner's overspeed allowance, command margin or altitude limit replaces (1), (2) or (3) with the same code.
+- **PD-25 (2026-11-28, owner ruling: package P9 runs on Opus 5.5 now, ahead of the Fable review of P5, P7 and P8).** An
+  owner ruling (Éder, 2026-11-28), not an agent's assumption. PD-22 placed Fable's review of P5, P7 and P8 before P9's
+  closing re-record r1. The owner ruled that P9 (closing re-record r1 and robustness) runs now on Opus 5.5, ahead of that
+  review; Fable 5.1 reviews P5, P7, P8 and P9 together once its usage limit resets (2026-11-30 17:00 UTC), before P10 and
+  Gate C. The rules of PD-22 apply unchanged: the spec's acceptance rows and tolerances, tests written first, every number
+  from a recorded run, failed checks reported and not tuned. Every P9 report is marked "Not yet Fable-reviewed (rulings
+  PD-22 and PD-25)" near its top. Nothing was run for this entry. Override: a finding of that review re-opens P9, and the
+  package it concerns, with the same code and records; r1 is then recorded again.
+- **PD-26 (2026-11-28, package P9: how the findings of P0 to P8 enter the closing re-record r1).** An agent's assumption
+  under PD-7 and the owner's instruction of PD-start, not an owner ruling; run on Opus 5.5 under PD-25, not yet
+  Fable-reviewed. The findings and what is applied are listed with their records in `data/task12/pd_p9_findings.yaml`,
+  written before any P9 code or run. Choice: (1) every applied finding is a value in a ledger copy for r1,
+  `data/task12/ledger_r1.yaml`, written by code from the Gate B ledger, which is not edited. Two values change inside
+  their unchanged bands (`airfoil_cl_max` to P2's 1.41777, `airfoil_cm0` to P2's -0.0911291); every other applied finding
+  is a new entry without a band, so the info-gap study varies exactly the quantities it varied on r0 (no band is added
+  or changed without the owner: not P1's five proposals, not a CD0 band, not PD-21's shaft band): the integrated climb
+  as the mission's climb model; the loft's wetted area over Stage 1's per drag component; the loft's tank volume over
+  Stage 1's; the P3 stations of payload and avionics; Multhopp's fuselage moment slope over (16.22)'s; straight tail
+  trailing edges; the aft-fuselage extension, the skin it adds and the shaft weight per foot of PD-21; the sponson scale
+  of PD-27. (2) What is measured on the loft enters Stage 1 as a ratio or a length that Stage 1's sizing carries, and is
+  measured on the r1 layout at a reference size: first r0's sizes with the PD-21 layout, then r1's own; r1 is re-sized
+  with the new values until every value is within 0.5 % (ratios) or 0.02 ft (lengths) of the one r1 was sized with, at
+  most three passes, each recorded. (3) The drag build-up takes the loft's wetted areas; the weights keep Stage 1's own
+  routes, as P4b used them: fuselage (15.49) on Stage 1's area plus the loft's added skin, with the tail arm and the
+  longer fineness; flight controls (15.54) on the longer fuselage; a shaft of the extension's length at PD-21's 5 lb/ft
+  in the fuselage weight at the middle of the added length; the sponsons at the ledger's weight per ft^2 of Stage 1's
+  (7.12) area of the resized sponson; the tailplane (15.47) with its quarter-chord sweep and the fin unswept (as P4).
+  (4) The propeller sits at the end of the longer fuselage wherever Stage 1 places it (gear-length rule for propeller
+  clearance and the propeller-clearance row); the skin-friction length and fineness of the drag build-up stay Stage 1's
+  (PD-21). (5) The tails keep Stage 1's rule (arm 0.475 of the Table 6.3 length, Table 6.4 volume coefficients,
+  enlarged for rotation by Stage 1's loop) with straight trailing edges; the tailplane lift slope carries the sweep of
+  its maximum-thickness line, as P4. (6) Stage 1's layout places the wing by its own rule (mean static margin 0.10)
+  with its fuselage term times the Multhopp ratio; P4's own route (Multhopp on the loft, the P3 tanks, gear up and down,
+  P4b's placement and ballast) is run on r1 and gives the R13 verdict and the operating limit; both wing positions are
+  reported. (7) The re-size is measurement/robust_sizing.py's procedure on the one cell W/S 13, A 8 at 450 shp with the
+  per-design V_C rule, seed 20261122 and 200 samples: L_sized bisected against the final corner sets of the Gate B re-size
+  (`runs/task12/stage3/2026-11-26/m250_bands_resize/curve.json`, 450 shp, h_T 1.05), re-scaled to h_T 1.05 in r1's
+  ledger, then refined by the mode searches at h_T (a violating worst point is added, at most three iterations), then
+  the mode scans, the doubled-steps bias and the full info-gap study. (8) "r0 built with the findings" is r0's record
+  (wing area, fuel, tail scale) rebuilt with r1's ledger values (measurement.info_gap.Built: W0 from the empty-weight
+  fixed point, hours on station on r0's fuel), so that the r1-minus-r0 table separates the findings from the re-size.
+  (9) CD0 +-10 %: P1's route, `leakage_fraction` at 1.10 x 1.05 - 1 and 0.90 x 1.05 - 1, held on r1 as built through the
+  full info-gap study; a labelled sensitivity, not a band. (10) The faired peak of P2 (section 1.43 by eye, wing about
+  1.29): a sensitivity on r1 as built. Rejected: editing the Gate B ledger; fixed weight and drag increments from P4b
+  (they would not follow the re-size); building the loft inside Stage 1's weight iteration (slow, and not explainable
+  line by line); placing r1's wing at P4b's +0.918 ft by hand (Stage 1 re-places it at its new sizes). The numbers are in
+  `docs/validation/2026-11-28_task12_pd_p9.md`, generated from `runs/task12/pd/2026-11-28/p9/`; none is typed here.
+  Override: the owner's acceptance of a band (P1's proposals, CD0, the shaft) adds it to r1's ledger and r1 is re-sized
+  with the same code.
+- **PD-27 (2026-11-28, package P9: the sponson that holds the retracted main gear).** An agent's assumption under PD-3
+  (sizes and details may change) and the owner's instruction of PD-start, not an owner ruling; run on Opus 5.5 under
+  PD-25, not yet Fable-reviewed. P3 (its finding 7) found that the main gear, folded forward from a pivot on the sponson's
+  centre line, does not fit r0's sponson; PD-20 and PD-21 left it to P9. Choice: the sponson keeps its ellipsoid form and
+  every proportion of the P3 arrangement (`data/task12/pd_p3_arrangement.yaml`: semi-axes 0.5, 0.45 and 0.5 of length,
+  depth and depth; centre 0.3 of the length ahead of the main wheel and 0.45 of the depth below the wing plane) and is
+  scaled as a whole: length and depth by one factor k, the least k (bisection to 0.001) at which each of P3's three
+  main-gear boxes on each side (leg, leg, wheel, built by geometry3d/aircraft.py from the pivot at the sponson's centre
+  and the wheel on the ground at r1's gear length) is inside the sponson with P3's box clearance of 1.0 in. Stage 1 takes
+  k as `sponson_size_factor` on its sponson length and depth (the per-tyre entries and their bands stay as they are); the
+  drag takes the loft's wetted area of the scaled sponson and the weight Stage 1's own route (the ledger's lb per ft^2
+  on Stage 1's (7.12) area). Rejected: stretching the length alone (a different form, and the depth also falls short at
+  the ellipsoid's ends); a box-shaped fairing (not P3's form); folding the gear aft or sideways, or moving the pivot (a
+  different gear, not P3's convention); moving the wheel (the tipback rule places it). The value of k and what it costs
+  are in `docs/validation/2026-11-28_task12_pd_p9.md`, generated from the P9 record; none is typed here. Override: a
+  gear design with its own stowage replaces the scale with the same code.
