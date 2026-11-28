@@ -1,0 +1,1225 @@
+{
+ "inputs": {
+  "commit": "fbb99aed4b9e4e4b5e39a60769a398d5446c3390",
+  "git_dirty": false,
+  "git_dirty_files": [],
+  "excluded": "runs/task12/pd/2026-11-28/p9/summary",
+  "command": "python -m prelim.p9_r1 summary --out runs/task12/pd/2026-11-28/p9/summary",
+  "python": "3.13.18",
+  "numpy": "2.5.3",
+  "scipy": "1.18.1",
+  "pyyaml": "6.0.3",
+  "review": "Not yet Fable-reviewed (rulings PD-22 and PD-25)",
+  "records": {
+   "pass0": "runs/task12/pd/2026-11-28/p9/pass0/inputs.json",
+   "pass1": "runs/task12/pd/2026-11-28/p9/pass1/pass.json",
+   "diagnose": "runs/task12/pd/2026-11-28/p9/diagnose/diagnose.json"
+  },
+  "tree_unchanged_during_run": true
+ },
+ "review": "Not yet Fable-reviewed (rulings PD-22 and PD-25)",
+ "one_at_a_time": {
+  "P1 integrated climb": {
+   "W0_lb": 3517.248566154491,
+   "We_lb": 1918.5605815190427,
+   "components_lb": {
+    "wing": 429.40320116390194,
+    "horizontal_tail": 97.21188295713078,
+    "vertical_tail": 30.826758977639656,
+    "fuselage": 224.57576663665466,
+    "main_gear": 223.0415692069999,
+    "nose_gear": 95.03648485965546,
+    "installed_engine": 296.79999999999995,
+    "sponsons": 80.21150508517158,
+    "fuel_system": 92.83657367756321,
+    "flight_controls": 66.25638167082005,
+    "hydraulics": 3.517248566154491,
+    "avionics": 96.54637556475544,
+    "electrical": 182.29683315259558
+   },
+   "fuel_needed_at_record_loiter_lb": 1097.7479608215035,
+   "record_fuel_lb": 1098.6876236696955,
+   "hours_on_station": 11.01701551943769,
+   "hours_reason": null,
+   "takeoff_ft": 710.9570170858435,
+   "landing_ft": 1348.6316573288618,
+   "CD0": {
+    "mission_altitude": 0.022082132455811965,
+    "sea_level": 0.020634251710758018
+   },
+   "CL_max": {
+    "clean": 1.35,
+    "landing": 2.13,
+    "takeoff": 1.818
+   },
+   "V_stall_clean_kt": 53.331270061214234,
+   "service_ceiling_ft": 30438.519617273414,
+   "power_margin": 0.37526518797982455,
+   "gear_length_in": 66.0807485949136,
+   "layout": {
+    "x_le": 9.16342514010579,
+    "x_np": 12.624166975011281,
+    "cg_full": 11.938236057397077,
+    "cg_empty": 12.091222917077346,
+    "sm_full": 0.11255148089421257,
+    "sm_empty": 0.0874485191057866,
+    "x_main": 14.045421369957834,
+    "prop_clearance_in": 14.443271567500185
+   },
+   "rotation_tail_cl": -0.9675959141679359,
+   "n_limit": 3.8
+  },
+  "P2 section maximum lift": {
+   "W0_lb": 3517.248566154491,
+   "We_lb": 1918.5605815190427,
+   "components_lb": {
+    "wing": 429.40320116390194,
+    "horizontal_tail": 97.21188295713078,
+    "vertical_tail": 30.826758977639656,
+    "fuselage": 224.57576663665466,
+    "main_gear": 223.0415692069999,
+    "nose_gear": 95.03648485965546,
+    "installed_engine": 296.79999999999995,
+    "sponsons": 80.21150508517158,
+    "fuel_system": 92.83657367756321,
+    "flight_controls": 66.25638167082005,
+    "hydraulics": 3.517248566154491,
+    "avionics": 96.54637556475544,
+    "electrical": 182.29683315259558
+   },
+   "fuel_needed_at_record_loiter_lb": 1103.9962801893764,
+   "record_fuel_lb": 1098.6876236696955,
+   "hours_on_station": 10.904030429568655,
+   "hours_reason": null,
+   "takeoff_ft": 733.9305429097897,
+   "landing_ft": 1359.3992188314994,
+   "CD0": {
+    "mission_altitude": 0.022082132455811965,
+    "sea_level": 0.020634251710758018
+   },
+   "CL_max": {
+    "clean": 1.275993,
+    "landing": 2.055993,
+    "takeoff": 1.743993
+   },
+   "V_stall_clean_kt": 54.85606671597288,
+   "service_ceiling_ft": 30413.886486949195,
+   "power_margin": 0.37461550274937816,
+   "gear_length_in": 66.0807485949136,
+   "layout": {
+    "x_le": 9.162893895544293,
+    "x_np": 12.623635730449784,
+    "cg_full": 11.937350323199016,
+    "cg_empty": 12.091046162152411,
+    "sm_full": 0.11260964758787277,
+    "sm_empty": 0.0873903524121267,
+    "x_main": 14.0452446150329,
+    "prop_clearance_in": 14.44290324945288
+   },
+   "rotation_tail_cl": -0.9186140993772333,
+   "n_limit": 3.8
+  },
+  "P2 section moment": {
+   "W0_lb": 3517.248566154491,
+   "We_lb": 1918.5605815190427,
+   "components_lb": {
+    "wing": 429.40320116390194,
+    "horizontal_tail": 97.21188295713078,
+    "vertical_tail": 30.826758977639656,
+    "fuselage": 224.57576663665466,
+    "main_gear": 223.0415692069999,
+    "nose_gear": 95.03648485965546,
+    "installed_engine": 296.79999999999995,
+    "sponsons": 80.21150508517158,
+    "fuel_system": 92.83657367756321,
+    "flight_controls": 66.25638167082005,
+    "hydraulics": 3.517248566154491,
+    "avionics": 96.54637556475544,
+    "electrical": 182.29683315259558
+   },
+   "fuel_needed_at_record_loiter_lb": 1098.6872071122207,
+   "record_fuel_lb": 1098.6876236696955,
+   "hours_on_station": 11.000008142816982,
+   "hours_reason": null,
+   "takeoff_ft": 710.9570170858435,
+   "landing_ft": 1348.6316573288618,
+   "CD0": {
+    "mission_altitude": 0.022082132455811965,
+    "sea_level": 0.020634251710758018
+   },
+   "CL_max": {
+    "clean": 1.35,
+    "landing": 2.13,
+    "takeoff": 1.818
+   },
+   "V_stall_clean_kt": 53.331270061214234,
+   "service_ceiling_ft": 30438.519617273414,
+   "power_margin": 0.37526518797982455,
+   "gear_length_in": 66.0807485949136,
+   "layout": {
+    "x_le": 9.16334521208995,
+    "x_np": 12.624087046995442,
+    "cg_full": 11.938102794899647,
+    "cg_empty": 12.091196323543098,
+    "sm_full": 0.11256023232198988,
+    "sm_empty": 0.08743976767800903,
+    "x_main": 14.045394776423587,
+    "prop_clearance_in": 14.443216152475072
+   },
+   "rotation_tail_cl": -0.9796899120382961,
+   "n_limit": 3.8
+  },
+  "P3 loft wetted areas": {
+   "W0_lb": 3517.248566154491,
+   "We_lb": 1918.5605815190427,
+   "components_lb": {
+    "wing": 429.40320116390194,
+    "horizontal_tail": 97.21188295713078,
+    "vertical_tail": 30.826758977639656,
+    "fuselage": 224.57576663665466,
+    "main_gear": 223.0415692069999,
+    "nose_gear": 95.03648485965546,
+    "installed_engine": 296.79999999999995,
+    "sponsons": 80.21150508517158,
+    "fuel_system": 92.83657367756321,
+    "flight_controls": 66.25638167082005,
+    "hydraulics": 3.517248566154491,
+    "avionics": 96.54637556475544,
+    "electrical": 182.29683315259558
+   },
+   "fuel_needed_at_record_loiter_lb": 1077.2730360298992,
+   "record_fuel_lb": 1098.6876236696955,
+   "hours_on_station": 11.393740480225139,
+   "hours_reason": null,
+   "takeoff_ft": 710.5933424667639,
+   "landing_ft": 1348.7753764512447,
+   "CD0": {
+    "mission_altitude": 0.020717748332354638,
+    "sea_level": 0.019338422824309094
+   },
+   "CL_max": {
+    "clean": 1.35,
+    "landing": 2.13,
+    "takeoff": 1.818
+   },
+   "V_stall_clean_kt": 53.331270061214234,
+   "service_ceiling_ft": 30782.42336247058,
+   "power_margin": 0.38844597839494455,
+   "gear_length_in": 66.0807485949136,
+   "layout": {
+    "x_le": 9.166233872774885,
+    "x_np": 12.626377345468239,
+    "cg_full": 11.941722280824932,
+    "cg_empty": 12.092157434563404,
+    "sm_full": 0.11234213161779096,
+    "sm_empty": 0.08765786838220853,
+    "x_main": 14.046355887443893,
+    "prop_clearance_in": 14.4452188946016
+   },
+   "rotation_tail_cl": -0.9663217762369447,
+   "n_limit": 3.8
+  },
+  "P3 tank volume": {
+   "W0_lb": 3517.248566154491,
+   "We_lb": 1918.5605815190427,
+   "components_lb": {
+    "wing": 429.40320116390194,
+    "horizontal_tail": 97.21188295713078,
+    "vertical_tail": 30.826758977639656,
+    "fuselage": 224.57576663665466,
+    "main_gear": 223.0415692069999,
+    "nose_gear": 95.03648485965546,
+    "installed_engine": 296.79999999999995,
+    "sponsons": 80.21150508517158,
+    "fuel_system": 92.83657367756321,
+    "flight_controls": 66.25638167082005,
+    "hydraulics": 3.517248566154491,
+    "avionics": 96.54637556475544,
+    "electrical": 182.29683315259558
+   },
+   "fuel_needed_at_record_loiter_lb": 1098.6872071122207,
+   "record_fuel_lb": 1098.6876236696955,
+   "hours_on_station": 11.000008142816982,
+   "hours_reason": null,
+   "takeoff_ft": 710.9570170858435,
+   "landing_ft": 1348.6316573288618,
+   "CD0": {
+    "mission_altitude": 0.022082132455811965,
+    "sea_level": 0.020634251710758018
+   },
+   "CL_max": {
+    "clean": 1.35,
+    "landing": 2.13,
+    "takeoff": 1.818
+   },
+   "V_stall_clean_kt": 53.331270061214234,
+   "service_ceiling_ft": 30438.519617273414,
+   "power_margin": 0.37526518797982455,
+   "gear_length_in": 66.0807485949136,
+   "layout": {
+    "x_le": 9.16334521208995,
+    "x_np": 12.624087046995442,
+    "cg_full": 11.938102794899647,
+    "cg_empty": 12.091196323543098,
+    "sm_full": 0.11256023232198988,
+    "sm_empty": 0.08743976767800903,
+    "x_main": 14.045394776423587,
+    "prop_clearance_in": 14.443216152475072
+   },
+   "rotation_tail_cl": -0.9676499194523929,
+   "n_limit": 3.8
+  },
+  "P3 payload and avionics stations": {
+   "W0_lb": 3517.248566154491,
+   "We_lb": 1918.5605815190427,
+   "components_lb": {
+    "wing": 429.40320116390194,
+    "horizontal_tail": 97.21188295713078,
+    "vertical_tail": 30.826758977639656,
+    "fuselage": 224.57576663665466,
+    "main_gear": 223.0415692069999,
+    "nose_gear": 95.03648485965546,
+    "installed_engine": 296.79999999999995,
+    "sponsons": 80.21150508517158,
+    "fuel_system": 92.83657367756321,
+    "flight_controls": 66.25638167082005,
+    "hydraulics": 3.517248566154491,
+    "avionics": 96.54637556475544,
+    "electrical": 182.29683315259558
+   },
+   "fuel_needed_at_record_loiter_lb": 1098.6872071122207,
+   "record_fuel_lb": 1098.6876236696955,
+   "hours_on_station": 11.000008142816982,
+   "hours_reason": null,
+   "takeoff_ft": 710.9570170858435,
+   "landing_ft": 1348.6316573288618,
+   "CD0": {
+    "mission_altitude": 0.022082132455811965,
+    "sea_level": 0.020634251710758018
+   },
+   "CL_max": {
+    "clean": 1.35,
+    "landing": 2.13,
+    "takeoff": 1.818
+   },
+   "V_stall_clean_kt": 53.331270061214234,
+   "service_ceiling_ft": 30438.519617273414,
+   "power_margin": 0.37526518797982455,
+   "gear_length_in": 66.0807485949136,
+   "layout": {
+    "x_le": 9.737134739323679,
+    "x_np": 13.197876574229168,
+    "cg_full": 12.511892322133374,
+    "cg_empty": 12.664985850776823,
+    "sm_full": 0.11256023232198988,
+    "sm_empty": 0.08743976767800932,
+    "x_main": 14.619184303657311,
+    "prop_clearance_in": 15.63886622169714
+   },
+   "rotation_tail_cl": -0.9676499194523918,
+   "n_limit": 3.8
+  },
+  "PD-27 sponson": {
+   "W0_lb": 3639.0110851099685,
+   "We_lb": 2040.324219940467,
+   "components_lb": {
+    "wing": 436.6240293755423,
+    "horizontal_tail": 97.90220626159423,
+    "vertical_tail": 31.011125334847222,
+    "fuselage": 229.7149653150873,
+    "main_gear": 229.11340953949676,
+    "nose_gear": 97.02944325513509,
+    "installed_engine": 296.79999999999995,
+    "sponsons": 177.90162632699884,
+    "fuel_system": 92.83657367756321,
+    "flight_controls": 68.90862105174102,
+    "hydraulics": 3.6390110851099684,
+    "avionics": 96.54637556475544,
+    "electrical": 182.29683315259558
+   },
+   "fuel_needed_at_record_loiter_lb": 1195.501360233949,
+   "record_fuel_lb": 1098.6876236696955,
+   "hours_on_station": 9.385841877982612,
+   "hours_reason": null,
+   "takeoff_ft": 743.452450288054,
+   "landing_ft": 1358.934476676832,
+   "CD0": {
+    "mission_altitude": 0.02631221999562159,
+    "sea_level": 0.024759806106806878
+   },
+   "CL_max": {
+    "clean": 1.35,
+    "landing": 2.13,
+    "takeoff": 1.818
+   },
+   "V_stall_clean_kt": 54.246545261066814,
+   "service_ceiling_ft": 28703.59550222929,
+   "power_margin": 0.3012091386248603,
+   "gear_length_in": 66.19744760672327,
+   "layout": {
+    "x_le": 9.222346949330195,
+    "x_np": 12.687513363906461,
+    "cg_full": 11.998457885816665,
+    "cg_empty": 12.15769386644812,
+    "sm_full": 0.11306417670605129,
+    "sm_empty": 0.0869358232939476,
+    "x_main": 14.118259669601388,
+    "prop_clearance_in": 14.40783236596011
+   },
+   "rotation_tail_cl": -0.9713962725823033,
+   "n_limit": 3.8
+  },
+  "PD-21 tails with straight trailing edges": {
+   "W0_lb": 3517.1218746150453,
+   "We_lb": 1918.433243159066,
+   "components_lb": {
+    "wing": 429.395622198946,
+    "horizontal_tail": 97.11101888682029,
+    "vertical_tail": 30.826564424716754,
+    "fuselage": 224.57038863820026,
+    "main_gear": 223.03522925005976,
+    "nose_gear": 95.03439778788689,
+    "installed_engine": 296.79999999999995,
+    "sponsons": 80.20948839583289,
+    "fuel_system": 92.83657367756321,
+    "flight_controls": 66.25362930707395,
+    "hydraulics": 3.517121874615045,
+    "avionics": 96.54637556475544,
+    "electrical": 182.29683315259558
+   },
+   "fuel_needed_at_record_loiter_lb": 1098.6478924899118,
+   "record_fuel_lb": 1098.6876236696955,
+   "hours_on_station": 11.00071997975311,
+   "hours_reason": null,
+   "takeoff_ft": 710.9256838342745,
+   "landing_ft": 1348.6204314938298,
+   "CD0": {
+    "mission_altitude": 0.02208204232209028,
+    "sea_level": 0.020634160418823315
+   },
+   "CL_max": {
+    "clean": 1.35,
+    "landing": 2.13,
+    "takeoff": 1.818
+   },
+   "V_stall_clean_kt": 53.33030955452524,
+   "service_ceiling_ft": 30439.324715171097,
+   "power_margin": 0.3752971544192414,
+   "gear_length_in": 66.08062556308951,
+   "layout": {
+    "x_le": 9.209375562100412,
+    "x_np": 12.643633212337996,
+    "cg_full": 11.962550060039462,
+    "cg_empty": 12.105841389088393,
+    "sm_full": 0.11175603174431267,
+    "sm_empty": 0.08824396825568592,
+    "x_main": 14.060033129086685,
+    "prop_clearance_in": 14.473916609313603
+   },
+   "rotation_tail_cl": -0.9634745628402843,
+   "n_limit": 3.8
+  },
+  "PD-21 aft fuselage and shaft": {
+   "W0_lb": 3565.8477195704363,
+   "We_lb": 1967.1609915815675,
+   "components_lb": {
+    "wing": 432.3003091251728,
+    "horizontal_tail": 97.48964807930781,
+    "vertical_tail": 30.900967081160037,
+    "fuselage": 246.74724710284502,
+    "main_gear": 231.19499431301185,
+    "nose_gear": 100.93036463895197,
+    "installed_engine": 296.79999999999995,
+    "sponsons": 80.98350288752187,
+    "fuel_system": 92.83657367756321,
+    "flight_controls": 74.56832823911157,
+    "hydraulics": 3.5658477195704363,
+    "avionics": 96.54637556475544,
+    "electrical": 182.29683315259558
+   },
+   "fuel_needed_at_record_loiter_lb": 1110.8797804266105,
+   "record_fuel_lb": 1098.6876236696955,
+   "hours_on_station": 10.781684559448793,
+   "hours_reason": null,
+   "takeoff_ft": 723.133086248237,
+   "landing_ft": 1352.9269444114564,
+   "CD0": {
+    "mission_altitude": 0.02211669507334135,
+    "sea_level": 0.0206692488727431
+   },
+   "CL_max": {
+    "clean": 1.35,
+    "landing": 2.13,
+    "takeoff": 1.818
+   },
+   "V_stall_clean_kt": 53.69845519098875,
+   "service_ceiling_ft": 30129.947406803694,
+   "power_margin": 0.36296443457127403,
+   "gear_length_in": 70.3084976235066,
+   "layout": {
+    "x_le": 9.440222759601031,
+    "x_np": 12.902174371030048,
+    "cg_full": 12.216518892366757,
+    "cg_empty": 12.3689548741452,
+    "sm_full": 0.11250628529065376,
+    "sm_empty": 0.08749371470934543,
+    "x_main": 14.419068355308706,
+    "prop_clearance_in": 15.146555045486876
+   },
+   "rotation_tail_cl": -1.019088511470201,
+   "n_limit": 3.8
+  },
+  "P4 Multhopp's fuselage term": {
+   "W0_lb": 3517.248566154491,
+   "We_lb": 1918.5605815190427,
+   "components_lb": {
+    "wing": 429.40320116390194,
+    "horizontal_tail": 97.21188295713078,
+    "vertical_tail": 30.826758977639656,
+    "fuselage": 224.57576663665466,
+    "main_gear": 223.0415692069999,
+    "nose_gear": 95.03648485965546,
+    "installed_engine": 296.79999999999995,
+    "sponsons": 80.21150508517158,
+    "fuel_system": 92.83657367756321,
+    "flight_controls": 66.25638167082005,
+    "hydraulics": 3.517248566154491,
+    "avionics": 96.54637556475544,
+    "electrical": 182.29683315259558
+   },
+   "fuel_needed_at_record_loiter_lb": 1098.6872071122207,
+   "record_fuel_lb": 1098.6876236696955,
+   "hours_on_station": 11.000008142816982,
+   "hours_reason": null,
+   "takeoff_ft": 710.9570170858435,
+   "landing_ft": 1348.6316573288618,
+   "CD0": {
+    "mission_altitude": 0.022082132455811965,
+    "sea_level": 0.020634251710758018
+   },
+   "CL_max": {
+    "clean": 1.35,
+    "landing": 2.13,
+    "takeoff": 1.818
+   },
+   "V_stall_clean_kt": 53.331270061214234,
+   "service_ceiling_ft": 30438.519617273414,
+   "power_margin": 0.37526518797982455,
+   "gear_length_in": 66.0807485949136,
+   "layout": {
+    "x_le": 9.328736054289589,
+    "x_np": 12.696352646891514,
+    "cg_full": 12.027605392016294,
+    "cg_empty": 12.14622492621859,
+    "sm_full": 0.10973188691062832,
+    "sm_empty": 0.09026811308937144,
+    "x_main": 14.100423379099079,
+    "prop_clearance_in": 14.557883551364943
+   },
+   "rotation_tail_cl": -0.9530824154401976,
+   "n_limit": 3.8
+  }
+ },
+ "table": [
+  {
+   "field": "W0_lb",
+   "label": "take-off weight W0",
+   "unit": "lb",
+   "r0": 3517.248566154491,
+   "r0_with_findings": 3689.188238917023,
+   "lightest_8h": 3473.746708849383,
+   "findings_change": 171.93967276253215,
+   "resize_change": -215.4415300676401,
+   "caused_by": [
+    "PD-27 sponson",
+    "PD-21 tails with straight trailing edges",
+    "PD-21 aft fuselage and shaft"
+   ]
+  },
+  {
+   "field": "We_lb",
+   "label": "empty weight",
+   "unit": "lb",
+   "r0": 1918.5605815190427,
+   "r0_with_findings": 2090.501814297199,
+   "lightest_8h": 2021.9009215516796,
+   "findings_change": 171.9412327781563,
+   "resize_change": -68.60089274551933,
+   "caused_by": [
+    "PD-27 sponson",
+    "PD-21 tails with straight trailing edges",
+    "PD-21 aft fuselage and shaft"
+   ]
+  },
+  {
+   "field": "fuel_needed_at_record_loiter_lb",
+   "label": "mission fuel at the record's sized loiter",
+   "unit": "lb",
+   "r0": 1098.6872071122207,
+   "r0_with_findings": 1178.1200832664347,
+   "lightest_8h": 951.8450023038113,
+   "findings_change": 79.432876154214,
+   "resize_change": -226.2750809626234,
+   "caused_by": [
+    "P1 integrated climb",
+    "P2 section maximum lift",
+    "P3 loft wetted areas",
+    "PD-27 sponson",
+    "PD-21 tails with straight trailing edges",
+    "PD-21 aft fuselage and shaft"
+   ]
+  },
+  {
+   "field": "hours_on_station",
+   "label": "hours on station on the record's fuel",
+   "unit": "h",
+   "r0": 11.000008142816982,
+   "r0_with_findings": 9.67461595460083,
+   "lightest_8h": 8.000006257017874,
+   "findings_change": -1.3253921882161528,
+   "resize_change": -1.6746096975829552,
+   "caused_by": [
+    "P1 integrated climb",
+    "P2 section maximum lift",
+    "P3 loft wetted areas",
+    "PD-27 sponson",
+    "PD-21 tails with straight trailing edges",
+    "PD-21 aft fuselage and shaft"
+   ]
+  },
+  {
+   "field": "takeoff_ft",
+   "label": "take-off over 50 ft",
+   "unit": "ft",
+   "r0": 710.9570170858435,
+   "r0_with_findings": 780.552795295952,
+   "lightest_8h": 730.2452083925582,
+   "findings_change": 69.5957782101085,
+   "resize_change": -50.307586903393826,
+   "caused_by": [
+    "P2 section maximum lift",
+    "P3 loft wetted areas",
+    "PD-27 sponson",
+    "PD-21 tails with straight trailing edges",
+    "PD-21 aft fuselage and shaft"
+   ]
+  },
+  {
+   "field": "landing_ft",
+   "label": "landing over 50 ft",
+   "unit": "ft",
+   "r0": 1348.6316573288618,
+   "r0_with_findings": 1374.8023895604363,
+   "lightest_8h": 1359.1611696741795,
+   "findings_change": 26.170732231574448,
+   "resize_change": -15.64121988625675,
+   "caused_by": [
+    "P2 section maximum lift",
+    "P3 loft wetted areas",
+    "PD-27 sponson",
+    "PD-21 tails with straight trailing edges",
+    "PD-21 aft fuselage and shaft"
+   ]
+  },
+  {
+   "field": "V_stall_clean_kt",
+   "label": "clean stall speed, sea level",
+   "unit": "kt",
+   "r0": 53.331270061214234,
+   "r0_with_findings": 56.18088053845597,
+   "lightest_8h": 54.856066119648425,
+   "findings_change": 2.8496104772417397,
+   "resize_change": -1.3248144188075486,
+   "caused_by": [
+    "P2 section maximum lift",
+    "PD-27 sponson",
+    "PD-21 tails with straight trailing edges",
+    "PD-21 aft fuselage and shaft"
+   ]
+  },
+  {
+   "field": "service_ceiling_ft",
+   "label": "service ceiling",
+   "unit": "ft",
+   "r0": 30438.519617273414,
+   "r0_with_findings": 28893.121398577932,
+   "lightest_8h": 30104.79970194865,
+   "findings_change": -1545.3982186954818,
+   "resize_change": 1211.678303370718,
+   "caused_by": [
+    "P2 section maximum lift",
+    "P3 loft wetted areas",
+    "PD-27 sponson",
+    "PD-21 tails with straight trailing edges",
+    "PD-21 aft fuselage and shaft"
+   ]
+  },
+  {
+   "field": "power_margin",
+   "label": "power margin",
+   "unit": "-",
+   "r0": 0.37526518797982455,
+   "r0_with_findings": 0.3095141528854165,
+   "lightest_8h": 0.3625319357813077,
+   "findings_change": -0.06575103509440805,
+   "resize_change": 0.05301778289589121,
+   "caused_by": [
+    "P2 section maximum lift",
+    "P3 loft wetted areas",
+    "PD-27 sponson",
+    "PD-21 tails with straight trailing edges",
+    "PD-21 aft fuselage and shaft"
+   ]
+  },
+  {
+   "field": "gear_length_in",
+   "label": "main gear length",
+   "unit": "in",
+   "r0": 66.0807485949136,
+   "r0_with_findings": 70.42546778797652,
+   "lightest_8h": 70.21910475319493,
+   "findings_change": 4.3447191930629145,
+   "resize_change": -0.2063630347815888,
+   "caused_by": [
+    "PD-27 sponson",
+    "PD-21 tails with straight trailing edges",
+    "PD-21 aft fuselage and shaft"
+   ]
+  },
+  {
+   "field": "n_limit",
+   "label": "limit load factor used",
+   "unit": "-",
+   "r0": 3.8,
+   "r0_with_findings": 3.8,
+   "lightest_8h": 3.8,
+   "findings_change": 0.0,
+   "resize_change": 0.0,
+   "caused_by": []
+  },
+  {
+   "field": "CD0.mission_altitude",
+   "label": "CD0 at 20,000 ft",
+   "unit": "-",
+   "r0": 0.022082132455811965,
+   "r0_with_findings": 0.024051503364011177,
+   "lightest_8h": 0.024033875031608913,
+   "findings_change": 0.001969370908199212,
+   "resize_change": -1.7628332402264135e-05,
+   "caused_by": [
+    "P3 loft wetted areas",
+    "PD-27 sponson",
+    "PD-21 aft fuselage and shaft"
+   ]
+  },
+  {
+   "field": "CD0.sea_level",
+   "label": "CD0 at sea level",
+   "unit": "-",
+   "r0": 0.020634251710758018,
+   "r0_with_findings": 0.02259157816390833,
+   "lightest_8h": 0.022563077856130688,
+   "findings_change": 0.0019573264531503112,
+   "resize_change": -2.8500307777640926e-05,
+   "caused_by": [
+    "P3 loft wetted areas",
+    "PD-27 sponson",
+    "PD-21 aft fuselage and shaft"
+   ]
+  },
+  {
+   "field": "CL_max.clean",
+   "label": "wing C_L,max clean",
+   "unit": "-",
+   "r0": 1.35,
+   "r0_with_findings": 1.275993,
+   "lightest_8h": 1.275993,
+   "findings_change": -0.07400700000000016,
+   "resize_change": 0.0,
+   "caused_by": [
+    "P2 section maximum lift"
+   ]
+  },
+  {
+   "field": "CL_max.takeoff",
+   "label": "wing C_L,max take-off",
+   "unit": "-",
+   "r0": 1.818,
+   "r0_with_findings": 1.743993,
+   "lightest_8h": 1.743993,
+   "findings_change": -0.07400700000000016,
+   "resize_change": 0.0,
+   "caused_by": [
+    "P2 section maximum lift"
+   ]
+  },
+  {
+   "field": "CL_max.landing",
+   "label": "wing C_L,max landing",
+   "unit": "-",
+   "r0": 2.13,
+   "r0_with_findings": 2.055993,
+   "lightest_8h": 2.055993,
+   "findings_change": -0.07400699999999993,
+   "resize_change": 0.0,
+   "caused_by": [
+    "P2 section maximum lift"
+   ]
+  },
+  {
+   "field": "layout.x_le",
+   "label": "wing leading edge (Stage 1's layout)",
+   "unit": "ft",
+   "r0": 9.16334521208995,
+   "r0_with_findings": 10.272835291700055,
+   "lightest_8h": 10.055683397421387,
+   "findings_change": 1.1094900796101044,
+   "resize_change": -0.21715189427866832,
+   "caused_by": [
+    "P1 integrated climb",
+    "P2 section maximum lift",
+    "P3 loft wetted areas",
+    "P3 payload and avionics stations",
+    "PD-27 sponson",
+    "PD-21 tails with straight trailing edges",
+    "PD-21 aft fuselage and shaft",
+    "P4 Multhopp's fuselage term"
+   ]
+  },
+  {
+   "field": "layout.x_main",
+   "label": "main wheels (Stage 1's layout)",
+   "unit": "ft",
+   "r0": 14.045394776423587,
+   "r0_with_findings": 15.116891281028147,
+   "lightest_8h": 14.926558104435188,
+   "findings_change": 1.0714965046045606,
+   "resize_change": -0.19033317659295967,
+   "caused_by": [
+    "P1 integrated climb",
+    "P2 section maximum lift",
+    "P3 loft wetted areas",
+    "P3 payload and avionics stations",
+    "PD-27 sponson",
+    "PD-21 tails with straight trailing edges",
+    "PD-21 aft fuselage and shaft",
+    "P4 Multhopp's fuselage term"
+   ]
+  },
+  {
+   "field": "layout.sm_full",
+   "label": "static margin, full fuel (Stage 1's layout)",
+   "unit": "MAC",
+   "r0": 0.11256023232198988,
+   "r0_with_findings": 0.1089718202421574,
+   "lightest_8h": 0.10911650158566806,
+   "findings_change": -0.003588412079832473,
+   "resize_change": 0.0001446813435106581,
+   "caused_by": [
+    "P1 integrated climb",
+    "P2 section maximum lift",
+    "P3 loft wetted areas",
+    "PD-27 sponson",
+    "PD-21 tails with straight trailing edges",
+    "PD-21 aft fuselage and shaft",
+    "P4 Multhopp's fuselage term"
+   ]
+  },
+  {
+   "field": "layout.sm_empty",
+   "label": "static margin, empty fuel (Stage 1's layout)",
+   "unit": "MAC",
+   "r0": 0.08743976767800903,
+   "r0_with_findings": 0.09102817975784236,
+   "lightest_8h": 0.0908834984143322,
+   "findings_change": 0.0035884120798333335,
+   "resize_change": -0.0001446813435101585,
+   "caused_by": [
+    "P1 integrated climb",
+    "P2 section maximum lift",
+    "P3 loft wetted areas",
+    "PD-27 sponson",
+    "PD-21 tails with straight trailing edges",
+    "PD-21 aft fuselage and shaft",
+    "P4 Multhopp's fuselage term"
+   ]
+  },
+  {
+   "field": "layout.prop_clearance_in",
+   "label": "propeller clearance at rotation",
+   "unit": "in",
+   "r0": 14.443216152475072,
+   "r0_with_findings": 16.413010135424486,
+   "lightest_8h": 16.34746240872021,
+   "findings_change": 1.9697939829494135,
+   "resize_change": -0.06554772670427411,
+   "caused_by": [
+    "P1 integrated climb",
+    "P2 section maximum lift",
+    "P3 loft wetted areas",
+    "P3 payload and avionics stations",
+    "PD-27 sponson",
+    "PD-21 tails with straight trailing edges",
+    "PD-21 aft fuselage and shaft",
+    "P4 Multhopp's fuselage term"
+   ]
+  },
+  {
+   "field": "rotation_tail_cl",
+   "label": "tail lift coefficient at rotation",
+   "unit": "-",
+   "r0": -0.9676499194523929,
+   "r0_with_findings": -0.9624097803445605,
+   "lightest_8h": -0.9369938797950528,
+   "findings_change": 0.005240139107832387,
+   "resize_change": 0.02541590054950771,
+   "caused_by": [
+    "P1 integrated climb",
+    "P2 section maximum lift",
+    "P2 section moment",
+    "P3 loft wetted areas",
+    "PD-27 sponson",
+    "PD-21 tails with straight trailing edges",
+    "PD-21 aft fuselage and shaft",
+    "P4 Multhopp's fuselage term"
+   ]
+  },
+  {
+   "field": "components_lb.wing",
+   "label": "weight: wing",
+   "unit": "lb",
+   "r0": 429.40320116390194,
+   "r0_with_findings": 439.5637576042463,
+   "lightest_8h": 422.57312792692375,
+   "findings_change": 10.160556440344351,
+   "resize_change": -16.990629677322545,
+   "caused_by": [
+    "PD-27 sponson",
+    "PD-21 tails with straight trailing edges",
+    "PD-21 aft fuselage and shaft"
+   ]
+  },
+  {
+   "field": "components_lb.horizontal_tail",
+   "label": "weight: horizontal tail",
+   "unit": "lb",
+   "r0": 97.21188295713078,
+   "r0_with_findings": 98.08023054577808,
+   "lightest_8h": 97.80020920974312,
+   "findings_change": 0.8683475886472962,
+   "resize_change": -0.28002133603496304,
+   "caused_by": [
+    "PD-27 sponson",
+    "PD-21 tails with straight trailing edges",
+    "PD-21 aft fuselage and shaft"
+   ]
+  },
+  {
+   "field": "components_lb.vertical_tail",
+   "label": "weight: vertical tail",
+   "unit": "lb",
+   "r0": 30.826758977639656,
+   "r0_with_findings": 31.085623071401507,
+   "lightest_8h": 30.262384918627028,
+   "findings_change": 0.2588640937618507,
+   "resize_change": -0.8232381527744792,
+   "caused_by": [
+    "PD-27 sponson",
+    "PD-21 tails with straight trailing edges",
+    "PD-21 aft fuselage and shaft"
+   ]
+  },
+  {
+   "field": "components_lb.fuselage",
+   "label": "weight: fuselage",
+   "unit": "lb",
+   "r0": 224.57576663665466,
+   "r0_with_findings": 251.99190823851913,
+   "lightest_8h": 242.79046456798832,
+   "findings_change": 27.416141601864467,
+   "resize_change": -9.201443670530807,
+   "caused_by": [
+    "PD-27 sponson",
+    "PD-21 tails with straight trailing edges",
+    "PD-21 aft fuselage and shaft"
+   ]
+  },
+  {
+   "field": "components_lb.main_gear",
+   "label": "weight: main gear",
+   "unit": "lb",
+   "r0": 223.0415692069999,
+   "r0_with_findings": 237.47370861160513,
+   "lightest_8h": 226.47715216123234,
+   "findings_change": 14.432139404605238,
+   "resize_change": -10.996556450372793,
+   "caused_by": [
+    "PD-27 sponson",
+    "PD-21 tails with straight trailing edges",
+    "PD-21 aft fuselage and shaft"
+   ]
+  },
+  {
+   "field": "components_lb.nose_gear",
+   "label": "weight: nose gear",
+   "unit": "lb",
+   "r0": 95.03648485965546,
+   "r0_with_findings": 103.03637421262584,
+   "lightest_8h": 99.33963639200424,
+   "findings_change": 7.999889352970385,
+   "resize_change": -3.696737820621607,
+   "caused_by": [
+    "PD-27 sponson",
+    "PD-21 tails with straight trailing edges",
+    "PD-21 aft fuselage and shaft"
+   ]
+  },
+  {
+   "field": "components_lb.installed_engine",
+   "label": "weight: installed engine",
+   "unit": "lb",
+   "r0": 296.79999999999995,
+   "r0_with_findings": 296.79999999999995,
+   "lightest_8h": 296.79999999999995,
+   "findings_change": 0.0,
+   "resize_change": 0.0,
+   "caused_by": []
+  },
+  {
+   "field": "components_lb.sponsons",
+   "label": "weight: sponsons",
+   "unit": "lb",
+   "r0": 80.21150508517158,
+   "r0_with_findings": 179.6102962800231,
+   "lightest_8h": 172.22279282120857,
+   "findings_change": 99.39879119485153,
+   "resize_change": -7.387503458814535,
+   "caused_by": [
+    "PD-27 sponson",
+    "PD-21 tails with straight trailing edges",
+    "PD-21 aft fuselage and shaft"
+   ]
+  },
+  {
+   "field": "components_lb.fuel_system",
+   "label": "weight: fuel system",
+   "unit": "lb",
+   "r0": 92.83657367756321,
+   "r0_with_findings": 92.83657367756321,
+   "lightest_8h": 83.65340439833086,
+   "findings_change": 0.0,
+   "resize_change": -9.183169279232345,
+   "caused_by": []
+  },
+  {
+   "field": "components_lb.flight_controls",
+   "label": "weight: flight controls",
+   "unit": "lb",
+   "r0": 66.25638167082005,
+   "r0_with_findings": 77.49094509916846,
+   "lightest_8h": 72.22785876652543,
+   "findings_change": 11.234563428348409,
+   "resize_change": -5.263086332643027,
+   "caused_by": [
+    "PD-27 sponson",
+    "PD-21 tails with straight trailing edges",
+    "PD-21 aft fuselage and shaft"
+   ]
+  },
+  {
+   "field": "components_lb.hydraulics",
+   "label": "weight: hydraulics",
+   "unit": "lb",
+   "r0": 3.517248566154491,
+   "r0_with_findings": 3.689188238917023,
+   "lightest_8h": 3.4737467088493834,
+   "findings_change": 0.17193967276253197,
+   "resize_change": -0.21544153006763977,
+   "caused_by": [
+    "PD-27 sponson",
+    "PD-21 tails with straight trailing edges",
+    "PD-21 aft fuselage and shaft"
+   ]
+  },
+  {
+   "field": "components_lb.avionics",
+   "label": "weight: avionics",
+   "unit": "lb",
+   "r0": 96.54637556475544,
+   "r0_with_findings": 96.54637556475544,
+   "lightest_8h": 96.54637556475544,
+   "findings_change": 0.0,
+   "resize_change": 0.0,
+   "caused_by": []
+  },
+  {
+   "field": "components_lb.electrical",
+   "label": "weight: electrical",
+   "unit": "lb",
+   "r0": 182.29683315259558,
+   "r0_with_findings": 182.29683315259558,
+   "lightest_8h": 177.73376811549116,
+   "findings_change": 0.0,
+   "resize_change": -4.563065037104423,
+   "caused_by": []
+  }
+ ],
+ "sensitivities": {
+  "corner": "C2(P450 h1.05 it1) (r1 ledger)",
+  "cases": {
+   "as recorded": {
+    "r0_with_every_finding": {
+     "climb_limit_h": 0.908935546875,
+     "nominal_hours": 9.67461595460083,
+     "W0_lb": 3689.188238917023
+    },
+    "lightest_8h": {
+     "climb_limit_h": 0.982177734375,
+     "nominal_hours": 8.000006257017874,
+     "W0_lb": 3473.746708849383
+    },
+    "nominal": {},
+    "held": {}
+   },
+   "CD0 +10 %": {
+    "r0_with_every_finding": {
+     "climb_limit_h": 0.85107421875,
+     "nominal_hours": 9.092938705244903,
+     "W0_lb": 3689.188238917023
+    },
+    "lightest_8h": {
+     "climb_limit_h": 0.925048828125,
+     "nominal_hours": 7.474012672990998,
+     "W0_lb": 3473.746708849383
+    },
+    "nominal": {},
+    "held": {
+     "leakage_fraction": 0.15500000000000025
+    }
+   },
+   "CD0 -10 %": {
+    "r0_with_every_finding": {
+     "climb_limit_h": 0.97119140625,
+     "nominal_hours": 10.3017856816633,
+     "W0_lb": 3689.188238917023
+    },
+    "lightest_8h": {
+     "climb_limit_h": 1.048095703125,
+     "nominal_hours": 8.570401839793476,
+     "W0_lb": 3473.746708849383
+    },
+    "nominal": {},
+    "held": {
+     "leakage_fraction": -0.05499999999999994
+    }
+   },
+   "section C_L,max 1.43 (faired peak)": {
+    "r0_with_every_finding": {
+     "climb_limit_h": 0.90966796875,
+     "nominal_hours": 9.691244940877954,
+     "W0_lb": 3689.188238917023
+    },
+    "lightest_8h": {
+     "climb_limit_h": 0.982177734375,
+     "nominal_hours": 8.013594244299767,
+     "W0_lb": 3473.746708849383
+    },
+    "nominal": {
+     "airfoil_cl_max": 1.43
+    },
+    "held": {}
+   },
+   "sponson centre 0.4 of its length ahead of the wheel": {
+    "r0_with_every_finding": {
+     "climb_limit_h": 0.96826171875,
+     "nominal_hours": 10.049621502902305,
+     "W0_lb": 3654.687773386622
+    },
+    "lightest_8h": null,
+    "nominal": {},
+    "held": {
+     "sponson_size_factor": 1.3583984375
+    }
+   }
+  }
+ },
+ "p4_lightest_8h": {
+  "x_le_stage1_ft": 10.05568475115555,
+  "x_le_p4_ft": 9.957822409683603,
+  "wing_p4_minus_stage1_ft": -0.09786234147194683,
+  "x_main_p4_ft": 14.892174940071682,
+  "static_margin": {
+   "full": 0.10194623703297005,
+   "empty": 0.09805376295400531
+  },
+  "stage1_static_margin": {
+   "full": 0.10911650196339259,
+   "empty": 0.0908834980366068
+  },
+  "neutral_point_difference_mac": -0.014097807269886273,
+  "rows": {
+   "row1_R13": "pass",
+   "row3_envelope_payload_on": "pass",
+   "row4_nose_load_payload_on": "pass",
+   "rotation_tail_lift": "pass",
+   "trim_tail_lift": "pass",
+   "propeller_ground_clearance": "pass",
+   "tails_clear_of_disc": "pass",
+   "overturn": "fail",
+   "row3_envelope_payload_off_no_ballast": "fail",
+   "with_ballast": "pass"
+  },
+  "extension_needed_ft": 1.916285832557584,
+  "extension_used_ft": 1.975876210782321,
+  "multhopp_over_16_22": 1.9272861662325582,
+  "ballast_lb": 469.0,
+  "rotation_used_of_limit": 0.9066483563034896
+ },
+ "acceptance": [
+  {
+   "row": 1,
+   "what": "R5 guarantee horizon and R7 horizon each at least 1 on r1 (spec 7.4)",
+   "verdict": "fail",
+   "value": {
+    "r1": "no design: too heavy already at 8 h (last heavy point: cliff corner not flyable: cannot climb to the mission altitude: no rate of climb at 20000 ft)",
+    "lightest_8h_R5_guarantee": 0.69287109375,
+    "lightest_8h_R7": 1.1700439453125,
+    "climb_limit_h_lightest_8h": 0.982177734375,
+    "climb_limit_h_r0_with_findings": 0.908935546875
+   },
+   "threshold": 1.0
+  },
+  {
+   "row": 2,
+   "what": "no compliance row fails",
+   "verdict": "not judged (no r1)",
+   "value": {
+    "lightest_8h_stage1_rows_failed": [],
+    "lightest_8h_stage1_rows": 30
+   }
+  },
+  {
+   "row": 3,
+   "what": "r1 minus r0 field by field with the finding that caused each change",
+   "verdict": "tabulated without r1",
+   "value": {
+    "fields": 35
+   }
+  },
+  {
+   "row": 4,
+   "what": "step doubling changes W0 by less than 0.5 %",
+   "verdict": "not run (no r1)",
+   "value": null,
+   "threshold": 0.005
+  }
+ ],
+ "stopped": true,
+ "tree_at_end": {
+  "commit": "fbb99aed4b9e4e4b5e39a60769a398d5446c3390",
+  "git_dirty": false,
+  "git_dirty_files": [],
+  "excluded": "runs/task12/pd/2026-11-28/p9/summary"
+ },
+ "runtime_s": 82.50543093681335
+}
