@@ -565,3 +565,37 @@ Stage 1 (S3M-8) and that an independent neutral point is needed.
   answered here and listed for P9: the sponson that does not hold the retracted main gear (P3 finding 7), and where the
   tail roots sit on the engine bay (inlet, exhaust and structure are not drawn). Override: any other way of clearing the
   disc replaces (1) to (3); the wing rule (4) then runs again.
+- **PD-21 (2026-11-28, package P4b: tail and aft-body layout for r1; supersedes PD-20's items (2) and (3)).** An agent's
+  assumption under PD-3 (tail area and arm, fuselage lines and the wing's position may change) and the owner's instruction
+  of PD-start, not an owner ruling. PD-20's text above is kept as written; its rejection of a longer fuselage was made
+  without numbers, and the lead reviewer asked for the trade. P4b ran it with P4's own code and rules (Stage 1 tail rule,
+  mean static margin 0.10, tipback 15 deg, R13 full and empty, nose-wheel load 5 to 20 %, tail lift at rotation within 1.0,
+  1.0 ft disc clearance, propeller ground clearance at least 9 in). The selection rule was written in
+  `data/task12/pd_p4b_choices.yaml` before any run: (1) every payload-on row passes; (2) if any layout flies payload-off
+  without ballast, only those stay; (3) most hours on station on r0's fuel with the layout's wetted areas and its
+  empty-weight change in the take-off weight; (4) ties within 0.01 h go to the least empty-weight change; (5) if nothing
+  passes, the owner decides. Layouts: A, PD-20 as recorded; B, r0's tail planforms and arm with the aft fuselage lengthened;
+  Bs, the same with straight trailing edges; an arm scan of eleven tail arms between PD-20's and r0's with straight
+  trailing edges, of which C is the row of least empty-weight change. **Choice: Bs. For r1 the tails keep r0's arm and
+  areas, get straight trailing edges (PD-20's item (1), kept), and the aft fuselage is lengthened behind the engine bay by
+  the least length that leaves 1.0 ft between the tails and the propeller plane; the engine stays at r0's station and a
+  shaft carries the propeller; the wing is placed by PD-20's rule (4) and the main wheels by its rule (5).** Numbers,
+  copied from the record `runs/task12/pd/2026-11-28/p4b/p4b.json` (commit 03b75ee, clean tree): extension 1.976 ft, to a
+  fuselage of 30.559 ft; tail arm 13.577 ft, tailplane 135.48 ft^2, fin 37.08 ft^2; wing leading edge +0.918 ft from r0's;
+  main wheels at 14.895 ft; empty weight +27.15 lb against +26.93 lb for PD-20; hours on station -0.158 h against
+  -0.423 h (rule's case; -0.042 h against -0.309 h at r0's weight and fuel); tail lift at rotation 0.928 of the limit
+  against 0.986; propeller ground clearance at rotation 12.10 in against 15.88 in; tailplane 0.501 of the wing area with
+  its root 3.85 ft behind the wing's trailing edge, against 0.611 and 1.06 ft. Reported, not tuned: B fails the propeller
+  ground clearance (8.55 in with an extension of 3.928 ft). By empty weight alone the least change is C (arm 12.354 ft,
+  +25.17 lb); the rule ranks by hours, and the scan's empty weight is flat within about 2 lb. What rests on an assumption:
+  the shaft weight, 5 lb/ft with a band of 2 to 10 lb/ft, for which no open or library number was found (Raymer p. 221
+  gives no weight); the trade was repeated at both band ends and the choice does not change. **Payload off: no layout
+  passes without ballast** (all 132 payload-off loadings are aft of the aft limit on every layout, and the centre of
+  gravity ends 0.263 ft behind the main wheels on the chosen one). Moving the main wheels does not cure it (the aft limit
+  of R13 is what breaks, and wheels placed for payload-off tipback would need 2.434 of the tail-lift limit at rotation).
+  The smallest ballast is 474 lb at the payload station (465 lb for PD-20); it is an operating limit for P8 under PD-13.
+  The report is `docs/validation/2026-11-28_task12_pd_p4b.md`. r0 is not edited: these are findings for r1 (PD-7). Not
+  answered here and listed for P9: the shaft, its bearings and critical speed; the tail cone's structure and the tail
+  roots on it; the form factor of the longer body; Stage 1 needs the extension, the tail arm and the tails' sweep as
+  inputs. Override: a maker's or measured shaft weight outside the band, a different clearance, or an arm longer than
+  r0's (not studied; hours were still rising at the scan's end) re-opens the trade with the same code.
