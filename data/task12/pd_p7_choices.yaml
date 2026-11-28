@@ -1,0 +1,104 @@
+# Task 12 preliminary design P7 (wing spar preliminary sizing): the sources and the choices of the package.
+# Written by hand on 2026-11-28, before the module existed and before any run of it. Read by prelim/p7_spar.py;
+# tests/task12_pd/test_p7_spar.py checks this file. No value here is from memory.
+# Run on Opus 5.5 under owner ruling PD-22 (docs/specs/00_decisions.md section 9): not yet Fable-reviewed.
+# Every entry marked "judgement" is an agent's assumption under the owner's instruction of PD-start (decision PD-23),
+# not an owner ruling and not from the library. r0, its ledger and the records of P3, P4, P4b and P5 are read, not edited.
+# Units: ft, lb, s for loads; in and psi for the section sizing.
+
+why: >-
+  Spec P7: the spanwise airload by Schrenk's approximation checked against the study's vortex lattice, inertia relief,
+  shear and bending by Raymer's station method, caps in bending and the web in shear and shear buckling, high-strength
+  graphite/epoxy with a banded knock-down factor, at limit load times 1.5 in the ruled cases, with the P5 row 4 cases as
+  a sensitivity.
+
+library:
+  # Cited by number and page; no book text is copied. Book: Raymer, Aircraft Design: A Conceptual Approach, 2nd ed. 1992.
+  # Read through the library in /home/user/Alexandria (chapter notes, unit 13 = 14.1-14.9, unit 14 = 14.10-14.11).
+  schrenk: "(14.9)-(14.11), p. 343: trapezoidal chord, area, elliptical chord of the same span and area; the load shape is the average of the two, scaled to the required lift and carried to the centreline (p. 342-343)"
+  trim_first: "p. 342: a trim calculation gives the tail lift, which raises or lowers the wing lift the load factor needs"
+  station_method: "p. 381-383, Figs. 14.37-14.39: about ten to twenty stations, distributed loads as concentrated loads by the trapezoid rule of Fig. 14.39 (F = S(a + b)/2 at X = S(2a + b)/(3a + 3b) from the end of intensity b), shear summed from the tip inward, moment as the area under the shear curve"
+  wing_weight_by_chord: "p. 382: wing weight can be spread in proportion to chord; weights are multiplied by the load factor (Fig. 14.38)"
+  bending: "(14.35), p. 383: sigma = M z / I"
+  spar_idealisation: "p. 384-385, Fig. 14.41: the caps take all the bending, the web, taken as the full spar depth, all the shear at a uniform stress"
+  web_buckling: "(14.37), p. 385, with K from Fig. 14.42, p. 386"
+  material_table: "Table 14.4, p. 368-369: typical composite properties at room temperature; p. 368 calls them typical values only"
+  page_check: >-
+    The pages themselves could not be opened in this session: `uv run alex page raymer-aircraft-design-conceptual 368`
+    stops with "sources/raymer-aircraft-design-conceptual.pdf is missing", and the Drive connector refused the book's
+    download (file over its 10 MB limit). The values below are read from the library's chapter notes (unit 13,
+    `verified: true`), whose QA file (library/raymer-aircraft-design-conceptual/qa.md) records Table 14.4's nine rows over
+    both pages as checked against the page image ("Correct"; only the title misprint "properues" is flagged). They were
+    read twice on 2026-11-28 (the notes' table as text, and the same rows parsed cell by cell); both reads agree. Not
+    from memory. A check against the printed page stays open for the Fable review (PD-22).
+
+material:
+  name: "High-strength graphite/epoxy, fibre volume 60 %, Table 14.4, p. 368-369"
+  units: "density lb/in^3; strengths and moduli psi (the table prints 10^3 psi and 10^6 psi)"
+  caps_0_deg:
+    density_lb_in3: 0.056
+    F_tu_L_psi: 180000.0
+    F_cu_L_psi: 180000.0
+    E_t_L_psi: 21.0e6
+    E_c_L_psi: 21.0e6
+  web_pm45_deg:
+    density_lb_in3: 0.056
+    F_su_LT_psi: 65500.0
+    E_t_L_psi: 2.34e6
+    E_c_L_psi: 2.34e6
+    G_LT_psi: 5.52e6
+
+knock_down:
+  value: 0.50
+  band: [0.35, 0.65]
+  applies_to: "the strengths F_tu, F_cu (caps) and F_su (web); not the moduli"
+  source: >-
+    Judgement [Not lib]: no open source was opened for it. Raymer p. 368 calls Table 14.4 typical values; design values
+    must also cover environment (hot and wet), impact damage, scatter (a statistical basis) and the holes and joints of
+    a built spar. One factor of one half on the typical strengths, with the band run at both ends as a sensitivity.
+
+geometry:
+  spar_chord_fraction: "the P3 arrangement's front_spar_chord_fraction (data/task12/pd_p3_arrangement.yaml): one bending spar there"
+  section: "NACA 4415, the loft's section (P2, P3); depth measured straight up between the surfaces at the spar's chord station, geometry3d/sections.py"
+  skin_thickness_in: {value: 0.06, band: [0.04, 0.10], source: "Judgement [Not lib]: upper and lower skin over the caps; the cap fits inside the section depth less two skins"}
+  cap_width_over_chord: {value: 0.10, band: [0.06, 0.15], source: "Judgement [Not lib]: flange width of each cap as a share of the local chord, centred on the spar station"}
+  web_buckling_K: {value: 5.5, source: "Fig. 14.42, p. 386, simply supported edges, long panel: 'toward about 5.5, read from the graph' in the library's notes (unit 14). Simply supported is the lower of the two curves; the web panel is taken as long (rib spacing at least the spar depth)"}
+  web_panel_width: "the spar depth inside the skins (Raymer p. 384-385 takes the web as the full spar depth)"
+
+loads:
+  factor_of_safety: "r0's Nz_ultimate over its limit load factor (5.7 / 3.8 = 1.5; PD-9)"
+  stations: {strips: 20, extra: ["fuselage side", "tank ends", "main-wheel half track"], source: "Raymer p. 382-383: about ten to twenty stations; extra stations where a load starts, ends or acts as a point"}
+  closed_form_check_strips: 20000
+  airload: "Schrenk's shape over the full span, scaled to the wing lift of the case after the tail's trim load; the larger of Schrenk's and the lattice's root bending moment is used (spec P7 row 2)"
+  lattice: {code: "drone/vlm.py (the study's own vortex lattice, Task 10 rows V6a-V6c)", level_for_verdict: "fine", levels_reported: ["coarse", "medium", "fine"], alpha_deg: 4.0, planform: "r0's wing, trapezoidal, unswept leading edge, untwisted (drone/geometry.tapered)"}
+  inertia_relief:
+    wing: "r0's wing weight, spread over the span in proportion to chord (Raymer p. 382)"
+    fuel: "in the P4 tanks on the P3 loft (runs/task12/pd/2026-11-27/p4/p4.json, tanks): between their span stations in proportion to chord squared (the tank's section area); full at take-off weight, none at zero-fuel weight"
+    points: "sponsons and main gear (r0 component weights), half to each side, at r0's main-wheel half track"
+    left_out: "fuel system, flight controls and every other item (no relief taken for them; the wing loads are higher for it)"
+  trim: >-
+    P4's tail_cl_trim (prelim/p4_methods.py; Raymer (16.7), p. 416, without thrust terms) with P4's as-arranged layout and
+    P2's section moment (both from runs/task12/pd/2026-11-27/p4/p4.json), at the centre of gravity of the case's weight
+    (P4 row 1: payload on, gear up, nominal empty weight; full fuel at take-off weight, empty at zero-fuel weight). The
+    wing and tail lift together equal n W. Every case is taken balanced in pitch, gusts included.
+  cases_ruled:
+    - {name: "+3.8 take-off weight", n: limit_load_factor, weight: takeoff, speeds: [positive_corner, V_C, V_D]}
+    - {name: "+3.8 zero-fuel weight", n: limit_load_factor, weight: zero_fuel, speeds: [positive_corner, V_C, V_D]}
+    - {name: "worst gust up (P5 row 3)", n: "P5 row3 worst_up n_up", weight: "its weight", speeds: ["its speed"]}
+    - {name: "worst gust down (P5 row 3)", n: "P5 row3 worst_down n_down", weight: "its weight", speeds: ["its speed"]}
+    - {name: "-1.8 take-off weight", n: negative_load_factor, weight: takeoff, speeds: [negative_corner, V_C]}
+    - {name: "-1.8 zero-fuel weight", n: negative_load_factor, weight: zero_fuel, speeds: [negative_corner, V_C]}
+  cases_sensitivity:
+    - {name: "CS-23 gust speeds, up and down (P5 row 4)", from: "P5 row4 cases cs23_speeds: the point of largest n_up and of lowest n_down"}
+    - {name: "gust held at 30 ft/s above V_C, up and down (P5 row 4)", from: "P5 row4 cases ruled_held_30: the point of largest n_up and of lowest n_down"}
+  speed_of_a_case: "each manoeuvre case is evaluated at every speed listed; the speed with the largest ultimate root bending moment in magnitude is the case's speed"
+
+sizing:
+  rule: "every station sized to the envelope of the ruled cases at ultimate load: caps from (14.35) with the caps alone in bending; web the larger of the shear-strength and the shear-buckling thickness"
+  margins: "margin of safety = allowable over stress less 1, per station and case; the governing ruled case is at 0 by construction"
+  fit: "the caps fit if the cap area equation has a real root: the two caps and two skins inside the section depth"
+  not_sized: "rear spar (closes the tank, carries torsion: PD-9 has no torsion box), ribs, skins, joints, fasteners; no minimum gauge"
+
+r1:
+  layout: "P4b's chosen layout (PD-21) and its centre of gravity at full and empty fuel (runs/task12/pd/2026-11-28/p4b/p4b.json), every weight raised by its empty-weight change"
+  CL_max: "P2's measured clean wing maximum lift (runs/task12/pd/2026-11-27/p2b/p2.json, wing.measured.clean) for the positive corner speed"

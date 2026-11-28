@@ -608,3 +608,21 @@ Stage 1 (S3M-8) and that an independent neutral point is needed.
   checks reported and not tuned. Every report from these packages is marked "not yet Fable-reviewed" near its top, and
   Fable reviews their diffs after the limit resets and before P9's closing re-record r1. Nothing was run for this entry.
   Override: a finding of that review re-opens the package concerned with the same code and records.
+- **PD-23 (2026-11-28, package P7: how the wing spar is idealised and sized).** An agent's assumption under PD-9 and the
+  owner's instruction of PD-start, not an owner ruling; run on Opus 5.5 under PD-22, not yet Fable-reviewed. Choice, all
+  in `data/task12/pd_p7_choices.yaml`, written before any code or run: (1) one bending spar at the P3 arrangement's front
+  spar station (0.15 of the chord, band 0.12 to 0.25), its depth the loft's NACA 4415 depth there less two skins of
+  0.06 in (band 0.04 to 0.10 in); caps of 0 deg high-strength graphite/epoxy, each 0.10 of the local chord wide (band
+  0.06 to 0.15), carry all the bending; a +-45 deg web carries all the shear and does not buckle at ultimate load
+  (Raymer (14.37) with K 5.5, simply supported long panel, Fig. 14.42); the rear spar, ribs, skins and joints are not
+  sized and no minimum gauge is applied; (2) typical values of Raymer Table 14.4 times one knock-down factor of 0.50
+  on the strengths (band 0.35 to 0.65), a judgement for which no open source was opened; (3) every station is sized to
+  the envelope of the ruled load cases at ultimate load, so the governing case has a margin of zero by construction and
+  P7's row 3 asks whether a sizing exists and what margin the other cases keep; the P5 row 4 cases are applied to that
+  spar as a sensitivity; (4) every case is balanced in pitch with P4's tail trim equation, gusts included; (5) inertia
+  relief from the wing weight by chord, the fuel in P4's tanks, and the sponsons and main gear at the main wheels;
+  nothing else. Rejected: a two-spar box sharing the bending (the share needs a stiffness model PD-9 leaves out); sizing
+  to Stage 1's design point alone (the spec asks for every ruled case). r0 is not edited. The numbers are in
+  `docs/validation/2026-11-28_task12_pd_p7.md`, generated from `runs/task12/pd/2026-11-28/p7/p7.json`; none is typed
+  here. Override: a laminate design with its own allowables, a two-spar box, or a different knock-down replaces (1) to
+  (3) with the same code.
