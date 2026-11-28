@@ -1,0 +1,3819 @@
+{
+ "band_weight": true,
+ "power_band": "cap",
+ "engine": {
+  "name": "RR_M250_B17F",
+  "rated_shp": 450.0,
+  "sfc_allowance": 1.02,
+  "propeller_rpm": 2030.0
+ },
+ "nominal": {
+  "R5_hours": 8.000006257017874,
+  "takeoff_ft": 730.2452083925582,
+  "landing_ft": 1359.1611696741795
+ },
+ "record": {
+  "fuel_lb": 951.845374200738,
+  "W0_lb": 3473.7484447434463,
+  "takeoff_ft": 730.245651027379,
+  "landing_ft": 1359.1613298364748
+ },
+ "w0_check": {
+  "record_lb": 3473.7484447434463,
+  "fixed_point_lb": 3473.746708849383,
+  "difference_lb": -0.001735894063131127,
+  "within_0.1_lb": true
+ },
+ "rebuild_check": {
+  "fuel_lb": {
+   "record": 951.845374200738,
+   "rebuilt": 951.845374200738
+  },
+  "power_climb_sl_hp": {
+   "record": 223.7670653765952,
+   "rebuilt": 223.7670653765952
+  },
+  "power_ceiling_hp": {
+   "record": 286.8608361015194,
+   "rebuilt": 286.8608361015194
+  },
+  "power_takeoff_hp": {
+   "record": 154.7304214275143,
+   "rebuilt": 154.7304214275143
+  },
+  "power_turn_at_loiter_hp": {
+   "record": 249.75330214602812,
+   "rebuilt": 249.75330214602812
+  },
+  "power_cruise_at_altitude_hp": {
+   "record": 214.69617662298538,
+   "rebuilt": 214.69617662298538
+  }
+ },
+ "variables": [
+  {
+   "name": "cbhp_cruise",
+   "kind": "ledger",
+   "units": "lb/(hp h)",
+   "nominal": 0.5,
+   "band_lo": 0.45,
+   "band_hi": 0.6,
+   "w_lower": 0.04999999999999999,
+   "w_upper": 0.09999999999999998,
+   "clip_lo": 0.0,
+   "clip_hi": "inf"
+  },
+  {
+   "name": "cbhp_loiter",
+   "kind": "ledger",
+   "units": "lb/(hp h)",
+   "nominal": 0.6,
+   "band_lo": 0.5,
+   "band_hi": 0.75,
+   "w_lower": 0.09999999999999998,
+   "w_upper": 0.15000000000000002,
+   "clip_lo": 0.0,
+   "clip_hi": "inf"
+  },
+  {
+   "name": "eta_p",
+   "kind": "ledger",
+   "units": "-",
+   "nominal": 0.8,
+   "band_lo": 0.75,
+   "band_hi": 0.85,
+   "w_lower": 0.050000000000000044,
+   "w_upper": 0.04999999999999993,
+   "clip_lo": 0.0,
+   "clip_hi": 1.0
+  },
+  {
+   "name": "prop_real_to_ideal",
+   "kind": "ledger",
+   "units": "-",
+   "nominal": 0.85,
+   "band_lo": 0.8,
+   "band_hi": 0.9,
+   "w_lower": 0.04999999999999993,
+   "w_upper": 0.050000000000000044,
+   "clip_lo": 0.0,
+   "clip_hi": 1.0
+  },
+  {
+   "name": "static_ct_over_cp",
+   "kind": "ledger",
+   "units": "-",
+   "nominal": 2.5,
+   "band_lo": 2.0,
+   "band_hi": 2.8,
+   "w_lower": 0.5,
+   "w_upper": 0.2999999999999998,
+   "clip_lo": 0.0,
+   "clip_hi": "inf"
+  },
+  {
+   "name": "airfoil_cl_max",
+   "kind": "ledger",
+   "units": "-",
+   "nominal": 1.41777,
+   "band_lo": 1.3,
+   "band_hi": 1.7,
+   "w_lower": 0.11776999999999993,
+   "w_upper": 0.28223,
+   "clip_lo": 0.0,
+   "clip_hi": "inf"
+  },
+  {
+   "name": "airfoil_cm0",
+   "kind": "ledger",
+   "units": "-",
+   "nominal": -0.0911291,
+   "band_lo": -0.1,
+   "band_hi": -0.04,
+   "w_lower": 0.008870900000000001,
+   "w_upper": 0.051129100000000004,
+   "clip_lo": "-inf",
+   "clip_hi": "inf"
+  },
+  {
+   "name": "wing_t_c",
+   "kind": "ledger",
+   "units": "-",
+   "nominal": 0.15,
+   "band_lo": 0.12,
+   "band_hi": 0.18,
+   "w_lower": 0.03,
+   "w_upper": 0.03,
+   "clip_lo": 0.0,
+   "clip_hi": 1.0
+  },
+  {
+   "name": "flap_span_fraction",
+   "kind": "ledger",
+   "units": "-",
+   "nominal": 0.6,
+   "band_lo": 0.5,
+   "band_hi": 0.7,
+   "w_lower": 0.09999999999999998,
+   "w_upper": 0.09999999999999998,
+   "clip_lo": 0.0,
+   "clip_hi": 1.0
+  },
+  {
+   "name": "takeoff_flap_fraction",
+   "kind": "ledger",
+   "units": "-",
+   "nominal": 0.6,
+   "band_lo": 0.4,
+   "band_hi": 0.8,
+   "w_lower": 0.19999999999999996,
+   "w_upper": 0.20000000000000007,
+   "clip_lo": 0.0,
+   "clip_hi": 1.0
+  },
+  {
+   "name": "laminar_fraction_wing",
+   "kind": "ledger",
+   "units": "-",
+   "nominal": 0.15,
+   "band_lo": 0.1,
+   "band_hi": 0.5,
+   "w_lower": 0.04999999999999999,
+   "w_upper": 0.35,
+   "clip_lo": 0.0,
+   "clip_hi": 1.0
+  },
+  {
+   "name": "laminar_fraction_fuselage",
+   "kind": "ledger",
+   "units": "-",
+   "nominal": 0.0,
+   "band_lo": 0.0,
+   "band_hi": 0.2,
+   "w_lower": 0.0,
+   "w_upper": 0.2,
+   "clip_lo": 0.0,
+   "clip_hi": 1.0
+  },
+  {
+   "name": "sensor_drag_area_ft2",
+   "kind": "ledger",
+   "units": "ft^2",
+   "nominal": 0.4,
+   "band_lo": 0.2,
+   "band_hi": 0.8,
+   "w_lower": 0.2,
+   "w_upper": 0.4,
+   "clip_lo": 0.0,
+   "clip_hi": "inf"
+  },
+  {
+   "name": "fuselage_fineness",
+   "kind": "ledger",
+   "units": "-",
+   "nominal": 8.0,
+   "band_lo": 6.0,
+   "band_hi": 10.0,
+   "w_lower": 2.0,
+   "w_upper": 2.0,
+   "clip_lo": 0.0,
+   "clip_hi": "inf"
+  },
+  {
+   "name": "fuselage_fill",
+   "kind": "ledger",
+   "units": "-",
+   "nominal": 0.8,
+   "band_lo": 0.75,
+   "band_hi": 0.85,
+   "w_lower": 0.050000000000000044,
+   "w_upper": 0.04999999999999993,
+   "clip_lo": 0.0,
+   "clip_hi": 1.0
+  },
+  {
+   "name": "fuselage_kf",
+   "kind": "ledger",
+   "units": "-",
+   "nominal": 0.008,
+   "band_lo": 0.005,
+   "band_hi": 0.015,
+   "w_lower": 0.003,
+   "w_upper": 0.006999999999999999,
+   "clip_lo": 0.0,
+   "clip_hi": 1.0
+  },
+  {
+   "name": "tail_height_over_df",
+   "kind": "ledger",
+   "units": "-",
+   "nominal": 0.4,
+   "band_lo": 0.1,
+   "band_hi": 0.9,
+   "w_lower": 0.30000000000000004,
+   "w_upper": 0.5,
+   "clip_lo": 0.0,
+   "clip_hi": 1.0
+  },
+  {
+   "name": "composite_factor",
+   "kind": "ledger",
+   "units": "-",
+   "nominal": 0.95,
+   "band_lo": 0.9,
+   "band_hi": 1.0,
+   "w_lower": 0.04999999999999993,
+   "w_upper": 0.050000000000000044,
+   "clip_lo": 0.0,
+   "clip_hi": 1.0
+  },
+  {
+   "name": "empty_weight_factor",
+   "kind": "ledger",
+   "units": "-",
+   "nominal": 1.0,
+   "band_lo": 0.95,
+   "band_hi": 1.05,
+   "w_lower": 0.050000000000000044,
+   "w_upper": 0.050000000000000044,
+   "clip_lo": 0.0,
+   "clip_hi": "inf"
+  },
+  {
+   "name": "avionics_uninstalled_lb",
+   "kind": "ledger",
+   "units": "lb",
+   "nominal": 60.0,
+   "band_lo": 40.0,
+   "band_hi": 100.0,
+   "w_lower": 20.0,
+   "w_upper": 40.0,
+   "clip_lo": 0.0,
+   "clip_hi": "inf"
+  },
+  {
+   "name": "main_gear_length_in",
+   "kind": "ledger",
+   "units": "in",
+   "nominal": 30.0,
+   "band_lo": 24.0,
+   "band_hi": 40.0,
+   "w_lower": 6.0,
+   "w_upper": 10.0,
+   "clip_lo": 0.0,
+   "clip_hi": "inf"
+  },
+  {
+   "name": "nose_gear_length_in",
+   "kind": "ledger",
+   "units": "in",
+   "nominal": 30.0,
+   "band_lo": 24.0,
+   "band_hi": 40.0,
+   "w_lower": 6.0,
+   "w_upper": 10.0,
+   "clip_lo": 0.0,
+   "clip_hi": "inf"
+  },
+  {
+   "name": "gust_ude_fps",
+   "kind": "ledger",
+   "units": "ft/s",
+   "nominal": 30.0,
+   "band_lo": 30.0,
+   "band_hi": 50.0,
+   "w_lower": 0.0,
+   "w_upper": 20.0,
+   "clip_lo": 0.0,
+   "clip_hi": "inf"
+  },
+  {
+   "name": "wing_tank_chord_fraction",
+   "kind": "ledger",
+   "units": "-",
+   "nominal": 0.45,
+   "band_lo": 0.4,
+   "band_hi": 0.5,
+   "w_lower": 0.04999999999999999,
+   "w_upper": 0.04999999999999999,
+   "clip_lo": 0.0,
+   "clip_hi": 1.0
+  },
+  {
+   "name": "wing_tank_span_fraction",
+   "kind": "ledger",
+   "units": "-",
+   "nominal": 0.8,
+   "band_lo": 0.7,
+   "band_hi": 0.85,
+   "w_lower": 0.10000000000000009,
+   "w_upper": 0.04999999999999993,
+   "clip_lo": 0.0,
+   "clip_hi": 1.0
+  },
+  {
+   "name": "rolling_mu",
+   "kind": "ledger",
+   "units": "-",
+   "nominal": 0.03,
+   "band_lo": 0.03,
+   "band_hi": 0.05,
+   "w_lower": 0.0,
+   "w_upper": 0.020000000000000004,
+   "clip_lo": 0.0,
+   "clip_hi": 1.0
+  },
+  {
+   "name": "braking_mu",
+   "kind": "ledger",
+   "units": "-",
+   "nominal": 0.5,
+   "band_lo": 0.3,
+   "band_hi": 0.5,
+   "w_lower": 0.2,
+   "w_upper": 0.0,
+   "clip_lo": 0.0,
+   "clip_hi": 1.0
+  },
+  {
+   "name": "free_roll_s",
+   "kind": "ledger",
+   "units": "s",
+   "nominal": 2.0,
+   "band_lo": 1.0,
+   "band_hi": 3.0,
+   "w_lower": 1.0,
+   "w_upper": 1.0,
+   "clip_lo": 0.0,
+   "clip_hi": "inf"
+  },
+  {
+   "name": "flap_deflection_takeoff_deg",
+   "kind": "ledger",
+   "units": "deg",
+   "nominal": 30.0,
+   "band_lo": 20.0,
+   "band_hi": 40.0,
+   "w_lower": 10.0,
+   "w_upper": 10.0,
+   "clip_lo": 0.0,
+   "clip_hi": "inf"
+  },
+  {
+   "name": "flap_deflection_landing_deg",
+   "kind": "ledger",
+   "units": "deg",
+   "nominal": 60.0,
+   "band_lo": 60.0,
+   "band_hi": 70.0,
+   "w_lower": 0.0,
+   "w_upper": 10.0,
+   "clip_lo": 0.0,
+   "clip_hi": "inf"
+  },
+  {
+   "name": "strut_width_in",
+   "kind": "ledger",
+   "units": "in",
+   "nominal": 3.0,
+   "band_lo": 2.0,
+   "band_hi": 4.0,
+   "w_lower": 1.0,
+   "w_upper": 1.0,
+   "clip_lo": 0.0,
+   "clip_hi": "inf"
+  },
+  {
+   "name": "rotation_angle_deg",
+   "kind": "ledger",
+   "units": "deg",
+   "nominal": 15.0,
+   "band_lo": 10.0,
+   "band_hi": 15.0,
+   "w_lower": 5.0,
+   "w_upper": 0.0,
+   "clip_lo": 0.0,
+   "clip_hi": "inf"
+  },
+  {
+   "name": "main_gear_station_guess",
+   "kind": "ledger",
+   "units": "-",
+   "nominal": 0.4,
+   "band_lo": 0.3,
+   "band_hi": 0.5,
+   "w_lower": 0.10000000000000003,
+   "w_upper": 0.09999999999999998,
+   "clip_lo": 0.0,
+   "clip_hi": 1.0
+  },
+  {
+   "name": "tail_cl_max_trim",
+   "kind": "ledger",
+   "units": "-",
+   "nominal": 0.5,
+   "band_lo": 0.4,
+   "band_hi": 0.7,
+   "w_lower": 0.09999999999999998,
+   "w_upper": 0.19999999999999996,
+   "clip_lo": 0.0,
+   "clip_hi": 1.0
+  },
+  {
+   "name": "tail_cl_max_rotation",
+   "kind": "ledger",
+   "units": "-",
+   "nominal": 1.0,
+   "band_lo": 0.8,
+   "band_hi": 1.2,
+   "w_lower": 0.19999999999999996,
+   "w_upper": 0.19999999999999996,
+   "clip_lo": 0.0,
+   "clip_hi": "inf"
+  },
+  {
+   "name": "station_engine_pusher",
+   "kind": "ledger",
+   "units": "-",
+   "nominal": 0.88,
+   "band_lo": 0.82,
+   "band_hi": 0.92,
+   "w_lower": 0.06000000000000005,
+   "w_upper": 0.040000000000000036,
+   "clip_lo": 0.0,
+   "clip_hi": 1.0
+  },
+  {
+   "name": "station_engine_tractor",
+   "kind": "ledger",
+   "units": "-",
+   "nominal": 0.07,
+   "band_lo": 0.05,
+   "band_hi": 0.1,
+   "w_lower": 0.020000000000000004,
+   "w_upper": 0.03,
+   "clip_lo": 0.0,
+   "clip_hi": 1.0
+  },
+  {
+   "name": "station_payload_pusher",
+   "kind": "ledger",
+   "units": "-",
+   "nominal": 0.1,
+   "band_lo": 0.06,
+   "band_hi": 0.15,
+   "w_lower": 0.04000000000000001,
+   "w_upper": 0.04999999999999999,
+   "clip_lo": 0.0,
+   "clip_hi": 1.0
+  },
+  {
+   "name": "station_payload_tractor",
+   "kind": "ledger",
+   "units": "-",
+   "nominal": 0.3,
+   "band_lo": 0.25,
+   "band_hi": 0.35,
+   "w_lower": 0.04999999999999999,
+   "w_upper": 0.04999999999999999,
+   "clip_lo": 0.0,
+   "clip_hi": 1.0
+  },
+  {
+   "name": "station_avionics",
+   "kind": "ledger",
+   "units": "-",
+   "nominal": 0.21,
+   "band_lo": 0.15,
+   "band_hi": 0.3,
+   "w_lower": 0.06,
+   "w_upper": 0.09,
+   "clip_lo": 0.0,
+   "clip_hi": 1.0
+  },
+  {
+   "name": "station_fuselage",
+   "kind": "ledger",
+   "units": "-",
+   "nominal": 0.45,
+   "band_lo": 0.4,
+   "band_hi": 0.5,
+   "w_lower": 0.04999999999999999,
+   "w_upper": 0.04999999999999999,
+   "clip_lo": 0.0,
+   "clip_hi": 1.0
+  },
+  {
+   "name": "station_systems",
+   "kind": "ledger",
+   "units": "-",
+   "nominal": 0.45,
+   "band_lo": 0.4,
+   "band_hi": 0.5,
+   "w_lower": 0.04999999999999999,
+   "w_upper": 0.04999999999999999,
+   "clip_lo": 0.0,
+   "clip_hi": 1.0
+  },
+  {
+   "name": "station_flight_controls",
+   "kind": "ledger",
+   "units": "-",
+   "nominal": 0.55,
+   "band_lo": 0.45,
+   "band_hi": 0.65,
+   "w_lower": 0.10000000000000003,
+   "w_upper": 0.09999999999999998,
+   "clip_lo": 0.0,
+   "clip_hi": 1.0
+  },
+  {
+   "name": "station_nose_gear",
+   "kind": "ledger",
+   "units": "-",
+   "nominal": 0.1,
+   "band_lo": 0.06,
+   "band_hi": 0.15,
+   "w_lower": 0.04000000000000001,
+   "w_upper": 0.04999999999999999,
+   "clip_lo": 0.0,
+   "clip_hi": 1.0
+  },
+  {
+   "name": "rotation_angle_deg_pusher",
+   "kind": "ledger",
+   "units": "deg",
+   "nominal": 10.0,
+   "band_lo": 10.0,
+   "band_hi": 15.0,
+   "w_lower": 0.0,
+   "w_upper": 5.0,
+   "clip_lo": 0.0,
+   "clip_hi": "inf"
+  },
+  {
+   "name": "nose_down_deg",
+   "kind": "ledger",
+   "units": "deg",
+   "nominal": 2.0,
+   "band_lo": 1.0,
+   "band_hi": 3.0,
+   "w_lower": 1.0,
+   "w_upper": 1.0,
+   "clip_lo": 0.0,
+   "clip_hi": "inf"
+  },
+  {
+   "name": "station_nose_gear_min",
+   "kind": "ledger",
+   "units": "-",
+   "nominal": 0.04,
+   "band_lo": 0.03,
+   "band_hi": 0.06,
+   "w_lower": 0.010000000000000002,
+   "w_upper": 0.019999999999999997,
+   "clip_lo": 0.0,
+   "clip_hi": 1.0
+  },
+  {
+   "name": "sponson_length_per_tyre",
+   "kind": "ledger",
+   "units": "-",
+   "nominal": 3.6,
+   "band_lo": 3.0,
+   "band_hi": 4.8,
+   "w_lower": 0.6000000000000001,
+   "w_upper": 1.1999999999999997,
+   "clip_lo": 0.0,
+   "clip_hi": "inf"
+  },
+  {
+   "name": "sponson_depth_per_tyre",
+   "kind": "ledger",
+   "units": "-",
+   "nominal": 1.2,
+   "band_lo": 1.1,
+   "band_hi": 1.4,
+   "w_lower": 0.09999999999999987,
+   "w_upper": 0.19999999999999996,
+   "clip_lo": 0.0,
+   "clip_hi": "inf"
+  },
+  {
+   "name": "sponson_interference_q",
+   "kind": "ledger",
+   "units": "-",
+   "nominal": 1.5,
+   "band_lo": 1.3,
+   "band_hi": 1.5,
+   "w_lower": 0.19999999999999996,
+   "w_upper": 0.0,
+   "clip_lo": 0.0,
+   "clip_hi": "inf"
+  },
+  {
+   "name": "sponson_weight_per_wetted",
+   "kind": "ledger",
+   "units": "lb/ft^2",
+   "nominal": 1.4,
+   "band_lo": 1.0,
+   "band_hi": 1.8,
+   "w_lower": 0.3999999999999999,
+   "w_upper": 0.40000000000000013,
+   "clip_lo": 0.0,
+   "clip_hi": "inf"
+  },
+  {
+   "name": "nose_tyre_scale",
+   "kind": "ledger",
+   "units": "-",
+   "nominal": 0.8,
+   "band_lo": 0.6,
+   "band_hi": 1.0,
+   "w_lower": 0.20000000000000007,
+   "w_upper": 0.19999999999999996,
+   "clip_lo": 0.0,
+   "clip_hi": 1.0
+  },
+  {
+   "name": "prop_hub_offset_ft",
+   "kind": "ledger",
+   "units": "ft",
+   "nominal": 0.0,
+   "band_lo": 0.0,
+   "band_hi": 2.0,
+   "w_lower": 0.0,
+   "w_upper": 2.0,
+   "clip_lo": 0.0,
+   "clip_hi": "inf"
+  },
+  {
+   "name": "engine_sfc_mult",
+   "kind": "engine",
+   "units": "SFC of every engine table entry, on top of the ledger's SFC allowance",
+   "nominal": 1.0,
+   "band_lo": 0.9,
+   "band_hi": 1.1,
+   "w_lower": 0.1,
+   "w_upper": 0.1,
+   "clip_lo": 0.0,
+   "clip_hi": "inf"
+  },
+  {
+   "name": "engine_power_mult",
+   "kind": "engine",
+   "units": "full-throttle shaft power of the engine table (form: the engine's, Built.power_band)",
+   "nominal": 1.0,
+   "band_lo": 0.9,
+   "band_hi": 1.1,
+   "w_lower": 0.1,
+   "w_upper": 0.1,
+   "clip_lo": 0.0,
+   "clip_hi": "inf"
+  }
+ ],
+ "one_at_a_time": {
+  "h": 1.0,
+  "nominal": {
+   "R5_hours": 8.000006257017874,
+   "takeoff_ft": 730.2452083925582,
+   "landing_ft": 1359.1611696741795
+  },
+  "rows": [
+   {
+    "name": "cbhp_cruise",
+    "kind": "ledger",
+    "nominal": 0.5,
+    "value_at_lower": 0.45,
+    "value_at_upper": 0.6,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": true,
+    "R5_hours": {
+     "at_lower": 8.000006257017874,
+     "at_upper": 8.000006257017874,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "takeoff_ft": {
+     "at_lower": 730.2452083925582,
+     "at_upper": 730.2452083925582,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "landing_ft": {
+     "at_lower": 1359.1611696741795,
+     "at_upper": 1359.1611696741795,
+     "direction": 0,
+     "effect": 0.0
+    }
+   },
+   {
+    "name": "cbhp_loiter",
+    "kind": "ledger",
+    "nominal": 0.6,
+    "value_at_lower": 0.5,
+    "value_at_upper": 0.75,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": true,
+    "R5_hours": {
+     "at_lower": 8.000006257017874,
+     "at_upper": 8.000006257017874,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "takeoff_ft": {
+     "at_lower": 730.2452083925582,
+     "at_upper": 730.2452083925582,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "landing_ft": {
+     "at_lower": 1359.1611696741795,
+     "at_upper": 1359.1611696741795,
+     "direction": 0,
+     "effect": 0.0
+    }
+   },
+   {
+    "name": "eta_p",
+    "kind": "ledger",
+    "nominal": 0.8,
+    "value_at_lower": 0.75,
+    "value_at_upper": 0.85,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": true,
+    "R5_hours": {
+     "at_lower": 8.000006257017874,
+     "at_upper": 8.000006257017874,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "takeoff_ft": {
+     "at_lower": 730.2452083925582,
+     "at_upper": 730.2452083925582,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "landing_ft": {
+     "at_lower": 1359.1611696741795,
+     "at_upper": 1359.1611696741795,
+     "direction": 0,
+     "effect": 0.0
+    }
+   },
+   {
+    "name": "prop_real_to_ideal",
+    "kind": "ledger",
+    "nominal": 0.85,
+    "value_at_lower": 0.8,
+    "value_at_upper": 0.9,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": false,
+    "R5_hours": {
+     "at_lower": 7.4413266836320595,
+     "at_upper": 8.533787980846995,
+     "direction": -1,
+     "effect": -0.558679573385815
+    },
+    "takeoff_ft": {
+     "at_lower": 746.9026297905177,
+     "at_upper": 716.748054712468,
+     "direction": -1,
+     "effect": 16.657421397959524
+    },
+    "landing_ft": {
+     "at_lower": 1359.1611696741795,
+     "at_upper": 1359.1611696741795,
+     "direction": 0,
+     "effect": 0.0
+    }
+   },
+   {
+    "name": "static_ct_over_cp",
+    "kind": "ledger",
+    "nominal": 2.5,
+    "value_at_lower": 2.0,
+    "value_at_upper": 2.8,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": true,
+    "R5_hours": {
+     "at_lower": 8.000006257017874,
+     "at_upper": 8.000006257017874,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "takeoff_ft": {
+     "at_lower": 730.2452083925582,
+     "at_upper": 730.2452083925582,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "landing_ft": {
+     "at_lower": 1359.1611696741795,
+     "at_upper": 1359.1611696741795,
+     "direction": 0,
+     "effect": 0.0
+    }
+   },
+   {
+    "name": "airfoil_cl_max",
+    "kind": "ledger",
+    "nominal": 1.41777,
+    "value_at_lower": 1.3,
+    "value_at_upper": 1.7,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": false,
+    "R5_hours": {
+     "at_lower": 7.8432072596673645,
+     "at_upper": 8.204146149882867,
+     "direction": -1,
+     "effect": -0.15679899735050995
+    },
+    "takeoff_ft": {
+     "at_lower": 766.8093755804937,
+     "at_upper": 659.0780849141172,
+     "direction": -1,
+     "effect": 36.56416718793548
+    },
+    "landing_ft": {
+     "at_lower": 1375.8247233014474,
+     "at_upper": 1324.8458034885111,
+     "direction": -1,
+     "effect": 16.663553627267902
+    }
+   },
+   {
+    "name": "airfoil_cm0",
+    "kind": "ledger",
+    "nominal": -0.0911291,
+    "value_at_lower": -0.1,
+    "value_at_upper": -0.04,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": true,
+    "R5_hours": {
+     "at_lower": 8.000006257017874,
+     "at_upper": 8.000006257017874,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "takeoff_ft": {
+     "at_lower": 730.2452083925582,
+     "at_upper": 730.2452083925582,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "landing_ft": {
+     "at_lower": 1359.1611696741795,
+     "at_upper": 1359.1611696741795,
+     "direction": 0,
+     "effect": 0.0
+    }
+   },
+   {
+    "name": "wing_t_c",
+    "kind": "ledger",
+    "nominal": 0.15,
+    "value_at_lower": 0.12,
+    "value_at_upper": 0.18,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": false,
+    "R5_hours": {
+     "at_lower": 7.984457393161518,
+     "at_upper": 7.952483193069483,
+     "direction": 1,
+     "effect": -0.04752306394839145
+    },
+    "takeoff_ft": {
+     "at_lower": 740.0223844861279,
+     "at_upper": 722.9618816604328,
+     "direction": -1,
+     "effect": 9.777176093569665
+    },
+    "landing_ft": {
+     "at_lower": 1362.7783088962794,
+     "at_upper": 1356.3718056046948,
+     "direction": -1,
+     "effect": 3.6171392220999223
+    }
+   },
+   {
+    "name": "flap_span_fraction",
+    "kind": "ledger",
+    "nominal": 0.6,
+    "value_at_lower": 0.5,
+    "value_at_upper": 0.7,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": false,
+    "R5_hours": {
+     "at_lower": 8.000006257017874,
+     "at_upper": 8.000006257017874,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "takeoff_ft": {
+     "at_lower": 754.752415296651,
+     "at_upper": 708.0574543910861,
+     "direction": -1,
+     "effect": 24.507206904092754
+    },
+    "landing_ft": {
+     "at_lower": 1381.6796197212684,
+     "at_upper": 1339.2680279450876,
+     "direction": -1,
+     "effect": 22.51845004708889
+    }
+   },
+   {
+    "name": "takeoff_flap_fraction",
+    "kind": "ledger",
+    "nominal": 0.6,
+    "value_at_lower": 0.4,
+    "value_at_upper": 0.8,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": false,
+    "R5_hours": {
+     "at_lower": 8.000006257017874,
+     "at_upper": 8.000006257017874,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "takeoff_ft": {
+     "at_lower": 785.7952793793561,
+     "at_upper": 684.1604629256376,
+     "direction": -1,
+     "effect": 55.55007098679789
+    },
+    "landing_ft": {
+     "at_lower": 1359.1611696741795,
+     "at_upper": 1359.1611696741795,
+     "direction": 0,
+     "effect": 0.0
+    }
+   },
+   {
+    "name": "laminar_fraction_wing",
+    "kind": "ledger",
+    "nominal": 0.15,
+    "value_at_lower": 0.1,
+    "value_at_upper": 0.5,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": false,
+    "R5_hours": {
+     "at_lower": 7.8737866441481685,
+     "at_upper": 8.963800280994603,
+     "direction": -1,
+     "effect": -0.12621961286970595
+    },
+    "takeoff_ft": {
+     "at_lower": 730.3969058464894,
+     "at_upper": 729.2146151158013,
+     "direction": -1,
+     "effect": 0.15169745393120593
+    },
+    "landing_ft": {
+     "at_lower": 1359.095789422058,
+     "at_upper": 1359.6203804885117,
+     "direction": 1,
+     "effect": 0.45921081433220934
+    }
+   },
+   {
+    "name": "laminar_fraction_fuselage",
+    "kind": "ledger",
+    "nominal": 0.0,
+    "value_at_lower": 0.0,
+    "value_at_upper": 0.2,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": false,
+    "R5_hours": {
+     "at_lower": 8.000006257017874,
+     "at_upper": 8.132844889058754,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "takeoff_ft": {
+     "at_lower": 730.2452083925582,
+     "at_upper": 730.0945495538359,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "landing_ft": {
+     "at_lower": 1359.1611696741795,
+     "at_upper": 1359.2266433586892,
+     "direction": 1,
+     "effect": 0.0654736845096977
+    }
+   },
+   {
+    "name": "sensor_drag_area_ft2",
+    "kind": "ledger",
+    "nominal": 0.4,
+    "value_at_lower": 0.2,
+    "value_at_upper": 0.8,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": false,
+    "R5_hours": {
+     "at_lower": 8.174508656245768,
+     "at_upper": 7.663992380926639,
+     "direction": 1,
+     "effect": -0.33601387609123545
+    },
+    "takeoff_ft": {
+     "at_lower": 730.0322664178058,
+     "at_upper": 730.6778840945842,
+     "direction": 1,
+     "effect": 0.43267570202601746
+    },
+    "landing_ft": {
+     "at_lower": 1359.2538704729718,
+     "at_upper": 1358.97609988961,
+     "direction": -1,
+     "effect": 0.09270079879229343
+    }
+   },
+   {
+    "name": "fuselage_fineness",
+    "kind": "ledger",
+    "nominal": 8.0,
+    "value_at_lower": 6.0,
+    "value_at_upper": 10.0,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": false,
+    "R5_hours": {
+     "at_lower": 7.359131946331597,
+     "at_upper": 8.332338006810534,
+     "direction": -1,
+     "effect": -0.6408743106862778
+    },
+    "takeoff_ft": {
+     "at_lower": 754.915089218199,
+     "at_upper": 716.9452476837116,
+     "direction": -1,
+     "effect": 24.669880825640803
+    },
+    "landing_ft": {
+     "at_lower": 1367.5823282023166,
+     "at_upper": 1354.383548535605,
+     "direction": -1,
+     "effect": 8.421158528137084
+    }
+   },
+   {
+    "name": "fuselage_fill",
+    "kind": "ledger",
+    "nominal": 0.8,
+    "value_at_lower": 0.75,
+    "value_at_upper": 0.85,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": false,
+    "R5_hours": {
+     "at_lower": 8.26443484893653,
+     "at_upper": 7.739055550486536,
+     "direction": 1,
+     "effect": -0.26095070653133856
+    },
+    "takeoff_ft": {
+     "at_lower": 721.58384804168,
+     "at_upper": 739.2085957106025,
+     "direction": 1,
+     "effect": 8.963387318044283
+    },
+    "landing_ft": {
+     "at_lower": 1356.1171300582103,
+     "at_upper": 1362.2468370881659,
+     "direction": 1,
+     "effect": 3.085667413986357
+    }
+   },
+   {
+    "name": "fuselage_kf",
+    "kind": "ledger",
+    "nominal": 0.008,
+    "value_at_lower": 0.005,
+    "value_at_upper": 0.015,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": true,
+    "R5_hours": {
+     "at_lower": 8.000006257017874,
+     "at_upper": 8.000006257017874,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "takeoff_ft": {
+     "at_lower": 730.2452083925582,
+     "at_upper": 730.2452083925582,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "landing_ft": {
+     "at_lower": 1359.1611696741795,
+     "at_upper": 1359.1611696741795,
+     "direction": 0,
+     "effect": 0.0
+    }
+   },
+   {
+    "name": "tail_height_over_df",
+    "kind": "ledger",
+    "nominal": 0.4,
+    "value_at_lower": 0.09999999999999998,
+    "value_at_upper": 0.9,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": true,
+    "R5_hours": {
+     "at_lower": 8.000006257017874,
+     "at_upper": 8.000006257017874,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "takeoff_ft": {
+     "at_lower": 730.2452083925582,
+     "at_upper": 730.2452083925582,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "landing_ft": {
+     "at_lower": 1359.1611696741795,
+     "at_upper": 1359.1611696741795,
+     "direction": 0,
+     "effect": 0.0
+    }
+   },
+   {
+    "name": "composite_factor",
+    "kind": "ledger",
+    "nominal": 0.95,
+    "value_at_lower": 0.9,
+    "value_at_upper": 1.0,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": false,
+    "R5_hours": {
+     "at_lower": 8.801650310319529,
+     "at_upper": 7.238723503872714,
+     "direction": 1,
+     "effect": -0.7612827531451609
+    },
+    "takeoff_ft": {
+     "at_lower": 679.1495520838799,
+     "at_upper": 789.3979293903251,
+     "direction": 1,
+     "effect": 59.15272099776689
+    },
+    "landing_ft": {
+     "at_lower": 1339.9105137637666,
+     "at_upper": 1379.3853189179679,
+     "direction": 1,
+     "effect": 20.22414924378836
+    }
+   },
+   {
+    "name": "empty_weight_factor",
+    "kind": "ledger",
+    "nominal": 1.0,
+    "value_at_lower": 0.95,
+    "value_at_upper": 1.05,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": false,
+    "R5_hours": {
+     "at_lower": 8.493360198852415,
+     "at_upper": 7.524137189624256,
+     "direction": 1,
+     "effect": -0.4758690673936181
+    },
+    "takeoff_ft": {
+     "at_lower": 697.7226038256856,
+     "at_upper": 765.6607369612144,
+     "direction": 1,
+     "effect": 35.415528568656214
+    },
+    "landing_ft": {
+     "at_lower": 1347.0562437477352,
+     "at_upper": 1371.538814302389,
+     "direction": 1,
+     "effect": 12.37764462820951
+    }
+   },
+   {
+    "name": "avionics_uninstalled_lb",
+    "kind": "ledger",
+    "nominal": 60.0,
+    "value_at_lower": 40.0,
+    "value_at_upper": 100.0,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": false,
+    "R5_hours": {
+     "at_lower": 8.224727733539062,
+     "at_upper": 7.59714034574214,
+     "direction": 1,
+     "effect": -0.40286591127573423
+    },
+    "takeoff_ft": {
+     "at_lower": 714.9276068409447,
+     "at_upper": 759.954047576823,
+     "direction": 1,
+     "effect": 29.708839184264775
+    },
+    "landing_ft": {
+     "at_lower": 1353.5319240429135,
+     "at_upper": 1369.6008775753562,
+     "direction": 1,
+     "effect": 10.43970790117669
+    }
+   },
+   {
+    "name": "main_gear_length_in",
+    "kind": "ledger",
+    "nominal": 30.0,
+    "value_at_lower": 24.0,
+    "value_at_upper": 40.0,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": true,
+    "R5_hours": {
+     "at_lower": 8.000006257017874,
+     "at_upper": 8.000006257017874,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "takeoff_ft": {
+     "at_lower": 730.2452083925582,
+     "at_upper": 730.2452083925582,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "landing_ft": {
+     "at_lower": 1359.1611696741795,
+     "at_upper": 1359.1611696741795,
+     "direction": 0,
+     "effect": 0.0
+    }
+   },
+   {
+    "name": "nose_gear_length_in",
+    "kind": "ledger",
+    "nominal": 30.0,
+    "value_at_lower": 24.0,
+    "value_at_upper": 40.0,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": true,
+    "R5_hours": {
+     "at_lower": 8.000006257017874,
+     "at_upper": 8.000006257017874,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "takeoff_ft": {
+     "at_lower": 730.2452083925582,
+     "at_upper": 730.2452083925582,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "landing_ft": {
+     "at_lower": 1359.1611696741795,
+     "at_upper": 1359.1611696741795,
+     "direction": 0,
+     "effect": 0.0
+    }
+   },
+   {
+    "name": "gust_ude_fps",
+    "kind": "ledger",
+    "nominal": 30.0,
+    "value_at_lower": 30.0,
+    "value_at_upper": 50.0,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": false,
+    "R5_hours": {
+     "at_lower": 8.000006257017874,
+     "at_upper": 7.549622959446684,
+     "direction": 1,
+     "effect": -0.45038329757119033
+    },
+    "takeoff_ft": {
+     "at_lower": 730.2452083925582,
+     "at_upper": 763.6636506800224,
+     "direction": 1,
+     "effect": 33.418442287464245
+    },
+    "landing_ft": {
+     "at_lower": 1359.1611696741795,
+     "at_upper": 1370.8629765776323,
+     "direction": 1,
+     "effect": 11.701806903452734
+    }
+   },
+   {
+    "name": "wing_tank_chord_fraction",
+    "kind": "ledger",
+    "nominal": 0.45,
+    "value_at_lower": 0.4,
+    "value_at_upper": 0.5,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": true,
+    "R5_hours": {
+     "at_lower": 8.000006257017874,
+     "at_upper": 8.000006257017874,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "takeoff_ft": {
+     "at_lower": 730.2452083925582,
+     "at_upper": 730.2452083925582,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "landing_ft": {
+     "at_lower": 1359.1611696741795,
+     "at_upper": 1359.1611696741795,
+     "direction": 0,
+     "effect": 0.0
+    }
+   },
+   {
+    "name": "wing_tank_span_fraction",
+    "kind": "ledger",
+    "nominal": 0.8,
+    "value_at_lower": 0.7,
+    "value_at_upper": 0.85,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": true,
+    "R5_hours": {
+     "at_lower": 8.000006257017874,
+     "at_upper": 8.000006257017874,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "takeoff_ft": {
+     "at_lower": 730.2452083925582,
+     "at_upper": 730.2452083925582,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "landing_ft": {
+     "at_lower": 1359.1611696741795,
+     "at_upper": 1359.1611696741795,
+     "direction": 0,
+     "effect": 0.0
+    }
+   },
+   {
+    "name": "rolling_mu",
+    "kind": "ledger",
+    "nominal": 0.03,
+    "value_at_lower": 0.03,
+    "value_at_upper": 0.05,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": false,
+    "R5_hours": {
+     "at_lower": 8.000006257017874,
+     "at_upper": 8.000006257017874,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "takeoff_ft": {
+     "at_lower": 730.2452083925582,
+     "at_upper": 744.4415981554124,
+     "direction": 1,
+     "effect": 14.19638976285421
+    },
+    "landing_ft": {
+     "at_lower": 1359.1611696741795,
+     "at_upper": 1359.1611696741795,
+     "direction": 0,
+     "effect": 0.0
+    }
+   },
+   {
+    "name": "braking_mu",
+    "kind": "ledger",
+    "nominal": 0.5,
+    "value_at_lower": 0.3,
+    "value_at_upper": 0.5,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": false,
+    "R5_hours": {
+     "at_lower": 8.000006257017874,
+     "at_upper": 8.000006257017874,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "takeoff_ft": {
+     "at_lower": 730.2452083925582,
+     "at_upper": 730.2452083925582,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "landing_ft": {
+     "at_lower": 1481.96230907467,
+     "at_upper": 1359.1611696741795,
+     "direction": -1,
+     "effect": 122.80113940049046
+    }
+   },
+   {
+    "name": "free_roll_s",
+    "kind": "ledger",
+    "nominal": 2.0,
+    "value_at_lower": 1.0,
+    "value_at_upper": 3.0,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": false,
+    "R5_hours": {
+     "at_lower": 8.000006257017874,
+     "at_upper": 8.000006257017874,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "takeoff_ft": {
+     "at_lower": 730.2452083925582,
+     "at_upper": 730.2452083925582,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "landing_ft": {
+     "at_lower": 1275.2809834353006,
+     "at_upper": 1443.0413559130586,
+     "direction": 1,
+     "effect": 83.8801862388791
+    }
+   },
+   {
+    "name": "flap_deflection_takeoff_deg",
+    "kind": "ledger",
+    "nominal": 30.0,
+    "value_at_lower": 20.0,
+    "value_at_upper": 40.0,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": false,
+    "R5_hours": {
+     "at_lower": 8.000006257017874,
+     "at_upper": 8.000006257017874,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "takeoff_ft": {
+     "at_lower": 726.7514521331409,
+     "at_upper": 734.3644684178258,
+     "direction": 1,
+     "effect": 4.119260025267636
+    },
+    "landing_ft": {
+     "at_lower": 1359.1611696741795,
+     "at_upper": 1359.1611696741795,
+     "direction": 0,
+     "effect": 0.0
+    }
+   },
+   {
+    "name": "flap_deflection_landing_deg",
+    "kind": "ledger",
+    "nominal": 60.0,
+    "value_at_lower": 60.0,
+    "value_at_upper": 70.0,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": false,
+    "R5_hours": {
+     "at_lower": 8.000006257017874,
+     "at_upper": 8.000006257017874,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "takeoff_ft": {
+     "at_lower": 730.2452083925582,
+     "at_upper": 730.2452083925582,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "landing_ft": {
+     "at_lower": 1359.1611696741795,
+     "at_upper": 1357.5512176682219,
+     "direction": 0,
+     "effect": 0.0
+    }
+   },
+   {
+    "name": "strut_width_in",
+    "kind": "ledger",
+    "nominal": 3.0,
+    "value_at_lower": 2.0,
+    "value_at_upper": 4.0,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": false,
+    "R5_hours": {
+     "at_lower": 8.000006257017874,
+     "at_upper": 8.000006257017874,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "takeoff_ft": {
+     "at_lower": 730.1496960484238,
+     "at_upper": 730.3411726993753,
+     "direction": 1,
+     "effect": 0.09596430681710899
+    },
+    "landing_ft": {
+     "at_lower": 1359.2026144492875,
+     "at_upper": 1359.1197470362279,
+     "direction": -1,
+     "effect": 0.04144477510794786
+    }
+   },
+   {
+    "name": "rotation_angle_deg",
+    "kind": "ledger",
+    "nominal": 15.0,
+    "value_at_lower": 10.0,
+    "value_at_upper": 15.0,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": true,
+    "R5_hours": {
+     "at_lower": 8.000006257017874,
+     "at_upper": 8.000006257017874,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "takeoff_ft": {
+     "at_lower": 730.2452083925582,
+     "at_upper": 730.2452083925582,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "landing_ft": {
+     "at_lower": 1359.1611696741795,
+     "at_upper": 1359.1611696741795,
+     "direction": 0,
+     "effect": 0.0
+    }
+   },
+   {
+    "name": "main_gear_station_guess",
+    "kind": "ledger",
+    "nominal": 0.4,
+    "value_at_lower": 0.3,
+    "value_at_upper": 0.5,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": false,
+    "R5_hours": {
+     "at_lower": 7.9289037435545655,
+     "at_upper": 8.073417361589765,
+     "direction": -1,
+     "effect": -0.07110251346330898
+    },
+    "takeoff_ft": {
+     "at_lower": 735.312115440387,
+     "at_upper": 725.1099134264231,
+     "direction": -1,
+     "effect": 5.0669070478287495
+    },
+    "landing_ft": {
+     "at_lower": 1360.9651719802941,
+     "at_upper": 1357.3124067148217,
+     "direction": -1,
+     "effect": 1.8040023061146258
+    }
+   },
+   {
+    "name": "tail_cl_max_trim",
+    "kind": "ledger",
+    "nominal": 0.5,
+    "value_at_lower": 0.4,
+    "value_at_upper": 0.7,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": true,
+    "R5_hours": {
+     "at_lower": 8.000006257017874,
+     "at_upper": 8.000006257017874,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "takeoff_ft": {
+     "at_lower": 730.2452083925582,
+     "at_upper": 730.2452083925582,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "landing_ft": {
+     "at_lower": 1359.1611696741795,
+     "at_upper": 1359.1611696741795,
+     "direction": 0,
+     "effect": 0.0
+    }
+   },
+   {
+    "name": "tail_cl_max_rotation",
+    "kind": "ledger",
+    "nominal": 1.0,
+    "value_at_lower": 0.8,
+    "value_at_upper": 1.2,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": true,
+    "R5_hours": {
+     "at_lower": 8.000006257017874,
+     "at_upper": 8.000006257017874,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "takeoff_ft": {
+     "at_lower": 730.2452083925582,
+     "at_upper": 730.2452083925582,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "landing_ft": {
+     "at_lower": 1359.1611696741795,
+     "at_upper": 1359.1611696741795,
+     "direction": 0,
+     "effect": 0.0
+    }
+   },
+   {
+    "name": "station_engine_pusher",
+    "kind": "ledger",
+    "nominal": 0.88,
+    "value_at_lower": 0.82,
+    "value_at_upper": 0.92,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": true,
+    "R5_hours": {
+     "at_lower": 8.000006257017874,
+     "at_upper": 8.000006257017874,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "takeoff_ft": {
+     "at_lower": 730.2452083925582,
+     "at_upper": 730.2452083925582,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "landing_ft": {
+     "at_lower": 1359.1611696741795,
+     "at_upper": 1359.1611696741795,
+     "direction": 0,
+     "effect": 0.0
+    }
+   },
+   {
+    "name": "station_engine_tractor",
+    "kind": "ledger",
+    "nominal": 0.07,
+    "value_at_lower": 0.05,
+    "value_at_upper": 0.1,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": true,
+    "R5_hours": {
+     "at_lower": 8.000006257017874,
+     "at_upper": 8.000006257017874,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "takeoff_ft": {
+     "at_lower": 730.2452083925582,
+     "at_upper": 730.2452083925582,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "landing_ft": {
+     "at_lower": 1359.1611696741795,
+     "at_upper": 1359.1611696741795,
+     "direction": 0,
+     "effect": 0.0
+    }
+   },
+   {
+    "name": "station_payload_pusher",
+    "kind": "ledger",
+    "nominal": 0.1,
+    "value_at_lower": 0.06,
+    "value_at_upper": 0.15,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": true,
+    "R5_hours": {
+     "at_lower": 8.000006257017874,
+     "at_upper": 8.000006257017874,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "takeoff_ft": {
+     "at_lower": 730.2452083925582,
+     "at_upper": 730.2452083925582,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "landing_ft": {
+     "at_lower": 1359.1611696741795,
+     "at_upper": 1359.1611696741795,
+     "direction": 0,
+     "effect": 0.0
+    }
+   },
+   {
+    "name": "station_payload_tractor",
+    "kind": "ledger",
+    "nominal": 0.3,
+    "value_at_lower": 0.25,
+    "value_at_upper": 0.35,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": true,
+    "R5_hours": {
+     "at_lower": 8.000006257017874,
+     "at_upper": 8.000006257017874,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "takeoff_ft": {
+     "at_lower": 730.2452083925582,
+     "at_upper": 730.2452083925582,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "landing_ft": {
+     "at_lower": 1359.1611696741795,
+     "at_upper": 1359.1611696741795,
+     "direction": 0,
+     "effect": 0.0
+    }
+   },
+   {
+    "name": "station_avionics",
+    "kind": "ledger",
+    "nominal": 0.21,
+    "value_at_lower": 0.15,
+    "value_at_upper": 0.3,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": true,
+    "R5_hours": {
+     "at_lower": 8.000006257017874,
+     "at_upper": 8.000006257017874,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "takeoff_ft": {
+     "at_lower": 730.2452083925582,
+     "at_upper": 730.2452083925582,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "landing_ft": {
+     "at_lower": 1359.1611696741795,
+     "at_upper": 1359.1611696741795,
+     "direction": 0,
+     "effect": 0.0
+    }
+   },
+   {
+    "name": "station_fuselage",
+    "kind": "ledger",
+    "nominal": 0.45,
+    "value_at_lower": 0.4,
+    "value_at_upper": 0.5,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": true,
+    "R5_hours": {
+     "at_lower": 8.000006257017874,
+     "at_upper": 8.000006257017874,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "takeoff_ft": {
+     "at_lower": 730.2452083925582,
+     "at_upper": 730.2452083925582,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "landing_ft": {
+     "at_lower": 1359.1611696741795,
+     "at_upper": 1359.1611696741795,
+     "direction": 0,
+     "effect": 0.0
+    }
+   },
+   {
+    "name": "station_systems",
+    "kind": "ledger",
+    "nominal": 0.45,
+    "value_at_lower": 0.4,
+    "value_at_upper": 0.5,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": true,
+    "R5_hours": {
+     "at_lower": 8.000006257017874,
+     "at_upper": 8.000006257017874,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "takeoff_ft": {
+     "at_lower": 730.2452083925582,
+     "at_upper": 730.2452083925582,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "landing_ft": {
+     "at_lower": 1359.1611696741795,
+     "at_upper": 1359.1611696741795,
+     "direction": 0,
+     "effect": 0.0
+    }
+   },
+   {
+    "name": "station_flight_controls",
+    "kind": "ledger",
+    "nominal": 0.55,
+    "value_at_lower": 0.45,
+    "value_at_upper": 0.65,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": true,
+    "R5_hours": {
+     "at_lower": 8.000006257017874,
+     "at_upper": 8.000006257017874,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "takeoff_ft": {
+     "at_lower": 730.2452083925582,
+     "at_upper": 730.2452083925582,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "landing_ft": {
+     "at_lower": 1359.1611696741795,
+     "at_upper": 1359.1611696741795,
+     "direction": 0,
+     "effect": 0.0
+    }
+   },
+   {
+    "name": "station_nose_gear",
+    "kind": "ledger",
+    "nominal": 0.1,
+    "value_at_lower": 0.06,
+    "value_at_upper": 0.15,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": true,
+    "R5_hours": {
+     "at_lower": 8.000006257017874,
+     "at_upper": 8.000006257017874,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "takeoff_ft": {
+     "at_lower": 730.2452083925582,
+     "at_upper": 730.2452083925582,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "landing_ft": {
+     "at_lower": 1359.1611696741795,
+     "at_upper": 1359.1611696741795,
+     "direction": 0,
+     "effect": 0.0
+    }
+   },
+   {
+    "name": "rotation_angle_deg_pusher",
+    "kind": "ledger",
+    "nominal": 10.0,
+    "value_at_lower": 10.0,
+    "value_at_upper": 15.0,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": false,
+    "R5_hours": {
+     "at_lower": 8.000006257017874,
+     "at_upper": 7.750051454977643,
+     "direction": 1,
+     "effect": -0.24995480204023135
+    },
+    "takeoff_ft": {
+     "at_lower": 730.2452083925582,
+     "at_upper": 748.4563813376318,
+     "direction": 1,
+     "effect": 18.2111729450736
+    },
+    "landing_ft": {
+     "at_lower": 1359.1611696741795,
+     "at_upper": 1365.5550481712448,
+     "direction": 1,
+     "effect": 6.393878497065316
+    }
+   },
+   {
+    "name": "nose_down_deg",
+    "kind": "ledger",
+    "nominal": 2.0,
+    "value_at_lower": 1.0,
+    "value_at_upper": 3.0,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": true,
+    "R5_hours": {
+     "at_lower": 8.000006257017874,
+     "at_upper": 8.000006257017874,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "takeoff_ft": {
+     "at_lower": 730.2452083925582,
+     "at_upper": 730.2452083925582,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "landing_ft": {
+     "at_lower": 1359.1611696741795,
+     "at_upper": 1359.1611696741795,
+     "direction": 0,
+     "effect": 0.0
+    }
+   },
+   {
+    "name": "station_nose_gear_min",
+    "kind": "ledger",
+    "nominal": 0.04,
+    "value_at_lower": 0.03,
+    "value_at_upper": 0.06,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": true,
+    "R5_hours": {
+     "at_lower": 8.000006257017874,
+     "at_upper": 8.000006257017874,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "takeoff_ft": {
+     "at_lower": 730.2452083925582,
+     "at_upper": 730.2452083925582,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "landing_ft": {
+     "at_lower": 1359.1611696741795,
+     "at_upper": 1359.1611696741795,
+     "direction": 0,
+     "effect": 0.0
+    }
+   },
+   {
+    "name": "sponson_length_per_tyre",
+    "kind": "ledger",
+    "nominal": 3.6,
+    "value_at_lower": 3.0,
+    "value_at_upper": 4.8,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": false,
+    "R5_hours": {
+     "at_lower": 7.71854993877979,
+     "at_upper": 8.081071156284079,
+     "direction": -1,
+     "effect": -0.28145631823808426
+    },
+    "takeoff_ft": {
+     "at_lower": 721.2249361700125,
+     "at_upper": 749.6266719476894,
+     "direction": 1,
+     "effect": 19.381463555131177
+    },
+    "landing_ft": {
+     "at_lower": 1355.5065860133643,
+     "at_upper": 1366.3715598132544,
+     "direction": 1,
+     "effect": 7.210390139074889
+    }
+   },
+   {
+    "name": "sponson_depth_per_tyre",
+    "kind": "ledger",
+    "nominal": 1.2,
+    "value_at_lower": 1.1,
+    "value_at_upper": 1.4,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": false,
+    "R5_hours": {
+     "at_lower": 8.416956884698282,
+     "at_upper": 6.976916659207393,
+     "direction": 1,
+     "effect": -1.0230895978104817
+    },
+    "takeoff_ft": {
+     "at_lower": 725.1279510515569,
+     "at_upper": 741.1953285214178,
+     "direction": 1,
+     "effect": 10.950120128859567
+    },
+    "landing_ft": {
+     "at_lower": 1357.5900933400715,
+     "at_upper": 1362.1970245633706,
+     "direction": 1,
+     "effect": 3.035854889191114
+    }
+   },
+   {
+    "name": "sponson_interference_q",
+    "kind": "ledger",
+    "nominal": 1.5,
+    "value_at_lower": 1.3,
+    "value_at_upper": 1.5,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": false,
+    "R5_hours": {
+     "at_lower": 8.200953763817987,
+     "at_upper": 8.000006257017874,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "takeoff_ft": {
+     "at_lower": 730.0269769447023,
+     "at_upper": 730.2452083925582,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "landing_ft": {
+     "at_lower": 1359.2561871203063,
+     "at_upper": 1359.1611696741795,
+     "direction": -1,
+     "effect": 0.0950174461268034
+    }
+   },
+   {
+    "name": "sponson_weight_per_wetted",
+    "kind": "ledger",
+    "nominal": 1.4,
+    "value_at_lower": 1.0,
+    "value_at_upper": 1.8,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": false,
+    "R5_hours": {
+     "at_lower": 8.23556900483204,
+     "at_upper": 7.765784943669792,
+     "direction": 1,
+     "effect": -0.23422131334808238
+    },
+    "takeoff_ft": {
+     "at_lower": 714.2174592894185,
+     "at_upper": 747.1731449701585,
+     "direction": 1,
+     "effect": 16.92793657760035
+    },
+    "landing_ft": {
+     "at_lower": 1353.2672971104366,
+     "at_upper": 1365.1837594097058,
+     "direction": 1,
+     "effect": 6.022589735526253
+    }
+   },
+   {
+    "name": "nose_tyre_scale",
+    "kind": "ledger",
+    "nominal": 0.8,
+    "value_at_lower": 0.6,
+    "value_at_upper": 1.0,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": false,
+    "R5_hours": {
+     "at_lower": 8.000006257017874,
+     "at_upper": 8.000006257017874,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "takeoff_ft": {
+     "at_lower": 730.1566540372951,
+     "at_upper": 730.3596347954543,
+     "direction": 1,
+     "effect": 0.11442640289612882
+    },
+    "landing_ft": {
+     "at_lower": 1359.1995878592088,
+     "at_upper": 1359.1118028144106,
+     "direction": -1,
+     "effect": 0.03841818502928618
+    }
+   },
+   {
+    "name": "prop_hub_offset_ft",
+    "kind": "ledger",
+    "nominal": 0.0,
+    "value_at_lower": 0.0,
+    "value_at_upper": 2.0,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": false,
+    "R5_hours": {
+     "at_lower": 8.000006257017874,
+     "at_upper": 8.312626585599926,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "takeoff_ft": {
+     "at_lower": 730.2452083925582,
+     "at_upper": 709.0668953883087,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "landing_ft": {
+     "at_lower": 1359.1611696741795,
+     "at_upper": 1351.413926295004,
+     "direction": 0,
+     "effect": 0.0
+    }
+   },
+   {
+    "name": "engine_sfc_mult",
+    "kind": "engine",
+    "nominal": 1.0,
+    "value_at_lower": 0.9,
+    "value_at_upper": 1.1,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": false,
+    "R5_hours": {
+     "at_lower": 9.581197156298314,
+     "at_upper": 6.70602901784148,
+     "direction": 1,
+     "effect": -1.2939772391763942
+    },
+    "takeoff_ft": {
+     "at_lower": 730.2452083925582,
+     "at_upper": 730.2452083925582,
+     "direction": 0,
+     "effect": 0.0
+    },
+    "landing_ft": {
+     "at_lower": 1359.1611696741795,
+     "at_upper": 1359.1611696741795,
+     "direction": 0,
+     "effect": 0.0
+    }
+   },
+   {
+    "name": "engine_power_mult",
+    "kind": "engine",
+    "nominal": 1.0,
+    "value_at_lower": 0.9,
+    "value_at_upper": 1.1,
+    "clipped_lower": false,
+    "clipped_upper": false,
+    "inert": false,
+    "R5_hours": {
+     "at_lower": 7.942268744448388,
+     "at_upper": 8.018638929796309,
+     "direction": -1,
+     "effect": -0.05773751256948678
+    },
+    "takeoff_ft": {
+     "at_lower": 761.198734616671,
+     "at_upper": 730.2452083925582,
+     "direction": -1,
+     "effect": 30.953526224112807
+    },
+    "landing_ft": {
+     "at_lower": 1359.1611696741795,
+     "at_upper": 1359.1611696741795,
+     "direction": 0,
+     "effect": 0.0
+    }
+   }
+  ]
+ },
+ "directions": {
+  "R5": {
+   "cbhp_cruise": 0,
+   "cbhp_loiter": 0,
+   "eta_p": 0,
+   "prop_real_to_ideal": -1,
+   "static_ct_over_cp": 0,
+   "airfoil_cl_max": -1,
+   "airfoil_cm0": 0,
+   "wing_t_c": 1,
+   "flap_span_fraction": 0,
+   "takeoff_flap_fraction": 0,
+   "laminar_fraction_wing": -1,
+   "laminar_fraction_fuselage": 0,
+   "sensor_drag_area_ft2": 1,
+   "fuselage_fineness": -1,
+   "fuselage_fill": 1,
+   "fuselage_kf": 0,
+   "tail_height_over_df": 0,
+   "composite_factor": 1,
+   "empty_weight_factor": 1,
+   "avionics_uninstalled_lb": 1,
+   "main_gear_length_in": 0,
+   "nose_gear_length_in": 0,
+   "gust_ude_fps": 1,
+   "wing_tank_chord_fraction": 0,
+   "wing_tank_span_fraction": 0,
+   "rolling_mu": 0,
+   "braking_mu": 0,
+   "free_roll_s": 0,
+   "flap_deflection_takeoff_deg": 0,
+   "flap_deflection_landing_deg": 0,
+   "strut_width_in": 0,
+   "rotation_angle_deg": 0,
+   "main_gear_station_guess": -1,
+   "tail_cl_max_trim": 0,
+   "tail_cl_max_rotation": 0,
+   "station_engine_pusher": 0,
+   "station_engine_tractor": 0,
+   "station_payload_pusher": 0,
+   "station_payload_tractor": 0,
+   "station_avionics": 0,
+   "station_fuselage": 0,
+   "station_systems": 0,
+   "station_flight_controls": 0,
+   "station_nose_gear": 0,
+   "rotation_angle_deg_pusher": 1,
+   "nose_down_deg": 0,
+   "station_nose_gear_min": 0,
+   "sponson_length_per_tyre": -1,
+   "sponson_depth_per_tyre": 1,
+   "sponson_interference_q": 0,
+   "sponson_weight_per_wetted": 1,
+   "nose_tyre_scale": 0,
+   "prop_hub_offset_ft": 0,
+   "engine_sfc_mult": 1,
+   "engine_power_mult": -1
+  },
+  "TO": {
+   "cbhp_cruise": 0,
+   "cbhp_loiter": 0,
+   "eta_p": 0,
+   "prop_real_to_ideal": -1,
+   "static_ct_over_cp": 0,
+   "airfoil_cl_max": -1,
+   "airfoil_cm0": 0,
+   "wing_t_c": -1,
+   "flap_span_fraction": -1,
+   "takeoff_flap_fraction": -1,
+   "laminar_fraction_wing": -1,
+   "laminar_fraction_fuselage": 0,
+   "sensor_drag_area_ft2": 1,
+   "fuselage_fineness": -1,
+   "fuselage_fill": 1,
+   "fuselage_kf": 0,
+   "tail_height_over_df": 0,
+   "composite_factor": 1,
+   "empty_weight_factor": 1,
+   "avionics_uninstalled_lb": 1,
+   "main_gear_length_in": 0,
+   "nose_gear_length_in": 0,
+   "gust_ude_fps": 1,
+   "wing_tank_chord_fraction": 0,
+   "wing_tank_span_fraction": 0,
+   "rolling_mu": 1,
+   "braking_mu": 0,
+   "free_roll_s": 0,
+   "flap_deflection_takeoff_deg": 1,
+   "flap_deflection_landing_deg": 0,
+   "strut_width_in": 1,
+   "rotation_angle_deg": 0,
+   "main_gear_station_guess": -1,
+   "tail_cl_max_trim": 0,
+   "tail_cl_max_rotation": 0,
+   "station_engine_pusher": 0,
+   "station_engine_tractor": 0,
+   "station_payload_pusher": 0,
+   "station_payload_tractor": 0,
+   "station_avionics": 0,
+   "station_fuselage": 0,
+   "station_systems": 0,
+   "station_flight_controls": 0,
+   "station_nose_gear": 0,
+   "rotation_angle_deg_pusher": 1,
+   "nose_down_deg": 0,
+   "station_nose_gear_min": 0,
+   "sponson_length_per_tyre": 1,
+   "sponson_depth_per_tyre": 1,
+   "sponson_interference_q": 0,
+   "sponson_weight_per_wetted": 1,
+   "nose_tyre_scale": 1,
+   "prop_hub_offset_ft": 0,
+   "engine_sfc_mult": 0,
+   "engine_power_mult": -1
+  },
+  "LD": {
+   "cbhp_cruise": 0,
+   "cbhp_loiter": 0,
+   "eta_p": 0,
+   "prop_real_to_ideal": 0,
+   "static_ct_over_cp": 0,
+   "airfoil_cl_max": -1,
+   "airfoil_cm0": 0,
+   "wing_t_c": -1,
+   "flap_span_fraction": -1,
+   "takeoff_flap_fraction": 0,
+   "laminar_fraction_wing": 1,
+   "laminar_fraction_fuselage": 1,
+   "sensor_drag_area_ft2": -1,
+   "fuselage_fineness": -1,
+   "fuselage_fill": 1,
+   "fuselage_kf": 0,
+   "tail_height_over_df": 0,
+   "composite_factor": 1,
+   "empty_weight_factor": 1,
+   "avionics_uninstalled_lb": 1,
+   "main_gear_length_in": 0,
+   "nose_gear_length_in": 0,
+   "gust_ude_fps": 1,
+   "wing_tank_chord_fraction": 0,
+   "wing_tank_span_fraction": 0,
+   "rolling_mu": 0,
+   "braking_mu": -1,
+   "free_roll_s": 1,
+   "flap_deflection_takeoff_deg": 0,
+   "flap_deflection_landing_deg": 0,
+   "strut_width_in": -1,
+   "rotation_angle_deg": 0,
+   "main_gear_station_guess": -1,
+   "tail_cl_max_trim": 0,
+   "tail_cl_max_rotation": 0,
+   "station_engine_pusher": 0,
+   "station_engine_tractor": 0,
+   "station_payload_pusher": 0,
+   "station_payload_tractor": 0,
+   "station_avionics": 0,
+   "station_fuselage": 0,
+   "station_systems": 0,
+   "station_flight_controls": 0,
+   "station_nose_gear": 0,
+   "rotation_angle_deg_pusher": 1,
+   "nose_down_deg": 0,
+   "station_nose_gear_min": 0,
+   "sponson_length_per_tyre": 1,
+   "sponson_depth_per_tyre": 1,
+   "sponson_interference_q": -1,
+   "sponson_weight_per_wetted": 1,
+   "nose_tyre_scale": -1,
+   "prop_hub_offset_ft": 0,
+   "engine_sfc_mult": 0,
+   "engine_power_mult": 0
+  }
+ },
+ "inert_variables": [
+  "cbhp_cruise",
+  "cbhp_loiter",
+  "eta_p",
+  "static_ct_over_cp",
+  "airfoil_cm0",
+  "fuselage_kf",
+  "tail_height_over_df",
+  "main_gear_length_in",
+  "nose_gear_length_in",
+  "wing_tank_chord_fraction",
+  "wing_tank_span_fraction",
+  "rotation_angle_deg",
+  "tail_cl_max_trim",
+  "tail_cl_max_rotation",
+  "station_engine_pusher",
+  "station_engine_tractor",
+  "station_payload_pusher",
+  "station_payload_tractor",
+  "station_avionics",
+  "station_fuselage",
+  "station_systems",
+  "station_flight_controls",
+  "station_nose_gear",
+  "nose_down_deg",
+  "station_nose_gear_min"
+ ],
+ "n_variables": 55,
+ "n_act": 30,
+ "h_hat": {
+  "R5": {
+   "h_hat": 0.0,
+   "status": "zero margin: fails at the first step above h = 0",
+   "limit": 951.845374200738,
+   "worst_at_h_hat": {
+    "h": 0.0,
+    "moved": {},
+    "n_evals": 312,
+    "n_unflyable": 0,
+    "unflyable_reasons": {},
+    "sweeps": 1,
+    "hours": 8.000006257017874,
+    "not_flyable": null
+   },
+   "first_failing_h": 0.00018310546875,
+   "worst_at_first_failing_h": {
+    "h": 0.00018310546875,
+    "moved": {
+     "prop_real_to_ideal": 0.8499908447265625,
+     "airfoil_cl_max": 1.4177484356689454,
+     "wing_t_c": 0.1500054931640625,
+     "laminar_fraction_wing": 0.1499908447265625,
+     "sensor_drag_area_ft2": 0.4000732421875,
+     "fuselage_fineness": 7.9996337890625,
+     "fuselage_fill": 0.8000091552734375,
+     "composite_factor": 0.9500091552734374,
+     "empty_weight_factor": 1.0000091552734376,
+     "avionics_uninstalled_lb": 60.00732421875,
+     "gust_ude_fps": 30.003662109375,
+     "main_gear_station_guess": 0.399981689453125,
+     "rotation_angle_deg_pusher": 10.00091552734375,
+     "sponson_length_per_tyre": 3.59989013671875,
+     "sponson_depth_per_tyre": 1.2000366210937499,
+     "sponson_weight_per_wetted": 1.4000732421875,
+     "engine_sfc_mult": 1.000018310546875,
+     "engine_power_mult": 0.999981689453125
+    },
+    "n_evals": 521,
+    "n_unflyable": 0,
+    "unflyable_reasons": {},
+    "sweeps": 1,
+    "hours": 7.998641428171742,
+    "not_flyable": null
+   },
+   "sampling": [
+    {
+     "h": 1.0,
+     "seed": 20261122,
+     "n_random": 200,
+     "n_corner_points": 32,
+     "search_value": "inf",
+     "worst_sampled": 1262.3307226384397,
+     "worst_sampled_kind": "corner of top 5",
+     "worst_random": 1216.649538292931,
+     "n_beating_search": 0,
+     "most_beating": null
+    }
+   ],
+   "hours": 8.0
+  },
+  "TO": {
+   "h_hat": 1.1700439453125,
+   "status": "bracketed",
+   "limit": 2500.0,
+   "worst_at_h_hat": {
+    "h": 1.1700439453125,
+    "moved": {
+     "prop_real_to_ideal": 0.7914978027343751,
+     "airfoil_cl_max": 1.2799739245605468,
+     "wing_t_c": 0.114898681640625,
+     "flap_span_fraction": 0.71700439453125,
+     "takeoff_flap_fraction": 0.36599121093750003,
+     "laminar_fraction_wing": 0.09149780273437501,
+     "sensor_drag_area_ft2": 0.868017578125,
+     "fuselage_fineness": 5.659912109375,
+     "fuselage_fill": 0.8585021972656249,
+     "composite_factor": 1.0,
+     "empty_weight_factor": 1.058502197265625,
+     "avionics_uninstalled_lb": 106.8017578125,
+     "gust_ude_fps": 53.40087890625,
+     "rolling_mu": 0.053400878906250004,
+     "flap_deflection_takeoff_deg": 41.700439453125,
+     "strut_width_in": 4.1700439453125,
+     "main_gear_station_guess": 0.28299560546874997,
+     "rotation_angle_deg_pusher": 15.8502197265625,
+     "sponson_length_per_tyre": 5.004052734375,
+     "sponson_depth_per_tyre": 1.4340087890625,
+     "sponson_weight_per_wetted": 1.8680175781250001,
+     "nose_tyre_scale": 1.0,
+     "engine_power_mult": 0.88299560546875
+    },
+    "n_evals": 622,
+    "n_unflyable": 0,
+    "unflyable_reasons": {},
+    "sweeps": 2,
+    "takeoff_ft": 2499.765086951221,
+    "landing_ft": 1489.0043487534765,
+    "not_flyable": null
+   },
+   "first_failing_h": 1.17022705078125,
+   "worst_at_first_failing_h": {
+    "h": 1.17022705078125,
+    "moved": {
+     "prop_real_to_ideal": 0.7914886474609375,
+     "airfoil_cl_max": 1.2799523602294922,
+     "wing_t_c": 0.11489318847656249,
+     "flap_span_fraction": 0.7170227050781249,
+     "takeoff_flap_fraction": 0.36595458984375007,
+     "laminar_fraction_wing": 0.09148864746093752,
+     "sensor_drag_area_ft2": 0.8680908203125001,
+     "fuselage_fineness": 5.6595458984375,
+     "fuselage_fill": 0.8585113525390624,
+     "composite_factor": 1.0,
+     "empty_weight_factor": 1.0585113525390626,
+     "avionics_uninstalled_lb": 106.80908203125,
+     "gust_ude_fps": 53.404541015625,
+     "rolling_mu": 0.053404541015625,
+     "flap_deflection_takeoff_deg": 41.7022705078125,
+     "strut_width_in": 4.17022705078125,
+     "main_gear_station_guess": 0.28297729492187496,
+     "rotation_angle_deg_pusher": 15.85113525390625,
+     "sponson_length_per_tyre": 5.0042724609375,
+     "sponson_depth_per_tyre": 1.4340454101562499,
+     "sponson_weight_per_wetted": 1.8680908203125002,
+     "nose_tyre_scale": 1.0,
+     "engine_power_mult": 0.882977294921875
+    },
+    "n_evals": 622,
+    "n_unflyable": 0,
+    "unflyable_reasons": {},
+    "sweeps": 2,
+    "takeoff_ft": 2500.855114021395,
+    "landing_ft": 1489.0290750503514,
+    "not_flyable": null
+   },
+   "sampling": [
+    {
+     "h": 1.0,
+     "seed": 20261132,
+     "n_random": 200,
+     "n_corner_points": 32,
+     "search_value": 1810.4499816816663,
+     "worst_sampled": 993.504626547123,
+     "worst_sampled_kind": "corner of top 5",
+     "worst_random": 988.2464432760994,
+     "n_beating_search": 0,
+     "most_beating": null
+    },
+    {
+     "h": 1.1700439453125,
+     "seed": 20261133,
+     "n_random": 200,
+     "n_corner_points": 32,
+     "search_value": 2499.765086951221,
+     "worst_sampled": 1041.893721670745,
+     "worst_sampled_kind": "corner of top 5",
+     "worst_random": 975.6115479050118,
+     "n_beating_search": 0,
+     "most_beating": null
+    }
+   ]
+  },
+  "LD": {
+   "h_hat": 1.5882568359375,
+   "status": "bracketed",
+   "limit": 2500.0,
+   "worst_at_h_hat": {
+    "h": 1.5882568359375,
+    "moved": {
+     "airfoil_cl_max": 1.2307209924316407,
+     "wing_t_c": 0.102352294921875,
+     "flap_span_fraction": 0.44117431640625004,
+     "laminar_fraction_wing": 0.705889892578125,
+     "laminar_fraction_fuselage": 0.31765136718750003,
+     "sensor_drag_area_ft2": 0.08234863281249999,
+     "fuselage_fineness": 4.823486328125,
+     "fuselage_fill": 0.879412841796875,
+     "composite_factor": 1.0,
+     "empty_weight_factor": 1.0794128417968751,
+     "avionics_uninstalled_lb": 123.5302734375,
+     "gust_ude_fps": 61.76513671875,
+     "braking_mu": 0.18234863281249997,
+     "free_roll_s": 3.5882568359375,
+     "strut_width_in": 1.4117431640625,
+     "main_gear_station_guess": 0.24117431640624998,
+     "rotation_angle_deg_pusher": 17.9412841796875,
+     "sponson_length_per_tyre": 5.505908203124999,
+     "sponson_depth_per_tyre": 1.5176513671874998,
+     "sponson_interference_q": 1.1823486328125001,
+     "sponson_weight_per_wetted": 2.035302734375,
+     "nose_tyre_scale": 0.48234863281249996
+    },
+    "n_evals": 557,
+    "n_unflyable": 0,
+    "unflyable_reasons": {},
+    "sweeps": 1,
+    "takeoff_ft": 2034.036569110082,
+    "landing_ft": 2499.6908672229856,
+    "not_flyable": null
+   },
+   "first_failing_h": 1.58843994140625,
+   "worst_at_first_failing_h": {
+    "h": 1.58843994140625,
+    "moved": {
+     "airfoil_cl_max": 1.230699428100586,
+     "wing_t_c": 0.1023468017578125,
+     "flap_span_fraction": 0.441156005859375,
+     "laminar_fraction_wing": 0.7059539794921875,
+     "laminar_fraction_fuselage": 0.31768798828125,
+     "sensor_drag_area_ft2": 0.08231201171875002,
+     "fuselage_fineness": 4.8231201171875,
+     "fuselage_fill": 0.8794219970703124,
+     "composite_factor": 1.0,
+     "empty_weight_factor": 1.0794219970703125,
+     "avionics_uninstalled_lb": 123.53759765625,
+     "gust_ude_fps": 61.768798828125,
+     "braking_mu": 0.18231201171875,
+     "free_roll_s": 3.58843994140625,
+     "strut_width_in": 1.41156005859375,
+     "main_gear_station_guess": 0.24115600585937497,
+     "rotation_angle_deg_pusher": 17.94219970703125,
+     "sponson_length_per_tyre": 5.5061279296875,
+     "sponson_depth_per_tyre": 1.51768798828125,
+     "sponson_interference_q": 1.18231201171875,
+     "sponson_weight_per_wetted": 2.0353759765625004,
+     "nose_tyre_scale": 0.48231201171874993
+    },
+    "n_evals": 557,
+    "n_unflyable": 0,
+    "unflyable_reasons": {},
+    "sweeps": 1,
+    "takeoff_ft": 2034.4130210260828,
+    "landing_ft": 2500.021136284742,
+    "not_flyable": null
+   },
+   "sampling": [
+    {
+     "h": 1.0,
+     "seed": 20261142,
+     "n_random": 200,
+     "n_corner_points": 32,
+     "search_value": 1825.748168807443,
+     "worst_sampled": 1662.8205492795414,
+     "worst_sampled_kind": "corner of top 5",
+     "worst_random": 1610.6190648222685,
+     "n_beating_search": 0,
+     "most_beating": null
+    },
+    {
+     "h": 1.5882568359375,
+     "seed": 20261143,
+     "n_random": 200,
+     "n_corner_points": 32,
+     "search_value": 2499.6908672229856,
+     "worst_sampled": 2000.9571311306681,
+     "worst_sampled_kind": "corner of top 5",
+     "worst_random": 1808.2093800796233,
+     "n_beating_search": 0,
+     "most_beating": null
+    }
+   ]
+  },
+  "R5_reserve_usable": {
+   "h_hat": 0.136962890625,
+   "status": "bracketed",
+   "limit": 1008.9560966527823,
+   "worst_at_h_hat": {
+    "h": 0.136962890625,
+    "moved": {
+     "prop_real_to_ideal": 0.8431518554687499,
+     "airfoil_cl_max": 1.4016398803710937,
+     "wing_t_c": 0.15410888671875,
+     "laminar_fraction_wing": 0.14315185546875,
+     "sensor_drag_area_ft2": 0.45478515625000004,
+     "fuselage_fineness": 7.72607421875,
+     "fuselage_fill": 0.8068481445312501,
+     "composite_factor": 0.95684814453125,
+     "empty_weight_factor": 1.00684814453125,
+     "avionics_uninstalled_lb": 65.478515625,
+     "gust_ude_fps": 32.7392578125,
+     "main_gear_station_guess": 0.38630371093750004,
+     "rotation_angle_deg_pusher": 10.684814453125,
+     "sponson_length_per_tyre": 3.517822265625,
+     "sponson_depth_per_tyre": 1.227392578125,
+     "sponson_weight_per_wetted": 1.4547851562499998,
+     "engine_sfc_mult": 1.0136962890625,
+     "engine_power_mult": 0.9863037109375
+    },
+    "n_evals": 521,
+    "n_unflyable": 0,
+    "unflyable_reasons": {},
+    "sweeps": 1,
+    "hours": 7.999926015102488,
+    "not_flyable": null
+   },
+   "first_failing_h": 0.13714599609375,
+   "worst_at_first_failing_h": {
+    "h": 0.13714599609375,
+    "moved": {
+     "prop_real_to_ideal": 0.8431427001953125,
+     "airfoil_cl_max": 1.401618316040039,
+     "wing_t_c": 0.15411437988281249,
+     "laminar_fraction_wing": 0.1431427001953125,
+     "sensor_drag_area_ft2": 0.45485839843750003,
+     "fuselage_fineness": 7.7257080078125,
+     "fuselage_fill": 0.8068572998046876,
+     "composite_factor": 0.9568572998046875,
+     "empty_weight_factor": 1.0068572998046874,
+     "avionics_uninstalled_lb": 65.48583984375,
+     "gust_ude_fps": 32.742919921875,
+     "main_gear_station_guess": 0.38628540039062503,
+     "rotation_angle_deg_pusher": 10.68572998046875,
+     "sponson_length_per_tyre": 3.5177124023437503,
+     "sponson_depth_per_tyre": 1.22742919921875,
+     "sponson_weight_per_wetted": 1.4548583984374999,
+     "engine_sfc_mult": 1.013714599609375,
+     "engine_power_mult": 0.986285400390625
+    },
+    "n_evals": 521,
+    "n_unflyable": 0,
+    "unflyable_reasons": {},
+    "sweeps": 1,
+    "hours": 7.998649184398812,
+    "not_flyable": null
+   },
+   "sampling": [
+    {
+     "h": 0.136962890625,
+     "seed": 20261152,
+     "n_random": 200,
+     "n_corner_points": 32,
+     "search_value": 1008.9544682084672,
+     "worst_sampled": 985.9468410912264,
+     "worst_sampled_kind": "corner of top 5",
+     "worst_random": 974.2940376947847,
+     "n_beating_search": 0,
+     "most_beating": null
+    },
+    {
+     "h": 1.0,
+     "seed": 20261153,
+     "n_random": 200,
+     "n_corner_points": 32,
+     "search_value": "inf",
+     "worst_sampled": 1262.3307226384397,
+     "worst_sampled_kind": "corner of top 5",
+     "worst_random": 1124.652401730918,
+     "n_beating_search": 0,
+     "most_beating": null
+    }
+   ],
+   "hours": 8.0
+  },
+  "R5_guarantee": {
+   "h_hat": 0.69287109375,
+   "status": "bracketed",
+   "limit": 951.845374200738,
+   "worst_at_h_hat": {
+    "h": 0.69287109375,
+    "moved": {
+     "prop_real_to_ideal": 0.8153564453125001,
+     "airfoil_cl_max": 1.3361705712890626,
+     "wing_t_c": 0.1292138671875,
+     "laminar_fraction_wing": 0.1153564453125,
+     "sensor_drag_area_ft2": 0.6771484375000001,
+     "fuselage_fineness": 6.6142578125,
+     "fuselage_fill": 0.8346435546875,
+     "composite_factor": 0.9846435546875,
+     "empty_weight_factor": 1.0346435546875001,
+     "avionics_uninstalled_lb": 87.71484375,
+     "gust_ude_fps": 43.857421875,
+     "main_gear_station_guess": 0.330712890625,
+     "rotation_angle_deg_pusher": 13.46435546875,
+     "sponson_length_per_tyre": 3.18427734375,
+     "sponson_depth_per_tyre": 1.3385742187499998,
+     "sponson_weight_per_wetted": 1.6771484375,
+     "engine_sfc_mult": 1.069287109375,
+     "engine_power_mult": 0.930712890625
+    },
+    "n_evals": 622,
+    "n_unflyable": 0,
+    "unflyable_reasons": {},
+    "sweeps": 2,
+    "hours": 3.500516930478977,
+    "not_flyable": null
+   },
+   "first_failing_h": 0.69305419921875,
+   "worst_at_first_failing_h": {
+    "h": 0.69305419921875,
+    "moved": {
+     "prop_real_to_ideal": 0.8153472900390625,
+     "airfoil_cl_max": 1.3361490069580078,
+     "wing_t_c": 0.1292083740234375,
+     "laminar_fraction_wing": 0.1153472900390625,
+     "sensor_drag_area_ft2": 0.6772216796875,
+     "fuselage_fineness": 6.6138916015625,
+     "fuselage_fill": 0.8346527099609375,
+     "composite_factor": 0.9846527099609375,
+     "empty_weight_factor": 1.0346527099609375,
+     "avionics_uninstalled_lb": 87.72216796875,
+     "gust_ude_fps": 43.861083984375,
+     "main_gear_station_guess": 0.330694580078125,
+     "rotation_angle_deg_pusher": 13.46527099609375,
+     "sponson_length_per_tyre": 3.18416748046875,
+     "sponson_depth_per_tyre": 1.33861083984375,
+     "sponson_weight_per_wetted": 1.6772216796875,
+     "engine_sfc_mult": 1.069305419921875,
+     "engine_power_mult": 0.930694580078125
+    },
+    "n_evals": 622,
+    "n_unflyable": 0,
+    "unflyable_reasons": {},
+    "sweeps": 2,
+    "hours": 3.499344907611651,
+    "not_flyable": null
+   },
+   "sampling": [
+    {
+     "h": 0.69287109375,
+     "seed": 20261162,
+     "n_random": 200,
+     "n_corner_points": 32,
+     "search_value": 951.7892648443296,
+     "worst_sampled": 817.5683635211954,
+     "worst_sampled_kind": "corner of top 5",
+     "worst_random": 784.8184797407723,
+     "n_beating_search": 0,
+     "most_beating": null
+    },
+    {
+     "h": 1.0,
+     "seed": 20261163,
+     "n_random": 200,
+     "n_corner_points": 32,
+     "search_value": "inf",
+     "worst_sampled": 900.7794033351989,
+     "worst_sampled_kind": "corner of top 5",
+     "worst_random": 846.307202508012,
+     "n_beating_search": 0,
+     "most_beating": null
+    }
+   ],
+   "hours": 3.5
+  },
+  "R7": {
+   "h_hat": 1.1700439453125,
+   "status": "min of take-off and landing"
+  }
+ },
+ "worst_case_curve": [
+  {
+   "h": 0.0,
+   "R5": {
+    "h": 0.0,
+    "moved": {},
+    "n_evals": 312,
+    "n_unflyable": 0,
+    "unflyable_reasons": {},
+    "sweeps": 1,
+    "hours": 8.000006257017874,
+    "not_flyable": null
+   },
+   "TO": {
+    "h": 0.0,
+    "moved": {},
+    "n_evals": 312,
+    "n_unflyable": 0,
+    "unflyable_reasons": {},
+    "sweeps": 1,
+    "takeoff_ft": 730.2452083925582,
+    "landing_ft": 1359.1611696741795,
+    "not_flyable": null
+   },
+   "LD": {
+    "h": 0.0,
+    "moved": {},
+    "n_evals": 321,
+    "n_unflyable": 0,
+    "unflyable_reasons": {},
+    "sweeps": 1,
+    "takeoff_ft": 730.2452083925582,
+    "landing_ft": 1359.1611696741795,
+    "not_flyable": null
+   }
+  },
+  {
+   "h": 0.25,
+   "R5": {
+    "h": 0.25,
+    "moved": {
+     "prop_real_to_ideal": 0.8375,
+     "airfoil_cl_max": 1.3883275,
+     "wing_t_c": 0.1575,
+     "laminar_fraction_wing": 0.1375,
+     "sensor_drag_area_ft2": 0.5,
+     "fuselage_fineness": 7.5,
+     "fuselage_fill": 0.8125,
+     "composite_factor": 0.9624999999999999,
+     "empty_weight_factor": 1.0125,
+     "avionics_uninstalled_lb": 70.0,
+     "gust_ude_fps": 35.0,
+     "main_gear_station_guess": 0.375,
+     "rotation_angle_deg_pusher": 11.25,
+     "sponson_length_per_tyre": 3.45,
+     "sponson_depth_per_tyre": 1.25,
+     "sponson_weight_per_wetted": 1.5,
+     "engine_sfc_mult": 1.025,
+     "engine_power_mult": 0.975
+    },
+    "n_evals": 521,
+    "n_unflyable": 0,
+    "unflyable_reasons": {},
+    "sweeps": 1,
+    "hours": 6.3641933535318485,
+    "not_flyable": null
+   },
+   "TO": {
+    "h": 0.25,
+    "moved": {
+     "prop_real_to_ideal": 0.8375,
+     "airfoil_cl_max": 1.3883275,
+     "wing_t_c": 0.1425,
+     "flap_span_fraction": 0.575,
+     "takeoff_flap_fraction": 0.55,
+     "laminar_fraction_wing": 0.1375,
+     "sensor_drag_area_ft2": 0.5,
+     "fuselage_fineness": 7.5,
+     "fuselage_fill": 0.8125,
+     "composite_factor": 0.9624999999999999,
+     "empty_weight_factor": 1.0125,
+     "avionics_uninstalled_lb": 70.0,
+     "gust_ude_fps": 35.0,
+     "rolling_mu": 0.035,
+     "flap_deflection_takeoff_deg": 32.5,
+     "strut_width_in": 3.25,
+     "main_gear_station_guess": 0.375,
+     "rotation_angle_deg_pusher": 11.25,
+     "sponson_length_per_tyre": 3.9,
+     "sponson_depth_per_tyre": 1.25,
+     "sponson_weight_per_wetted": 1.5,
+     "nose_tyre_scale": 0.8500000000000001,
+     "engine_power_mult": 0.975
+    },
+    "n_evals": 521,
+    "n_unflyable": 0,
+    "unflyable_reasons": {},
+    "sweeps": 1,
+    "takeoff_ft": 846.264291269648,
+    "landing_ft": 1390.6384235498724,
+    "not_flyable": null
+   },
+   "LD": {
+    "h": 0.25,
+    "moved": {
+     "airfoil_cl_max": 1.3883275,
+     "wing_t_c": 0.1425,
+     "flap_span_fraction": 0.575,
+     "laminar_fraction_wing": 0.2375,
+     "laminar_fraction_fuselage": 0.05,
+     "sensor_drag_area_ft2": 0.35000000000000003,
+     "fuselage_fineness": 7.5,
+     "fuselage_fill": 0.8125,
+     "composite_factor": 0.9624999999999999,
+     "empty_weight_factor": 1.0125,
+     "avionics_uninstalled_lb": 70.0,
+     "gust_ude_fps": 35.0,
+     "braking_mu": 0.45,
+     "free_roll_s": 2.25,
+     "strut_width_in": 2.75,
+     "main_gear_station_guess": 0.375,
+     "rotation_angle_deg_pusher": 11.25,
+     "sponson_length_per_tyre": 3.9,
+     "sponson_depth_per_tyre": 1.25,
+     "sponson_interference_q": 1.45,
+     "sponson_weight_per_wetted": 1.5,
+     "nose_tyre_scale": 0.75
+    },
+    "n_evals": 557,
+    "n_unflyable": 0,
+    "unflyable_reasons": {},
+    "sweeps": 1,
+    "takeoff_ft": 809.0169393089917,
+    "landing_ft": 1436.2303704357369,
+    "not_flyable": null
+   }
+  },
+  {
+   "h": 0.5,
+   "R5": {
+    "h": 0.5,
+    "moved": {
+     "prop_real_to_ideal": 0.825,
+     "airfoil_cl_max": 1.358885,
+     "wing_t_c": 0.16499999999999998,
+     "laminar_fraction_wing": 0.125,
+     "sensor_drag_area_ft2": 0.6000000000000001,
+     "fuselage_fineness": 7.0,
+     "fuselage_fill": 0.825,
+     "composite_factor": 0.975,
+     "empty_weight_factor": 1.025,
+     "avionics_uninstalled_lb": 80.0,
+     "gust_ude_fps": 40.0,
+     "main_gear_station_guess": 0.35,
+     "rotation_angle_deg_pusher": 12.5,
+     "sponson_length_per_tyre": 3.3,
+     "sponson_depth_per_tyre": 1.2999999999999998,
+     "sponson_weight_per_wetted": 1.6,
+     "engine_sfc_mult": 1.05,
+     "engine_power_mult": 0.95
+    },
+    "n_evals": 521,
+    "n_unflyable": 0,
+    "unflyable_reasons": {},
+    "sweeps": 1,
+    "hours": 4.749549845118096,
+    "not_flyable": null
+   },
+   "TO": {
+    "h": 0.5,
+    "moved": {
+     "prop_real_to_ideal": 0.825,
+     "airfoil_cl_max": 1.358885,
+     "wing_t_c": 0.135,
+     "flap_span_fraction": 0.55,
+     "takeoff_flap_fraction": 0.5,
+     "laminar_fraction_wing": 0.125,
+     "sensor_drag_area_ft2": 0.6000000000000001,
+     "fuselage_fineness": 7.0,
+     "fuselage_fill": 0.825,
+     "composite_factor": 0.975,
+     "empty_weight_factor": 1.025,
+     "avionics_uninstalled_lb": 80.0,
+     "gust_ude_fps": 40.0,
+     "rolling_mu": 0.04,
+     "flap_deflection_takeoff_deg": 35.0,
+     "strut_width_in": 3.5,
+     "main_gear_station_guess": 0.35,
+     "rotation_angle_deg_pusher": 12.5,
+     "sponson_length_per_tyre": 4.2,
+     "sponson_depth_per_tyre": 1.2999999999999998,
+     "sponson_weight_per_wetted": 1.6,
+     "nose_tyre_scale": 0.9,
+     "engine_power_mult": 0.95
+    },
+    "n_evals": 521,
+    "n_unflyable": 0,
+    "unflyable_reasons": {},
+    "sweeps": 1,
+    "takeoff_ft": 1017.7505739182376,
+    "landing_ft": 1427.7667842433145,
+    "not_flyable": null
+   },
+   "LD": {
+    "h": 0.5,
+    "moved": {
+     "airfoil_cl_max": 1.358885,
+     "wing_t_c": 0.135,
+     "flap_span_fraction": 0.55,
+     "laminar_fraction_wing": 0.32499999999999996,
+     "laminar_fraction_fuselage": 0.1,
+     "sensor_drag_area_ft2": 0.30000000000000004,
+     "fuselage_fineness": 7.0,
+     "fuselage_fill": 0.825,
+     "composite_factor": 0.975,
+     "empty_weight_factor": 1.025,
+     "avionics_uninstalled_lb": 80.0,
+     "gust_ude_fps": 40.0,
+     "braking_mu": 0.4,
+     "free_roll_s": 2.5,
+     "strut_width_in": 2.5,
+     "main_gear_station_guess": 0.35,
+     "rotation_angle_deg_pusher": 12.5,
+     "sponson_length_per_tyre": 4.2,
+     "sponson_depth_per_tyre": 1.2999999999999998,
+     "sponson_interference_q": 1.4,
+     "sponson_weight_per_wetted": 1.6,
+     "nose_tyre_scale": 0.7
+    },
+    "n_evals": 557,
+    "n_unflyable": 0,
+    "unflyable_reasons": {},
+    "sweeps": 1,
+    "takeoff_ft": 912.6796182094362,
+    "landing_ft": 1532.4311439107269,
+    "not_flyable": null
+   }
+  },
+  {
+   "h": 0.75,
+   "R5": {
+    "h": 0.75,
+    "moved": {
+     "prop_real_to_ideal": 0.8125,
+     "airfoil_cl_max": 1.3294425,
+     "wing_t_c": 0.1275,
+     "laminar_fraction_wing": 0.1125,
+     "sensor_drag_area_ft2": 0.7000000000000001,
+     "fuselage_fineness": 6.5,
+     "fuselage_fill": 0.8375,
+     "composite_factor": 0.9875,
+     "empty_weight_factor": 1.0375,
+     "avionics_uninstalled_lb": 90.0,
+     "gust_ude_fps": 45.0,
+     "main_gear_station_guess": 0.325,
+     "rotation_angle_deg_pusher": 13.75,
+     "sponson_length_per_tyre": 3.15,
+     "sponson_depth_per_tyre": 1.3499999999999999,
+     "sponson_weight_per_wetted": 1.7,
+     "engine_sfc_mult": 1.075,
+     "engine_power_mult": 0.925
+    },
+    "n_evals": 622,
+    "n_unflyable": 0,
+    "unflyable_reasons": {},
+    "sweeps": 2,
+    "hours": 3.128245013356941,
+    "not_flyable": null
+   },
+   "TO": {
+    "h": 0.75,
+    "moved": {
+     "prop_real_to_ideal": 0.8125,
+     "airfoil_cl_max": 1.3294425,
+     "wing_t_c": 0.1275,
+     "flap_span_fraction": 0.525,
+     "takeoff_flap_fraction": 0.45,
+     "laminar_fraction_wing": 0.1125,
+     "sensor_drag_area_ft2": 0.7000000000000001,
+     "fuselage_fineness": 6.5,
+     "fuselage_fill": 0.8375,
+     "composite_factor": 0.9875,
+     "empty_weight_factor": 1.0375,
+     "avionics_uninstalled_lb": 90.0,
+     "gust_ude_fps": 45.0,
+     "rolling_mu": 0.045,
+     "flap_deflection_takeoff_deg": 37.5,
+     "strut_width_in": 3.75,
+     "main_gear_station_guess": 0.325,
+     "rotation_angle_deg_pusher": 13.75,
+     "sponson_length_per_tyre": 4.5,
+     "sponson_depth_per_tyre": 1.3499999999999999,
+     "sponson_weight_per_wetted": 1.7,
+     "nose_tyre_scale": 0.95,
+     "engine_power_mult": 0.925
+    },
+    "n_evals": 521,
+    "n_unflyable": 0,
+    "unflyable_reasons": {},
+    "sweeps": 1,
+    "takeoff_ft": 1299.3522245248514,
+    "landing_ft": 1473.6863346222915,
+    "not_flyable": null
+   },
+   "LD": {
+    "h": 0.75,
+    "moved": {
+     "airfoil_cl_max": 1.3294425,
+     "wing_t_c": 0.1275,
+     "flap_span_fraction": 0.525,
+     "laminar_fraction_wing": 0.4125,
+     "laminar_fraction_fuselage": 0.15000000000000002,
+     "sensor_drag_area_ft2": 0.25,
+     "fuselage_fineness": 6.5,
+     "fuselage_fill": 0.8375,
+     "composite_factor": 0.9875,
+     "empty_weight_factor": 1.0375,
+     "avionics_uninstalled_lb": 90.0,
+     "gust_ude_fps": 45.0,
+     "braking_mu": 0.35,
+     "free_roll_s": 2.75,
+     "strut_width_in": 2.25,
+     "main_gear_station_guess": 0.325,
+     "rotation_angle_deg_pusher": 13.75,
+     "sponson_length_per_tyre": 4.5,
+     "sponson_depth_per_tyre": 1.3499999999999999,
+     "sponson_interference_q": 1.35,
+     "sponson_weight_per_wetted": 1.7,
+     "nose_tyre_scale": 0.65
+    },
+    "n_evals": 557,
+    "n_unflyable": 0,
+    "unflyable_reasons": {},
+    "sweeps": 1,
+    "takeoff_ft": 1060.2800049226776,
+    "landing_ft": 1658.4052342678583,
+    "not_flyable": null
+   }
+  },
+  {
+   "h": 1.0,
+   "R5": {
+    "h": 1.0,
+    "moved": {
+     "prop_real_to_ideal": 0.8,
+     "airfoil_cl_max": 1.3,
+     "wing_t_c": 0.18,
+     "laminar_fraction_wing": 0.1,
+     "sensor_drag_area_ft2": 0.8,
+     "fuselage_fineness": 6.0,
+     "fuselage_fill": 0.85,
+     "composite_factor": 1.0,
+     "empty_weight_factor": 1.05,
+     "avionics_uninstalled_lb": 100.0,
+     "gust_ude_fps": 50.0,
+     "main_gear_station_guess": 0.3,
+     "rotation_angle_deg_pusher": 15.0,
+     "sponson_length_per_tyre": 3.0,
+     "sponson_depth_per_tyre": 1.4,
+     "sponson_weight_per_wetted": 1.8,
+     "engine_sfc_mult": 1.1,
+     "engine_power_mult": 0.9
+    },
+    "n_evals": 521,
+    "n_unflyable": 0,
+    "unflyable_reasons": {},
+    "sweeps": 1,
+    "hours": 0.0,
+    "not_flyable": "mission not flyable: no speed on the leg within the engine's power"
+   },
+   "TO": {
+    "h": 1.0,
+    "moved": {
+     "prop_real_to_ideal": 0.8,
+     "airfoil_cl_max": 1.3,
+     "wing_t_c": 0.12,
+     "flap_span_fraction": 0.7,
+     "takeoff_flap_fraction": 0.4,
+     "laminar_fraction_wing": 0.1,
+     "sensor_drag_area_ft2": 0.8,
+     "fuselage_fineness": 6.0,
+     "fuselage_fill": 0.85,
+     "composite_factor": 1.0,
+     "empty_weight_factor": 1.05,
+     "avionics_uninstalled_lb": 100.0,
+     "gust_ude_fps": 50.0,
+     "rolling_mu": 0.05,
+     "flap_deflection_takeoff_deg": 40.0,
+     "strut_width_in": 4.0,
+     "main_gear_station_guess": 0.3,
+     "rotation_angle_deg_pusher": 15.0,
+     "sponson_length_per_tyre": 4.8,
+     "sponson_depth_per_tyre": 1.4,
+     "sponson_weight_per_wetted": 1.8,
+     "nose_tyre_scale": 1.0,
+     "engine_power_mult": 0.9
+    },
+    "n_evals": 622,
+    "n_unflyable": 0,
+    "unflyable_reasons": {},
+    "sweeps": 2,
+    "takeoff_ft": 1810.4499816816663,
+    "landing_ft": 1467.2105904333591,
+    "not_flyable": null
+   },
+   "LD": {
+    "h": 1.0,
+    "moved": {
+     "airfoil_cl_max": 1.3,
+     "wing_t_c": 0.12,
+     "flap_span_fraction": 0.5,
+     "laminar_fraction_wing": 0.5,
+     "laminar_fraction_fuselage": 0.2,
+     "sensor_drag_area_ft2": 0.2,
+     "fuselage_fineness": 6.0,
+     "fuselage_fill": 0.85,
+     "composite_factor": 1.0,
+     "empty_weight_factor": 1.05,
+     "avionics_uninstalled_lb": 100.0,
+     "gust_ude_fps": 50.0,
+     "braking_mu": 0.3,
+     "free_roll_s": 3.0,
+     "strut_width_in": 2.0,
+     "main_gear_station_guess": 0.3,
+     "rotation_angle_deg_pusher": 15.0,
+     "sponson_length_per_tyre": 4.8,
+     "sponson_depth_per_tyre": 1.4,
+     "sponson_interference_q": 1.3,
+     "sponson_weight_per_wetted": 1.8,
+     "nose_tyre_scale": 0.6
+    },
+    "n_evals": 557,
+    "n_unflyable": 0,
+    "unflyable_reasons": {},
+    "sweeps": 1,
+    "takeoff_ft": 1266.949720697327,
+    "landing_ft": 1825.748168807443,
+    "not_flyable": null
+   }
+  },
+  {
+   "h": 1.5,
+   "R5": {
+    "h": 1.5,
+    "moved": {
+     "prop_real_to_ideal": 0.7750000000000001,
+     "airfoil_cl_max": 1.2411150000000002,
+     "wing_t_c": 0.195,
+     "laminar_fraction_wing": 0.07500000000000001,
+     "sensor_drag_area_ft2": 1.0,
+     "fuselage_fineness": 5.0,
+     "fuselage_fill": 0.875,
+     "composite_factor": 1.0,
+     "empty_weight_factor": 1.0750000000000002,
+     "avionics_uninstalled_lb": 120.0,
+     "gust_ude_fps": 60.0,
+     "main_gear_station_guess": 0.24999999999999997,
+     "rotation_angle_deg_pusher": 17.5,
+     "sponson_length_per_tyre": 2.7,
+     "sponson_depth_per_tyre": 1.5,
+     "sponson_weight_per_wetted": 2.0,
+     "engine_sfc_mult": 1.15,
+     "engine_power_mult": 0.85
+    },
+    "n_evals": 521,
+    "n_unflyable": 0,
+    "unflyable_reasons": {},
+    "sweeps": 1,
+    "hours": 0.0,
+    "not_flyable": "mission not flyable: cannot climb to the mission altitude: no rate of climb at 13000 ft"
+   },
+   "TO": {
+    "h": 1.5,
+    "moved": {
+     "prop_real_to_ideal": 0.7750000000000001,
+     "airfoil_cl_max": 1.2411150000000002,
+     "wing_t_c": 0.105,
+     "flap_span_fraction": 0.75,
+     "takeoff_flap_fraction": 0.30000000000000004,
+     "laminar_fraction_wing": 0.07500000000000001,
+     "sensor_drag_area_ft2": 1.0,
+     "fuselage_fineness": 5.0,
+     "fuselage_fill": 0.875,
+     "composite_factor": 1.0,
+     "empty_weight_factor": 1.0750000000000002,
+     "avionics_uninstalled_lb": 120.0,
+     "gust_ude_fps": 60.0,
+     "rolling_mu": 0.060000000000000005,
+     "flap_deflection_takeoff_deg": 45.0,
+     "strut_width_in": 4.5,
+     "main_gear_station_guess": 0.24999999999999997,
+     "rotation_angle_deg_pusher": 17.5,
+     "sponson_length_per_tyre": 5.3999999999999995,
+     "sponson_depth_per_tyre": 1.5,
+     "sponson_weight_per_wetted": 2.0,
+     "nose_tyre_scale": 1.0,
+     "engine_power_mult": 0.85
+    },
+    "n_evals": 622,
+    "n_unflyable": 419,
+    "unflyable_reasons": {
+     "no climb gradient after lift-off": {
+      "example": "no climb gradient after lift-off",
+      "count": 419
+     }
+    },
+    "sweeps": 2,
+    "takeoff_ft": "inf",
+    "landing_ft": 1538.789691772888,
+    "not_flyable": "no climb gradient after lift-off"
+   },
+   "LD": {
+    "h": 1.5,
+    "moved": {
+     "airfoil_cl_max": 1.2411150000000002,
+     "wing_t_c": 0.105,
+     "flap_span_fraction": 0.45,
+     "laminar_fraction_wing": 0.6749999999999999,
+     "laminar_fraction_fuselage": 0.30000000000000004,
+     "sensor_drag_area_ft2": 0.09999999999999998,
+     "fuselage_fineness": 5.0,
+     "fuselage_fill": 0.875,
+     "composite_factor": 1.0,
+     "empty_weight_factor": 1.0750000000000002,
+     "avionics_uninstalled_lb": 120.0,
+     "gust_ude_fps": 60.0,
+     "braking_mu": 0.19999999999999996,
+     "free_roll_s": 3.5,
+     "strut_width_in": 1.5,
+     "main_gear_station_guess": 0.24999999999999997,
+     "rotation_angle_deg_pusher": 17.5,
+     "sponson_length_per_tyre": 5.3999999999999995,
+     "sponson_depth_per_tyre": 1.5,
+     "sponson_interference_q": 1.2000000000000002,
+     "sponson_weight_per_wetted": 2.0,
+     "nose_tyre_scale": 0.49999999999999994
+    },
+    "n_evals": 557,
+    "n_unflyable": 0,
+    "unflyable_reasons": {},
+    "sweeps": 1,
+    "takeoff_ft": 1867.0098580013123,
+    "landing_ft": 2353.1350518308973,
+    "not_flyable": null
+   }
+  },
+  {
+   "h": 2.0,
+   "R5": {
+    "h": 2.0,
+    "moved": {
+     "prop_real_to_ideal": 0.7500000000000001,
+     "airfoil_cl_max": 1.1822300000000001,
+     "wing_t_c": 0.21,
+     "laminar_fraction_wing": 0.05000000000000002,
+     "sensor_drag_area_ft2": 1.2000000000000002,
+     "fuselage_fineness": 4.0,
+     "fuselage_fill": 0.8999999999999999,
+     "composite_factor": 1.0,
+     "empty_weight_factor": 1.1,
+     "avionics_uninstalled_lb": 140.0,
+     "gust_ude_fps": 70.0,
+     "main_gear_station_guess": 0.19999999999999996,
+     "rotation_angle_deg_pusher": 20.0,
+     "sponson_length_per_tyre": 2.4,
+     "sponson_depth_per_tyre": 1.5999999999999999,
+     "sponson_weight_per_wetted": 2.2,
+     "engine_sfc_mult": 1.2,
+     "engine_power_mult": 0.8
+    },
+    "n_evals": 521,
+    "n_unflyable": 0,
+    "unflyable_reasons": {},
+    "sweeps": 1,
+    "hours": 0.0,
+    "not_flyable": "mission not flyable: cannot climb to the mission altitude: no rate of climb at 0 ft"
+   },
+   "TO": {
+    "h": 2.0,
+    "moved": {
+     "prop_real_to_ideal": 0.7500000000000001,
+     "airfoil_cl_max": 1.1822300000000001,
+     "wing_t_c": 0.09,
+     "flap_span_fraction": 0.4,
+     "takeoff_flap_fraction": 0.20000000000000007,
+     "laminar_fraction_wing": 0.05000000000000002,
+     "sensor_drag_area_ft2": 1.2000000000000002,
+     "fuselage_fineness": 4.0,
+     "fuselage_fill": 0.8999999999999999,
+     "composite_factor": 1.0,
+     "empty_weight_factor": 1.1,
+     "avionics_uninstalled_lb": 140.0,
+     "gust_ude_fps": 70.0,
+     "rolling_mu": 0.07,
+     "flap_deflection_takeoff_deg": 50.0,
+     "strut_width_in": 5.0,
+     "main_gear_station_guess": 0.19999999999999996,
+     "rotation_angle_deg_pusher": 20.0,
+     "sponson_length_per_tyre": 6.0,
+     "sponson_depth_per_tyre": 1.5999999999999999,
+     "sponson_weight_per_wetted": 2.2,
+     "nose_tyre_scale": 1.0,
+     "engine_power_mult": 0.8
+    },
+    "n_evals": 521,
+    "n_unflyable": 496,
+    "unflyable_reasons": {
+     "take-off: thrust below rolling resistance, ground roll (#) has no solution, field length unbounded (math domain error)": {
+      "example": "take-off: thrust below rolling resistance, ground roll (17.99) has no solution, field length unbounded (math domain error)",
+      "count": 388
+     },
+     "no climb gradient after lift-off": {
+      "example": "no climb gradient after lift-off",
+      "count": 108
+     }
+    },
+    "sweeps": 1,
+    "takeoff_ft": "inf",
+    "landing_ft": 1831.6841269198671,
+    "not_flyable": "take-off: thrust below rolling resistance, ground roll (17.99) has no solution, field length unbounded (math domain error)"
+   },
+   "LD": {
+    "h": 2.0,
+    "moved": {
+     "airfoil_cl_max": 1.1822300000000001,
+     "wing_t_c": 0.09,
+     "flap_span_fraction": 0.4,
+     "laminar_fraction_wing": 0.85,
+     "laminar_fraction_fuselage": 0.4,
+     "sensor_drag_area_ft2": 0.0,
+     "fuselage_fineness": 4.0,
+     "fuselage_fill": 0.8999999999999999,
+     "composite_factor": 1.0,
+     "empty_weight_factor": 1.1,
+     "avionics_uninstalled_lb": 140.0,
+     "gust_ude_fps": 70.0,
+     "braking_mu": 0.09999999999999998,
+     "free_roll_s": 4.0,
+     "strut_width_in": 1.0,
+     "main_gear_station_guess": 0.19999999999999996,
+     "rotation_angle_deg_pusher": 20.0,
+     "sponson_length_per_tyre": 6.0,
+     "sponson_depth_per_tyre": 1.5999999999999999,
+     "sponson_interference_q": 1.1,
+     "sponson_weight_per_wetted": 2.2,
+     "nose_tyre_scale": 0.3999999999999999
+    },
+    "n_evals": 557,
+    "n_unflyable": 0,
+    "unflyable_reasons": {},
+    "sweeps": 1,
+    "takeoff_ft": 3481.189259823347,
+    "landing_ft": 3734.2449414593293,
+    "not_flyable": null
+   }
+  },
+  {
+   "h": 3.0,
+   "R5": {
+    "h": 3.0,
+    "moved": {
+     "prop_real_to_ideal": 0.7000000000000002,
+     "airfoil_cl_max": 1.0644600000000002,
+     "wing_t_c": 0.24,
+     "laminar_fraction_wing": 2.7755575615628914e-17,
+     "sensor_drag_area_ft2": 1.6,
+     "fuselage_fineness": 2.0,
+     "fuselage_fill": 0.9499999999999998,
+     "composite_factor": 1.0,
+     "empty_weight_factor": 1.1500000000000001,
+     "avionics_uninstalled_lb": 180.0,
+     "gust_ude_fps": 90.0,
+     "main_gear_station_guess": 0.09999999999999992,
+     "rotation_angle_deg_pusher": 25.0,
+     "sponson_length_per_tyre": 1.7999999999999998,
+     "sponson_depth_per_tyre": 1.7999999999999998,
+     "sponson_weight_per_wetted": 2.6000000000000005,
+     "engine_sfc_mult": 1.3,
+     "engine_power_mult": 0.7
+    },
+    "n_evals": 521,
+    "n_unflyable": 0,
+    "unflyable_reasons": {},
+    "sweeps": 1,
+    "hours": 0.0,
+    "not_flyable": "mission not flyable: cannot climb to the mission altitude: no rate of climb at 0 ft"
+   },
+   "TO": {
+    "h": 3.0,
+    "moved": {
+     "prop_real_to_ideal": 0.7000000000000002,
+     "airfoil_cl_max": 1.0644600000000002,
+     "wing_t_c": 0.06,
+     "flap_span_fraction": 0.30000000000000004,
+     "takeoff_flap_fraction": 1.1102230246251565e-16,
+     "laminar_fraction_wing": 2.7755575615628914e-17,
+     "sensor_drag_area_ft2": 1.6,
+     "fuselage_fineness": 2.0,
+     "fuselage_fill": 0.9499999999999998,
+     "composite_factor": 1.0,
+     "empty_weight_factor": 1.1500000000000001,
+     "avionics_uninstalled_lb": 180.0,
+     "gust_ude_fps": 90.0,
+     "rolling_mu": 0.09000000000000001,
+     "flap_deflection_takeoff_deg": 60.0,
+     "strut_width_in": 6.0,
+     "main_gear_station_guess": 0.09999999999999992,
+     "rotation_angle_deg_pusher": 25.0,
+     "sponson_length_per_tyre": 7.199999999999999,
+     "sponson_depth_per_tyre": 1.7999999999999998,
+     "sponson_weight_per_wetted": 2.6000000000000005,
+     "nose_tyre_scale": 1.0,
+     "engine_power_mult": 0.7
+    },
+    "n_evals": 521,
+    "n_unflyable": 521,
+    "unflyable_reasons": {
+     "no climb gradient after lift-off": {
+      "example": "no climb gradient after lift-off",
+      "count": 480
+     },
+     "take-off: thrust below rolling resistance, ground roll (#) has no solution, field length unbounded (math domain error)": {
+      "example": "take-off: thrust below rolling resistance, ground roll (17.99) has no solution, field length unbounded (math domain error)",
+      "count": 41
+     }
+    },
+    "sweeps": 1,
+    "takeoff_ft": "inf",
+    "landing_ft": 2722.5358421142028,
+    "not_flyable": "no climb gradient after lift-off"
+   },
+   "LD": {
+    "h": 3.0,
+    "moved": {
+     "airfoil_cl_max": 1.0644600000000002,
+     "wing_t_c": 0.06,
+     "flap_span_fraction": 0.30000000000000004,
+     "laminar_fraction_wing": 1.0,
+     "laminar_fraction_fuselage": 0.6000000000000001,
+     "sensor_drag_area_ft2": 0.0,
+     "fuselage_fineness": 2.0,
+     "fuselage_fill": 0.9499999999999998,
+     "composite_factor": 1.0,
+     "empty_weight_factor": 1.1500000000000001,
+     "avionics_uninstalled_lb": 180.0,
+     "gust_ude_fps": 90.0,
+     "braking_mu": 0.0,
+     "free_roll_s": 5.0,
+     "strut_width_in": 0.0,
+     "main_gear_station_guess": 0.09999999999999992,
+     "rotation_angle_deg_pusher": 25.0,
+     "sponson_length_per_tyre": 7.199999999999999,
+     "sponson_depth_per_tyre": 1.7999999999999998,
+     "sponson_interference_q": 0.9000000000000001,
+     "sponson_weight_per_wetted": 2.6000000000000005,
+     "nose_tyre_scale": 0.19999999999999984
+    },
+    "n_evals": 557,
+    "n_unflyable": 533,
+    "unflyable_reasons": {
+     "landing does not close: braking_mu <= #, no braking force": {
+      "example": "landing does not close: braking_mu <= 0, no braking force",
+      "count": 533
+     }
+    },
+    "sweeps": 1,
+    "takeoff_ft": "inf",
+    "landing_ft": "inf",
+    "not_flyable": "landing does not close: braking_mu <= 0, no braking force"
+   }
+  }
+ ],
+ "clipping": {
+  "at_h_1": [],
+  "at_h_max": [
+   {
+    "name": "takeoff_flap_fraction",
+    "h": 3.0,
+    "lower_clipped": false,
+    "upper_clipped": true,
+    "lower_end": 1.1102230246251565e-16,
+    "upper_end": 1.0
+   },
+   {
+    "name": "laminar_fraction_wing",
+    "h": 3.0,
+    "lower_clipped": false,
+    "upper_clipped": true,
+    "lower_end": 2.7755575615628914e-17,
+    "upper_end": 1.0
+   },
+   {
+    "name": "sensor_drag_area_ft2",
+    "h": 3.0,
+    "lower_clipped": true,
+    "upper_clipped": false,
+    "lower_end": 0.0,
+    "upper_end": 1.6
+   },
+   {
+    "name": "fuselage_kf",
+    "h": 3.0,
+    "lower_clipped": true,
+    "upper_clipped": false,
+    "lower_end": 0.0,
+    "upper_end": 0.028999999999999998
+   },
+   {
+    "name": "tail_height_over_df",
+    "h": 3.0,
+    "lower_clipped": true,
+    "upper_clipped": true,
+    "lower_end": 0.0,
+    "upper_end": 1.0
+   },
+   {
+    "name": "composite_factor",
+    "h": 3.0,
+    "lower_clipped": false,
+    "upper_clipped": true,
+    "lower_end": 0.8000000000000002,
+    "upper_end": 1.0
+   },
+   {
+    "name": "braking_mu",
+    "h": 3.0,
+    "lower_clipped": true,
+    "upper_clipped": false,
+    "lower_end": 0.0,
+    "upper_end": 0.5
+   },
+   {
+    "name": "free_roll_s",
+    "h": 3.0,
+    "lower_clipped": true,
+    "upper_clipped": false,
+    "lower_end": 0.0,
+    "upper_end": 5.0
+   },
+   {
+    "name": "tail_cl_max_trim",
+    "h": 3.0,
+    "lower_clipped": false,
+    "upper_clipped": true,
+    "lower_end": 0.20000000000000007,
+    "upper_end": 1.0
+   },
+   {
+    "name": "station_payload_pusher",
+    "h": 3.0,
+    "lower_clipped": true,
+    "upper_clipped": false,
+    "lower_end": 0.0,
+    "upper_end": 0.24999999999999997
+   },
+   {
+    "name": "station_nose_gear",
+    "h": 3.0,
+    "lower_clipped": true,
+    "upper_clipped": false,
+    "lower_end": 0.0,
+    "upper_end": 0.24999999999999997
+   },
+   {
+    "name": "nose_down_deg",
+    "h": 3.0,
+    "lower_clipped": true,
+    "upper_clipped": false,
+    "lower_end": 0.0,
+    "upper_end": 5.0
+   },
+   {
+    "name": "nose_tyre_scale",
+    "h": 3.0,
+    "lower_clipped": false,
+    "upper_clipped": true,
+    "lower_end": 0.19999999999999984,
+    "upper_end": 1.0
+   }
+  ]
+ },
+ "exclusions": [
+  "Headwind strength (R19, 25 kt fixed) and Oswald efficiency e are outside the horizon (Eder, 2026-11-22)",
+  "ISA temperature deviation is not varied (sea level and 20,000 ft are ISA)",
+  "The engine control law is not varied (the table's throttle schedule is taken as is)",
+  "The shape of the part-power SFC curve is not varied (only a uniform multiplier on every table entry)",
+  "Trim drag (downwash and tail height) is not modelled"
+ ],
+ "runtime_s": 3303.6129298210144,
+ "inputs": {
+  "commit": "0415aa3ef8b9c725f73e2d25e870197ca378ce6e",
+  "git_dirty": false,
+  "git_dirty_files": [],
+  "excluded": "runs/task12/pd/2026-11-28/p9/diagnose",
+  "command": "python -m prelim.p9_r1 diagnose --pass-record runs/task12/pd/2026-11-28/p9/pass1/pass.json --out runs/task12/pd/2026-11-28/p9/diagnose",
+  "python": "3.13.18",
+  "numpy": "2.5.3",
+  "scipy": "1.18.1",
+  "pyyaml": "6.0.3",
+  "review": "Not yet Fable-reviewed (rulings PD-22 and PD-25)",
+  "note": "full info_gap.study of the lightest W/S 13, A 8 design with r1's ledger (L_sized 8 h)"
+ }
+}

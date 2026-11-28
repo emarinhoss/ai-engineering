@@ -1,0 +1,1094 @@
+{
+ "inputs": {
+  "commit": "0415aa3ef8b9c725f73e2d25e870197ca378ce6e",
+  "git_dirty": false,
+  "git_dirty_files": [],
+  "excluded": "runs/task12/pd/2026-11-28/p9/diagnose",
+  "command": "python -m prelim.p9_r1 diagnose --pass-record runs/task12/pd/2026-11-28/p9/pass1/pass.json --out runs/task12/pd/2026-11-28/p9/diagnose",
+  "python": "3.13.18",
+  "numpy": "2.5.3",
+  "scipy": "1.18.1",
+  "pyyaml": "6.0.3",
+  "review": "Not yet Fable-reviewed (rulings PD-22 and PD-25)",
+  "pass_record": "runs/task12/pd/2026-11-28/p9/pass1/pass.json",
+  "seed": 20261122,
+  "n_samples": 200,
+  "processes": 4,
+  "tree_unchanged_during_run": true
+ },
+ "cliff_corners": [
+  {
+   "label": "C1@h1.05 (r1 ledger)",
+   "moved": {
+    "eta_p": 0.7475,
+    "airfoil_cl_max": 1.2941115,
+    "wing_t_c": 0.1185,
+    "laminar_fraction_wing": 0.0975,
+    "sensor_drag_area_ft2": 0.8200000000000001,
+    "fuselage_fineness": 5.9,
+    "fuselage_fill": 0.8525,
+    "avionics_uninstalled_lb": 102.0,
+    "gust_ude_fps": 51.0,
+    "main_gear_station_guess": 0.295,
+    "rotation_angle_deg_pusher": 15.25,
+    "sponson_length_per_tyre": 2.9699999999999998,
+    "sponson_depth_per_tyre": 1.41,
+    "sponson_weight_per_wetted": 1.82,
+    "engine_sfc_mult": 0.895,
+    "engine_power_mult": 0.895
+   }
+  },
+  {
+   "label": "C2(P450 h1.05 it1) (r1 ledger)",
+   "moved": {
+    "prop_real_to_ideal": 0.7975000000000001,
+    "airfoil_cl_max": 1.2941115,
+    "wing_t_c": 0.1185,
+    "laminar_fraction_wing": 0.0975,
+    "sensor_drag_area_ft2": 0.8200000000000001,
+    "fuselage_fineness": 5.9,
+    "fuselage_fill": 0.8525,
+    "composite_factor": 1.0,
+    "empty_weight_factor": 1.0525,
+    "avionics_uninstalled_lb": 102.0,
+    "gust_ude_fps": 51.0,
+    "main_gear_station_guess": 0.295,
+    "rotation_angle_deg_pusher": 15.25,
+    "sponson_length_per_tyre": 2.9699999999999998,
+    "sponson_depth_per_tyre": 1.41,
+    "sponson_weight_per_wetted": 1.82,
+    "engine_sfc_mult": 0.895,
+    "engine_power_mult": 0.895
+   }
+  }
+ ],
+ "lightest_8h": {
+  "record": "runs/task12/pd/2026-11-28/p9/diagnose/lightest_8h/design_pusher.json",
+  "W0_lb": 3473.7484447434463,
+  "fuel_lb": 951.845374200738,
+  "We_lb": 2021.9013847789276,
+  "span_ft": 46.235174387162765,
+  "compliance": [
+   {
+    "requirement": "R1/R2 single turboprop, one engine",
+    "units": "-",
+    "value": "RR_M250_B17F",
+    "limit": "",
+    "rule": "by construction",
+    "met": null,
+    "verdict": "not tested"
+   },
+   {
+    "requirement": "R4 payload",
+    "units": "lb",
+    "value": 500.0,
+    "limit": 500.0,
+    "rule": "by construction",
+    "met": null,
+    "verdict": "not tested"
+   },
+   {
+    "requirement": "R5 mission 200 nm + 8 h + 200 nm",
+    "units": "fuel lb",
+    "value": 951.845374200738,
+    "limit": 951.845374200738,
+    "rule": "sized to it",
+    "met": null,
+    "verdict": "not tested"
+   },
+   {
+    "requirement": "R6 note: no starting (relight) envelope in our sources for this engine; an in-flight relight is not assessed (the TP100's envelope is not reused)",
+    "units": "ft",
+    "value": "",
+    "limit": 20000.0,
+    "rule": "note",
+    "met": null,
+    "verdict": "not tested"
+   },
+   {
+    "requirement": "R6 mission altitude 20,000 ft: no maximum operating altitude in our sources for this engine (not checked, none invented)",
+    "units": "ft",
+    "value": 20000.0,
+    "limit": "",
+    "rule": "note",
+    "met": null,
+    "verdict": "not tested"
+   },
+   {
+    "requirement": "R7 take-off over 50 ft",
+    "units": "ft",
+    "value": 730.245651027379,
+    "limit": 2500.0,
+    "rule": "<=",
+    "met": true,
+    "verdict": "pass"
+   },
+   {
+    "requirement": "R7 landing over 50 ft",
+    "units": "ft",
+    "value": 1359.1613298364748,
+    "limit": 2500.0,
+    "rule": "<=",
+    "met": true,
+    "verdict": "pass"
+   },
+   {
+    "requirement": "R7 clean stall at W0, sea level",
+    "units": "kt",
+    "value": 54.85607982593094,
+    "limit": 70.0,
+    "rule": "<=",
+    "met": true,
+    "verdict": "pass"
+   },
+   {
+    "requirement": "R8 retractable tricycle gear",
+    "units": "-",
+    "value": "yes",
+    "limit": "",
+    "rule": "by construction",
+    "met": null,
+    "verdict": "not tested"
+   },
+   {
+    "requirement": "R9 positive limit load (manoeuvre or gust, both weights)",
+    "units": "-",
+    "value": 3.8,
+    "limit": 3.8,
+    "rule": ">=",
+    "met": true,
+    "verdict": "pass"
+   },
+   {
+    "requirement": "R9 negative gust within the negative limit, with the round-4 margin",
+    "units": "-",
+    "value": -1.411462655090315,
+    "limit": -1.7,
+    "rule": ">=",
+    "met": true,
+    "verdict": "pass"
+   },
+   {
+    "requirement": "R10 6 % reserve and trapped fuel",
+    "units": "-",
+    "value": 1.06,
+    "limit": 1.06,
+    "rule": "by construction",
+    "met": null,
+    "verdict": "not tested"
+   },
+   {
+    "requirement": "R12 sea-level rate of climb",
+    "units": "ft/min",
+    "value": 2322.432266456277,
+    "limit": 1000.0,
+    "rule": ">=",
+    "met": true,
+    "verdict": "pass"
+   },
+   {
+    "requirement": "R12 service ceiling (last altitude with 100 ft/min), with the round-4 margin",
+    "units": "ft",
+    "value": 30104.788217158784,
+    "limit": 23500.0,
+    "rule": "ceiling",
+    "met": true,
+    "verdict": "pass"
+   },
+   {
+    "requirement": "R13 static margin, full fuel",
+    "units": "MAC",
+    "value": 0.10911650196339259,
+    "limit": "0.05-0.15",
+    "rule": "in band",
+    "met": true,
+    "verdict": "pass"
+   },
+   {
+    "requirement": "R13 static margin, empty fuel",
+    "units": "MAC",
+    "value": 0.0908834980366068,
+    "limit": "0.05-0.15",
+    "rule": "in band",
+    "met": true,
+    "verdict": "pass"
+   },
+   {
+    "requirement": "R14 no crew items in the weights",
+    "units": "-",
+    "value": "yes",
+    "limit": "",
+    "rule": "by construction",
+    "met": null,
+    "verdict": "not tested"
+   },
+   {
+    "requirement": "R15 flight avionics 60 lb uninstalled",
+    "units": "lb",
+    "value": 60.0,
+    "limit": 60.0,
+    "rule": "by construction",
+    "met": null,
+    "verdict": "not tested"
+   },
+   {
+    "requirement": "R18 V_C placard covers the fastest cruise sub-step with 10 % margin (study margin)",
+    "units": "kt EAS",
+    "value": 104.07335640858656,
+    "limit": 110.0,
+    "rule": "<=",
+    "met": true,
+    "verdict": "pass"
+   },
+   {
+    "requirement": "R17 every mission sub-step at or above 1.3 V_stall (enforced in the speed choice)",
+    "units": "-",
+    "value": "yes",
+    "limit": "",
+    "rule": "by construction",
+    "met": null,
+    "verdict": "not tested"
+   },
+   {
+    "requirement": "R19 both transit legs flown against a 25 kt headwind (air distance V/(V - V_w))",
+    "units": "kt",
+    "value": 25.0,
+    "limit": 25.0,
+    "rule": "by construction",
+    "met": null,
+    "verdict": "not tested"
+   },
+   {
+    "requirement": "R16 sustained 30 deg bank at loiter (power)",
+    "units": "hp",
+    "value": 249.75330214602812,
+    "limit": 450.0,
+    "rule": "<=",
+    "met": true,
+    "verdict": "pass"
+   },
+   {
+    "requirement": "engine power meets every requirement (achieved margin 36.3%)",
+    "units": "hp",
+    "value": 286.8608361015194,
+    "limit": 450.0,
+    "rule": "<=",
+    "met": true,
+    "verdict": "pass"
+   },
+   {
+    "requirement": "fuel fits integral wing tanks",
+    "units": "ft^3",
+    "value": 18.991525138229896,
+    "limit": 66.9421598366777,
+    "rule": "<=",
+    "met": true,
+    "verdict": "pass"
+   },
+   {
+    "requirement": "nose-wheel load, full fuel (p. 232-233; optimum 0.08-0.15)",
+    "units": "-",
+    "value": 0.156360537501729,
+    "limit": "0.05-0.20",
+    "rule": "nose",
+    "met": true,
+    "verdict": "pass"
+   },
+   {
+    "requirement": "nose-wheel load, empty fuel",
+    "units": "-",
+    "value": 0.14835057082078895,
+    "limit": "0.05-0.20",
+    "rule": "nose",
+    "met": true,
+    "verdict": "pass"
+   },
+   {
+    "requirement": "main gear stows: sponsons at the 63 deg overturn track (p. 232; ruling round 3)",
+    "units": "ft",
+    "value": 4.891563978802561,
+    "limit": "",
+    "rule": "stow",
+    "met": true,
+    "verdict": "pass"
+   },
+   {
+    "requirement": "propeller clearance at rotation (p. 222)",
+    "units": "in",
+    "value": 16.347462601261746,
+    "limit": 8.95,
+    "rule": ">=",
+    "met": true,
+    "verdict": "pass"
+   },
+   {
+    "requirement": "trim within tail CL limit, all mission legs",
+    "units": "-",
+    "value": "yes",
+    "limit": "",
+    "rule": "flag",
+    "met": true,
+    "verdict": "pass"
+   },
+   {
+    "requirement": "nose rotation at 0.8 V_TO (p. 432-433), tail download",
+    "units": "tail CL",
+    "value": 0.9369938920082729,
+    "limit": 1.0,
+    "rule": "<=",
+    "met": true,
+    "verdict": "pass"
+   }
+  ],
+  "failed": [],
+  "nominal": {
+   "W0_lb": 3473.746708849383,
+   "We_lb": 2021.9009215516796,
+   "components_lb": {
+    "wing": 422.57312792692375,
+    "horizontal_tail": 97.80020920974312,
+    "vertical_tail": 30.262384918627028,
+    "fuselage": 242.79046456798832,
+    "main_gear": 226.47715216123234,
+    "nose_gear": 99.33963639200424,
+    "installed_engine": 296.79999999999995,
+    "sponsons": 172.22279282120857,
+    "fuel_system": 83.65340439833086,
+    "flight_controls": 72.22785876652543,
+    "hydraulics": 3.4737467088493834,
+    "avionics": 96.54637556475544,
+    "electrical": 177.73376811549116
+   },
+   "fuel_needed_at_record_loiter_lb": 951.8450023038113,
+   "record_fuel_lb": 951.845374200738,
+   "hours_on_station": 8.000006257017874,
+   "hours_reason": null,
+   "takeoff_ft": 730.2452083925582,
+   "landing_ft": 1359.1611696741795,
+   "CD0": {
+    "mission_altitude": 0.024033875031608913,
+    "sea_level": 0.022563077856130688
+   },
+   "CL_max": {
+    "clean": 1.275993,
+    "landing": 2.055993,
+    "takeoff": 1.743993
+   },
+   "V_stall_clean_kt": 54.856066119648425,
+   "service_ceiling_ft": 30104.79970194865,
+   "power_margin": 0.3625319357813077,
+   "gear_length_in": 70.21910475319493,
+   "layout": {
+    "x_le": 10.055683397421387,
+    "x_np": 13.431764326323623,
+    "cg_full": 12.770892638484256,
+    "cg_empty": 12.881322091455317,
+    "sm_full": 0.10911650158566806,
+    "sm_empty": 0.0908834984143322,
+    "x_main": 14.926558104435188,
+    "prop_clearance_in": 16.34746240872021
+   },
+   "rotation_tail_cl": -0.9369938797950528,
+   "n_limit": 3.8
+  }
+ },
+ "corners": {
+  "r0_as_recorded": [
+   {
+    "W_start_of_climb_lb": 3725.314906683851,
+    "rate_at_mission_altitude_fpm": 506.83146875476257,
+    "absolute_ceiling_ft": 29383.14475817606,
+    "service_ceiling_ft": 27433.868273656117,
+    "mission_altitude_ft": 20000.0,
+    "corner": "C1@h1.05 (r1 ledger)",
+    "h": 0.5,
+    "transit_ratio": 0.5487333931173902,
+    "reason": null
+   },
+   {
+    "W_start_of_climb_lb": 3868.2080476713413,
+    "rate_at_mission_altitude_fpm": 399.2281090539889,
+    "absolute_ceiling_ft": 27349.415750868502,
+    "service_ceiling_ft": 25457.558720590896,
+    "mission_altitude_ft": 20000.0,
+    "corner": "C1@h1.05 (r1 ledger)",
+    "h": 0.75,
+    "transit_ratio": 0.6350477490944639,
+    "reason": null
+   },
+   {
+    "W_start_of_climb_lb": 3958.6855019859645,
+    "rate_at_mission_altitude_fpm": 327.1355058936097,
+    "absolute_ceiling_ft": 26006.548782170285,
+    "service_ceiling_ft": 24132.458845888323,
+    "mission_altitude_ft": 20000.0,
+    "corner": "C1@h1.05 (r1 ledger)",
+    "h": 0.9,
+    "transit_ratio": 0.699417886278786,
+    "reason": null
+   },
+   {
+    "W_start_of_climb_lb": 4021.3657186595124,
+    "rate_at_mission_altitude_fpm": 275.0259913720914,
+    "absolute_ceiling_ft": 25007.03459394572,
+    "service_ceiling_ft": 23171.093435121293,
+    "mission_altitude_ft": 20000.0,
+    "corner": "C1@h1.05 (r1 ledger)",
+    "h": 1.0,
+    "transit_ratio": 0.7491414436100077,
+    "reason": null
+   },
+   {
+    "W_start_of_climb_lb": 4053.4947017302115,
+    "rate_at_mission_altitude_fpm": 247.55133775358834,
+    "absolute_ceiling_ft": 24507.537645804405,
+    "service_ceiling_ft": 22656.287607751437,
+    "mission_altitude_ft": 20000.0,
+    "corner": "C1@h1.05 (r1 ledger)",
+    "h": 1.05,
+    "transit_ratio": 0.7764135800817678,
+    "reason": null
+   },
+   {
+    "corner": "C1@h1.05 (r1 ledger)",
+    "climb_limit_h": 1.42529296875
+   },
+   {
+    "W_start_of_climb_lb": 3895.158078149699,
+    "rate_at_mission_altitude_fpm": 416.9183973329026,
+    "absolute_ceiling_ft": 27917.954683834978,
+    "service_ceiling_ft": 25962.383324367693,
+    "mission_altitude_ft": 20000.0,
+    "corner": "C2(P450 h1.05 it1) (r1 ledger)",
+    "h": 0.5,
+    "transit_ratio": 0.6046032799291327,
+    "reason": null
+   },
+   {
+    "W_start_of_climb_lb": 4148.201510233951,
+    "rate_at_mission_altitude_fpm": 262.2771284470892,
+    "absolute_ceiling_ft": 25013.468229699356,
+    "service_ceiling_ft": 23083.92281185661,
+    "mission_altitude_ft": 20000.0,
+    "corner": "C2(P450 h1.05 it1) (r1 ledger)",
+    "h": 0.75,
+    "transit_ratio": 0.7387404996791437,
+    "reason": null
+   },
+   {
+    "W_start_of_climb_lb": 4314.5415967331855,
+    "rate_at_mission_altitude_fpm": 160.60821513255664,
+    "absolute_ceiling_ft": 23090.407966446946,
+    "service_ceiling_ft": 21170.368599814537,
+    "mission_altitude_ft": 20000.0,
+    "corner": "C2(P450 h1.05 it1) (r1 ledger)",
+    "h": 0.9,
+    "transit_ratio": 0.8419864915886347,
+    "reason": null
+   },
+   {
+    "W_start_of_climb_lb": 4432.405074603561,
+    "rate_at_mission_altitude_fpm": 87.9283930111258,
+    "absolute_ceiling_ft": 21701.454181566078,
+    "service_ceiling_ft": 19778.582602411916,
+    "mission_altitude_ft": 20000.0,
+    "corner": "C2(P450 h1.05 it1) (r1 ledger)",
+    "h": 1.0,
+    "transit_ratio": 0.9230740944194832,
+    "reason": null
+   },
+   {
+    "W_start_of_climb_lb": 4479.97719357748,
+    "rate_at_mission_altitude_fpm": 53.85625616165102,
+    "absolute_ceiling_ft": 21049.932432470086,
+    "service_ceiling_ft": 19146.81629092229,
+    "mission_altitude_ft": 20000.0,
+    "corner": "C2(P450 h1.05 it1) (r1 ledger)",
+    "h": 1.05,
+    "transit_ratio": 0.9635213574744534,
+    "reason": null
+   },
+   {
+    "corner": "C2(P450 h1.05 it1) (r1 ledger)",
+    "climb_limit_h": 1.125
+   }
+  ],
+  "r0_integrated_climb_only": [
+   {
+    "W_start_of_climb_lb": 3725.314906683851,
+    "rate_at_mission_altitude_fpm": 506.83146875476257,
+    "absolute_ceiling_ft": 29383.14475817606,
+    "service_ceiling_ft": 27433.868273656117,
+    "mission_altitude_ft": 20000.0,
+    "corner": "C1@h1.05 (r1 ledger)",
+    "h": 0.5,
+    "transit_ratio": 0.5489936279935902,
+    "reason": null
+   },
+   {
+    "W_start_of_climb_lb": 3868.2080476713413,
+    "rate_at_mission_altitude_fpm": 399.2281090539889,
+    "absolute_ceiling_ft": 27349.415750868502,
+    "service_ceiling_ft": 25457.558720590896,
+    "mission_altitude_ft": 20000.0,
+    "corner": "C1@h1.05 (r1 ledger)",
+    "h": 0.75,
+    "transit_ratio": 0.6353059707374291,
+    "reason": null
+   },
+   {
+    "W_start_of_climb_lb": 3958.6855019859645,
+    "rate_at_mission_altitude_fpm": 327.1355058936097,
+    "absolute_ceiling_ft": 26006.548782170285,
+    "service_ceiling_ft": 24132.458845888323,
+    "mission_altitude_ft": 20000.0,
+    "corner": "C1@h1.05 (r1 ledger)",
+    "h": 0.9,
+    "transit_ratio": 0.6995640614699629,
+    "reason": null
+   },
+   {
+    "W_start_of_climb_lb": 4021.3657186595124,
+    "rate_at_mission_altitude_fpm": 275.0259913720914,
+    "absolute_ceiling_ft": 25007.03459394572,
+    "service_ceiling_ft": 23171.093435121293,
+    "mission_altitude_ft": 20000.0,
+    "corner": "C1@h1.05 (r1 ledger)",
+    "h": 1.0,
+    "transit_ratio": 0.7490849680179079,
+    "reason": null
+   },
+   {
+    "W_start_of_climb_lb": 4053.4947017302115,
+    "rate_at_mission_altitude_fpm": 247.55133775358834,
+    "absolute_ceiling_ft": 24507.537645804405,
+    "service_ceiling_ft": 22656.287607751437,
+    "mission_altitude_ft": 20000.0,
+    "corner": "C1@h1.05 (r1 ledger)",
+    "h": 1.05,
+    "transit_ratio": 0.7761751554709255,
+    "reason": null
+   },
+   {
+    "corner": "C1@h1.05 (r1 ledger)",
+    "climb_limit_h": 1.42529296875
+   },
+   {
+    "W_start_of_climb_lb": 3895.158078149699,
+    "rate_at_mission_altitude_fpm": 416.9183973329026,
+    "absolute_ceiling_ft": 27917.954683834978,
+    "service_ceiling_ft": 25962.383324367693,
+    "mission_altitude_ft": 20000.0,
+    "corner": "C2(P450 h1.05 it1) (r1 ledger)",
+    "h": 0.5,
+    "transit_ratio": 0.6049610701887196,
+    "reason": null
+   },
+   {
+    "W_start_of_climb_lb": 4148.201510233951,
+    "rate_at_mission_altitude_fpm": 262.2771284470892,
+    "absolute_ceiling_ft": 25013.468229699356,
+    "service_ceiling_ft": 23083.92281185661,
+    "mission_altitude_ft": 20000.0,
+    "corner": "C2(P450 h1.05 it1) (r1 ledger)",
+    "h": 0.75,
+    "transit_ratio": 0.7390185861638283,
+    "reason": null
+   },
+   {
+    "W_start_of_climb_lb": 4314.5415967331855,
+    "rate_at_mission_altitude_fpm": 160.60821513255664,
+    "absolute_ceiling_ft": 23090.407966446946,
+    "service_ceiling_ft": 21170.368599814537,
+    "mission_altitude_ft": 20000.0,
+    "corner": "C2(P450 h1.05 it1) (r1 ledger)",
+    "h": 0.9,
+    "transit_ratio": 0.8415237988831744,
+    "reason": null
+   },
+   {
+    "W_start_of_climb_lb": 4432.405074603561,
+    "rate_at_mission_altitude_fpm": 87.9283930111258,
+    "absolute_ceiling_ft": 21701.454181566078,
+    "service_ceiling_ft": 19778.582602411916,
+    "mission_altitude_ft": 20000.0,
+    "corner": "C2(P450 h1.05 it1) (r1 ledger)",
+    "h": 1.0,
+    "transit_ratio": 0.9207328441166946,
+    "reason": null
+   },
+   {
+    "W_start_of_climb_lb": 4479.97719357748,
+    "rate_at_mission_altitude_fpm": 53.85625616165102,
+    "absolute_ceiling_ft": 21049.932432470086,
+    "service_ceiling_ft": 19146.81629092229,
+    "mission_altitude_ft": 20000.0,
+    "corner": "C2(P450 h1.05 it1) (r1 ledger)",
+    "h": 1.05,
+    "transit_ratio": 0.9591575495463056,
+    "reason": null
+   },
+   {
+    "corner": "C2(P450 h1.05 it1) (r1 ledger)",
+    "climb_limit_h": 1.125
+   }
+  ],
+  "r0_with_every_finding": [
+   {
+    "W_start_of_climb_lb": 3914.470197214205,
+    "rate_at_mission_altitude_fpm": 400.90124687287425,
+    "absolute_ceiling_ft": 27286.26632684609,
+    "service_ceiling_ft": 25416.771310519835,
+    "mission_altitude_ft": 20000.0,
+    "corner": "C1@h1.05 (r1 ledger)",
+    "h": 0.5,
+    "transit_ratio": 0.6376507894479867,
+    "reason": null
+   },
+   {
+    "W_start_of_climb_lb": 4075.7319213541164,
+    "rate_at_mission_altitude_fpm": 272.8152840170419,
+    "absolute_ceiling_ft": 24924.963416269748,
+    "service_ceiling_ft": 23103.111196942336,
+    "mission_altitude_ft": 20000.0,
+    "corner": "C1@h1.05 (r1 ledger)",
+    "h": 0.75,
+    "transit_ratio": 0.750832070243858,
+    "reason": null
+   },
+   {
+    "W_start_of_climb_lb": 4177.602759710393,
+    "rate_at_mission_altitude_fpm": 186.79095821336577,
+    "absolute_ceiling_ft": 23366.72802990506,
+    "service_ceiling_ft": 21561.384232372802,
+    "mission_altitude_ft": 20000.0,
+    "corner": "C1@h1.05 (r1 ledger)",
+    "h": 0.9,
+    "transit_ratio": 0.835174340324152,
+    "reason": null
+   },
+   {
+    "W_start_of_climb_lb": 4248.039126953277,
+    "rate_at_mission_altitude_fpm": 124.5253860764639,
+    "absolute_ceiling_ft": 22226.26187314745,
+    "service_ceiling_ft": 20445.476386557857,
+    "mission_altitude_ft": 20000.0,
+    "corner": "C1@h1.05 (r1 ledger)",
+    "h": 1.0,
+    "transit_ratio": 0.8995755059984875,
+    "reason": null
+   },
+   {
+    "W_start_of_climb_lb": 4284.093931590165,
+    "rate_at_mission_altitude_fpm": 91.67397306499589,
+    "absolute_ceiling_ft": 21646.284208145516,
+    "service_ceiling_ft": 19858.37805601477,
+    "mission_altitude_ft": 20000.0,
+    "corner": "C1@h1.05 (r1 ledger)",
+    "h": 1.05,
+    "transit_ratio": 0.9343476251198691,
+    "reason": null
+   },
+   {
+    "corner": "C1@h1.05 (r1 ledger)",
+    "climb_limit_h": 1.179931640625
+   },
+   {
+    "W_start_of_climb_lb": 4105.966083745902,
+    "rate_at_mission_altitude_fpm": 305.59611383385794,
+    "absolute_ceiling_ft": 25708.429019505274,
+    "service_ceiling_ft": 23810.340145682858,
+    "mission_altitude_ft": 20000.0,
+    "corner": "C2(P450 h1.05 it1) (r1 ledger)",
+    "h": 0.5,
+    "transit_ratio": 0.7072138218463252,
+    "reason": null
+   },
+   {
+    "W_start_of_climb_lb": 4392.981559483389,
+    "rate_at_mission_altitude_fpm": 126.5263575507747,
+    "absolute_ceiling_ft": 22373.085971084947,
+    "service_ceiling_ft": 20505.789175149403,
+    "mission_altitude_ft": 20000.0,
+    "corner": "C2(P450 h1.05 it1) (r1 ledger)",
+    "h": 0.75,
+    "transit_ratio": 0.8810896028859082,
+    "reason": null
+   },
+   {
+    "W_start_of_climb_lb": 4581.939046797528,
+    "rate_at_mission_altitude_fpm": 7.730350079941525,
+    "absolute_ceiling_ft": 20149.319177289726,
+    "service_ceiling_ft": 18308.534687021165,
+    "mission_altitude_ft": 20000.0,
+    "corner": "C2(P450 h1.05 it1) (r1 ledger)",
+    "h": 0.9,
+    "transit_ratio": 1.0079819087389525,
+    "reason": "no speed on the leg within the engine's power"
+   },
+   {
+    "W_start_of_climb_lb": 4715.90580731967,
+    "rate_at_mission_altitude_fpm": -77.73315019751945,
+    "absolute_ceiling_ft": 18569.670287433837,
+    "service_ceiling_ft": 16730.488715475076,
+    "mission_altitude_ft": 20000.0,
+    "corner": "C2(P450 h1.05 it1) (r1 ledger)",
+    "h": 1.0,
+    "transit_ratio": "inf",
+    "reason": "cannot climb to the mission altitude: no rate of climb at 20000 ft"
+   },
+   {
+    "W_start_of_climb_lb": 4769.821292673551,
+    "rate_at_mission_altitude_fpm": -118.07368219191991,
+    "absolute_ceiling_ft": 17810.322228724544,
+    "service_ceiling_ft": 15994.746876349382,
+    "mission_altitude_ft": 20000.0,
+    "corner": "C2(P450 h1.05 it1) (r1 ledger)",
+    "h": 1.05,
+    "transit_ratio": "inf",
+    "reason": "cannot climb to the mission altitude: no rate of climb at 19000 ft"
+   },
+   {
+    "corner": "C2(P450 h1.05 it1) (r1 ledger)",
+    "climb_limit_h": 0.908935546875
+   }
+  ],
+  "lightest_8h": [
+   {
+    "W_start_of_climb_lb": 3697.295697659358,
+    "rate_at_mission_altitude_fpm": 475.6339683112078,
+    "absolute_ceiling_ft": 28493.671991636802,
+    "service_ceiling_ft": 26639.051209676836,
+    "mission_altitude_ft": 20000.0,
+    "corner": "C1@h1.05 (r1 ledger)",
+    "h": 0.5,
+    "transit_ratio": 0.5890909394308276,
+    "reason": null
+   },
+   {
+    "W_start_of_climb_lb": 3854.905407511014,
+    "rate_at_mission_altitude_fpm": 345.3283869576067,
+    "absolute_ceiling_ft": 26141.82281842659,
+    "service_ceiling_ft": 24321.726740199665,
+    "mission_altitude_ft": 20000.0,
+    "corner": "C1@h1.05 (r1 ledger)",
+    "h": 0.75,
+    "transit_ratio": 0.6947674936519711,
+    "reason": null
+   },
+   {
+    "W_start_of_climb_lb": 3954.491098525729,
+    "rate_at_mission_altitude_fpm": 258.2946435265882,
+    "absolute_ceiling_ft": 24562.35394365649,
+    "service_ceiling_ft": 22769.655713564134,
+    "mission_altitude_ft": 20000.0,
+    "corner": "C1@h1.05 (r1 ledger)",
+    "h": 0.9,
+    "transit_ratio": 0.7737881168251283,
+    "reason": null
+   },
+   {
+    "W_start_of_climb_lb": 4023.358174064026,
+    "rate_at_mission_altitude_fpm": 195.5129729711783,
+    "absolute_ceiling_ft": 23444.765034582815,
+    "service_ceiling_ft": 21677.158654383675,
+    "mission_altitude_ft": 20000.0,
+    "corner": "C1@h1.05 (r1 ledger)",
+    "h": 1.0,
+    "transit_ratio": 0.8346555594449081,
+    "reason": null
+   },
+   {
+    "W_start_of_climb_lb": 4058.613177780579,
+    "rate_at_mission_altitude_fpm": 162.45575077458994,
+    "absolute_ceiling_ft": 22846.117317640164,
+    "service_ceiling_ft": 21102.116208749067,
+    "mission_altitude_ft": 20000.0,
+    "corner": "C1@h1.05 (r1 ledger)",
+    "h": 1.05,
+    "transit_ratio": 0.8678464094948636,
+    "reason": null
+   },
+   {
+    "corner": "C1@h1.05 (r1 ledger)",
+    "climb_limit_h": 1.270751953125
+   },
+   {
+    "W_start_of_climb_lb": 3884.1436927098352,
+    "rate_at_mission_altitude_fpm": 375.54829901204596,
+    "absolute_ceiling_ft": 26882.40998366382,
+    "service_ceiling_ft": 24983.76505660417,
+    "mission_altitude_ft": 20000.0,
+    "corner": "C2(P450 h1.05 it1) (r1 ledger)",
+    "h": 0.5,
+    "transit_ratio": 0.6550976847930784,
+    "reason": null
+   },
+   {
+    "W_start_of_climb_lb": 4164.721353536076,
+    "rate_at_mission_altitude_fpm": 192.1642193897878,
+    "absolute_ceiling_ft": 23558.757122773386,
+    "service_ceiling_ft": 21699.28048217116,
+    "mission_altitude_ft": 20000.0,
+    "corner": "C2(P450 h1.05 it1) (r1 ledger)",
+    "h": 0.75,
+    "transit_ratio": 0.8196990867374084,
+    "reason": null
+   },
+   {
+    "W_start_of_climb_lb": 4349.5538695709765,
+    "rate_at_mission_altitude_fpm": 71.20988479143031,
+    "absolute_ceiling_ft": 21332.77094715595,
+    "service_ceiling_ft": 19489.28066809458,
+    "mission_altitude_ft": 20000.0,
+    "corner": "C2(P450 h1.05 it1) (r1 ledger)",
+    "h": 0.9,
+    "transit_ratio": 0.944959413835122,
+    "reason": null
+   },
+   {
+    "W_start_of_climb_lb": 4480.64880154447,
+    "rate_at_mission_altitude_fpm": -15.487673640659207,
+    "absolute_ceiling_ft": 19723.798627528595,
+    "service_ceiling_ft": 17907.664580307028,
+    "mission_altitude_ft": 20000.0,
+    "corner": "C2(P450 h1.05 it1) (r1 ledger)",
+    "h": 1.0,
+    "transit_ratio": 1.0331730332446039,
+    "reason": "no speed on the leg within the engine's power"
+   },
+   {
+    "W_start_of_climb_lb": 4533.432933582244,
+    "rate_at_mission_altitude_fpm": -56.19646004028004,
+    "absolute_ceiling_ft": 18989.465967970318,
+    "service_ceiling_ft": 17169.66880212567,
+    "mission_altitude_ft": 20000.0,
+    "corner": "C2(P450 h1.05 it1) (r1 ledger)",
+    "h": 1.05,
+    "transit_ratio": "inf",
+    "reason": "cannot climb to the mission altitude: no rate of climb at 20000 ft"
+   },
+   {
+    "corner": "C2(P450 h1.05 it1) (r1 ledger)",
+    "climb_limit_h": 0.982177734375
+   }
+  ]
+ },
+ "attribution_corner": "C2(P450 h1.05 it1) (r1 ledger)",
+ "attribution": {
+  "P1 integrated climb": {
+   "W_start_of_climb_lb": 4432.405074603561,
+   "rate_at_mission_altitude_fpm": 87.9283930111258,
+   "absolute_ceiling_ft": 21701.454181566078,
+   "service_ceiling_ft": 19778.582602411916,
+   "mission_altitude_ft": 20000.0,
+   "climb_limit_h": 1.125,
+   "ledger": "data/task12/ledger.yaml"
+  },
+  "P2 section maximum lift": {
+   "W_start_of_climb_lb": 4432.405074603561,
+   "rate_at_mission_altitude_fpm": 87.9283930111258,
+   "absolute_ceiling_ft": 21701.454181566078,
+   "service_ceiling_ft": 19778.582602411916,
+   "mission_altitude_ft": 20000.0,
+   "climb_limit_h": 1.12939453125,
+   "ledger": "data/task12/ledger_r1.yaml"
+  },
+  "P2 section moment": {
+   "W_start_of_climb_lb": 4432.405074603561,
+   "rate_at_mission_altitude_fpm": 87.9283930111258,
+   "absolute_ceiling_ft": 21701.454181566078,
+   "service_ceiling_ft": 19778.582602411916,
+   "mission_altitude_ft": 20000.0,
+   "climb_limit_h": 1.12939453125,
+   "ledger": "data/task12/ledger_r1.yaml"
+  },
+  "P3 loft wetted areas": {
+   "W_start_of_climb_lb": 4432.405074603561,
+   "rate_at_mission_altitude_fpm": 128.09710968272103,
+   "absolute_ceiling_ft": 22500.585226734984,
+   "service_ceiling_ft": 20557.57697668014,
+   "mission_altitude_ft": 20000.0,
+   "climb_limit_h": 1.193115234375,
+   "ledger": "data/task12/ledger.yaml"
+  },
+  "P3 tank volume": {
+   "W_start_of_climb_lb": 4432.405074603561,
+   "rate_at_mission_altitude_fpm": 87.9283930111258,
+   "absolute_ceiling_ft": 21701.454181566078,
+   "service_ceiling_ft": 19778.582602411916,
+   "mission_altitude_ft": 20000.0,
+   "climb_limit_h": 1.125,
+   "ledger": "data/task12/ledger.yaml"
+  },
+  "P3 payload and avionics stations": {
+   "W_start_of_climb_lb": 4432.405074603561,
+   "rate_at_mission_altitude_fpm": 87.9283930111258,
+   "absolute_ceiling_ft": 21701.454181566078,
+   "service_ceiling_ft": 19778.582602411916,
+   "mission_altitude_ft": 20000.0,
+   "climb_limit_h": 1.125,
+   "ledger": "data/task12/ledger.yaml"
+  },
+  "PD-27 sponson": {
+   "W_start_of_climb_lb": 4648.941932061487,
+   "rate_at_mission_altitude_fpm": -136.31427903390198,
+   "absolute_ceiling_ft": 17545.057072093186,
+   "service_ceiling_ft": 15794.172567766509,
+   "mission_altitude_ft": 20000.0,
+   "climb_limit_h": 0.856201171875,
+   "ledger": "data/task12/ledger.yaml"
+  },
+  "PD-21 tails with straight trailing edges": {
+   "W_start_of_climb_lb": 4432.233426891928,
+   "rate_at_mission_altitude_fpm": 87.97928195122006,
+   "absolute_ceiling_ft": 21702.403780291206,
+   "service_ceiling_ft": 19779.52076747897,
+   "mission_altitude_ft": 20000.0,
+   "climb_limit_h": 1.125732421875,
+   "ledger": "data/task12/ledger.yaml"
+  },
+  "PD-21 aft fuselage and shaft": {
+   "W_start_of_climb_lb": 4496.622011358058,
+   "rate_at_mission_altitude_fpm": 69.04774996701845,
+   "absolute_ceiling_ft": 21346.36048169341,
+   "service_ceiling_ft": 19427.71228706988,
+   "mission_altitude_ft": 20000.0,
+   "climb_limit_h": 1.0986328125,
+   "ledger": "data/task12/ledger.yaml"
+  },
+  "P4 Multhopp's fuselage term": {
+   "W_start_of_climb_lb": 4432.405074603561,
+   "rate_at_mission_altitude_fpm": 87.9283930111258,
+   "absolute_ceiling_ft": 21701.454181566078,
+   "service_ceiling_ft": 19778.582602411916,
+   "mission_altitude_ft": 20000.0,
+   "climb_limit_h": 1.125,
+   "ledger": "data/task12/ledger.yaml"
+  }
+ },
+ "r0_built": {
+  "W0_lb": 3517.248566154491,
+  "We_lb": 1918.5605815190427,
+  "components_lb": {
+   "wing": 429.40320116390194,
+   "horizontal_tail": 97.21188295713078,
+   "vertical_tail": 30.826758977639656,
+   "fuselage": 224.57576663665466,
+   "main_gear": 223.0415692069999,
+   "nose_gear": 95.03648485965546,
+   "installed_engine": 296.79999999999995,
+   "sponsons": 80.21150508517158,
+   "fuel_system": 92.83657367756321,
+   "flight_controls": 66.25638167082005,
+   "hydraulics": 3.517248566154491,
+   "avionics": 96.54637556475544,
+   "electrical": 182.29683315259558
+  },
+  "fuel_needed_at_record_loiter_lb": 1098.6872071122207,
+  "record_fuel_lb": 1098.6876236696955,
+  "hours_on_station": 11.000008142816982,
+  "hours_reason": null,
+  "takeoff_ft": 710.9570170858435,
+  "landing_ft": 1348.6316573288618,
+  "CD0": {
+   "mission_altitude": 0.022082132455811965,
+   "sea_level": 0.020634251710758018
+  },
+  "CL_max": {
+   "clean": 1.35,
+   "landing": 2.13,
+   "takeoff": 1.818
+  },
+  "V_stall_clean_kt": 53.331270061214234,
+  "service_ceiling_ft": 30438.519617273414,
+  "power_margin": 0.37526518797982455,
+  "gear_length_in": 66.0807485949136,
+  "layout": {
+   "x_le": 9.16334521208995,
+   "x_np": 12.624087046995442,
+   "cg_full": 11.938102794899647,
+   "cg_empty": 12.091196323543098,
+   "sm_full": 0.11256023232198988,
+   "sm_empty": 0.08743976767800903,
+   "x_main": 14.045394776423587,
+   "prop_clearance_in": 14.443216152475072
+  },
+  "rotation_tail_cl": -0.9676499194523929,
+  "n_limit": 3.8
+ },
+ "r0_built_with_findings": {
+  "W0_lb": 3689.188238917023,
+  "We_lb": 2090.501814297199,
+  "components_lb": {
+   "wing": 439.5637576042463,
+   "horizontal_tail": 98.08023054577808,
+   "vertical_tail": 31.085623071401507,
+   "fuselage": 251.99190823851913,
+   "main_gear": 237.47370861160513,
+   "nose_gear": 103.03637421262584,
+   "installed_engine": 296.79999999999995,
+   "sponsons": 179.6102962800231,
+   "fuel_system": 92.83657367756321,
+   "flight_controls": 77.49094509916846,
+   "hydraulics": 3.689188238917023,
+   "avionics": 96.54637556475544,
+   "electrical": 182.29683315259558
+  },
+  "fuel_needed_at_record_loiter_lb": 1178.1200832664347,
+  "record_fuel_lb": 1098.6876236696955,
+  "hours_on_station": 9.67461595460083,
+  "hours_reason": null,
+  "takeoff_ft": 780.552795295952,
+  "landing_ft": 1374.8023895604363,
+  "CD0": {
+   "mission_altitude": 0.024051503364011177,
+   "sea_level": 0.02259157816390833
+  },
+  "CL_max": {
+   "clean": 1.275993,
+   "landing": 2.055993,
+   "takeoff": 1.743993
+  },
+  "V_stall_clean_kt": 56.18088053845597,
+  "service_ceiling_ft": 28893.121398577932,
+  "power_margin": 0.3095141528854165,
+  "gear_length_in": 70.42546778797652,
+  "layout": {
+   "x_le": 10.272835291700055,
+   "x_np": 13.615155506799415,
+   "cg_full": 12.951040383133932,
+   "cg_empty": 13.060395654916753,
+   "sm_full": 0.1089718202421574,
+   "sm_empty": 0.09102817975784236,
+   "x_main": 15.116891281028147,
+   "prop_clearance_in": 16.413010135424486
+  },
+  "rotation_tail_cl": -0.9624097803445605,
+  "n_limit": 3.8
+ },
+ "info_gap_lightest_8h": {
+  "file": "runs/task12/pd/2026-11-28/p9/diagnose/lightest_8h/info_gap.json",
+  "h_hat": {
+   "R5": 0.0,
+   "TO": 1.1700439453125,
+   "LD": 1.5882568359375,
+   "R5_reserve_usable": 0.136962890625,
+   "R5_guarantee": 0.69287109375,
+   "R7": 1.1700439453125
+  },
+  "nominal": {
+   "R5_hours": 8.000006257017874,
+   "takeoff_ft": 730.2452083925582,
+   "landing_ft": 1359.1611696741795
+  },
+  "runtime_s": 3303.6157145500183
+ },
+ "tree_at_end": {
+  "commit": "0415aa3ef8b9c725f73e2d25e870197ca378ce6e",
+  "git_dirty": false,
+  "git_dirty_files": [],
+  "excluded": "runs/task12/pd/2026-11-28/p9/diagnose"
+ },
+ "runtime_s": 3447.575008392334
+}
