@@ -1,0 +1,970 @@
+/tmp/claude-0/-home-user/d15a4c10-d7a3-5006-96e8-4d0a5f6097f0/scratchpad/vspenv/lib/python3.12/site-packages/openvsp/vspaero -omp 4 /home/user/ai-engineering/runs/task12/pd/2026-11-27/p4/vspaero/L3
+Setting Sref to: 270.557711 
+Setting Cref to: 6.094375 
+Setting Bref to: 46.523776 
+Setting X_cg to: 11.938104 
+Setting Y_cg to: 0.000000 
+Setting Z_cg to: 0.000000 
+Number of Machs: 1 
+Mach: 0.142032 
+Number of AoAs: 6 
+AoA: -2.000000 
+AoA: 0.000000 
+AoA: 2.000000 
+AoA: 4.000000 
+AoA: 6.000000 
+AoA: 8.000000 
+Number of Betas: 1 
+Beta: 0.000000 
+Number of ReCs: 1 
+ReC: 10000000.000000 
+Setting Vinf to: 100.000000 
+Setting Rho to: 0.002377 
+Setting StallModel to: 0 
+Setting Clo2D to: 0.000000 
+Setting CLMax2D to: 1.000000 
+Setting Symmetry to: 0 
+Setting FreezeMultiPoleAtIteration to: 10000 
+Setting FreezeWakeAtIteration to: 10000 
+Setting FreezeWakeRootVortices to: 0 
+Setting ImplicitWake to: 0 
+Setting ImplicitWakeStartIteration_ to: 0 
+Setting FarDist to: -1.000000 
+Setting NumWakeNodes to: 8 
+Setting WakeIters to: 5 
+Setting WakeRelax to: 1.000000 
+Setting ForwardGMRESConvergenceFactor to: 1.000000e+00 
+Setting AdjointGMRESConvergenceFactor_ to: 1.000000e+00 
+Setting NonLinearConvergenceFactor to: 1.000000e+00 
+Setting CoreSizeFactor to: 1.000000 
+Setting multipole FarAway factor to: 5.000000 
+Setting UpdateMatrixPreconditioner flag to: 0 
+Setting UseWakeNodeMatrixPreconditioner flag to: 0 
+Setting QuadTreeBufferLevels_ flag to: 0 
+Number of NumberOfAdjointForceAndMomentCases_: 0 
+Number of NumberOfAdjointComponentListSettings_: 0 
+Setting Write2DFEMFile to: 0 
+Setting WriteTecplotFile to: 0 
+Sref            = 270.557711 
+Cref            = 6.094375 
+Bref            = 46.523776 
+X_cg            = 11.938104 
+Y_cg            = 0.000000 
+Z_cg            = 0.000000 
+Mach            = 0.142032 
+AoA             = -2.000000, 0.000000, 2.000000, 4.000000, 6.000000, 8.000000 
+Beta            = 0.000000 
+Vinf            = 100.000000 
+Vref            = 100.000000 
+Rho             = 0.002377 
+ReCref          = 10000000.000000 
+StallModel      = 0  
+Clo2D           = 0.000000 
+CLMax2D_        = 1.000000 
+Symmetry        = 0  
+FarDist         = -1.000000 
+NumWakeNodes    = 8  
+WakeIters       = 5  
+NumberOfControlGroups = 0 
+NumberofSurveyPoints: 0 
+NumberOfQuadTrees: 1 
+QuadTree(1):          2:    0.00000 
+NumberOfInlets: 0 
+NumberOfNozzles: 0 
+NumberOfInlets: 0 
+NumberOfNozzles: 0 
+VSPAERO v.7.2.2 --- Compiled on: Nov 24 2026 at 02:56:42 PST 
+
+
+
+
+Initializing OPENMP for 4 threads 
+NumberOfThreads_: 4 
+_OPENMP Version string: 201511
+NumNodes: 12582 
+MaxNumberOfGridLevels_: 24 
+NumLoops: 12092 
+NumNodesInList: 3 
+KuttaNodeList_[1]: 5858 
+KuttaNodeList_[2]: 4142 
+KuttaNodeList_[3]: 4143 
+NumNodesInList: 34 
+KuttaNodeList_[4]: 2675 
+KuttaNodeList_[5]: 4240 
+KuttaNodeList_[6]: 4289 
+KuttaNodeList_[7]: 4338 
+KuttaNodeList_[8]: 4387 
+KuttaNodeList_[9]: 4436 
+KuttaNodeList_[10]: 4485 
+KuttaNodeList_[11]: 4534 
+KuttaNodeList_[12]: 4583 
+KuttaNodeList_[13]: 4632 
+KuttaNodeList_[14]: 4681 
+KuttaNodeList_[15]: 4730 
+KuttaNodeList_[16]: 4779 
+KuttaNodeList_[17]: 4828 
+KuttaNodeList_[18]: 4877 
+KuttaNodeList_[19]: 4926 
+KuttaNodeList_[20]: 4975 
+KuttaNodeList_[21]: 5024 
+KuttaNodeList_[22]: 5073 
+KuttaNodeList_[23]: 5122 
+KuttaNodeList_[24]: 5171 
+KuttaNodeList_[25]: 5220 
+KuttaNodeList_[26]: 5269 
+KuttaNodeList_[27]: 5318 
+KuttaNodeList_[28]: 5367 
+KuttaNodeList_[29]: 5416 
+KuttaNodeList_[30]: 5465 
+KuttaNodeList_[31]: 5514 
+KuttaNodeList_[32]: 5563 
+KuttaNodeList_[33]: 5612 
+KuttaNodeList_[34]: 5661 
+KuttaNodeList_[35]: 5710 
+KuttaNodeList_[36]: 5759 
+KuttaNodeList_[37]: 5808 
+NumNodesInList: 34 
+KuttaNodeList_[38]: 7474 
+KuttaNodeList_[39]: 7425 
+KuttaNodeList_[40]: 7376 
+KuttaNodeList_[41]: 7327 
+KuttaNodeList_[42]: 7278 
+KuttaNodeList_[43]: 7229 
+KuttaNodeList_[44]: 7180 
+KuttaNodeList_[45]: 7131 
+KuttaNodeList_[46]: 7082 
+KuttaNodeList_[47]: 7033 
+KuttaNodeList_[48]: 6984 
+KuttaNodeList_[49]: 6935 
+KuttaNodeList_[50]: 6886 
+KuttaNodeList_[51]: 6837 
+KuttaNodeList_[52]: 6788 
+KuttaNodeList_[53]: 6739 
+KuttaNodeList_[54]: 6690 
+KuttaNodeList_[55]: 6642 
+KuttaNodeList_[56]: 6593 
+KuttaNodeList_[57]: 6544 
+KuttaNodeList_[58]: 6495 
+KuttaNodeList_[59]: 6446 
+KuttaNodeList_[60]: 6397 
+KuttaNodeList_[61]: 6348 
+KuttaNodeList_[62]: 6299 
+KuttaNodeList_[63]: 6250 
+KuttaNodeList_[64]: 6201 
+KuttaNodeList_[65]: 6152 
+KuttaNodeList_[66]: 6103 
+KuttaNodeList_[67]: 6054 
+KuttaNodeList_[68]: 6005 
+KuttaNodeList_[69]: 5956 
+KuttaNodeList_[70]: 5906 
+KuttaNodeList_[71]: 2693 
+NumNodesInList: 71 
+KuttaNodeList_[72]: 10826 
+KuttaNodeList_[73]: 10777 
+KuttaNodeList_[74]: 10728 
+KuttaNodeList_[75]: 10679 
+KuttaNodeList_[76]: 10630 
+KuttaNodeList_[77]: 10581 
+KuttaNodeList_[78]: 10532 
+KuttaNodeList_[79]: 10483 
+KuttaNodeList_[80]: 10434 
+KuttaNodeList_[81]: 10385 
+KuttaNodeList_[82]: 10336 
+KuttaNodeList_[83]: 10287 
+KuttaNodeList_[84]: 10238 
+KuttaNodeList_[85]: 10189 
+KuttaNodeList_[86]: 10140 
+KuttaNodeList_[87]: 10091 
+KuttaNodeList_[88]: 10042 
+KuttaNodeList_[89]: 9992 
+KuttaNodeList_[90]: 9943 
+KuttaNodeList_[91]: 9894 
+KuttaNodeList_[92]: 9845 
+KuttaNodeList_[93]: 9796 
+KuttaNodeList_[94]: 9747 
+KuttaNodeList_[95]: 9698 
+KuttaNodeList_[96]: 9649 
+KuttaNodeList_[97]: 9600 
+KuttaNodeList_[98]: 9551 
+KuttaNodeList_[99]: 9502 
+KuttaNodeList_[100]: 9453 
+KuttaNodeList_[101]: 9404 
+KuttaNodeList_[102]: 9355 
+KuttaNodeList_[103]: 9306 
+KuttaNodeList_[104]: 9257 
+KuttaNodeList_[105]: 9236 
+KuttaNodeList_[106]: 9204 
+KuttaNodeList_[107]: 7525 
+KuttaNodeList_[108]: 7523 
+KuttaNodeList_[109]: 7565 
+KuttaNodeList_[110]: 7586 
+KuttaNodeList_[111]: 7635 
+KuttaNodeList_[112]: 7684 
+KuttaNodeList_[113]: 7733 
+KuttaNodeList_[114]: 7782 
+KuttaNodeList_[115]: 7831 
+KuttaNodeList_[116]: 7880 
+KuttaNodeList_[117]: 7929 
+KuttaNodeList_[118]: 7978 
+KuttaNodeList_[119]: 8027 
+KuttaNodeList_[120]: 8076 
+KuttaNodeList_[121]: 8125 
+KuttaNodeList_[122]: 8174 
+KuttaNodeList_[123]: 8223 
+KuttaNodeList_[124]: 8272 
+KuttaNodeList_[125]: 8321 
+KuttaNodeList_[126]: 8370 
+KuttaNodeList_[127]: 8419 
+KuttaNodeList_[128]: 8468 
+KuttaNodeList_[129]: 8517 
+KuttaNodeList_[130]: 8566 
+KuttaNodeList_[131]: 8615 
+KuttaNodeList_[132]: 8664 
+KuttaNodeList_[133]: 8713 
+KuttaNodeList_[134]: 8762 
+KuttaNodeList_[135]: 8811 
+KuttaNodeList_[136]: 8860 
+KuttaNodeList_[137]: 8909 
+KuttaNodeList_[138]: 8958 
+KuttaNodeList_[139]: 9007 
+KuttaNodeList_[140]: 9056 
+KuttaNodeList_[141]: 9105 
+KuttaNodeList_[142]: 9154 
+NumNodesInList: 37 
+KuttaNodeList_[143]: 10874 
+KuttaNodeList_[144]: 10875 
+KuttaNodeList_[145]: 10971 
+KuttaNodeList_[146]: 9218 
+KuttaNodeList_[147]: 10987 
+KuttaNodeList_[148]: 11008 
+KuttaNodeList_[149]: 11057 
+KuttaNodeList_[150]: 11106 
+KuttaNodeList_[151]: 11155 
+KuttaNodeList_[152]: 11204 
+KuttaNodeList_[153]: 11253 
+KuttaNodeList_[154]: 11302 
+KuttaNodeList_[155]: 11351 
+KuttaNodeList_[156]: 11400 
+KuttaNodeList_[157]: 11449 
+KuttaNodeList_[158]: 11498 
+KuttaNodeList_[159]: 11547 
+KuttaNodeList_[160]: 11596 
+KuttaNodeList_[161]: 11645 
+KuttaNodeList_[162]: 11694 
+KuttaNodeList_[163]: 11743 
+KuttaNodeList_[164]: 11792 
+KuttaNodeList_[165]: 11841 
+KuttaNodeList_[166]: 11890 
+KuttaNodeList_[167]: 11939 
+KuttaNodeList_[168]: 11988 
+KuttaNodeList_[169]: 12037 
+KuttaNodeList_[170]: 12086 
+KuttaNodeList_[171]: 12135 
+KuttaNodeList_[172]: 12184 
+KuttaNodeList_[173]: 12233 
+KuttaNodeList_[174]: 12282 
+KuttaNodeList_[175]: 12331 
+KuttaNodeList_[176]: 12380 
+KuttaNodeList_[177]: 12429 
+KuttaNodeList_[178]: 12478 
+KuttaNodeList_[179]: 12527 
+VSPGEOM defined NumKuttaNodes: 179 
+Found 6 VSPGEOM Surfaces 
+Found 6 VSPGEOM Surfaces 
+DumChar: # VSPGEOM v3 Tag Key File
+ 
+DumChar: /home/user/ai-engineering/runs/task12/pd/2026-11-27/p4/vspaero/L3.vspgeom
+ 
+DumChar: 6
+ 
+NumberOfVSPSurfaces: 6 
+DumChar: 
+ 
+DumChar: # part#,geom#,surf#,gname,gid,thick,plate,copy#,geomcopy#
+ 
+Thick/thin data exists... DumChar: # part#,geom#,surf#,gname,gid,thick,plate,copy#,geomcopy#
+ 
+Part: 1 ... CompID: 1 ... SurfID: 0 
+Surface: 1 exists in triangulation and has OpenVSP Name: fuselage_S 
+CompID: 1 
+Setting OpenVSP_ComponentIDForSurface_ to : 1 
+Surface: 1 is thick 
+Setting ComponentIDForSurface_ to : 2 
+Part: 2 ... CompID: 0 ... SurfID: 0 
+Surface: 2 exists in triangulation and has OpenVSP Name: wing_C 
+CompID: 0 
+Setting OpenVSP_ComponentIDForSurface_ to : 0 
+Surface: 2 is thin 
+Setting ComponentIDForSurface_ to : 1 
+Part: 3 ... CompID: 0 ... SurfID: 1 
+Surface: 3 exists in triangulation and has OpenVSP Name: wing_C 
+CompID: 0 
+Setting OpenVSP_ComponentIDForSurface_ to : 0 
+Surface: 3 is thin 
+Setting ComponentIDForSurface_ to : 1 
+Part: 4 ... CompID: 3 ... SurfID: 0 
+Surface: 4 exists in triangulation and has OpenVSP Name: horizontal_tail_C 
+CompID: 3 
+Setting OpenVSP_ComponentIDForSurface_ to : 3 
+Surface: 4 is thin 
+Setting ComponentIDForSurface_ to : 4 
+Part: 5 ... CompID: 3 ... SurfID: 1 
+Surface: 5 exists in triangulation and has OpenVSP Name: horizontal_tail_C 
+CompID: 3 
+Setting OpenVSP_ComponentIDForSurface_ to : 3 
+Surface: 5 is thin 
+Setting ComponentIDForSurface_ to : 4 
+Part: 6 ... CompID: 2 ... SurfID: 0 
+Surface: 6 exists in triangulation and has OpenVSP Name: vertical_tail_C 
+CompID: 2 
+Setting OpenVSP_ComponentIDForSurface_ to : 2 
+Surface: 6 is thin 
+Setting ComponentIDForSurface_ to : 3 
+Found 6 used surfaces based on parsing VSPGEOM file 
+Found 6 used surfaces based on parsing VKEY file ... 
+Marking tris on thick and thin surfaces 
+Determining the number of thin and thick surfaces 
+NumberOfThinSurfaces_: 5 
+NumberOfThickSurfaces_: 1 
+Renumbering surfaces 
+Renumbering surface lists 
+Determining number of unique components 
+Found 4 unique components 
+ComponentIDForComponent_[1]: 2 
+ComponentIDForComponent_[2]: 1 
+ComponentIDForComponent_[3]: 4 
+ComponentIDForComponent_[4]: 3 
+ComponentIDForSurface_[1]: 1 
+ComponentIDForSurface_[2]: 2 
+ComponentIDForSurface_[3]: 2 
+ComponentIDForSurface_[4]: 3 
+ComponentIDForSurface_[5]: 3 
+ComponentIDForSurface_[6]: 4 
+ComponentIDForComponent_[1]: 2 
+ComponentIDForComponent_[2]: 1 
+ComponentIDForComponent_[3]: 4 
+ComponentIDForComponent_[4]: 3 
+Surface: 1 --> Component: 1 --> SurfaceName: fuselage_S 
+Surface: 2 --> Component: 2 --> SurfaceName: wing_C 
+Surface: 3 --> Component: 2 --> SurfaceName: wing_C 
+Surface: 4 --> Component: 3 --> SurfaceName: horizontal_tail_C 
+Surface: 5 --> Component: 3 --> SurfaceName: horizontal_tail_C 
+Surface: 6 --> Component: 4 --> SurfaceName: vertical_tail_C 
+SurfaceIsThick_[1]: 1 
+SurfaceIsThick_[2]: 0 
+SurfaceIsThick_[3]: 0 
+SurfaceIsThick_[4]: 0 
+SurfaceIsThick_[5]: 0 
+SurfaceIsThick_[6]: 0 
+Component: 1 with ID: 1 is thick 
+Component: 2 with ID: 2 is thin 
+Component: 3 with ID: 3 is thin 
+Component: 4 with ID: 4 is thin 
+Pure tri mesh has 24701 tris 
+After building ...pure tri mesh has 24701 tris 
+Looking for /home/user/ai-engineering/runs/task12/pd/2026-11-27/p4/vspaero/L3.ControlSurfaces.taglist control surface definition file ... 
+Did not find any control surface definitions... 
+Did not find a groups file... so setting up a single group for steady analysis 
+NumberOfComponentGroups_: 1 
+AllComponentsAreFixed_: 0 
+ThereIsRelativeComponentMotion_: 0 
+There are thin 3 components 
+Number of thin  tris:        16441 
+Number of thick tris:        8260 
+Number of thin + thick tris: 24701 
+Number actual total tris:    24701 
+There are thin components... renumbering for edge data structures 
+NumberOfThickTris: 8260 
+There are thick components as well... it's a mixed mesh 
+Thick tris are being stored in temp mesh: 1 
+ComponentIDForComponent(1): 1 
+ComponentIDForComponent(2): 2 
+ComponentIDForComponent(3): 3 
+ComponentIDForComponent(4): 4 
+ComponentIsThick(1): 1 
+ComponentIsThick(2): 0 
+ComponentIsThick(3): 0 
+ComponentIsThick(4): 0 
+Surface 2 has 6582 tris and is being stored in temp mesh: 2 
+Surface 3 has 6576 tris and is being stored in temp mesh: 3 
+Surface 4 has 3283 tris and is being stored in temp mesh: 4 
+Created one thick surface mesh structure... 
+Created 3 thin surface mesh structures 
+Created 4 total mesh structures 
+Searching for thin/thick or thin/thin intersections... 
+Number of kutta nodes before trimming: 179 
+NumberOfKuttaNodes after trimming: 179 
+NumberOfKuttaNodes: 179 
+NumberOfKuttaEdges: 174 
+Working on VortexSheet: 1 
+KuttaNodeList[k].IsKuttaNode: 1 
+IncidentKuttaEdgesOnNode_[k]: 1 
+Found a starting wake sheet node... 2675 
+Working on CurrentComponentID: 2 
+Kutta node: 1... ie Node: 2675 is not convex! 
+VortexSheet: 1 finished... which has 34 kutta nodes ... and 34 out of 179 kutta nodes are now allocated 
+Working on VortexSheet: 2 
+KuttaNodeList[k].IsKuttaNode: 1 
+IncidentKuttaEdgesOnNode_[k]: 1 
+Found a starting wake sheet node... 2693 
+Working on CurrentComponentID: 2 
+Kutta node: 1... ie Node: 2693 is not convex! 
+VortexSheet: 2 finished... which has 34 kutta nodes ... and 68 out of 179 kutta nodes are now allocated 
+Working on VortexSheet: 3 
+KuttaNodeList[k].IsKuttaNode: 1 
+IncidentKuttaEdgesOnNode_[k]: 1 
+Found a starting wake sheet node... 4143 
+Working on CurrentComponentID: 2 
+VortexSheet: 3 finished... which has 3 kutta nodes ... and 71 out of 179 kutta nodes are now allocated 
+Working on VortexSheet: 4 
+KuttaNodeList[k].IsKuttaNode: 1 
+IncidentKuttaEdgesOnNode_[k]: 1 
+Found a starting wake sheet node... 9154 
+Working on CurrentComponentID: 3 
+VortexSheet: 4 finished... which has 71 kutta nodes ... and 142 out of 179 kutta nodes are now allocated 
+Working on VortexSheet: 5 
+KuttaNodeList[k].IsKuttaNode: 1 
+IncidentKuttaEdgesOnNode_[k]: 1 
+Found a starting wake sheet node... 10874 
+Working on CurrentComponentID: 4 
+VortexSheet: 5 finished... which has 37 kutta nodes ... and 179 out of 179 kutta nodes are now allocated 
+Creating wake grids... 
+WakeAngle: 1.000000 0.000000 0.000000 
+Xmax_ - Xmin_: 30.514831 
+Ymax_ - Ymin_: 46.523776 
+Zmax_ - Zmin_: 9.852465 
+
+Wake FarFieldDist_ set to: 46.523776 
+
+There are:          5 Vortex Sheets 
+NumberOfWakeTrailingNodes_: 8 
+NumberOfWakeNodes: 1432 
+NumberOfWakeLoops: 1218 
+Merging fine wake grids... 
+Merging coarse wake grids... 
+Loop: 3381 
+Mag: 0.000000 
+Node1: 3525 --> 23.834085 0.870534 1.071863 
+Node2: 3524 --> 23.675151 0.870534 1.071863 
+Node3: 3486 --> 23.599318 0.870534 1.071863 
+Loop: 3441 
+Mag: 0.000000 
+Node1: 3593 --> 24.196324 -0.870534 1.071863 
+Node2: 3590 --> 24.399650 -0.870534 1.071863 
+Node3: 3592 --> 24.478796 -0.870534 1.071863 
+Loop: 3483 
+Mag: 0.000000 
+Node1: 3642 --> 24.771955 0.870534 1.071863 
+Node2: 3640 --> 24.617324 0.870534 1.071863 
+Node3: 3605 --> 24.478796 0.870534 1.071863 
+Loop: 3543 
+Mag: 0.000000 
+Node1: 3708 --> 25.092389 -0.870534 1.071863 
+Node2: 3705 --> 25.347242 -0.870534 1.071863 
+Node3: 3707 --> 25.358273 -0.870534 1.071863 
+Loop: 7272 
+Mag: 0.000000 
+Node1: 3563 --> 24.007762 0.870534 1.071863 
+Node2: 3565 --> 24.185637 0.870534 1.071863 
+Node3: 3602 --> 24.196324 0.870534 1.071863 
+Loop: 8888 
+Mag: 0.000000 
+Node1: 3819 --> 26.158983 -0.870534 1.071863 
+Node2: 3784 --> 25.944592 -0.870534 1.071863 
+Node3: 3782 --> 25.882733 -0.870534 1.071863 
+Loop: 8890 
+Mag: 0.000000 
+Node1: 3744 --> 25.611381 -0.870534 1.071863 
+Node2: 3707 --> 25.358273 -0.870534 1.071863 
+Node3: 3705 --> 25.347242 -0.870534 1.071863 
+Model is a VSPGEOM Panel geometry 
+NumberOfComponents_: 4
+Total NumberOfNodes:      14014 
+Total NumberOfLoops:      27137 
+Total NumberOfEdges:      41485 
+Total NumberOfKuttaNodes: 179 
+NumberOfSurfaces_:        6 
+Total surface area: 708.457972 
+Minimum loop area constraint set to: 708.457972 
+Agglomerating mesh... 
+Grid:0 --> # loops:      27137 ...# Edges:      41485 ...# Nodes:      14014  
+There are: 14014 coarse grid nodes 
+There are: 27658 coarse grid edges 
+There are: 13310 coarse grid loops 
+Number of Kutta Nodes: 179 
+Grid:1 --> # loops:      13310 ...# Edges:      27658 ...# Nodes:      14014  
+There are: 10959 coarse grid nodes 
+There are: 14748 coarse grid edges 
+There are: 3661 coarse grid loops 
+Number of Kutta Nodes: 179 
+Merged: 5101 edges that were colinear 
+Grid:2 --> # loops:       3661 ...# Edges:       9647 ...# Nodes:       5858 
+There are: 4601 coarse grid nodes 
+There are: 5779 coarse grid edges 
+There are: 1110 coarse grid loops 
+Number of Kutta Nodes: 179 
+Merged: 1374 edges that were colinear 
+Grid:3 --> # loops:       1110 ...# Edges:       4405 ...# Nodes:       3227 
+There are: 2677 coarse grid nodes 
+There are: 3183 coarse grid edges 
+There are: 461 coarse grid loops 
+Number of Kutta Nodes: 179 
+Merged: 268 edges that were colinear 
+Grid:4 --> # loops:        461 ...# Edges:       2915 ...# Nodes:       2409 
+There are: 2122 coarse grid nodes 
+There are: 2422 coarse grid edges 
+There are: 287 coarse grid loops 
+Number of Kutta Nodes: 179 
+Merged: 56 edges that were colinear 
+NumberOfGridLevels_: 4 
+NumberOfSurfaces_: 6 
+WakeAngle: 1.000000 0.000000 0.000000 
+Xmax_ - Xmin_: 30.514831 
+Ymax_ - Ymin_: 46.523776 
+Zmax_ - Zmin_: 9.852465 
+
+Wake FarFieldDist_ set to: 46.523776 
+
+There are:          5 Vortex Sheets 
+Creating vortex sheet data... 
+There are: 34 kutta nodes for sheet: 1 
+There are: 34 kutta nodes for sheet: 2 
+There are: 3 kutta nodes for sheet: 3 
+There are: 71 kutta nodes for sheet: 4 
+There are: 37 kutta nodes for sheet: 5 
+Marking kutta node 1 on sheet 1 as concave 
+Marking kutta node 1 on sheet 1 as on thin/thick or thin/thin intersection 
+CoreWidth_: 0.164761 
+There are:         34 kutta nodes for vortex sheet:          1  
+Marking kutta node 1 on sheet 2 as concave 
+Marking kutta node 1 on sheet 2 as on thin/thick or thin/thin intersection 
+CoreWidth_: 0.164761 
+There are:         34 kutta nodes for vortex sheet:          2  
+CoreWidth_: 0.169118 
+There are:          3 kutta nodes for vortex sheet:          3  
+CoreWidth_: 0.087638 
+There are:         71 kutta nodes for vortex sheet:          4  
+Marking kutta node 4 on sheet 5 as on thin/thick or thin/thin intersection 
+CoreWidth_: 0.051850 
+There are:         37 kutta nodes for vortex sheet:          5  
+Done creating vortex sheet data... 
+j: 1 --> U1,2: 0.358402 0.361905 
+j: 2 --> U1,2: 0.361905 0.371429 
+j: 3 --> U1,2: 0.371429 0.380952 
+j: 4 --> U1,2: 0.380952 0.390476 
+j: 5 --> U1,2: 0.390476 0.400000 
+j: 6 --> U1,2: 0.400000 0.409524 
+j: 7 --> U1,2: 0.409524 0.419048 
+j: 8 --> U1,2: 0.419048 0.428571 
+j: 9 --> U1,2: 0.428571 0.438095 
+j: 10 --> U1,2: 0.438095 0.447619 
+j: 11 --> U1,2: 0.447619 0.457143 
+j: 12 --> U1,2: 0.457143 0.466667 
+j: 13 --> U1,2: 0.466667 0.476190 
+j: 14 --> U1,2: 0.476190 0.485714 
+j: 15 --> U1,2: 0.485714 0.495238 
+j: 16 --> U1,2: 0.495238 0.504762 
+j: 17 --> U1,2: 0.504762 0.514286 
+j: 18 --> U1,2: 0.514286 0.523810 
+j: 19 --> U1,2: 0.523810 0.533333 
+j: 20 --> U1,2: 0.533333 0.542857 
+j: 21 --> U1,2: 0.542857 0.552381 
+j: 22 --> U1,2: 0.552381 0.561905 
+j: 23 --> U1,2: 0.561905 0.571429 
+j: 24 --> U1,2: 0.571429 0.580952 
+j: 25 --> U1,2: 0.580952 0.590476 
+j: 26 --> U1,2: 0.590476 0.600000 
+j: 27 --> U1,2: 0.600000 0.609524 
+j: 28 --> U1,2: 0.609524 0.619048 
+j: 29 --> U1,2: 0.619048 0.628571 
+j: 30 --> U1,2: 0.628571 0.638095 
+j: 31 --> U1,2: 0.638095 0.647619 
+j: 32 --> U1,2: 0.647619 0.657143 
+j: 33 --> U1,2: 0.657143 0.666667 
+j: 1 --> U1,2: 0.358402 0.361905 
+j: 2 --> U1,2: 0.361905 0.371429 
+j: 3 --> U1,2: 0.371429 0.380952 
+j: 4 --> U1,2: 0.380952 0.390476 
+j: 5 --> U1,2: 0.390476 0.400000 
+j: 6 --> U1,2: 0.400000 0.409524 
+j: 7 --> U1,2: 0.409524 0.419048 
+j: 8 --> U1,2: 0.419048 0.428571 
+j: 9 --> U1,2: 0.428571 0.438095 
+j: 10 --> U1,2: 0.438095 0.447619 
+j: 11 --> U1,2: 0.447619 0.457143 
+j: 12 --> U1,2: 0.457143 0.466667 
+j: 13 --> U1,2: 0.466667 0.476190 
+j: 14 --> U1,2: 0.476190 0.485714 
+j: 15 --> U1,2: 0.485714 0.495238 
+j: 16 --> U1,2: 0.495238 0.504762 
+j: 17 --> U1,2: 0.504762 0.514286 
+j: 18 --> U1,2: 0.514286 0.523810 
+j: 19 --> U1,2: 0.523810 0.533333 
+j: 20 --> U1,2: 0.533333 0.542857 
+j: 21 --> U1,2: 0.542857 0.552381 
+j: 22 --> U1,2: 0.552381 0.561905 
+j: 23 --> U1,2: 0.561905 0.571429 
+j: 24 --> U1,2: 0.571429 0.580952 
+j: 25 --> U1,2: 0.580952 0.590476 
+j: 26 --> U1,2: 0.590476 0.600000 
+j: 27 --> U1,2: 0.600000 0.609524 
+j: 28 --> U1,2: 0.609524 0.619048 
+j: 29 --> U1,2: 0.619048 0.628571 
+j: 30 --> U1,2: 0.628571 0.638095 
+j: 31 --> U1,2: 0.638095 0.647619 
+j: 32 --> U1,2: 0.647619 0.657143 
+j: 33 --> U1,2: 0.657143 0.666667 
+j: 1 --> U1,2: 0.333333 0.342857 
+j: 2 --> U1,2: 0.333333 0.342857 
+j: 1 --> U1,2: 0.657143 0.666667 
+j: 2 --> U1,2: 0.647619 0.657143 
+j: 3 --> U1,2: 0.638095 0.647619 
+j: 4 --> U1,2: 0.628571 0.638095 
+j: 5 --> U1,2: 0.619048 0.628571 
+j: 6 --> U1,2: 0.609524 0.619048 
+j: 7 --> U1,2: 0.600000 0.609524 
+j: 8 --> U1,2: 0.590476 0.600000 
+j: 9 --> U1,2: 0.580952 0.590476 
+j: 10 --> U1,2: 0.571429 0.580952 
+j: 11 --> U1,2: 0.561905 0.571429 
+j: 12 --> U1,2: 0.552381 0.561905 
+j: 13 --> U1,2: 0.542857 0.552381 
+j: 14 --> U1,2: 0.533333 0.542857 
+j: 15 --> U1,2: 0.523810 0.533333 
+j: 16 --> U1,2: 0.514286 0.523810 
+j: 17 --> U1,2: 0.504762 0.514286 
+j: 18 --> U1,2: 0.495238 0.504762 
+j: 19 --> U1,2: 0.485714 0.495238 
+j: 20 --> U1,2: 0.476190 0.485714 
+j: 21 --> U1,2: 0.466667 0.476190 
+j: 22 --> U1,2: 0.457143 0.466667 
+j: 23 --> U1,2: 0.447619 0.457143 
+j: 24 --> U1,2: 0.438095 0.447619 
+j: 25 --> U1,2: 0.428571 0.438095 
+j: 26 --> U1,2: 0.419048 0.428571 
+j: 27 --> U1,2: 0.409524 0.419048 
+j: 28 --> U1,2: 0.400000 0.409524 
+j: 29 --> U1,2: 0.390476 0.400000 
+j: 30 --> U1,2: 0.380952 0.390476 
+j: 31 --> U1,2: 0.371429 0.380952 
+j: 32 --> U1,2: 0.361905 0.371429 
+j: 33 --> U1,2: 0.352381 0.361905 
+j: 34 --> U1,2: 0.342857 0.352381 
+j: 35 --> U1,2: 0.342857 0.333333 
+j: 36 --> U1,2: 0.333333 0.342857 
+j: 37 --> U1,2: 0.342857 0.352381 
+j: 38 --> U1,2: 0.352381 0.361905 
+j: 39 --> U1,2: 0.361905 0.371429 
+j: 40 --> U1,2: 0.371429 0.380952 
+j: 41 --> U1,2: 0.380952 0.390476 
+j: 42 --> U1,2: 0.390476 0.400000 
+j: 43 --> U1,2: 0.400000 0.409524 
+j: 44 --> U1,2: 0.409524 0.419048 
+j: 45 --> U1,2: 0.419048 0.428571 
+j: 46 --> U1,2: 0.428571 0.438095 
+j: 47 --> U1,2: 0.438095 0.447619 
+j: 48 --> U1,2: 0.447619 0.457143 
+j: 49 --> U1,2: 0.457143 0.466667 
+j: 50 --> U1,2: 0.466667 0.476190 
+j: 51 --> U1,2: 0.476190 0.485714 
+j: 52 --> U1,2: 0.485714 0.495238 
+j: 53 --> U1,2: 0.495238 0.504762 
+j: 54 --> U1,2: 0.504762 0.514286 
+j: 55 --> U1,2: 0.514286 0.523810 
+j: 56 --> U1,2: 0.523810 0.533333 
+j: 57 --> U1,2: 0.533333 0.542857 
+j: 58 --> U1,2: 0.542857 0.552381 
+j: 59 --> U1,2: 0.552381 0.561905 
+j: 60 --> U1,2: 0.561905 0.571429 
+j: 61 --> U1,2: 0.571429 0.580952 
+j: 62 --> U1,2: 0.580952 0.590476 
+j: 63 --> U1,2: 0.590476 0.600000 
+j: 64 --> U1,2: 0.600000 0.609524 
+j: 65 --> U1,2: 0.609524 0.619048 
+j: 66 --> U1,2: 0.619048 0.628571 
+j: 67 --> U1,2: 0.628571 0.638095 
+j: 68 --> U1,2: 0.638095 0.647619 
+j: 69 --> U1,2: 0.647619 0.657143 
+j: 70 --> U1,2: 0.657143 0.666667 
+j: 1 --> U1,2: 0.333333 0.342857 
+j: 2 --> U1,2: 0.342857 0.352381 
+j: 3 --> U1,2: 0.354079 0.352381 
+j: 4 --> U1,2: 0.354079 0.361905 
+j: 5 --> U1,2: 0.361905 0.371429 
+j: 6 --> U1,2: 0.371429 0.380952 
+j: 7 --> U1,2: 0.380952 0.390476 
+j: 8 --> U1,2: 0.390476 0.400000 
+j: 9 --> U1,2: 0.400000 0.409524 
+j: 10 --> U1,2: 0.409524 0.419048 
+j: 11 --> U1,2: 0.419048 0.428571 
+j: 12 --> U1,2: 0.428571 0.438095 
+j: 13 --> U1,2: 0.438095 0.447619 
+j: 14 --> U1,2: 0.447619 0.457143 
+j: 15 --> U1,2: 0.457143 0.466667 
+j: 16 --> U1,2: 0.466667 0.476190 
+j: 17 --> U1,2: 0.476190 0.485714 
+j: 18 --> U1,2: 0.485714 0.495238 
+j: 19 --> U1,2: 0.495238 0.504762 
+j: 20 --> U1,2: 0.504762 0.514286 
+j: 21 --> U1,2: 0.514286 0.523810 
+j: 22 --> U1,2: 0.523810 0.533333 
+j: 23 --> U1,2: 0.533333 0.542857 
+j: 24 --> U1,2: 0.542857 0.552381 
+j: 25 --> U1,2: 0.552381 0.561905 
+j: 26 --> U1,2: 0.561905 0.571429 
+j: 27 --> U1,2: 0.571429 0.580952 
+j: 28 --> U1,2: 0.580952 0.590476 
+j: 29 --> U1,2: 0.590476 0.600000 
+j: 30 --> U1,2: 0.600000 0.609524 
+j: 31 --> U1,2: 0.609524 0.619048 
+j: 32 --> U1,2: 0.619048 0.628571 
+j: 33 --> U1,2: 0.628571 0.638095 
+j: 34 --> U1,2: 0.638095 0.647619 
+j: 35 --> U1,2: 0.647619 0.657143 
+j: 36 --> U1,2: 0.657143 0.666667 
+Found 5 wake surfaces for component group: 1 
+Found vortex sheet: 1 for component group: 1 
+Found vortex sheet: 2 for component group: 1 
+Found vortex sheet: 3 for component group: 1 
+Found vortex sheet: 4 for component group: 1 
+Found vortex sheet: 5 for component group: 1 
+Xmax_ - Xmin_: 30.514831 
+Ymax_ - Ymin_: 46.523776 
+Zmax_ - Zmin_: 9.852465 
+
+Minimum loop area: 4.172157e-06 
+Character Minimum loop length: 2.888653e-03 
+Setting surface edge cutoff to: 1.000000e-05 
+Number Of Trailing Vortices: 179 
+Model type: PANEL or MIXED 
+Setting up Kelvin constraints... 
+Found 1 disjoint thick bodies 
+Found 1 actual kelvin constraints 
+Number Of Vortex Loop Equations: 12092 
+Number Of Wake Node Equations:   4296 
+Number Of Stall Equations:       174 
+Total Number Of Equations:       16562 
+No high lift data file found... 
+Creating vortex loop matrix preconditioners data structure... 
+Starting at level: 4 with a target of 500 loops 
+Level: 4 has MaxLoops of: 138 
+Using level: 4 to create matrix preconditioners. 
+Created: 24 Matrix preconditioners 
+Min matrix: 64 Loops 
+Max matrix: 560 Loops 
+Avg matrix: 503 Loops 
+
+Using 12092 out of 12092 surface loops 
+Creating wake nodes matrix preconditioners data structure... 
+Starting... Creating vorticity gradient data structure .. 
+Finished... Creating vorticity gradient data structure .. 
+VSPGeom().Grid(MGLevel_).NumberOfLoops(): 13310 
+NumberOfEngineFaces_: 0 
+VSPGeom().NumberOfSurfaces(): 6 
+Done with setup... 
+WakeAngle_: 0.999391 -0.000000 -0.034899 
+Xmax_ - Xmin_: 30.514831 
+Ymax_ - Ymin_: 46.523776 
+Zmax_ - Zmin_: 9.852465 
+
+The wake FarDist set to: 46.523776 
+Updating wake grids... 
+SigmaAvg_: 0.482561 
+Creating interaction lists... 
+
+Forward sweep... 
+1000 / 13310 2000 / 13310 3000 / 13310 4000 / 13310 5000 / 13310 6000 / 13310 7000 / 13310 8000 / 13310 9000 / 13310 10000 / 13310 11000 / 13310 12000 / 13310 13000 / 13310 Working on level 2 of 4 Working on level 3 of 4 Working on level 4 of 4 Forward Mode: total multipole speed up ratio: 8.685828 
+Surface: 1 ... ComponentID: 1 ... Name: fuselage_S ... SurfaceGIDList: IUDSSSVEOV 
+Surface: 2 ... ComponentID: 2 ... Name: wing_C ... SurfaceGIDList: VZUASYOTNK 
+Surface: 3 ... ComponentID: 2 ... Name: wing_C ... SurfaceGIDList: VZUASYOTNK 
+Surface: 4 ... ComponentID: 3 ... Name: horizontal_tail_C ... SurfaceGIDList: EGIUIDUSFJ 
+Surface: 5 ... ComponentID: 3 ... Name: horizontal_tail_C ... SurfaceGIDList: EGIUIDUSFJ 
+Surface: 6 ... ComponentID: 4 ... Name: vertical_tail_C ... SurfaceGIDList: HPNDEWKCCC 
+Solving... Mach: 0.142032 ... Alpha: -2.000000 ... Beta: 0.000000 
+
+                                                                    Surface Integration Forces and Moments -->                                                  Wake Induced Forces -->  
+                                                                    Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-  Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake 
+    Iter    Mach       AoA      Beta       CLo       CLi      CLtot     CDo        CDi      CDtot      L/D        E       CMxtot    CMytot    Cmztot    CLiw       CDiw    LoDwake    Ewake      T/QS      L2Res    MaxRes  Wall_Time 
+Wake Iter:     1 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    3.63108 / 1.00000    ... KTRes: 0.00000    Wake Iter:     1 / 5     ... GMRES Iter:     1 ... Red:   -0.38716 / -1.00000   ...  Max:    3.24392 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     2 ... Red:   -0.55323 / -1.00000   ...  Max:    3.07785 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     3 ... Red:   -0.66025 / -1.00000   ...  Max:    2.97084 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     4 ... Red:   -0.72588 / -1.00000   ...  Max:    2.90520 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     5 ... Red:   -0.79536 / -1.00000   ...  Max:    2.83572 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     6 ... Red:   -0.96637 / -1.00000   ...  Max:    2.66472 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     7 ... Red:   -1.09189 / -1.00000   ...  Max:    2.53919 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     8 ... Red:   -1.27766 / -1.00000   ...  Max:    2.35342 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     9 ... Red:   -1.44770 / -1.00000   ...  Max:    2.18338 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    10 ... Red:   -1.57264 / -1.00000   ...  Max:    2.05844 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    11 ... Red:   -1.73992 / -1.00000   ...  Max:    1.89116 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    12 ... Red:   -1.87133 / -1.00000   ...  Max:    1.75976 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    13 ... Red:   -1.99719 / -1.00000   ...  Max:    1.63389 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    14 ... Red:   -2.14695 / -1.00000   ...  Max:    1.48414 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    15 ... Red:   -2.32408 / -1.00000   ...  Max:    1.30700 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    16 ... Red:   -2.52203 / -1.00000   ...  Max:    1.10905 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    17 ... Red:   -2.69554 / -1.00000   ...  Max:    0.93554 / 1.00000            1   0.14203  -2.00000   0.00000   0.00054   0.00000   0.00054   0.01544   0.00000   0.01544   0.00000   0.00000   0.00000   0.00120   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   1.20271   1.99980   9.14122 
+1000 / 13310 2000 / 13310 3000 / 13310 4000 / 13310 5000 / 13310 6000 / 13310 7000 / 13310 8000 / 13310 9000 / 13310 10000 / 13310 11000 / 13310 12000 / 13310 13000 / 13310 Working on level 2 of 4 Working on level 3 of 4 Working on level 4 of 4 Wake Iter:     2 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    2.24835 / 1.00000    ... KTRes: 0.00000    Wake Iter:     2 / 5     ... GMRES Iter:     1 ... Red:   -0.38527 / -1.00000   ...  Max:    1.86308 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     2 ... Red:   -0.59126 / -1.00000   ...  Max:    1.65709 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     3 ... Red:   -0.87028 / -1.00000   ...  Max:    1.37808 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     4 ... Red:   -1.01538 / -1.00000   ...  Max:    1.23297 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     5 ... Red:   -1.18282 / -1.00000   ...  Max:    1.06553 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     6 ... Red:   -1.34162 / -1.00000   ...  Max:    0.90673 / 1.00000            2   0.14203  -2.00000   0.00000   0.00054   0.07260   0.07314   0.01563   0.00041   0.01604   4.52642   0.51170   0.00016   0.03883   0.00037   0.07373   0.00145   4.31806   0.14962   0.00000   0.07554   2.00910  16.96565 
+1000 / 13310 2000 / 13310 3000 / 13310 4000 / 13310 5000 / 13310 6000 / 13310 7000 / 13310 8000 / 13310 9000 / 13310 10000 / 13310 11000 / 13310 12000 / 13310 13000 / 13310 Working on level 2 of 4 Working on level 3 of 4 Working on level 4 of 4 Wake Iter:     3 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    2.02513 / 1.00000    ... KTRes: 0.00000    Wake Iter:     3 / 5     ... GMRES Iter:     1 ... Red:   -0.42054 / -1.00000   ...  Max:    1.60459 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     2 ... Red:   -0.59308 / -1.00000   ...  Max:    1.43205 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     3 ... Red:   -0.91254 / -1.00000   ...  Max:    1.11259 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     4 ... Red:   -1.06940 / -1.00000   ...  Max:    0.95573 / 1.00000            3   0.14203  -2.00000   0.00000   0.00055   0.11711   0.11766   0.01568   0.00071   0.01640   7.14285   0.76748   0.00046   0.02614  -0.00036   0.11661   0.00179   6.67232   0.30196   0.00000   0.14415   2.04691  23.93233 
+1000 / 13310 2000 / 13310 3000 / 13310 4000 / 13310 5000 / 13310 6000 / 13310 7000 / 13310 8000 / 13310 9000 / 13310 10000 / 13310 11000 / 13310 12000 / 13310 13000 / 13310 Working on level 2 of 4 Working on level 3 of 4 Working on level 4 of 4 Wake Iter:     4 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    1.62134 / 1.00000    ... KTRes: 0.00000    Wake Iter:     4 / 5     ... GMRES Iter:     1 ... Red:   -0.39736 / -1.00000   ...  Max:    1.22397 / 1.00000    Wake Iter:     4 / 5     ... GMRES Iter:     2 ... Red:   -0.63248 / -1.00000   ...  Max:    0.98886 / 1.00000    Wake Iter:     4 / 5     ... GMRES Iter:     3 ... Red:   -0.90169 / -1.00000   ...  Max:    0.71965 / 1.00000    Wake Iter:     4 / 5     ... GMRES Iter:     4 ... Red:   -1.09030 / -1.00000   ...  Max:    0.53103 / 1.00000            4   0.14203  -2.00000   0.00000   0.00055   0.09751   0.09806   0.01566   0.00066   0.01632   5.97521   0.57300   0.00031   0.03329  -0.00012   0.09781   0.00166   5.64894   0.22989   0.00000   0.17309   2.10634  30.47448 
+1000 / 13310 2000 / 13310 3000 / 13310 4000 / 13310 5000 / 13310 6000 / 13310 7000 / 13310 8000 / 13310 9000 / 13310 10000 / 13310 11000 / 13310 12000 / 13310 13000 / 13310 Working on level 2 of 4 Working on level 3 of 4 Working on level 4 of 4 Wake Iter:     5 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    1.17562 / 1.00000    ... KTRes: 0.00000    Wake Iter:     5 / 5     ... GMRES Iter:     1 ... Red:   -0.44631 / -1.00000   ...  Max:    0.72930 / 1.00000    Wake Iter:     5 / 5     ... GMRES Iter:     2 ... Red:   -0.66428 / -1.00000   ...  Max:    0.51133 / 1.00000    Wake Iter:     5 / 5     ... GMRES Iter:     3 ... Red:   -0.93701 / -1.00000   ...  Max:    0.23861 / 1.00000    Wake Iter:     5 / 5     ... GMRES Iter:     4 ... Red:   -1.03789 / -1.00000   ...  Max:    0.13773 / 1.00000            5   0.14203  -2.00000   0.00000   0.00055   0.10181   0.10236   0.01567   0.00052   0.01619   6.29027   0.79321   0.00039   0.03292  -0.00016   0.10214   0.00168   5.88971   0.24768   0.00000  -0.55630   1.29723  39.17838 
+Creating quad tree velocity survey data structures... 
+Xmin_: 0.000000 
+Xmax_: 30.514831 
+Ymin_: -23.261888 
+Ymax_: 23.261888 
+Zmin_: -1.786439 
+Zmax_: 8.066026 
+Working on quad tree: 1 
+Direction, Value: 2 0.000000 
+Inserted: 564 points 
+
+WakeAngle_: 1.000000 -0.000000 0.000000 
+Xmax_ - Xmin_: 30.514831 
+Ymax_ - Ymin_: 46.523776 
+Zmax_ - Zmin_: 9.852465 
+
+The wake FarDist set to: 46.523776 
+Updating wake grids... 
+SigmaAvg_: 0.482561 
+Creating interaction lists... 
+
+Forward sweep... 
+1000 / 13310 2000 / 13310 3000 / 13310 4000 / 13310 5000 / 13310 6000 / 13310 7000 / 13310 8000 / 13310 9000 / 13310 10000 / 13310 11000 / 13310 12000 / 13310 13000 / 13310 Working on level 2 of 4 Working on level 3 of 4 Working on level 4 of 4 Forward Mode: total multipole speed up ratio: 8.680937 
+Solving... Mach: 0.142032 ... Alpha: 0.000000 ... Beta: 0.000000 
+
+                                                                    Surface Integration Forces and Moments -->                                                  Wake Induced Forces -->  
+                                                                    Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-  Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake 
+    Iter    Mach       AoA      Beta       CLo       CLi      CLtot     CDo        CDi      CDtot      L/D        E       CMxtot    CMytot    Cmztot    CLiw       CDiw    LoDwake    Ewake      T/QS      L2Res    MaxRes  Wall_Time 
+Wake Iter:     1 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    3.63657 / 1.00000    ... KTRes: 0.00000    Wake Iter:     1 / 5     ... GMRES Iter:     1 ... Red:   -0.38848 / -1.00000   ...  Max:    3.24808 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     2 ... Red:   -0.55564 / -1.00000   ...  Max:    3.08093 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     3 ... Red:   -0.64363 / -1.00000   ...  Max:    2.99294 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     4 ... Red:   -0.70226 / -1.00000   ...  Max:    2.93431 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     5 ... Red:   -0.77722 / -1.00000   ...  Max:    2.85935 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     6 ... Red:   -0.96657 / -1.00000   ...  Max:    2.66999 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     7 ... Red:   -1.09093 / -1.00000   ...  Max:    2.54564 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     8 ... Red:   -1.33784 / -1.00000   ...  Max:    2.29873 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     9 ... Red:   -1.46147 / -1.00000   ...  Max:    2.17510 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    10 ... Red:   -1.60112 / -1.00000   ...  Max:    2.03545 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    11 ... Red:   -1.73411 / -1.00000   ...  Max:    1.90245 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    12 ... Red:   -1.86111 / -1.00000   ...  Max:    1.77546 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    13 ... Red:   -1.99685 / -1.00000   ...  Max:    1.63972 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    14 ... Red:   -2.14294 / -1.00000   ...  Max:    1.49363 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    15 ... Red:   -2.34972 / -1.00000   ...  Max:    1.28684 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    16 ... Red:   -2.50180 / -1.00000   ...  Max:    1.13477 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    17 ... Red:   -2.70146 / -1.00000   ...  Max:    0.93510 / 1.00000            1   0.14203   0.00000   0.00000  -0.00000   0.00000  -0.00000   0.01545   0.00000   0.01545   0.00000   0.00000   0.00000   0.00120   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   1.19605   1.99909   9.61959 
+1000 / 13310 2000 / 13310 3000 / 13310 4000 / 13310 5000 / 13310 6000 / 13310 7000 / 13310 8000 / 13310 9000 / 13310 10000 / 13310 11000 / 13310 12000 / 13310 13000 / 13310 Working on level 2 of 4 Working on level 3 of 4 Working on level 4 of 4 Wake Iter:     2 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    2.25607 / 1.00000    ... KTRes: 0.00000    Wake Iter:     2 / 5     ... GMRES Iter:     1 ... Red:   -0.37833 / -1.00000   ...  Max:    1.87774 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     2 ... Red:   -0.57460 / -1.00000   ...  Max:    1.68148 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     3 ... Red:   -0.85076 / -1.00000   ...  Max:    1.40531 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     4 ... Red:   -1.00866 / -1.00000   ...  Max:    1.24742 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     5 ... Red:   -1.18329 / -1.00000   ...  Max:    1.07278 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     6 ... Red:   -1.37954 / -1.00000   ...  Max:    0.87653 / 1.00000            2   0.14203   0.00000   0.00000  -0.00000   0.27258   0.27258   0.01605   0.00277   0.01882  14.48120   1.06730   0.00129   0.01224   0.00032   0.26791   0.00443  13.07947   0.64468   0.00000   0.10609   1.90125  17.40386 
+1000 / 13310 2000 / 13310 3000 / 13310 4000 / 13310 5000 / 13310 6000 / 13310 7000 / 13310 8000 / 13310 9000 / 13310 10000 / 13310 11000 / 13310 12000 / 13310 13000 / 13310 Working on level 2 of 4 Working on level 3 of 4 Working on level 4 of 4 Wake Iter:     3 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    2.02114 / 1.00000    ... KTRes: 0.00000    Wake Iter:     3 / 5     ... GMRES Iter:     1 ... Red:   -0.39261 / -1.00000   ...  Max:    1.62853 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     2 ... Red:   -0.58011 / -1.00000   ...  Max:    1.44103 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     3 ... Red:   -0.83247 / -1.00000   ...  Max:    1.18867 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     4 ... Red:   -1.00187 / -1.00000   ...  Max:    1.01927 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     5 ... Red:   -1.21592 / -1.00000   ...  Max:    0.80523 / 1.00000            3   0.14203   0.00000   0.00000  -0.00000   0.22789   0.22789   0.01594   0.00186   0.01780  12.80369   1.10939   0.00087   0.02622   0.00113   0.22460   0.00348  11.56959   0.57729   0.00000   0.19593   2.10846  24.41541 
+1000 / 13310 2000 / 13310 3000 / 13310 4000 / 13310 5000 / 13310 6000 / 13310 7000 / 13310 8000 / 13310 9000 / 13310 10000 / 13310 11000 / 13310 12000 / 13310 13000 / 13310 Working on level 2 of 4 Working on level 3 of 4 Working on level 4 of 4 Wake Iter:     4 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    1.69499 / 1.00000    ... KTRes: 0.00000    Wake Iter:     4 / 5     ... GMRES Iter:     1 ... Red:   -0.38413 / -1.00000   ...  Max:    1.31086 / 1.00000    Wake Iter:     4 / 5     ... GMRES Iter:     2 ... Red:   -0.59561 / -1.00000   ...  Max:    1.09938 / 1.00000    Wake Iter:     4 / 5     ... GMRES Iter:     3 ... Red:   -0.86258 / -1.00000   ...  Max:    0.83240 / 1.00000    Wake Iter:     4 / 5     ... GMRES Iter:     4 ... Red:   -1.01197 / -1.00000   ...  Max:    0.68302 / 1.00000            4   0.14203   0.00000   0.00000  -0.00000   0.25111   0.25111   0.01599   0.00227   0.01826  13.74935   1.10506   0.00109   0.01912   0.00084   0.24736   0.00395  12.40387   0.61652   0.00000  -0.05866   1.92208  31.06343 
+1000 / 13310 2000 / 13310 3000 / 13310 4000 / 13310 5000 / 13310 6000 / 13310 7000 / 13310 8000 / 13310 9000 / 13310 10000 / 13310 11000 / 13310 12000 / 13310 13000 / 13310 Working on level 2 of 4 Working on level 3 of 4 Working on level 4 of 4 Wake Iter:     5 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    1.34241 / 1.00000    ... KTRes: 0.00000    Wake Iter:     5 / 5     ... GMRES Iter:     1 ... Red:   -0.43361 / -1.00000   ...  Max:    0.90881 / 1.00000    Wake Iter:     5 / 5     ... GMRES Iter:     2 ... Red:   -0.66599 / -1.00000   ...  Max:    0.67642 / 1.00000    Wake Iter:     5 / 5     ... GMRES Iter:     3 ... Red:   -0.92953 / -1.00000   ...  Max:    0.41289 / 1.00000    Wake Iter:     5 / 5     ... GMRES Iter:     4 ... Red:   -1.10525 / -1.00000   ...  Max:    0.23717 / 1.00000            5   0.14203   0.00000   0.00000  -0.00000   0.24426   0.24425   0.01598   0.00110   0.01707  14.30598   2.16450   0.00104   0.02288   0.00092   0.24099   0.00381  12.18049   0.60683   0.00000  -0.10085   1.81672  39.54178 
+Creating quad tree velocity survey data structures... 
+Xmin_: 0.000000 
+Xmax_: 30.514831 
+Ymin_: -23.261888 
+Ymax_: 23.261888 
+Zmin_: -1.786439 
+Zmax_: 8.066026 
+Working on quad tree: 1 
+Direction, Value: 2 0.000000 
+Inserted: 563 points 
+
+WakeAngle_: 0.999391 -0.000000 0.034899 
+Xmax_ - Xmin_: 30.514831 
+Ymax_ - Ymin_: 46.523776 
+Zmax_ - Zmin_: 9.852465 
+
+The wake FarDist set to: 46.523776 
+Updating wake grids... 
+SigmaAvg_: 0.482561 
+Creating interaction lists... 
+
+Forward sweep... 
+1000 / 13310 2000 / 13310 3000 / 13310 4000 / 13310 5000 / 13310 6000 / 13310 7000 / 13310 8000 / 13310 9000 / 13310 10000 / 13310 11000 / 13310 12000 / 13310 13000 / 13310 Working on level 2 of 4 Working on level 3 of 4 Working on level 4 of 4 Forward Mode: total multipole speed up ratio: 8.677342 
+Solving... Mach: 0.142032 ... Alpha: 2.000000 ... Beta: 0.000000 
+
+                                                                    Surface Integration Forces and Moments -->                                                  Wake Induced Forces -->  
+                                                                    Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-  Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake 
+    Iter    Mach       AoA      Beta       CLo       CLi      CLtot     CDo        CDi      CDtot      L/D        E       CMxtot    CMytot    Cmztot    CLiw       CDiw    LoDwake    Ewake      T/QS      L2Res    MaxRes  Wall_Time 
+Wake Iter:     1 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    3.65512 / 1.00000    ... KTRes: 0.00000    Wake Iter:     1 / 5     ... GMRES Iter:     1 ... Red:   -0.38708 / -1.00000   ...  Max:    3.26804 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     2 ... Red:   -0.55717 / -1.00000   ...  Max:    3.09795 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     3 ... Red:   -0.63226 / -1.00000   ...  Max:    3.02286 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     4 ... Red:   -0.68719 / -1.00000   ...  Max:    2.96793 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     5 ... Red:   -0.75281 / -1.00000   ...  Max:    2.90231 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     6 ... Red:   -0.93442 / -1.00000   ...  Max:    2.72070 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     7 ... Red:   -1.04864 / -1.00000   ...  Max:    2.60649 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     8 ... Red:   -1.25020 / -1.00000   ...  Max:    2.40492 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     9 ... Red:   -1.37736 / -1.00000   ...  Max:    2.27776 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    10 ... Red:   -1.49444 / -1.00000   ...  Max:    2.16069 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    11 ... Red:   -1.66721 / -1.00000   ...  Max:    1.98791 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    12 ... Red:   -1.81426 / -1.00000   ...  Max:    1.84086 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    13 ... Red:   -1.96208 / -1.00000   ...  Max:    1.69304 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    14 ... Red:   -2.11214 / -1.00000   ...  Max:    1.54298 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    15 ... Red:   -2.32128 / -1.00000   ...  Max:    1.33385 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    16 ... Red:   -2.44290 / -1.00000   ...  Max:    1.21223 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    17 ... Red:   -2.64242 / -1.00000   ...  Max:    1.01271 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    18 ... Red:   -2.78989 / -1.00000   ...  Max:    0.86524 / 1.00000            1   0.14203   2.00000   0.00000  -0.00054   0.00000  -0.00054   0.01544   0.00000   0.01544   0.00000   0.00000   0.00000   0.00120   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   1.19934   1.99980  10.20190 
+1000 / 13310 2000 / 13310 3000 / 13310 4000 / 13310 5000 / 13310 6000 / 13310 7000 / 13310 8000 / 13310 9000 / 13310 10000 / 13310 11000 / 13310 12000 / 13310 13000 / 13310 Working on level 2 of 4 Working on level 3 of 4 Working on level 4 of 4 Wake Iter:     2 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    2.72859 / 1.00000    ... KTRes: 0.00000    Wake Iter:     2 / 5     ... GMRES Iter:     1 ... Red:   -0.37333 / -1.00000   ...  Max:    2.35526 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     2 ... Red:   -0.57508 / -1.00000   ...  Max:    2.15350 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     3 ... Red:   -0.84606 / -1.00000   ...  Max:    1.88253 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     4 ... Red:   -1.00429 / -1.00000   ...  Max:    1.72429 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     5 ... Red:   -1.17119 / -1.00000   ...  Max:    1.55739 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     6 ... Red:   -1.35100 / -1.00000   ...  Max:    1.37759 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     7 ... Red:   -1.49911 / -1.00000   ...  Max:    1.22948 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     8 ... Red:   -1.63488 / -1.00000   ...  Max:    1.09370 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     9 ... Red:   -1.79886 / -1.00000   ...  Max:    0.92973 / 1.00000            2   0.14203   2.00000   0.00000  -0.00059   0.47348   0.47289   0.01684   0.00695   0.02379  19.90044   1.28357   0.00242  -0.01096   0.00041   0.46177   0.01128  16.42187   0.75241   0.00000   0.36616   2.17467  19.11346 
+1000 / 13310 2000 / 13310 3000 / 13310 4000 / 13310 5000 / 13310 6000 / 13310 7000 / 13310 8000 / 13310 9000 / 13310 10000 / 13310 11000 / 13310 12000 / 13310 13000 / 13310 Working on level 2 of 4 Working on level 3 of 4 Working on level 4 of 4 Wake Iter:     3 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    2.46110 / 1.00000    ... KTRes: 0.00000    Wake Iter:     3 / 5     ... GMRES Iter:     1 ... Red:   -0.38364 / -1.00000   ...  Max:    2.07747 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     2 ... Red:   -0.58221 / -1.00000   ...  Max:    1.87890 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     3 ... Red:   -0.84280 / -1.00000   ...  Max:    1.61830 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     4 ... Red:   -1.00093 / -1.00000   ...  Max:    1.46018 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     5 ... Red:   -1.19726 / -1.00000   ...  Max:    1.26384 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     6 ... Red:   -1.39460 / -1.00000   ...  Max:    1.06651 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     7 ... Red:   -1.56692 / -1.00000   ...  Max:    0.89418 / 1.00000            3   0.14203   2.00000   0.00000  -0.00057   0.33698   0.33641   0.01628   0.00382   0.02011  16.75813   1.18134   0.00132   0.02533   0.00289   0.33080   0.00636  14.60903   0.68463   0.00000   0.15045   1.99174  27.83258 
+1000 / 13310 2000 / 13310 3000 / 13310 4000 / 13310 5000 / 13310 6000 / 13310 7000 / 13310 8000 / 13310 9000 / 13310 10000 / 13310 11000 / 13310 12000 / 13310 13000 / 13310 Working on level 2 of 4 Working on level 3 of 4 Working on level 4 of 4 Wake Iter:     4 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    2.18528 / 1.00000    ... KTRes: 0.00000    Wake Iter:     4 / 5     ... GMRES Iter:     1 ... Red:   -0.37985 / -1.00000   ...  Max:    1.80544 / 1.00000    Wake Iter:     4 / 5     ... GMRES Iter:     2 ... Red:   -0.57502 / -1.00000   ...  Max:    1.61026 / 1.00000    Wake Iter:     4 / 5     ... GMRES Iter:     3 ... Red:   -0.86526 / -1.00000   ...  Max:    1.32002 / 1.00000    Wake Iter:     4 / 5     ... GMRES Iter:     4 ... Red:   -1.01244 / -1.00000   ...  Max:    1.17284 / 1.00000    Wake Iter:     4 / 5     ... GMRES Iter:     5 ... Red:   -1.20787 / -1.00000   ...  Max:    0.97741 / 1.00000            4   0.14203   2.00000   0.00000  -0.00058   0.41004   0.40946   0.01656   0.00595   0.02250  18.22081   1.12485   0.00183   0.00353   0.00179   0.40138   0.00876  15.85572   0.73194   0.00000   0.19629   2.10848  35.79374 
+1000 / 13310 2000 / 13310 3000 / 13310 4000 / 13310 5000 / 13310 6000 / 13310 7000 / 13310 8000 / 13310 9000 / 13310 10000 / 13310 11000 / 13310 12000 / 13310 13000 / 13310 Working on level 2 of 4 Working on level 3 of 4 Working on level 4 of 4 Wake Iter:     5 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    1.88185 / 1.00000    ... KTRes: 0.00000    Wake Iter:     5 / 5     ... GMRES Iter:     1 ... Red:   -0.38184 / -1.00000   ...  Max:    1.50001 / 1.00000    Wake Iter:     5 / 5     ... GMRES Iter:     2 ... Red:   -0.59228 / -1.00000   ...  Max:    1.28957 / 1.00000    Wake Iter:     5 / 5     ... GMRES Iter:     3 ... Red:   -0.84548 / -1.00000   ...  Max:    1.03637 / 1.00000    Wake Iter:     5 / 5     ... GMRES Iter:     4 ... Red:   -1.00662 / -1.00000   ...  Max:    0.87523 / 1.00000            5   0.14203   2.00000   0.00000  -0.00058   0.38855   0.38797   0.01647   0.00540   0.02187  17.76617   1.11312   0.00172   0.01174   0.00212   0.38086   0.00801  15.55460   0.72039   0.00000   0.18790   2.12161  44.67863 
+Creating quad tree velocity survey data structures... 
+Xmin_: 0.000000 
+Xmax_: 30.514831 
+Ymin_: -23.261888 
+Ymax_: 23.261888 
+Zmin_: -1.786439 
+Zmax_: 8.066026 
+Working on quad tree: 1 
+Direction, Value: 2 0.000000 
+Inserted: 564 points 
+
+WakeAngle_: 0.997564 -0.000000 0.069756 
+Xmax_ - Xmin_: 30.514831 
+Ymax_ - Ymin_: 46.523776 
+Zmax_ - Zmin_: 9.852465 
+
+The wake FarDist set to: 46.523776 
+Updating wake grids... 
+SigmaAvg_: 0.482561 
+Creating interaction lists... 
+
+Forward sweep... 
+1000 / 13310 2000 / 13310 3000 / 13310 4000 / 13310 5000 / 13310 6000 / 13310 7000 / 13310 8000 / 13310 9000 / 13310 10000 / 13310 11000 / 13310 12000 / 13310 13000 / 13310 Working on level 2 of 4 Working on level 3 of 4 Working on level 4 of 4 Forward Mode: total multipole speed up ratio: 8.673682 
+Solving... Mach: 0.142032 ... Alpha: 4.000000 ... Beta: 0.000000 
+
+                                                                    Surface Integration Forces and Moments -->                                                  Wake Induced Forces -->  
+                                                                    Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-  Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake 
+    Iter    Mach       AoA      Beta       CLo       CLi      CLtot     CDo        CDi      CDtot      L/D        E       CMxtot    CMytot    Cmztot    CLiw       CDiw    LoDwake    Ewake      T/QS      L2Res    MaxRes  Wall_Time 
+Wake Iter:     1 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    3.68370 / 1.00000    ... KTRes: 0.00000    Wake Iter:     1 / 5     ... GMRES Iter:     1 ... Red:   -0.38012 / -1.00000   ...  Max:    3.30358 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     2 ... Red:   -0.55666 / -1.00000   ...  Max:    3.12704 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     3 ... Red:   -0.62690 / -1.00000   ...  Max:    3.05680 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     4 ... Red:   -0.68766 / -1.00000   ...  Max:    2.99604 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     5 ... Red:   -0.73992 / -1.00000   ...  Max:    2.94379 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     6 ... Red:   -0.89582 / -1.00000   ...  Max:    2.78789 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     7 ... Red:   -0.99855 / -1.00000   ...  Max:    2.68515 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     8 ... Red:   -1.16437 / -1.00000   ...  Max:    2.51934 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     9 ... Red:   -1.30790 / -1.00000   ...  Max:    2.37581 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    10 ... Red:   -1.43453 / -1.00000   ...  Max:    2.24917 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    11 ... Red:   -1.61069 / -1.00000   ...  Max:    2.07301 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    12 ... Red:   -1.76334 / -1.00000   ...  Max:    1.92036 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    13 ... Red:   -1.92131 / -1.00000   ...  Max:    1.76240 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    14 ... Red:   -2.07941 / -1.00000   ...  Max:    1.60429 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    15 ... Red:   -2.29064 / -1.00000   ...  Max:    1.39307 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    16 ... Red:   -2.40575 / -1.00000   ...  Max:    1.27796 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    17 ... Red:   -2.58315 / -1.00000   ...  Max:    1.10055 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    18 ... Red:   -2.73990 / -1.00000   ...  Max:    0.94381 / 1.00000            1   0.14203   4.00000   0.00000  -0.00108   0.00000  -0.00108   0.01541   0.00000   0.01541   0.00000   0.00000   0.00000   0.00120   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   1.21213   1.99999  10.55790 
+1000 / 13310 2000 / 13310 3000 / 13310 4000 / 13310 5000 / 13310 6000 / 13310 7000 / 13310 8000 / 13310 9000 / 13310 10000 / 13310 11000 / 13310 12000 / 13310 13000 / 13310 Working on level 2 of 4 Working on level 3 of 4 Working on level 4 of 4 Wake Iter:     2 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    2.94795 / 1.00000    ... KTRes: 0.00000    Wake Iter:     2 / 5     ... GMRES Iter:     1 ... Red:   -0.36105 / -1.00000   ...  Max:    2.58690 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     2 ... Red:   -0.56649 / -1.00000   ...  Max:    2.38146 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     3 ... Red:   -0.82254 / -1.00000   ...  Max:    2.12541 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     4 ... Red:   -0.99777 / -1.00000   ...  Max:    1.95018 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     5 ... Red:   -1.15994 / -1.00000   ...  Max:    1.78801 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     6 ... Red:   -1.33619 / -1.00000   ...  Max:    1.61177 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     7 ... Red:   -1.48622 / -1.00000   ...  Max:    1.46173 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     8 ... Red:   -1.61400 / -1.00000   ...  Max:    1.33395 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     9 ... Red:   -1.77404 / -1.00000   ...  Max:    1.17391 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:    10 ... Red:   -1.94701 / -1.00000   ...  Max:    1.00094 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:    11 ... Red:   -2.09243 / -1.00000   ...  Max:    0.85552 / 1.00000            2   0.14203   4.00000   0.00000  -0.00126   0.67315   0.67190   0.01799   0.01781   0.03579  18.80652   1.01246   0.00356  -0.03314   0.00060   0.65426   0.02189  16.40577   0.77792   0.00000   0.55330   2.32897  19.96170 
+1000 / 13310 2000 / 13310 3000 / 13310 4000 / 13310 5000 / 13310 6000 / 13310 7000 / 13310 8000 / 13310 9000 / 13310 10000 / 13310 11000 / 13310 12000 / 13310 13000 / 13310 Working on level 2 of 4 Working on level 3 of 4 Working on level 4 of 4 Wake Iter:     3 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    2.68085 / 1.00000    ... KTRes: 0.00000    Wake Iter:     3 / 5     ... GMRES Iter:     1 ... Red:   -0.37552 / -1.00000   ...  Max:    2.30534 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     2 ... Red:   -0.57222 / -1.00000   ...  Max:    2.10863 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     3 ... Red:   -0.83867 / -1.00000   ...  Max:    1.84218 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     4 ... Red:   -0.99572 / -1.00000   ...  Max:    1.68514 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     5 ... Red:   -1.18528 / -1.00000   ...  Max:    1.49557 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     6 ... Red:   -1.37463 / -1.00000   ...  Max:    1.30623 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     7 ... Red:   -1.53938 / -1.00000   ...  Max:    1.14148 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     8 ... Red:   -1.68876 / -1.00000   ...  Max:    0.99209 / 1.00000            3   0.14203   4.00000   0.00000  -0.00117   0.44670   0.44552   0.01673   0.00681   0.02354  18.97639   1.16570   0.00168   0.02238   0.00482   0.43649   0.01049  16.03772   0.72281   0.00000   0.23699   1.74780  28.51787 
+1000 / 13310 2000 / 13310 3000 / 13310 4000 / 13310 5000 / 13310 6000 / 13310 7000 / 13310 8000 / 13310 9000 / 13310 10000 / 13310 11000 / 13310 12000 / 13310 13000 / 13310 Working on level 2 of 4 Working on level 3 of 4 Working on level 4 of 4 Wake Iter:     4 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    2.41560 / 1.00000    ... KTRes: 0.00000    Wake Iter:     4 / 5     ... GMRES Iter:     1 ... Red:   -0.37502 / -1.00000   ...  Max:    2.04058 / 1.00000    Wake Iter:     4 / 5     ... GMRES Iter:     2 ... Red:   -0.57584 / -1.00000   ...  Max:    1.83976 / 1.00000    Wake Iter:     4 / 5     ... GMRES Iter:     3 ... Red:   -0.84447 / -1.00000   ...  Max:    1.57113 / 1.00000    Wake Iter:     4 / 5     ... GMRES Iter:     4 ... Red:   -1.01198 / -1.00000   ...  Max:    1.40363 / 1.00000    Wake Iter:     4 / 5     ... GMRES Iter:     5 ... Red:   -1.20510 / -1.00000   ...  Max:    1.21050 / 1.00000    Wake Iter:     4 / 5     ... GMRES Iter:     6 ... Red:   -1.38480 / -1.00000   ...  Max:    1.03080 / 1.00000    Wake Iter:     4 / 5     ... GMRES Iter:     7 ... Red:   -1.57047 / -1.00000   ...  Max:    0.84513 / 1.00000            4   0.14203   4.00000   0.00000  -0.00121   0.56908   0.56786   0.01734   0.01180   0.02914  19.53104   1.09238   0.00257  -0.01169   0.00279   0.55492   0.01603  16.62690   0.76417   0.00000   0.25916   2.14271  36.87411 
+1000 / 13310 2000 / 13310 3000 / 13310 4000 / 13310 5000 / 13310 6000 / 13310 7000 / 13310 8000 / 13310 9000 / 13310 10000 / 13310 11000 / 13310 12000 / 13310 13000 / 13310 Working on level 2 of 4 Working on level 3 of 4 Working on level 4 of 4 Wake Iter:     5 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    2.12455 / 1.00000    ... KTRes: 0.00000    Wake Iter:     5 / 5     ... GMRES Iter:     1 ... Red:   -0.37428 / -1.00000   ...  Max:    1.75027 / 1.00000    Wake Iter:     5 / 5     ... GMRES Iter:     2 ... Red:   -0.56232 / -1.00000   ...  Max:    1.56223 / 1.00000    Wake Iter:     5 / 5     ... GMRES Iter:     3 ... Red:   -0.84312 / -1.00000   ...  Max:    1.28144 / 1.00000    Wake Iter:     5 / 5     ... GMRES Iter:     4 ... Red:   -0.99059 / -1.00000   ...  Max:    1.13397 / 1.00000    Wake Iter:     5 / 5     ... GMRES Iter:     5 ... Red:   -1.19221 / -1.00000   ...  Max:    0.93234 / 1.00000            5   0.14203   4.00000   0.00000  -0.00120   0.53645   0.53524   0.01717   0.01024   0.02741  19.57316   1.11810   0.00260  -0.00078   0.00329   0.52333   0.01442  16.56569   0.75545   0.00000   0.13526   2.04352  45.46027 
+Creating quad tree velocity survey data structures... 
+Xmin_: 0.000000 
+Xmax_: 30.514831 
+Ymin_: -23.261888 
+Ymax_: 23.261888 
+Zmin_: -1.786439 
+Zmax_: 8.066026 
+Working on quad tree: 1 
+Direction, Value: 2 0.000000 
+Inserted: 563 points 
+
+WakeAngle_: 0.994522 -0.000000 0.104528 
+Xmax_ - Xmin_: 30.514831 
+Ymax_ - Ymin_: 46.523776 
+Zmax_ - Zmin_: 9.852465 
+
+The wake FarDist set to: 46.523776 
+Updating wake grids... 
+SigmaAvg_: 0.482561 
+Creating interaction lists... 
+
+Forward sweep... 
+1000 / 13310 2000 / 13310 3000 / 13310 4000 / 13310 5000 / 13310 6000 / 13310 7000 / 13310 8000 / 13310 9000 / 13310 10000 / 13310 11000 / 13310 12000 / 13310 13000 / 13310 Working on level 2 of 4 Working on level 3 of 4 Working on level 4 of 4 Forward Mode: total multipole speed up ratio: 8.670623 
+Solving... Mach: 0.142032 ... Alpha: 6.000000 ... Beta: 0.000000 
+
+                                                                    Surface Integration Forces and Moments -->                                                  Wake Induced Forces -->  
+                                                                    Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-  Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake 
+    Iter    Mach       AoA      Beta       CLo       CLi      CLtot     CDo        CDi      CDtot      L/D        E       CMxtot    CMytot    Cmztot    CLiw       CDiw    LoDwake    Ewake      T/QS      L2Res    MaxRes  Wall_Time 
+Wake Iter:     1 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    3.71840 / 1.00000    ... KTRes: 0.00000    Wake Iter:     1 / 5     ... GMRES Iter:     1 ... Red:   -0.36089 / -1.00000   ...  Max:    3.35751 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     2 ... Red:   -0.55074 / -1.00000   ...  Max:    3.16766 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     3 ... Red:   -0.62039 / -1.00000   ...  Max:    3.09801 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     4 ... Red:   -0.69605 / -1.00000   ...  Max:    3.02236 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     5 ... Red:   -0.73970 / -1.00000   ...  Max:    2.97870 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     6 ... Red:   -0.86172 / -1.00000   ...  Max:    2.85668 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     7 ... Red:   -0.95604 / -1.00000   ...  Max:    2.76236 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     8 ... Red:   -1.09855 / -1.00000   ...  Max:    2.61985 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     9 ... Red:   -1.24496 / -1.00000   ...  Max:    2.47344 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    10 ... Red:   -1.38153 / -1.00000   ...  Max:    2.33687 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    11 ... Red:   -1.54003 / -1.00000   ...  Max:    2.17837 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    12 ... Red:   -1.69438 / -1.00000   ...  Max:    2.02402 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    13 ... Red:   -1.86900 / -1.00000   ...  Max:    1.84940 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    14 ... Red:   -2.03290 / -1.00000   ...  Max:    1.68551 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    15 ... Red:   -2.23738 / -1.00000   ...  Max:    1.48102 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    16 ... Red:   -2.37190 / -1.00000   ...  Max:    1.34650 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    17 ... Red:   -2.51590 / -1.00000   ...  Max:    1.20250 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    18 ... Red:   -2.69283 / -1.00000   ...  Max:    1.02557 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    19 ... Red:   -2.84751 / -1.00000   ...  Max:    0.87089 / 1.00000            1   0.14203   6.00000   0.00000  -0.00162   0.00000  -0.00162   0.01536   0.00000   0.01536   0.00000   0.00000   0.00000   0.00120   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   1.23282   1.99965  10.42694 
+1000 / 13310 2000 / 13310 3000 / 13310 4000 / 13310 5000 / 13310 6000 / 13310 7000 / 13310 8000 / 13310 9000 / 13310 10000 / 13310 11000 / 13310 12000 / 13310 13000 / 13310 Working on level 2 of 4 Working on level 3 of 4 Working on level 4 of 4 Wake Iter:     2 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    3.09274 / 1.00000    ... KTRes: 0.00000    Wake Iter:     2 / 5     ... GMRES Iter:     1 ... Red:   -0.33841 / -1.00000   ...  Max:    2.75433 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     2 ... Red:   -0.54898 / -1.00000   ...  Max:    2.54375 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     3 ... Red:   -0.78216 / -1.00000   ...  Max:    2.31057 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     4 ... Red:   -0.97963 / -1.00000   ...  Max:    2.11311 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     5 ... Red:   -1.14265 / -1.00000   ...  Max:    1.95008 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     6 ... Red:   -1.31530 / -1.00000   ...  Max:    1.77744 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     7 ... Red:   -1.46512 / -1.00000   ...  Max:    1.62762 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     8 ... Red:   -1.58544 / -1.00000   ...  Max:    1.50730 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     9 ... Red:   -1.72989 / -1.00000   ...  Max:    1.36285 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:    10 ... Red:   -1.90603 / -1.00000   ...  Max:    1.18671 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:    11 ... Red:   -2.06232 / -1.00000   ...  Max:    1.03041 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:    12 ... Red:   -2.18259 / -1.00000   ...  Max:    0.91014 / 1.00000            2   0.14203   6.00000   0.00000  -0.00205   0.87221   0.87016   0.01948   0.03021   0.04968  17.55493   1.00199   0.00465  -0.05303   0.00093   0.84639   0.03616  15.21245   0.78821   0.00000   0.63376   2.12846  20.64324 
+1000 / 13310 2000 / 13310 3000 / 13310 4000 / 13310 5000 / 13310 6000 / 13310 7000 / 13310 8000 / 13310 9000 / 13310 10000 / 13310 11000 / 13310 12000 / 13310 13000 / 13310 Working on level 2 of 4 Working on level 3 of 4 Working on level 4 of 4 Wake Iter:     3 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    2.82571 / 1.00000    ... KTRes: 0.00000    Wake Iter:     3 / 5     ... GMRES Iter:     1 ... Red:   -0.37254 / -1.00000   ...  Max:    2.45317 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     2 ... Red:   -0.56858 / -1.00000   ...  Max:    2.25713 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     3 ... Red:   -0.82833 / -1.00000   ...  Max:    1.99738 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     4 ... Red:   -0.98783 / -1.00000   ...  Max:    1.83788 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     5 ... Red:   -1.17159 / -1.00000   ...  Max:    1.65412 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     6 ... Red:   -1.36407 / -1.00000   ...  Max:    1.46164 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     7 ... Red:   -1.53369 / -1.00000   ...  Max:    1.29202 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     8 ... Red:   -1.67733 / -1.00000   ...  Max:    1.14838 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     9 ... Red:   -1.83004 / -1.00000   ...  Max:    0.99567 / 1.00000            3   0.14203   6.00000   0.00000  -0.00182   0.55643   0.55461   0.01728   0.01066   0.02794  19.91801   1.15572   0.00213   0.02034   0.00678   0.54221   0.01575  16.41843   0.74281   0.00000   0.38065   1.76164  29.43606 
+1000 / 13310 2000 / 13310 3000 / 13310 4000 / 13310 5000 / 13310 6000 / 13310 7000 / 13310 8000 / 13310 9000 / 13310 10000 / 13310 11000 / 13310 12000 / 13310 13000 / 13310 Working on level 2 of 4 Working on level 3 of 4 Working on level 4 of 4 Wake Iter:     4 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    2.56266 / 1.00000    ... KTRes: 0.00000    Wake Iter:     4 / 5     ... GMRES Iter:     1 ... Red:   -0.36147 / -1.00000   ...  Max:    2.20119 / 1.00000    Wake Iter:     4 / 5     ... GMRES Iter:     2 ... Red:   -0.56213 / -1.00000   ...  Max:    2.00053 / 1.00000    Wake Iter:     4 / 5     ... GMRES Iter:     3 ... Red:   -0.82787 / -1.00000   ...  Max:    1.73479 / 1.00000    Wake Iter:     4 / 5     ... GMRES Iter:     4 ... Red:   -1.01430 / -1.00000   ...  Max:    1.54836 / 1.00000    Wake Iter:     4 / 5     ... GMRES Iter:     5 ... Red:   -1.20712 / -1.00000   ...  Max:    1.35554 / 1.00000    Wake Iter:     4 / 5     ... GMRES Iter:     6 ... Red:   -1.42629 / -1.00000   ...  Max:    1.13637 / 1.00000    Wake Iter:     4 / 5     ... GMRES Iter:     7 ... Red:   -1.57537 / -1.00000   ...  Max:    0.98729 / 1.00000            4   0.14203   6.00000   0.00000  -0.00193   0.72798   0.72605   0.01833   0.01987   0.03821  19.05384   1.06109   0.00339  -0.02438   0.00384   0.70601   0.02622  15.84613   0.75640   0.00000   0.31216   2.02440  37.32841 
+1000 / 13310 2000 / 13310 3000 / 13310 4000 / 13310 5000 / 13310 6000 / 13310 7000 / 13310 8000 / 13310 9000 / 13310 10000 / 13310 11000 / 13310 12000 / 13310 13000 / 13310 Working on level 2 of 4 Working on level 3 of 4 Working on level 4 of 4 Wake Iter:     5 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    2.29969 / 1.00000    ... KTRes: 0.00000    Wake Iter:     5 / 5     ... GMRES Iter:     1 ... Red:   -0.38698 / -1.00000   ...  Max:    1.91271 / 1.00000    Wake Iter:     5 / 5     ... GMRES Iter:     2 ... Red:   -0.56587 / -1.00000   ...  Max:    1.73382 / 1.00000    Wake Iter:     5 / 5     ... GMRES Iter:     3 ... Red:   -0.83546 / -1.00000   ...  Max:    1.46423 / 1.00000    Wake Iter:     5 / 5     ... GMRES Iter:     4 ... Red:   -1.03354 / -1.00000   ...  Max:    1.26615 / 1.00000    Wake Iter:     5 / 5     ... GMRES Iter:     5 ... Red:   -1.22743 / -1.00000   ...  Max:    1.07226 / 1.00000    Wake Iter:     5 / 5     ... GMRES Iter:     6 ... Red:   -1.41705 / -1.00000   ...  Max:    0.88264 / 1.00000            5   0.14203   6.00000   0.00000  -0.00190   0.68384   0.68194   0.01804   0.01722   0.03526  19.39281   1.08036   0.00305  -0.01246   0.00460   0.66499   0.02307  16.17784   0.76284   0.00000   0.30201   2.15352  46.90169 
+Creating quad tree velocity survey data structures... 
+Xmin_: 0.000000 
+Xmax_: 30.514831 
+Ymin_: -23.261888 
+Ymax_: 23.261888 
+Zmin_: -1.786439 
+Zmax_: 8.066026 
+Working on quad tree: 1 
+Direction, Value: 2 0.000000 
+Inserted: 566 points 
+
+WakeAngle_: 0.990268 -0.000000 0.139173 
+Xmax_ - Xmin_: 30.514831 
+Ymax_ - Ymin_: 46.523776 
+Zmax_ - Zmin_: 9.852465 
+
+The wake FarDist set to: 46.523776 
+Updating wake grids... 
+SigmaAvg_: 0.482561 
+Creating interaction lists... 
+
+Forward sweep... 
+1000 / 13310 2000 / 13310 3000 / 13310 4000 / 13310 5000 / 13310 6000 / 13310 7000 / 13310 8000 / 13310 9000 / 13310 10000 / 13310 11000 / 13310 12000 / 13310 13000 / 13310 Working on level 2 of 4 Working on level 3 of 4 Working on level 4 of 4 Forward Mode: total multipole speed up ratio: 8.669238 
+Solving... Mach: 0.142032 ... Alpha: 8.000000 ... Beta: 0.000000 
+
+                                                                    Surface Integration Forces and Moments -->                                                  Wake Induced Forces -->  
+                                                                    Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-Surf-  Wake-Wake-Wake-Wake-Wake-Wake-Wake-Wake 
+    Iter    Mach       AoA      Beta       CLo       CLi      CLtot     CDo        CDi      CDtot      L/D        E       CMxtot    CMytot    Cmztot    CLiw       CDiw    LoDwake    Ewake      T/QS      L2Res    MaxRes  Wall_Time 
+Wake Iter:     1 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    3.75621 / 1.00000    ... KTRes: 0.00000    Wake Iter:     1 / 5     ... GMRES Iter:     1 ... Red:   -0.34777 / -1.00000   ...  Max:    3.40844 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     2 ... Red:   -0.55236 / -1.00000   ...  Max:    3.20385 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     3 ... Red:   -0.63007 / -1.00000   ...  Max:    3.12614 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     4 ... Red:   -0.71210 / -1.00000   ...  Max:    3.04411 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     5 ... Red:   -0.75314 / -1.00000   ...  Max:    3.00306 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     6 ... Red:   -0.86279 / -1.00000   ...  Max:    2.89341 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     7 ... Red:   -0.94919 / -1.00000   ...  Max:    2.80702 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     8 ... Red:   -1.07557 / -1.00000   ...  Max:    2.68063 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:     9 ... Red:   -1.21832 / -1.00000   ...  Max:    2.53788 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    10 ... Red:   -1.35198 / -1.00000   ...  Max:    2.40423 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    11 ... Red:   -1.52618 / -1.00000   ...  Max:    2.23002 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    12 ... Red:   -1.66776 / -1.00000   ...  Max:    2.08844 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    13 ... Red:   -1.83282 / -1.00000   ...  Max:    1.92338 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    14 ... Red:   -2.01217 / -1.00000   ...  Max:    1.74403 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    15 ... Red:   -2.23715 / -1.00000   ...  Max:    1.51905 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    16 ... Red:   -2.37610 / -1.00000   ...  Max:    1.38010 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    17 ... Red:   -2.53230 / -1.00000   ...  Max:    1.22391 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    18 ... Red:   -2.69585 / -1.00000   ...  Max:    1.06035 / 1.00000    Wake Iter:     1 / 5     ... GMRES Iter:    19 ... Red:   -2.86817 / -1.00000   ...  Max:    0.88803 / 1.00000            1   0.14203   8.00000   0.00000  -0.00215   0.00000  -0.00215   0.01530   0.00000   0.01530   0.00000   0.00000   0.00000   0.00120   0.00000   0.00000   0.00000   0.00000   0.00000   0.00000   1.25922   1.99993  11.51560 
+1000 / 13310 2000 / 13310 3000 / 13310 4000 / 13310 5000 / 13310 6000 / 13310 7000 / 13310 8000 / 13310 9000 / 13310 10000 / 13310 11000 / 13310 12000 / 13310 13000 / 13310 Working on level 2 of 4 Working on level 3 of 4 Working on level 4 of 4 Wake Iter:     2 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    3.20116 / 1.00000    ... KTRes: 0.00000    Wake Iter:     2 / 5     ... GMRES Iter:     1 ... Red:   -0.33109 / -1.00000   ...  Max:    2.87007 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     2 ... Red:   -0.55275 / -1.00000   ...  Max:    2.64840 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     3 ... Red:   -0.76848 / -1.00000   ...  Max:    2.43268 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     4 ... Red:   -0.97625 / -1.00000   ...  Max:    2.22491 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     5 ... Red:   -1.13696 / -1.00000   ...  Max:    2.06419 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     6 ... Red:   -1.30647 / -1.00000   ...  Max:    1.89468 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     7 ... Red:   -1.45676 / -1.00000   ...  Max:    1.74440 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     8 ... Red:   -1.57955 / -1.00000   ...  Max:    1.62161 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:     9 ... Red:   -1.74216 / -1.00000   ...  Max:    1.45900 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:    10 ... Red:   -1.89414 / -1.00000   ...  Max:    1.30702 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:    11 ... Red:   -2.04960 / -1.00000   ...  Max:    1.15155 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:    12 ... Red:   -2.17219 / -1.00000   ...  Max:    1.02896 / 1.00000    Wake Iter:     2 / 5     ... GMRES Iter:    13 ... Red:   -2.28021 / -1.00000   ...  Max:    0.92094 / 1.00000            2   0.14203   8.00000   0.00000  -0.00299   1.07806   1.07506   0.02130   0.04735   0.06865  15.70468   0.97663   0.00583  -0.08567   0.00136   1.03824   0.05455  13.68872   0.78625   0.00000   0.73854   2.22280  22.84189 
+1000 / 13310 2000 / 13310 3000 / 13310 4000 / 13310 5000 / 13310 6000 / 13310 7000 / 13310 8000 / 13310 9000 / 13310 10000 / 13310 11000 / 13310 12000 / 13310 13000 / 13310 Working on level 2 of 4 Working on level 3 of 4 Working on level 4 of 4 Wake Iter:     3 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    2.93308 / 1.00000    ... KTRes: 0.00000    Wake Iter:     3 / 5     ... GMRES Iter:     1 ... Red:   -0.36477 / -1.00000   ...  Max:    2.56831 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     2 ... Red:   -0.57970 / -1.00000   ...  Max:    2.35338 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     3 ... Red:   -0.83472 / -1.00000   ...  Max:    2.09836 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     4 ... Red:   -0.97527 / -1.00000   ...  Max:    1.95780 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     5 ... Red:   -1.13336 / -1.00000   ...  Max:    1.79971 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     6 ... Red:   -1.30846 / -1.00000   ...  Max:    1.62462 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     7 ... Red:   -1.51606 / -1.00000   ...  Max:    1.41702 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     8 ... Red:   -1.67599 / -1.00000   ...  Max:    1.25708 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:     9 ... Red:   -1.83959 / -1.00000   ...  Max:    1.09349 / 1.00000    Wake Iter:     3 / 5     ... GMRES Iter:    10 ... Red:   -1.98922 / -1.00000   ...  Max:    0.94386 / 1.00000            3   0.14203   8.00000   0.00000  -0.00252   0.66824   0.66573   0.01791   0.01557   0.03349  19.95480   1.14086   0.00262   0.01296   0.00883   0.64825   0.02313  15.79529   0.72299   0.00000   0.49797   1.95101  32.66827 
+1000 / 13310 2000 / 13310 3000 / 13310 4000 / 13310 5000 / 13310 6000 / 13310 7000 / 13310 8000 / 13310 9000 / 13310 10000 / 13310 11000 / 13310 12000 / 13310 13000 / 13310 Working on level 2 of 4 Working on level 3 of 4 Working on level 4 of 4 Wake Iter:     4 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    2.67078 / 1.00000    ... KTRes: 0.00000    Wake Iter:     4 / 5     ... GMRES Iter:     1 ... Red:   -0.34639 / -1.00000   ...  Max:    2.32438 / 1.00000    Wake Iter:     4 / 5     ... GMRES Iter:     2 ... Red:   -0.57115 / -1.00000   ...  Max:    2.09963 / 1.00000    Wake Iter:     4 / 5     ... GMRES Iter:     3 ... Red:   -0.80338 / -1.00000   ...  Max:    1.86740 / 1.00000    Wake Iter:     4 / 5     ... GMRES Iter:     4 ... Red:   -0.97157 / -1.00000   ...  Max:    1.69921 / 1.00000    Wake Iter:     4 / 5     ... GMRES Iter:     5 ... Red:   -1.15172 / -1.00000   ...  Max:    1.51905 / 1.00000    Wake Iter:     4 / 5     ... GMRES Iter:     6 ... Red:   -1.30991 / -1.00000   ...  Max:    1.36086 / 1.00000    Wake Iter:     4 / 5     ... GMRES Iter:     7 ... Red:   -1.52883 / -1.00000   ...  Max:    1.14194 / 1.00000    Wake Iter:     4 / 5     ... GMRES Iter:     8 ... Red:   -1.66663 / -1.00000   ...  Max:    1.00414 / 1.00000    Wake Iter:     4 / 5     ... GMRES Iter:     9 ... Red:   -1.84723 / -1.00000   ...  Max:    0.82355 / 1.00000            4   0.14203   8.00000   0.00000  -0.00274   0.88152   0.87878   0.01950   0.02936   0.04886  18.04096   1.05318   0.00413  -0.02308   0.00505   0.85313   0.03774  14.90420   0.76741   0.00000   0.42442   2.11361  42.85257 
+1000 / 13310 2000 / 13310 3000 / 13310 4000 / 13310 5000 / 13310 6000 / 13310 7000 / 13310 8000 / 13310 9000 / 13310 10000 / 13310 11000 / 13310 12000 / 13310 13000 / 13310 Working on level 2 of 4 Working on level 3 of 4 Working on level 4 of 4 Wake Iter:     5 / 5     ... GMRES Iter:     0 ... Red:    0.00000 / -1.00000   ...  Max:    2.41530 / 1.00000    ... KTRes: 0.00000    Wake Iter:     5 / 5     ... GMRES Iter:     1 ... Red:   -0.34841 / -1.00000   ...  Max:    2.06689 / 1.00000    Wake Iter:     5 / 5     ... GMRES Iter:     2 ... Red:   -0.54666 / -1.00000   ...  Max:    1.86864 / 1.00000    Wake Iter:     5 / 5     ... GMRES Iter:     3 ... Red:   -0.74193 / -1.00000   ...  Max:    1.67337 / 1.00000    Wake Iter:     5 / 5     ... GMRES Iter:     4 ... Red:   -0.93329 / -1.00000   ...  Max:    1.48201 / 1.00000    Wake Iter:     5 / 5     ... GMRES Iter:     5 ... Red:   -1.14036 / -1.00000   ...  Max:    1.27494 / 1.00000    Wake Iter:     5 / 5     ... GMRES Iter:     6 ... Red:   -1.34629 / -1.00000   ...  Max:    1.06900 / 1.00000    Wake Iter:     5 / 5     ... GMRES Iter:     7 ... Red:   -1.53860 / -1.00000   ...  Max:    0.87670 / 1.00000            5   0.14203   8.00000   0.00000  -0.00268   0.83054   0.82786   0.01907   0.02569   0.04476  18.55553   1.06844   0.00388  -0.02557   0.00573   0.80473   0.03385  15.20552   0.76116   0.00000   0.23806   1.82927  53.29546 
+Creating quad tree velocity survey data structures... 
+Xmin_: 0.000000 
+Xmax_: 30.514831 
+Ymin_: -23.261888 
+Ymax_: 23.261888 
+Zmin_: -1.786439 
+Zmax_: 8.066026 
+Working on quad tree: 1 
+Direction, Value: 2 0.000000 
+Inserted: 564 points 
+
+Total setup and solve time: 313.987025 seconds 
+Done
