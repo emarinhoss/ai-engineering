@@ -1,0 +1,148 @@
+{
+ "inputs": {
+  "commit": "a8196e1e7607a0104196a3a77da62a1c3c4d20e5",
+  "git_dirty": false,
+  "git_dirty_files": [],
+  "excluded": "runs/task12/pd/2026-11-28/p9/pass0",
+  "command": "python -m prelim.p9_r1 inputs --out runs/task12/pd/2026-11-28/p9/pass0",
+  "python": "3.13.18",
+  "numpy": "2.5.3",
+  "scipy": "1.18.1",
+  "pyyaml": "6.0.3",
+  "review": "Not yet Fable-reviewed (rulings PD-22 and PD-25)",
+  "files": {
+   "r0_design": "runs/task12/pd/2026-11-27/p0/r0/design_pusher.json",
+   "p4b": "runs/task12/pd/2026-11-28/p4b/p4b.json",
+   "arrangement": "data/task12/pd_p3_arrangement.yaml"
+  },
+  "tree_unchanged_during_run": true
+ },
+ "pass": 0,
+ "reference": {
+  "record": "runs/task12/pd/2026-11-28/p4b/p4b.json",
+  "chosen": "scan_10",
+  "extension_key": "candidates.scan_10.measures.extension_ft",
+  "multhopp_key": "candidates.scan_10.evaluation.neutral_point.Cma_fus_multhopp_per_rad",
+  "stage1_16_22_key": "runs/task12/pd/2026-11-27/p0/r0/design_pusher.json layout.Cma_fus",
+  "what": "r0's sizes with the PD-21 layout"
+ },
+ "values": {
+  "loft_wetted_factor_wing": 0.9853516555827647,
+  "loft_wetted_factor_fuselage": 0.9935989465602084,
+  "loft_wetted_factor_horizontal_tail": 0.9509291688710368,
+  "loft_wetted_factor_vertical_tail": 0.8837187046559785,
+  "loft_wetted_factor_sponsons": 0.774112881042706,
+  "tank_volume_factor": 0.9326593761151073,
+  "sponson_size_factor": 1.4716796875,
+  "fuselage_extension_ft": 1.975876210782321,
+  "fuselage_added_skin_ft2": 12.891727972261151,
+  "fuselage_cm_alpha_factor": 1.9377481891123838
+ },
+ "detail": {
+  "sponson": {
+   "scale": 1.4716796875,
+   "clearance_in": 1.0078125,
+   "required_in": 1.0,
+   "bracket": [
+    1.470703125,
+    1.4716796875
+   ],
+   "stage1_sponson_ft": {
+    "length": 5.9250812498842755,
+    "depth": 1.9750270832947585
+   }
+  },
+  "gate3": {
+   "components": {
+    "wing": {
+     "loft_wetted_ft2": 489.8195811155016,
+     "loft_whole_ft2": 562.2455040371256,
+     "stage1_ft2": 497.10129205172797,
+     "loft_over_stage1": -0.014648344417235282,
+     "raymer_form_on_loft_ft2": 499.6655439642204,
+     "loft_over_raymer_form": -0.019705106681167983,
+     "verdict": "pass"
+    },
+    "fuselage": {
+     "loft_wetted_ft2": 275.9983063424291,
+     "loft_whole_ft2": 307.29365029057885,
+     "stage1_ft2": 277.77636771649355,
+     "loft_over_stage1": -0.006401053439791582,
+     "raymer_form_on_loft_ft2": 309.77672201353454,
+     "loft_over_raymer_form": -0.1090411682696727,
+     "verdict": "pass"
+    },
+    "horizontal_tail": {
+     "loft_wetted_ft2": 262.7450987832251,
+     "loft_whole_ft2": 279.46546520867594,
+     "stage1_ft2": 276.30354329667017,
+     "loft_over_stage1": -0.049070831128963155,
+     "raymer_form_on_loft_ft2": 252.43519410443517,
+     "loft_over_raymer_form": 0.04084178798984994,
+     "verdict": "pass"
+    },
+    "vertical_tail": {
+     "loft_wetted_ft2": 66.83585735789426,
+     "loft_whole_ft2": 80.41897318894235,
+     "stage1_ft2": 75.63023958388737,
+     "loft_over_stage1": -0.11628129534402154,
+     "raymer_form_on_loft_ft2": 67.5660014227363,
+     "loft_over_raymer_form": -0.010806382640195067,
+     "verdict": "fail"
+    },
+    "sponsons": {
+     "loft_wetted_ft2": 106.73261517509312,
+     "loft_whole_ft2": 121.91824434640368,
+     "stage1_ft2": 137.87732744005964,
+     "loft_over_stage1": -0.22588711895729396,
+     "raymer_form_on_loft_ft2": null,
+     "loft_over_raymer_form": null,
+     "verdict": "fail"
+    }
+   },
+   "exposed_planform_ft2": {
+    "wing": 243.14625010424348,
+    "horizontal_tail": 123.77914783977403,
+    "vertical_tail": 33.13033314834574
+   },
+   "tolerance": 0.05,
+   "fuselage_projected_ft2": {
+    "top": 89.46535588539767,
+    "side": 92.75624529903442,
+    "fill_top": 0.8760492118488902,
+    "fill_side": 0.9082737645661603
+   },
+   "total_loft_ft2": 1202.131458774143,
+   "total_stage1_ft2": 1264.6887700888387,
+   "failing": [
+    "vertical_tail",
+    "sponsons"
+   ],
+   "verdict": "fail"
+  },
+  "gate4_tank": {
+   "gross_ft3": 80.28416471776774,
+   "usable_ft3": 68.24154001010257,
+   "needed_ft3": 21.921368942414635,
+   "stage1_claim_ft3": 73.1687706763378,
+   "usable_over_claim": -0.0673406238848927,
+   "margin_ft3": 46.32017106768794,
+   "span_stations_ft": [
+    1.7864390610378027,
+    18.60951021668968
+   ],
+   "verdict": "pass"
+  },
+  "sponson_position_sensitivity": {
+   "0.2": 1.6142578125,
+   "0.4": 1.3583984375
+  }
+ },
+ "tree_at_end": {
+  "commit": "a8196e1e7607a0104196a3a77da62a1c3c4d20e5",
+  "git_dirty": false,
+  "git_dirty_files": [],
+  "excluded": "runs/task12/pd/2026-11-28/p9/pass0"
+ },
+ "runtime_s": 0.7220115661621094
+}
