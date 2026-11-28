@@ -22,7 +22,7 @@ from conceptual import raymer_propulsion as prop
 from conceptual import raymer_stability as stab
 from conceptual import raymer_weights as wts
 from conceptual import sizing
-from conceptual.units import GAL_FT3, HP, KT, NM, RHO0, isa
+from conceptual.units import GAL_FT3, HP, KT, NM, RHO0, G, isa
 
 LEDGER = Path(__file__).resolve().parents[1] / "data" / "task12" / "ledger.yaml"
 CATEGORY = "general_aviation_single"
@@ -68,10 +68,11 @@ def size_with_vc_rule(L, size):
     raise ValueError(f"per-design V_C did not settle in {VC_MAX_STEPS} steps of {VC_ROUND_KT:g} kt: {steps}")
 
 
-def load_ledger(path=LEDGER):
+def load_ledger(path=None):
     """Ledger as {name: value} plus the raw entries; checks every entry has value, units, source,
-    and that an assumed entry carries a band containing its value."""
-    raw = yaml.safe_load(Path(path).read_text())
+    and that an assumed entry carries a band containing its value. path None reads LEDGER, the module's
+    ledger at the time of the call (a run that sizes with another ledger, prelim/p9_r1.py, sets LEDGER)."""
+    raw = yaml.safe_load(Path(LEDGER if path is None else path).read_text())
     values, entries = {}, {}
     for group in ("requirements", "assumptions"):
         for name, q in raw[group].items():
@@ -93,29 +94,30 @@ def _polar(geom, L, V, atm, bhp):
     M = V / atm["a"]
     k = L["roughness_k_ft"]
     w, ht = geom["wing"], geom["ht"]
+    wet = drag_areas(geom, L)
     comps = [
         {"name": "wing", "cf": aero.cf_component(atm["rho"], V, w.mac, atm["mu"], M, k,
                                                  L["laminar_fraction_wing"]),
          "ff": aero.form_factor_wing(L["wing_t_c"], L["wing_x_c_max_t"], M), "q": 1.0,
-         "s_wet": geom["s_wet_wing"]},
+         "s_wet": wet["wing"]},
         {"name": "fuselage", "cf": aero.cf_component(atm["rho"], V, geom["L_f"], atm["mu"], M, k,
                                                      L["laminar_fraction_fuselage"]),
          "ff": aero.form_factor_fuselage(L["fuselage_fineness"]), "q": 1.0,
-         "s_wet": geom["s_wet_fus"]},
+         "s_wet": wet["fuselage"]},
         {"name": "horizontal_tail", "cf": aero.cf_component(atm["rho"], V, ht.mac, atm["mu"], M, k,
                                                             L["laminar_fraction_wing"]),
          "ff": aero.form_factor_wing(L["tail_t_c"], 0.3, M), "q": L["tail_interference_q"],
-         "s_wet": geom["s_wet_ht"]},
+         "s_wet": wet["horizontal_tail"]},
         {"name": "vertical_tail", "cf": aero.cf_component(atm["rho"], V, geom["vt_mac"], atm["mu"],
                                                           M, k, L["laminar_fraction_wing"]),
          "ff": aero.form_factor_wing(L["tail_t_c"], 0.3, M), "q": L["tail_interference_q"],
-         "s_wet": geom["s_wet_vt"]},
+         "s_wet": wet["vertical_tail"]},
     ]
     if geom["s_wet_sponsons"] > 0.0:
         comps.append({"name": "sponsons",
                       "cf": aero.cf_component(atm["rho"], V, geom["sponson_length"], atm["mu"], M, k, 0.0),
                       "ff": aero.form_factor_fuselage(geom["sponson_length"] / geom["sponson_depth"]),
-                      "q": L["sponson_interference_q"], "s_wet": geom["s_wet_sponsons"]})
+                      "q": L["sponson_interference_q"], "s_wet": wet["sponsons"]})
     misc = aero.misc_engine_drag_area(bhp) + L["sensor_drag_area_ft2"]
     CD0, parts = aero.cd0_buildup(comps, w.area, misc_d_q=misc, leakage_fraction=L["leakage_fraction"])
     return CD0, parts
@@ -145,7 +147,18 @@ def _geometry(W0, W_S, A, concept, L):
         "s_wet_vt": aero.wetted_area_wing(S_vt, L["tail_t_c"]),
         "s_wet_fus": 3.4 * L["fuselage_fill"] * L_f * d_f,                      # (7.12)
         **_sponsons(W0, L),
+        # preliminary design (PD-21, PD-26): the aft fuselage lengthened behind the Table 6.3 body; 0 on r0
+        "extension": L.get("fuselage_extension_ft", 0.0),
     }
+
+
+def drag_areas(g, L):
+    """Wetted areas the drag build-up (12.24) uses: Stage 1's (7.11)/(7.12) areas times the loft's wetted area over
+    Stage 1's, per component (P3 gate 3, decision PD-26), measured on the lofted r1 layout. A ledger without the
+    factors (every record before r1) gets Stage 1's areas unchanged. The weights keep Stage 1's own areas."""
+    names = {"wing": "s_wet_wing", "fuselage": "s_wet_fus", "horizontal_tail": "s_wet_ht", "vertical_tail": "s_wet_vt",
+             "sponsons": "s_wet_sponsons"}
+    return {k: L.get("loft_wetted_factor_" + k, 1.0) * g[key] for k, key in names.items()}
 
 
 def _sponsons(W0, L):
@@ -154,8 +167,9 @@ def _sponsons(W0, L):
     if L.get("no_sponsons"):                                     # reference trade only
         return {"sponson_length": 0.0, "sponson_depth": 0.0, "s_wet_sponsons": 0.0}
     tyre_ft = geo.main_tyre_in(L["main_wheel_load_fraction"] * W0)["diameter"] / 12.0
-    length = L["sponson_length_per_tyre"] * tyre_ft
-    depth = L["sponson_depth_per_tyre"] * tyre_ft
+    k = L.get("sponson_size_factor", 1.0)        # PD-27: the whole sponson scaled to hold the retracted gear; 1 on r0
+    length = k * L["sponson_length_per_tyre"] * tyre_ft
+    depth = k * L["sponson_depth_per_tyre"] * tyre_ft
     return {"sponson_length": length, "sponson_depth": depth,
             "s_wet_sponsons": 2.0 * 3.4 * L["fuselage_fill"] * length * depth}
 
@@ -177,7 +191,8 @@ def _gear_length_in(geom, L, D_prop, concept):
         need_ft = r + clear - geom["d_f"] / 2.0
     else:
         th = math.radians(L["rotation_angle_deg_pusher"])
-        dx = geom["L_f"] * (1.0 - L["main_gear_station_guess"])
+        # the propeller is at the end of the fuselage, lengthened by the extension of PD-21 (0 on r0)
+        dx = geom["L_f"] * (1.0 - L["main_gear_station_guess"]) + geom["extension"]
         # centreline height h above ground at the wheel; after rotation the propeller hub sits at
         # h cos(th) - dx sin(th); its lowest tip must clear by 9 in
         need_ft = ((r + clear + dx * math.sin(th)) / math.cos(th) - geom["d_f"] / 2.0
@@ -369,7 +384,11 @@ def _mission(W0, geom, A, e, L, bhp, clmax, model=None):
     eta_cl = prop.efficiency_at_power(_propeller(L, mid, D_prop),
                                       bhp * _lapse(model, 0.5 * h_alt, mid, V_cl), V_cl)
     C = sizing.equivalent_tsfc(c_cl, V_cl, eta_cl)
-    W2 = W * sizing.climb_fraction_energy(C, dhe, V_cl, min(d_t, 0.95))
+    if L.get("climb_model", "two_point") == "integrated":
+        # preliminary design (P1 finding, decision PD-26): the climb flown in steps, each altitude at its own best speed
+        W2 = W - integrated_climb(W, geom, K, bhp, D_prop, clmax, L, model, V_cr, CLIMB_STEP_FT)["fuel_lb"]
+    else:
+        W2 = W * sizing.climb_fraction_energy(C, dhe, V_cl, min(d_t, 0.95))
     unch_cl = (0.0 if model is None else
                float(not model.turbine_choked(0.5 * h_alt, V_cl / KT, bhp * model.lapse(0.5 * h_alt, V_cl / KT))[0]))
     rows.append(("climb", W, W2, 0.0, 0.0, c_cl, unch_cl, 0.0, 0.0, unch_cl * (W - W2)))
@@ -425,6 +444,50 @@ def _mission(W0, geom, A, e, L, bhp, clmax, model=None):
     rows.append(("landing", W, W_end, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0))
     fuel = sizing.RESERVE_FACTOR * (W0 - W_end)
     return fuel, rows
+
+
+CLIMB_STEP_FT = 1000.0     # altitude step of the integrated climb (spec P0)
+
+
+def integrated_climb(W_start, geom, K, bhp, D_prop, clmax, L, model, V_end, step_ft=CLIMB_STEP_FT):
+    """The climb from sea level to the mission altitude at full throttle in steps of step_ft (ledger climb_model
+    "integrated"; P1's finding at the worst endurance point, decision PD-26). The same integration as
+    prelim/p0_baseline.integrate_climb with its climb_point_fn, written here so that the sizing and every info-gap
+    rebuild fly it. Per step, with the weight at the start of the step used at both of its ends:
+      rate and speed at each end    best rate of climb over speed (17.37), climb_rate_at below
+      energy height gained          dhe = dh + (V_b^2 - V_a^2)/(2 g), Raymer (19.9), p. 523
+      time                          dt = dhe / mean rate of the two ends, (17.88), (17.90), p. 479-482
+      fuel                          mean of the full-throttle fuel flows c P/3600 times dt, (17.45), p. 466
+    V_end replaces the speed at the top (the cruise speed there, as in Stage 1's energy-height change). An altitude
+    with no rate of climb raises ValueError: the mission cannot be flown (measurement/info_gap.UNFLYABLE)."""
+    if model is None:
+        raise ValueError("the integrated climb needs an engine table")
+    S, h_top = geom["S"], L["mission_altitude_ft"]
+    n = int(round(h_top / step_ft))
+    altitudes = [h_top * i / n for i in range(n + 1)]
+    state = {"geom": geom, "K": K, "bhp": bhp, "D_prop": D_prop, "clmax": clmax, "engine_model": model}
+
+    def point(h, W):
+        d = dict(state, W0=W, W_S=W / S)
+        power_at = climb_power_default(d, L)
+        rate, V = climb_rate_at(d, L, h, power_at)
+        if rate <= 0.0:
+            raise ValueError(f"cannot climb to the mission altitude: no rate of climb at {h:.0f} ft")
+        V_floor = L["climb_speed_over_stall"] * perf.stall_speed(W / S, isa(h)["rho"], clmax["clean"])
+        shp = power_at(h)
+        return rate, V, model.bsfc(h, V_floor / KT, shp) * shp / 3600.0
+
+    W, t = W_start, 0.0
+    for i in range(n):
+        h_a, h_b = altitudes[i], altitudes[i + 1]
+        r_a, V_a, f_a = point(h_a, W)
+        r_b, V_b, f_b = point(h_b, W)
+        if i == n - 1:
+            V_b = V_end
+        dhe = (h_b - h_a) + (V_b ** 2 - V_a ** 2) / (2.0 * G)
+        dt = dhe / (0.5 * (r_a + r_b))
+        W, t = W - 0.5 * (f_a + f_b) * dt, t + dt
+    return {"fuel_lb": W_start - W, "time_s": t, "W_end": W, "steps": n}
 
 
 def unchoked_fuel_share(rows):
@@ -532,20 +595,21 @@ def _build(W0, concept, W_S, A, L, fuel_guess, engine=None, mission=True):
                    fixed=engine.get("name", ""))
     W_av = wts.avionics(L["avionics_uninstalled_lb"])
     W_fs = wts.fuel_system(fuel_gal, fuel_gal, 2)
+    fus, fus_added = fuselage_weight(geom, L, Nz, W0, q_design, f["fuselage"])
     comp = {
         "wing": f["wing"] * wts.wing(S, fuel_guess, A, 0.0, q_design, L["wing_taper"], L["wing_t_c"], Nz, W0),
         "horizontal_tail": f["tails"] * wts.horizontal_tail(Nz, W0, q_design, geom["ht"].area, L["tail_t_c"],
-                                                            L["ht_aspect_ratio"], 0.0, L["ht_taper"]),
+                                                            L["ht_aspect_ratio"], tail_sweep(L, "quarter_chord"),
+                                                            L["ht_taper"]),
         "vertical_tail": f["tails"] * wts.vertical_tail(0.0, Nz, W0, q_design, geom["S_vt"], L["tail_t_c"],
                                                         L["vt_aspect_ratio"], 0.0, L["vt_taper"]),
-        "fuselage": f["fuselage"] * wts.fuselage(geom["s_wet_fus"], Nz, W0, geom["arm"],
-                                                 L["fuselage_fineness"], q_design),
+        "fuselage": fus,
         "main_gear": f["landing_gear"] * wts.main_gear(L["gear_load_factor_ultimate"], W0, gear_in),
         "nose_gear": f["landing_gear"] * wts.nose_gear(L["gear_load_factor_ultimate"], W0, gear_in),
         "installed_engine": L["installed_engine_factor"] * eng["weight_lb"],
         "sponsons": f["fuselage"] * L["sponson_weight_per_wetted"] * geom["s_wet_sponsons"],
         "fuel_system": W_fs,
-        "flight_controls": wts.flight_controls(geom["L_f"], wing.span, Nz, W0),
+        "flight_controls": wts.flight_controls(geom["L_f"] + geom["extension"], wing.span, Nz, W0),
         "hydraulics": wts.hydraulics(W0),
         "avionics": W_av,
         "electrical": wts.electrical(W_fs, W_av),
@@ -557,9 +621,43 @@ def _build(W0, concept, W_S, A, L, fuel_guess, engine=None, mission=True):
             "engine": eng, "CLa": CLa, "gusts": gusts, "n_gust": n_gust, "n_limit": n_limit,
             "n_negative_gust": 2.0 - n_gust, "Nz": Nz, "V_c_eas": v_c_eas, "q_design": q_design,
             "V_c_rule": "per_design" if per_design else "fixed", "fastest_step_eas_kt": fastest_eas_kt,
-            "components": comp, "We": We, "fuel": fuel, "mission": rows,
+            "components": comp, "fuselage_added_lb": fus_added, "We": We, "fuel": fuel, "mission": rows,
             "V_cruise_start": V_cr, "V_loiter_start": V_lt, "CD0_alt": CD0_alt, "CD0_sl": CD0_sl,
             "CD0_takeoff": CD0_to, "CD0_landing": CD0_land}
+
+
+def fuselage_weight(geom, L, Nz, W0, q, factor):
+    """(fuselage weight, the part of it the extension adds) in lb. Raymer (15.49), p. 404, times the Table 15.4 factor,
+    on Stage 1's wetted area. With the aft fuselage lengthened (PD-21; P4b's route, decision PD-26): the area plus the
+    skin the loft adds, the fineness of the longer body, the same tail arm, and a shaft of the extension's length at the
+    ledger's weight per foot (no composite factor). Without an extension both are Stage 1's own and the added part is 0."""
+    e = geom["extension"]
+    base = factor * wts.fuselage(geom["s_wet_fus"], Nz, W0, geom["arm"], L["fuselage_fineness"], q)
+    if e == 0.0:
+        return base, 0.0
+    longer = factor * wts.fuselage(geom["s_wet_fus"] + L["fuselage_added_skin_ft2"], Nz, W0, geom["arm"],
+                                   L["fuselage_fineness"] * (geom["L_f"] + e) / geom["L_f"], q)
+    total = longer + L["shaft_lb_per_ft"] * e
+    return total, total - base
+
+
+def tail_le_slope(L, which):
+    """Leading-edge slope (dx per unit span) of a tail with a straight trailing edge (PD-20 item 1, PD-21): all the
+    taper on the leading edge, 4 (1 - taper)/(A (1 + taper)) for the tailplane and 2 (1 - taper)/(A (1 + taper)) for
+    the fin ((7.5)-(7.7), p. 139-140; prelim/p4_methods.tail_le_slope). 0 for the tails as Stage 1 draws them."""
+    if L.get("tail_trailing_edges", "tapered") != "straight":
+        return 0.0
+    if which == "horizontal":
+        return 4.0 * (1.0 - L["ht_taper"]) / (L["ht_aspect_ratio"] * (1.0 + L["ht_taper"]))
+    return 2.0 * (1.0 - L["vt_taper"]) / (L["vt_aspect_ratio"] * (1.0 + L["vt_taper"]))
+
+
+def tail_sweep(L, line):
+    """Sweep (rad) of a line of the tailplane with a straight trailing edge: the quarter chord, at 0.75 of the
+    leading edge's slope (for (15.47)), or the maximum-thickness line at 30 % of the chord, 0.7 of it (for the lift
+    slope (12.6)); as prelim/p4_methods. 0 for Stage 1's unswept tailplane."""
+    share = {"quarter_chord": 0.75, "max_thickness": 0.7}[line]
+    return math.atan(share * tail_le_slope(L, "horizontal"))
 
 
 def evaluate(concept, W_S, A, L, W0_guess=3000.0, engine=None):
@@ -642,7 +740,8 @@ def fuel_volume_check(d, L):
         y = y0 + (y_end - y0) * (i + 0.5) / n
         c = w.root_chord * (1.0 - (1.0 - w.taper) * y / half)
         vol += L["wing_tank_chord_fraction"] * c * L["wing_t_c"] * c * (y_end - y0) / n
-    return needed, 2.0 * vol * L["wing_tank_usable"]
+    # tank_volume_factor: the loft's tank volume over this box's (P3 gate 4, decision PD-26); 1 before r1
+    return needed, 2.0 * vol * L["wing_tank_usable"] * L.get("tank_volume_factor", 1.0)
 
 
 def _stations(concept, L):
@@ -707,12 +806,15 @@ def layout(d, L):
     fixed = _stations(d["concept"], L)
     mac = w.mac
     CLa_w = d["CLa"]
-    CLa_h = aero.lift_slope(L["ht_aspect_ratio"], 0.0, L["airfoil_efficiency"])
+    CLa_h = aero.lift_slope(L["ht_aspect_ratio"], 0.0, L["airfoil_efficiency"], tail_sweep(L, "max_thickness"))
     # downwash at the tail from the vortex lattice (Stage 3 ruling, Eder 2026-11-21): the far-wake
     # formula under-stated it for this aircraft (0.338 against 0.389), so Stage 1 uses the lattice
     dah = 1.0 - lattice_downwash(w.span, d["A"], L["wing_taper"], g["arm"], g["ht"].span,
                                  L["tail_height_over_df"] * g["d_f"])
     Cma_fus = stab.fuselage_cm_alpha_per_deg(L["fuselage_kf"], g["d_f"], L_f, mac, g["S"]) * 180 / math.pi
+    # r1 (P4 finding, decision PD-26): (16.22) times Multhopp's strip integral over it, measured on the loft
+    Cma_fus *= L.get("fuselage_cm_alpha_factor", 1.0)
+    e = g["extension"]
     h_cg = d["gear_length_in"] / 12.0 + g["d_f"] / 2.0          # CG height above ground (ft)
     tb = math.tan(math.radians(L["tipback_angle_deg"]))
     cm_w = wing_moment_coefficient(L, d["A"])
@@ -725,6 +827,15 @@ def layout(d, L):
         items = {k: (comp[k], fixed[k] * L_f) for k in comp if k in fixed}
         items["nose_gear"] = (comp["nose_gear"], nose_station * L_f)
         items["payload"] = (L["payload_lb"], fixed["payload"] * L_f)
+        # r1: payload and avionics at the stations of the P3 arrangement (PD-19), in ft from the nose
+        if "station_payload_ft" in L:
+            items["payload"] = (L["payload_lb"], L["station_payload_ft"])
+        if "station_avionics_ft" in L:
+            items["avionics"] = (comp["avionics"], L["station_avionics_ft"])
+        if e > 0.0:      # the part of the fuselage weight the extension adds sits at the middle of the added length
+            added = d["fuselage_added_lb"]
+            items["fuselage"] = (comp["fuselage"], ((comp["fuselage"] - added) * fixed["fuselage"] * L_f
+                                                     + added * (L_f + 0.5 * e)) / comp["fuselage"])
         items["wing"] = (comp["wing"], x_wing)
         items["horizontal_tail"] = (comp["horizontal_tail"], x_ht)
         items["vertical_tail"] = (comp["vertical_tail"], x_vt)
@@ -800,7 +911,7 @@ def layout(d, L):
     if d["concept"] == "pusher":
         th = math.radians(L["rotation_angle_deg_pusher"])
         hub = ((h_cg + L.get("prop_hub_offset_ft", 0.0)) * math.cos(th)
-               - (L_f - s["x_main"]) * math.sin(th))
+               - (L_f + e - s["x_main"]) * math.sin(th))
     else:
         th = math.radians(L["nose_down_deg"])
         hub = h_cg * math.cos(th) - s["x_main"] * math.sin(th)

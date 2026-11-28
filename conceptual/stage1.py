@@ -492,7 +492,38 @@ def analyse(concept, W_S, A, L, engine, W0_guess=3000.0):
             "vn": vn_diagram(d, Lu), "propeller": uav.propeller_points(d, Lu)}
 
 
+def preliminary_design_fields(d, L):
+    """What a record of the preliminary-design re-record r1 carries beyond Stage 1's (decision PD-26), for the loft
+    and the packages that read it: the aft-fuselage extension, the tails' leading-edge slopes with straight trailing
+    edges and the spanwise station of the fin's mean chord, and the drag build-up's wetted areas. Empty for a ledger
+    without these entries (every record before r1), so those records do not change."""
+    g = d["geom"]
+    out = {}
+    if g["extension"]:
+        out["fuselage"] = {"extension_ft": g["extension"], "length_with_extension_ft": g["L_f"] + g["extension"],
+                           "added_skin_ft2": L["fuselage_added_skin_ft2"], "shaft_lb": L["shaft_lb_per_ft"] * g["extension"],
+                           "added_weight_lb": d["fuselage_added_lb"]}
+    if L.get("tail_trailing_edges", "tapered") == "straight":
+        lam = L["vt_taper"]
+        out["horizontal_tail"] = {"le_slope": uav.tail_le_slope(L, "horizontal")}
+        out["vertical_tail"] = {"le_slope": uav.tail_le_slope(L, "vertical"),
+                                "mac_y": g["vt_height"] / 3.0 * (1 + 2 * lam) / (1 + lam)}      # (7.9) on one panel
+    if any(k.startswith("loft_wetted_factor_") for k in L):
+        out["s_wet_drag_ft2"] = uav.drag_areas(g, L)
+    return out
+
+
 def design_record(r, L, eng_raw):
+    rec = _design_record(r, L, eng_raw)
+    for k, v in preliminary_design_fields(r["design"], r["design"]["ledger_used"]).items():
+        if isinstance(v, dict) and k in rec:
+            rec[k].update(_jsonable(v))
+        else:
+            rec[k] = _jsonable(v)
+    return rec
+
+
+def _design_record(r, L, eng_raw):
     d, lay, per = r["design"], r["layout"], r["performance"]
     g = d["geom"]
     return _jsonable({

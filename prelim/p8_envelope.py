@@ -81,10 +81,11 @@ def pick(data, key):
 
 
 # ---- context ----------------------------------------------------------------------------------------------------
-def context():
+def context(c5=None):
     """P5's context (r0 rebuilt, which raises if the rebuild does not reproduce the record; the ballast) and the
-    records P8 reads."""
-    c = p5.context()
+    records P8 reads. c5: a P5 context of another record (P9 regenerates the requirement on r1 with it and with
+    RECORDS pointing at r1's records); None is r0's."""
+    c = p5.context() if c5 is None else c5
     c["choices"] = load_choices()
     c["records"] = {k: read_record(k) for k in RECORDS if k != "p8"}
     return c
@@ -679,7 +680,7 @@ def r1_findings(c, res):
 
 
 # ---- the run ----------------------------------------------------------------------------------------------------
-def run(out, log=print):
+def run(out, log=print, c5=None):
     t0 = time.time()
     own = str(out.relative_to(REPO))
     tree = tree_state(own)
@@ -687,7 +688,7 @@ def run(out, log=print):
         raise SystemExit("P8 starts from a clean committed tree; uncommitted: " + "; ".join(tree["git_dirty_files"]))
     out.mkdir(parents=True, exist_ok=True)
     import matplotlib
-    c = context()
+    c = context(c5)
     log(f"commit {tree['commit']}, clean tree; r0 rebuilt")
     files = dict({k: REPO / v for k, v in RECORDS.items() if k != "p8"}, choices=CHOICES,
                  engine_table=REPO / "runs/task12/pd/2026-11-27/p0/r0/m250_table.json")

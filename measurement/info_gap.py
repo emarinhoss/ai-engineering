@@ -103,7 +103,8 @@ EXCLUSIONS = (
 # messages of ValueError that mean "this member of U(h) cannot be flown"; any other ValueError is a
 # bug or a bad input and is re-raised
 UNFLYABLE = ("no speed on the leg within the engine's power", "cruise speed below the headwind",
-             "does not close", "hp available", "no climb gradient after lift-off")
+             "does not close", "hp available", "no climb gradient after lift-off",
+             "cannot climb to the mission altitude")           # the integrated climb of r1 (conceptual/uav.py)
 
 
 def unflyable_reason(exc):
@@ -184,14 +185,18 @@ class Built:
     """The record, the ledger values and the engine table of the run; rebuild at any theta.
     band_weight False keeps W0 at the record's (the earlier study, kept for comparison)."""
 
-    def __init__(self, design_path, band_weight=True, record=None, power_band=None, allow_band_mismatch=False):
-        """record=(d, ledger values, engine table path) builds from a record held in memory
+    def __init__(self, design_path, band_weight=True, record=None, power_band=None, allow_band_mismatch=False,
+                 overrides=None):
+        """overrides: ledger values held in every rebuild after the record has been reproduced (a labelled
+        sensitivity on a built aircraft, prelim/p9_r1.py; None changes nothing).
+        record=(d, ledger values, engine table path) builds from a record held in memory
         (measurement/robust_sizing.py); design_path is then only a label. power_band is the form of the
         power multiplier ("cap" or "rescale"); None (the one default) takes it from the record's engine
         table: M250 cap, TP100 rescale. A form that contradicts the engine raises ValueError unless
         allow_band_mismatch=True (review MD-5)."""
         self.path = Path(design_path)
         self.band_weight = band_weight
+        self.overrides = dict(overrides or {})
         if power_band is not None and power_band not in POWER_BANDS:
             raise ValueError(f"power_band must be one of {POWER_BANDS}, not {power_band!r}")
         if record is None:
@@ -242,7 +247,7 @@ class Built:
         SFC multiplier (the allowance stays, the multiplier is on top of it), power by the theta power
         multiplier: as a cap on the available power (power_band "cap") or as a rescale of the power and
         of the fraction axis ("rescale"). Wing area stays the record's (W_S = W0 / S)."""
-        L = dict(self.L)
+        L = dict(self.L, **self.overrides)
         L.update({k: v for k, v in theta.items() if k not in ENGINE_VARS})
         if loiter_h is not None:
             L["loiter_h"] = loiter_h
@@ -574,9 +579,10 @@ def requirement_study(built, spec, variables, dirs, top_names, pair_names, n_sam
 _BUILT = None
 
 
-def _init(design_path, band_weight=True, power_band=None, allow_band_mismatch=False):
+def _init(design_path, band_weight=True, power_band=None, allow_band_mismatch=False, overrides=None):
     global _BUILT
-    _BUILT = Built(design_path, band_weight, power_band=power_band, allow_band_mismatch=allow_band_mismatch)
+    _BUILT = Built(design_path, band_weight, power_band=power_band, allow_band_mismatch=allow_band_mismatch,
+                   overrides=overrides)
 
 
 def evaluate(theta):
@@ -659,16 +665,19 @@ def clipping_report(variables, h):
 
 
 def study(design_path, n_samples=N_SAMPLES, seed=SEED, processes=None, band_weight=True, power_band=None,
-          allow_band_mismatch=False):
-    """The power band is the record's engine's (Built); power_band overrides it only with allow_band_mismatch."""
+          allow_band_mismatch=False, overrides=None):
+    """The power band is the record's engine's (Built); power_band overrides it only with allow_band_mismatch.
+    overrides: ledger values held in every rebuild (Built), for a labelled sensitivity; None for a study."""
     t0 = time.time()
-    built = Built(design_path, band_weight, power_band=power_band, allow_band_mismatch=allow_band_mismatch)
+    built = Built(design_path, band_weight, power_band=power_band, allow_band_mismatch=allow_band_mismatch,
+                  overrides=overrides)
     _, entries = uav.load_ledger(built.ledger_path)
     variables = uncertain_variables(entries)
     nom_th = nominal_theta(variables)
     ctx = mp.get_context("fork")
-    with ctx.Pool(processes, initializer=_init, initargs=(design_path, band_weight, power_band, allow_band_mismatch)) as pool:
-        _init(design_path, band_weight, power_band, allow_band_mismatch)
+    with ctx.Pool(processes, initializer=_init,
+                  initargs=(design_path, band_weight, power_band, allow_band_mismatch, overrides)) as pool:
+        _init(design_path, band_weight, power_band, allow_band_mismatch, overrides)
         nom = evaluate(nom_th)
         w0 = built.w0_for(nom_th)
         res = {"band_weight": band_weight, "power_band": built.power_band,
@@ -681,7 +690,8 @@ def study(design_path, n_samples=N_SAMPLES, seed=SEED, processes=None, band_weig
                "w0_check": {"record_lb": built.d["W0_lb"], "fixed_point_lb": w0,
                             "difference_lb": w0 - built.d["W0_lb"],
                             "within_0.1_lb": abs(w0 - built.d["W0_lb"]) <= 0.1},
-               "rebuild_check": built.check, "variables": variables}
+               "rebuild_check": built.check, "variables": variables,
+               **({"overrides": built.overrides} if built.overrides else {})}
         oat = one_at_a_time(pool, variables, H_GATE)
         dirs = directions(oat)
         res["one_at_a_time"], res["directions"] = oat, dirs
